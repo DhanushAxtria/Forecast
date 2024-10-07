@@ -12,13 +12,17 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import IconButton from '@mui/material/IconButton';
-import FileUploadIcon from '@mui/icons-material/UploadFile';
+import DeleteIcon from '@mui/icons-material/Delete';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
 
 export default function CountryAndTherapeuticSelect() {
   const [country, setCountry] = React.useState('');
   const [therapeuticArea, setTherapeuticArea] = React.useState('');
   const [filteredData, setFilteredData] = React.useState([]);
   const [importedData, setImportedData] = React.useState({ headers: [], rows: [] });
+  const [selectedTemplates, setSelectedTemplates] = React.useState([]);
 
   // Sample data to display in the table
   const data = [
@@ -32,12 +36,39 @@ export default function CountryAndTherapeuticSelect() {
 
   // Handle change for country dropdown
   const handleCountryChange = (event) => {
-    setCountry(event.target.value);
+    const selectedCountry = event.target.value;
+    setCountry(selectedCountry);
+    updateSelectedTemplates(selectedCountry, therapeuticArea);
   };
 
   // Handle change for therapeutic area dropdown
   const handleTherapeuticChange = (event) => {
-    setTherapeuticArea(event.target.value);
+    const selectedTherapeutic = event.target.value;
+    setTherapeuticArea(selectedTherapeutic);
+    updateSelectedTemplates(country, selectedTherapeutic);
+  };
+
+  // Update the selected template details in the cards list
+  const updateSelectedTemplates = (selectedCountry, selectedTherapeutic) => {
+    if (selectedCountry && selectedTherapeutic) {
+      const newTemplate = { country: selectedCountry, therapeuticArea: selectedTherapeutic };
+      
+      // Check if the template already exists to avoid duplicates
+      const isDuplicate = selectedTemplates.some(
+        (template) => template.country === selectedCountry && template.therapeuticArea === selectedTherapeutic
+      );
+
+      if (!isDuplicate) {
+        setSelectedTemplates((prevTemplates) => [...prevTemplates, newTemplate]);
+      }
+    }
+  };
+
+  // Function to delete a selected template
+  const handleDeleteTemplate = (indexToDelete) => {
+    setSelectedTemplates((prevTemplates) =>
+      prevTemplates.filter((_, index) => index !== indexToDelete)
+    );
   };
 
   // Function to handle filtering the data
@@ -163,15 +194,15 @@ export default function CountryAndTherapeuticSelect() {
         Download Template
       </Button>
 
-      {/* Icon Button to Import CSV */}
-      <IconButton
-        color="primary"
+      {/* Button to Import CSV */}
+      <Button
+        variant="contained"
+        color="secondary"
         sx={{ m: 1 }}
         onClick={handleImportClick}
-        aria-label="import file"
       >
-        <FileUploadIcon />
-      </IconButton>
+        Import CSV
+      </Button>
 
       {/* Hidden file input for importing CSV */}
       <input
@@ -212,7 +243,7 @@ export default function CountryAndTherapeuticSelect() {
                 <TableCell>{row.info}</TableCell>
               </TableRow>
             ))}
-            {/* Render imported data dynamically */}
+            {/* Render imported CSV data */}
             {importedData.rows.map((row) => (
               <TableRow key={`imported-${row.id}`}>
                 {row.data.map((value, index) => (
@@ -223,6 +254,31 @@ export default function CountryAndTherapeuticSelect() {
           </TableBody>
         </Table>
       </TableContainer>
+
+      {/* Display All Selected Templates in One Card */}
+      {selectedTemplates.length > 0 && (
+        <Card sx={{ mt: 3, maxWidth: 600, mx: 'auto', p: 2 }}>
+          <CardContent>
+            <Typography variant="h6" gutterBottom>
+              All Selected Templates
+            </Typography>
+            {selectedTemplates.map((template, index) => (
+              <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                <Typography sx={{ flexGrow: 1 }}>
+                  <strong>Template {index + 1}:</strong> Country - {template.country}, Therapeutic Area - {template.therapeuticArea}
+                </Typography>
+                <IconButton
+                  color="secondary"
+                  onClick={() => handleDeleteTemplate(index)}
+                  aria-label="delete template"
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
