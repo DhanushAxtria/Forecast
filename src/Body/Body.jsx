@@ -45,7 +45,7 @@ const BlogGrid = () => {
             sx={{ maxWidth: 345, background: 'linear-gradient(135deg, #00c6ff, #0072ff)', color: 'white' }}
             className='featureCard'
           >
-            <CardActionArea sx={{ cursor: 'pointer' }}>
+            <CardActionArea sx={{ cursor: 'pointer' }} onClick={()=>{window.open("/new-scenario",  '_blank')}}>
               <Assessment sx={{ fontSize: 80, color: 'white', margin: '20px' }} />
               <CardContent
                 sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
@@ -85,19 +85,19 @@ const BlogGrid = () => {
           <div className="tooltipAbove">Access and manage your previously saved forecast scenarios.</div>
         </div>
 
-        {/* Card 3: Submissions */}
+        {/* Card 3: Data Consolidation */}
         <div className="hoverCard">
           <Card
             sx={{ maxWidth: 345, background: 'linear-gradient(135deg, #ffafbd, #ffc3a0)', color: 'white' }}
             className='featureCard'
           >
-            <CardActionArea sx={{ cursor: 'pointer' }}>
+            <CardActionArea sx={{ cursor: 'pointer' }} onClick={()=>{window.open("/data-consolidation",  '_blank')}}>
               <FilePresent sx={{ fontSize: 80, color: 'white', margin: '20px' }} />
               <CardContent
                 sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
               >
                 <Typography gutterBottom variant="h5" component="div">
-                  Submissions
+                  Data consolidation
                 </Typography>
                 <Typography variant="body2" sx={{ color: 'text.secondary', textAlign: 'center' }}>
                   Submit finalized forecast scenarios for review and approval.
@@ -114,7 +114,7 @@ const BlogGrid = () => {
             sx={{ maxWidth: 345, background: 'linear-gradient(135deg, #a1ffce, #faffd1)', color: 'black' }}
             className='featureCard'
           >
-            <CardActionArea sx={{ cursor: 'pointer' }}>
+            <CardActionArea sx={{ cursor: 'pointer'}} onClick={()=>{window.open("/scenario-comparsion",  '_blank')}}>
               <CompareArrows sx={{ fontSize: 80, color: 'black', margin: '20px' }} />
               <CardContent
                 sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}

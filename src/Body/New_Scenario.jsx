@@ -4,6 +4,14 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import TextField from '@mui/material/TextField';
+import Menu from '@mui/material/Menu';
+import CircularProgress from '@mui/material/CircularProgress';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -12,138 +20,335 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import IconButton from '@mui/material/IconButton';
-import DeleteIcon from '@mui/icons-material/Delete';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import Typography from '@mui/material/Typography';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import LockIcon from '@mui/icons-material/Lock';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import  Typography from '@mui/material/Typography';
+import * as XLSX from 'xlsx'; // Importing xlsx for Excel saving
+import { useState,useContext } from 'react';
+import { SavedFilesContext } from './SavedFilesContext';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import BlueFolder from "../assets/Blue_folder.png"
+import GreyFolder from "../assets/Grey-folder.png"
+import Box from '@mui/material/Box';
 
-export default function CountryAndTherapeuticSelect() {
+
+
+
+
+export default function CountryAndTherapeuticSelect({ username = "User" }) {
+  const { savedFiles, setSavedFiles } = useContext(SavedFilesContext);
+  const [showTable, setShowTable] = React.useState(false);
   const [country, setCountry] = React.useState('');
   const [therapeuticArea, setTherapeuticArea] = React.useState('');
-  const [filteredData, setFilteredData] = React.useState([]);
+  const [forecastCycle, setForecastCycle] = React.useState('');
   const [importedData, setImportedData] = React.useState({ headers: [], rows: [] });
-  const [selectedTemplates, setSelectedTemplates] = React.useState([]);
-
-  // Sample data to display in the table
-  const data = [
-    { id: 1, country: 'USA', therapeuticArea: 'Cardiology', info: 'Data 1' },
-    { id: 2, country: 'Canada', therapeuticArea: 'Oncology', info: 'Data 2' },
-    { id: 3, country: 'Germany', therapeuticArea: 'Neurology', info: 'Data 3' },
-    { id: 4, country: 'India', therapeuticArea: 'Diabetes', info: 'Data 4' },
-    { id: 5, country: 'USA', therapeuticArea: 'Oncology', info: 'Data 5' },
-    // Add more sample data as needed
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [selectedFile, setSelectedFile] = React.useState(null);
+  const [lockOpen, setLockOpen] = React.useState(false);
+  const [lockType, setLockType] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+  const nextIdRef = React.useRef(1);
+  const [fileStatuses, setFileStatuses] = React.useState({});
+  const [saveAnchorEl, setSaveAnchorEl] = React.useState(null);
+  const [selectedAction, setSelectedAction] = useState('');
+  const blueFolderIcon = BlueFolder;
+   // Update with actual path
+  const grayFolderIcon = GreyFolder; // Update with actual path
+  const [extraFileName, setExtraFileName] = React.useState('');
+  const [saveDialogOpen, setSaveDialogOpen] = React.useState(false);
+  const [fileFormat, setFileFormat] = React.useState('csv'); // To track file format (CSV or Excel)
+  const fileInputRef = React.useRef(null);
+  const [showFolders, setShowFolders] = useState(false);
+  // List of available folders
+  const folders = [
+    { name: 'Cardiology - Patient Projection Model v2', country: 'USA', area: 'Cardiology' },
+    { name: 'Cardiology - Patient Switch Model v2', country: 'USA', area: 'Cardiology' },
+    { name: 'Oncology - Patient Switch Model', country: 'USA', area: 'Oncology' },
+    { name: 'Oncology - Patient Projection Model', country: 'Germany', area: 'Oncology' },
+    { name: 'Cardiology - Patient Projection Model v1', country: 'Canada', area: 'Cardiology' },
+    { name: 'Cardiology - Patient Switch Model v1', country: 'Canada', area: 'Cardiology' },
+    { name: 'Neurology - Patient Switch Model', country: 'Germany', area: 'Neurology' },
+    { name: 'Neurology - Patient Projection Model', country: 'India', area: 'Neurology' },
   ];
 
-  // Handle change for country dropdown
   const handleCountryChange = (event) => {
-    const selectedCountry = event.target.value;
-    setCountry(selectedCountry);
-    updateSelectedTemplates(selectedCountry, therapeuticArea);
+    setCountry(event.target.value);
   };
 
-  // Handle change for therapeutic area dropdown
   const handleTherapeuticChange = (event) => {
-    const selectedTherapeutic = event.target.value;
-    setTherapeuticArea(selectedTherapeutic);
-    updateSelectedTemplates(country, selectedTherapeutic);
+    setTherapeuticArea(event.target.value);
   };
 
-  // Update the selected template details in the cards list
-  const updateSelectedTemplates = (selectedCountry, selectedTherapeutic) => {
-    if (selectedCountry && selectedTherapeutic) {
-      const newTemplate = { country: selectedCountry, therapeuticArea: selectedTherapeutic };
-      
-      // Check if the template already exists to avoid duplicates
-      const isDuplicate = selectedTemplates.some(
-        (template) => template.country === selectedCountry && template.therapeuticArea === selectedTherapeutic
-      );
+  const handleForecastCycleChange = (event) => {
+    setForecastCycle(event.target.value);
+  };
+  const handleCopyFromSubmissionScenarios = () => {
+    setShowTable(true); // Show the table when the button is clicked
+  };
+  /*const handleSaveClick = () => {
+    setExtraFileName('');
+    setSaveDialogOpen(true);
+  };*/
+  const handleUsingSavedTemplates = () => {
+    setShowFolders(true); // Show folders when the button is clicked
+  };
+  const handleActionClick = (action) => {
+    setSelectedAction(action); // Set the clicked action
+    if (action === 'savedTemplates') {
+      setShowFolders(true); // Show folders only when "Using Saved Templates" is clicked
+    } else {
+      setShowFolders(false); // Hide folders when other buttons are clicked
+    }
+  };
+  
+  const handleConfirmSave = async () => {
+    setSaveDialogOpen(false);
 
-      if (!isDuplicate) {
-        setSelectedTemplates((prevTemplates) => [...prevTemplates, newTemplate]);
+    if (!importedData.headers.length || !importedData.rows.length) {
+      alert("No imported data available to save!");
+      return;
+    }
+
+    const baseFileName = `${forecastCycle}_${country}_${therapeuticArea}`;
+    const fullFileName = `${baseFileName}${extraFileName ? `_${extraFileName}` : ''}`;
+
+    if (fileFormat === 'csv') {
+      // Save as CSV
+      const headers = importedData.headers.join(',');
+      const rows = importedData.rows.map((row) => row.data.join(','));
+      const csvContent = [headers, ...rows].join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+
+      try {
+        const handle = await window.showSaveFilePicker({
+          suggestedName: `${fullFileName}.csv`,
+          types: [
+            {
+              description: 'CSV File',
+              accept: {
+                'text/csv': ['.csv'],
+              },
+            },
+          ],
+        });
+
+        const writableStream = await handle.createWritable();
+        await writableStream.write(blob);
+        await writableStream.close();
+
+        saveFileData(fullFileName, 'csv');
+      } catch (error) {
+        console.error('File saving was canceled or failed:', error);
+      }
+    } else if (fileFormat === 'excel') {
+      // Save as Excel
+      const ws = XLSX.utils.aoa_to_sheet([importedData.headers, ...importedData.rows.map((row) => row.data)]);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+      
+      // Write the workbook to an array buffer
+      const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      
+      // Create a blob from the array buffer
+      const excelBlob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+      try {
+        const handle = await window.showSaveFilePicker({
+          suggestedName: `${fullFileName}.xlsx`,
+          types: [
+            {
+              description: 'Excel File',
+              accept: {
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+              },
+            },
+          ],
+        });
+
+        const writableStream = await handle.createWritable();
+        await writableStream.write(excelBlob);
+        await writableStream.close();
+
+        saveFileData(fullFileName, 'excel');
+      } catch (error) {
+        console.error('File saving was canceled or failed:', error);
       }
     }
   };
 
-  // Function to delete a selected template
-  const handleDeleteTemplate = (indexToDelete) => {
-    setSelectedTemplates((prevTemplates) =>
-      prevTemplates.filter((_, index) => index !== indexToDelete)
-    );
+  const saveFileData = (fileName, format) => {
+    const newId = nextIdRef.current++;
+    const newSavedFile = {
+      id: newId,
+      username,
+      fileName: `${fileName}.${format}`,
+      forecastCycle,
+      country,
+      therapeuticArea,
+      dateTime: new Date().toLocaleString(),
+      locked: false,
+    };
+
+    setSavedFiles((prevFiles) => [...prevFiles, newSavedFile]);
   };
 
-  // Function to handle filtering the data
-  React.useEffect(() => {
-    const filtered = data.filter((item) => {
-      return (
-        (country === '' || item.country === country) &&
-        (therapeuticArea === '' || item.therapeuticArea === therapeuticArea)
-      );
-    });
-    setFilteredData(filtered);
-  }, [country, therapeuticArea]);
+  const handleSaveDialogClose = () => {
+    setSaveDialogOpen(false);
+  };
 
-  // Function to handle downloading the CSV
-  const handleDownloadTemplate = () => {
-    // Define the headers for CSV
-    const headers = ['Country', 'Therapeutic Area'];
+  const handleLockAndFinalizeClick = (file) => {
+    setSelectedFile(file);
+    setLockType("Lock & Finalize");
+    setLockOpen(true);
+  };
 
-    // Define the row data based on the selected filters
-    const rowData = [
-      [country, therapeuticArea]
-    ];
+  const handleLockClick = (file) => {
+    setSelectedFile(file);
+    setLockType("Lock");
+    setLockOpen(true);
+  };
 
-    // Convert the headers and row data to a CSV string
-    const csvContent = [
-      headers.join(','), // Join headers with commas
-      rowData.join(',') // Join row data with commas
-    ].join('\n'); // Join headers and data with newline
+  const handleDialogClose = () => {
+    setLockOpen(false);
+  };
 
-    // Create a Blob from the CSV content and generate a URL
+  const handleConfirmLock = () => {
+    setFileStatuses((prevStatuses) => ({
+      ...prevStatuses,
+      [selectedFile.id]: lockType === "Lock" ? "locked" : "finalized",
+    }));
+    const lockedFile = { ...selectedFile, status: lockType === "Lock" ? "locked" : "finalized" };
+    setSavedFiles((prevFiles) => [...prevFiles, lockedFile]);
+    setLockOpen(false);
+  };
+
+  /*const handleDownloadTemplate = () => {
+    setShowFolders(false); // Hide folders when downloading template
+    const headers = ['Forecast Cycle', 'Country', 'Therapeutic Area'];
+    const rowData = [[forecastCycle, country, therapeuticArea]];
+    const csvContent = [headers.join(','), rowData.join(',')].join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
-
-    // Create a link and trigger the download
+  
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', 'filtered_template.csv'); // Set the file name
+    link.setAttribute('download', 'template.csv');
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-  };
-
-  // Handle file input change for importing a CSV
+  };*/
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
         const content = e.target.result;
-        // Parse the CSV content
-        const rows = content.split('\n').filter(row => row.trim() !== ''); // Ignore empty rows
-        const headers = rows[0].split(',').map(header => header.trim());
+        const rows = content.split('\n').filter((row) => row.trim() !== '');
+        const headers = rows[0].split(',').map((header) => header.trim());
         const parsedRows = rows.slice(1).map((row, index) => {
-          const values = row.split(',').map(value => value.trim());
+          const values = row.split(',').map((value) => value.trim());
           return { id: index + 1, data: values };
         });
+        
+        // Save the file in 'FileData' (Simulating saving to folder)
+        const savedFile = {
+          fileName: file.name,
+          content: content,
+          headers: headers,
+          rows: parsedRows
+        };
+
+        // Assuming we have a 'FileData' context to store files
+        setSavedFiles((prevFiles) => [...prevFiles, savedFile]);
+
         setImportedData({ headers, rows: parsedRows });
       };
       reader.readAsText(file);
     }
   };
 
-  // Reference to the hidden file input
-  const fileInputRef = React.useRef(null);
-
-  // Function to trigger file input click
-  const handleImportClick = () => {
+  /*const handleImportClick = () => {
+    setShowFolders(false); // Hide folders when importing CSV
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
+  };*/
+
+  const getGreetingMessage = () => {
+    const hours = new Date().getHours();
+    if (hours < 12) return `Good Morning ${username}`;
+    if (hours < 18) return `Good Afternoon ${username}`;
+    return `Good Evening ${username}`;
   };
 
   return (
-    <div>
-      {/* Country Select Dropdown */}
+    <div style={{ backgroundColor: 'white', padding: '20px' }}>
+      <h2>{getGreetingMessage()}, Welcome to the New Scenario!</h2>
+      {/* Add the three buttons with background colors */}
+    {/* Add the three buttons with background colors */}
+    <h4>Choose an option to build Scenario</h4>
+    <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+        <Button
+          variant="contained"
+          sx={{
+            backgroundColor: selectedAction === 'copySubmission' ? '#1e88e5' : selectedAction ? 'gray' : '#1e88e5',
+            color: 'white',
+            '&:hover': { backgroundColor: selectedAction === 'copySubmission' ? '#1565c0' : 'gray' },
+          }}
+          disabled={selectedAction && selectedAction !== 'copySubmission'}
+          onClick={() => handleActionClick('copySubmission')}
+        >
+          Copy from Submission Scenarios
+        </Button>
+        <Button
+          variant="contained"
+          sx={{
+            backgroundColor: selectedAction === 'copySaved' ? '#43a047' : selectedAction ? 'gray' : '#43a047',
+            color: 'white',
+            '&:hover': { backgroundColor: selectedAction === 'copySaved' ? '#388e3c' : 'gray' },
+          }}
+          disabled={selectedAction && selectedAction !== 'copySaved'}
+          onClick={() => handleActionClick('copySaved')}
+        >
+          Copy from Saved Scenarios
+        </Button>
+        <Button
+          variant="contained"
+          sx={{
+            backgroundColor: selectedAction === 'savedTemplates' ? '#f4511e' : selectedAction ? 'gray' : '#f4511e',
+            color: 'white',
+            '&:hover': { backgroundColor: selectedAction === 'savedTemplates' ? '#e64a19' : 'gray' },
+          }}
+          disabled={selectedAction && selectedAction !== 'savedTemplates'}
+          onClick={() => handleActionClick('savedTemplates')}
+        > 
+          Using Saved Templates
+        </Button>
+      </div>
+      
+
+      <h4>Please select a Scenario to Continue</h4>
+      <FormControl sx={{ m: 1, minWidth: 200 }} size="small">
+        <InputLabel id="forecast-cycle-select-label">Forecast Cycle</InputLabel>
+        <Select
+          labelId="forecast-cycle-select-label"
+          id="forecast-cycle-select"
+          value={forecastCycle}
+          label="Forecast Cycle"
+          onChange={handleForecastCycleChange}
+        >
+          <MenuItem value="">
+            <em>None</em>
+          </MenuItem>
+          <MenuItem value="2013-H1">2013-H1</MenuItem>
+          <MenuItem value="2013-H2">2013-H2</MenuItem>
+          <MenuItem value="2014-H1">2014-H1</MenuItem>
+          <MenuItem value="2014-H2">2014-H2</MenuItem>
+        </Select>
+      </FormControl>
+
       <FormControl sx={{ m: 1, minWidth: 200 }} size="small">
         <InputLabel id="country-select-label">Country</InputLabel>
         <Select
@@ -163,7 +368,6 @@ export default function CountryAndTherapeuticSelect() {
         </Select>
       </FormControl>
 
-      {/* Therapeutic Area Select Dropdown */}
       <FormControl sx={{ m: 1, minWidth: 200 }} size="small">
         <InputLabel id="therapeutic-select-label">Therapeutic Area</InputLabel>
         <Select
@@ -182,29 +386,25 @@ export default function CountryAndTherapeuticSelect() {
           <MenuItem value="Diabetes">Diabetes</MenuItem>
         </Select>
       </FormControl>
-
-      {/* Button to Download the Template */}
-      <Button
+      {/*<Button
         variant="contained"
         color="primary"
         sx={{ m: 1 }}
-        onClick={handleDownloadTemplate}
-        disabled={!country && !therapeuticArea}
+        //onClick={handleDownloadTemplate}
+        disabled={!country && !therapeuticArea && !forecastCycle}
       >
         Download Template
-      </Button>
+      </Button>*/}
 
-      {/* Button to Import CSV */}
-      <Button
+      {/*<Button
         variant="contained"
         color="secondary"
         sx={{ m: 1 }}
-        onClick={handleImportClick}
+        //onClick={handleImportClick}
       >
-        Import CSV
-      </Button>
+        Import Template
+      </Button>*/}
 
-      {/* Hidden file input for importing CSV */}
       <input
         type="file"
         accept=".csv"
@@ -213,71 +413,262 @@ export default function CountryAndTherapeuticSelect() {
         onChange={handleFileChange}
       />
 
-      {/* Data Display Table with Vertical and Horizontal Scrolling */}
-      <TableContainer component={Paper} sx={{ mt: 3, maxHeight: 400, maxWidth: '100%', overflow: 'auto' }}>
-        <Table stickyHeader aria-label="filtered data table">
-          <TableHead>
-            <TableRow>
-              {/* Render dynamic headers */}
-              {importedData.headers.length > 0
-                ? importedData.headers.map((header, index) => (
-                    <TableCell key={index}>{header}</TableCell>
-                  ))
-                : (
-                  <>
-                    <TableCell>ID</TableCell>
-                    <TableCell>Country</TableCell>
-                    <TableCell>Therapeutic Area</TableCell>
-                    <TableCell>Info</TableCell>
-                  </>
-                )}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {/* Render filtered data */}
-            {filteredData.map((row) => (
-              <TableRow key={row.id}>
-                <TableCell>{row.id}</TableCell>
-                <TableCell>{row.country}</TableCell>
-                <TableCell>{row.therapeuticArea}</TableCell>
-                <TableCell>{row.info}</TableCell>
+      {/*<Button
+        variant="contained"
+        color="success"
+        sx={{
+          m: 1,
+          backgroundColor: '#43a047',
+          color: 'white',
+          padding: '10px 10px',
+          fontSize: '13px',
+          borderRadius: '2px',
+          display: 'flex',
+          boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+          '&:hover': {
+            backgroundColor: '#388e3c',
+          },
+        }}
+        onClick={handleSaveClick}
+      >
+        Save File
+      </Button>*/}
+      {/* Display the table only when "Copy from Submission Scenarios" is clicked */}
+      {selectedAction === 'copySubmission' && (
+        <TableContainer component={Paper} sx={{ mt: 3, maxWidth: '100%' }}>
+          <Table aria-label="submission scenarios table">
+            <TableHead>
+              <TableRow>
+                <TableCell>Scenario</TableCell>
+                <TableCell>Forecast Cycle</TableCell>
+                <TableCell>Country</TableCell>
+                <TableCell>Therapeutic Area</TableCell>
+                <TableCell>Last Modified</TableCell>
+                <TableCell>Submitted by</TableCell>
+                <TableCell>Actions</TableCell>
               </TableRow>
-            ))}
-            {/* Render imported CSV data */}
-            {importedData.rows.map((row) => (
-              <TableRow key={`imported-${row.id}`}>
-                {row.data.map((value, index) => (
-                  <TableCell key={index}>{value}</TableCell>
+            </TableHead>
+            <TableBody>
+              {/* Populate the table with rows similar to the screenshot */}
+              {[
+                { scenario: 'Main Submission', cycle: '2024 H2', country: 'Norway', area: 'TA 1', modified: '30 Sep 2024', user: 'User 1' },
+                { scenario: 'Draft 1', cycle: '2024 H2', country: 'Norway', area: 'TA 1', modified: '29 Sep 2024', user: 'User 1' },
+                { scenario: 'Draft 2', cycle: '2024 H2', country: 'Norway', area: 'TA 1', modified: '30 Sep 2024', user: 'User 1' },
+                { scenario: 'Main Submission', cycle: '2024 H2', country: 'Finland', area: 'TA 1', modified: '29 Sep 2024', user: 'User 1' },
+                { scenario: 'Draft 1', cycle: '2024 H2', country: 'Finland', area: 'TA 1', modified: '28 Sep 2024', user: 'User 1' },
+              ].map((row, index) => (
+                <TableRow key={index}>
+                  <TableCell>{row.scenario}</TableCell>
+                  <TableCell>{row.cycle}</TableCell>
+                  <TableCell>{row.country}</TableCell>
+                  <TableCell>{row.area}</TableCell>
+                  <TableCell>{row.modified}</TableCell>
+                  <TableCell>{row.user}</TableCell>
+                  <TableCell>
+                    <Box display="flex" alignItems="center" gap={1}>
+                    <IconButton>
+                      <OpenInNewIcon />
+                    </IconButton>
+                    <IconButton>
+                      <AssessmentIcon color="success" />
+                    </IconButton>
+                    <Button variant="contained" color="primary" size="small">
+                      Select
+                    </Button>
+                    </Box>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
+      {selectedAction === 'copySaved' && (
+        <div>
+          <p>Copying from saved scenarios functionality will go here...</p>
+        </div>
+      )}
+      {/* Folder display section */}
+      {showFolders && selectedAction === 'savedTemplates' && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', marginTop: '20px', gap: '20px' }}>
+          {folders.map((folder, index) => {
+            const isHighlighted = folder.country === country && folder.area === therapeuticArea;
+            return (
+              <Paper
+                key={index}
+                elevation={3}
+                style={{
+                  width: '150px',
+                  padding: '10px',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  backgroundColor: isHighlighted ? '#1e88e5' : '#e0e0e0', // Highlight selected folders
+                  color: isHighlighted ? 'white' : 'black',
+                }}
+              >
+                <img
+                  src={isHighlighted ? blueFolderIcon : grayFolderIcon}
+                  alt="Folder Icon"
+                  style={{ width: '80px', height: '80px' }}
+                />
+                <Typography variant="body1" sx={{ fontWeight: isHighlighted ? 'bold' : 'normal' }}>
+                  {folder.name}
+                </Typography>
+              </Paper>
+            );
+          })}
+        </div>
+      )}
+      {importedData.headers.length > 0 && (
+        <TableContainer component={Paper} sx={{ mt: 3, maxHeight: 400, maxWidth: '100%', overflow: 'auto' }}>
+          <Table stickyHeader aria-label="imported data table">
+            <TableHead>
+              <TableRow>
+                {importedData.headers.map((header, index) => (
+                  <TableCell key={index}>{header}</TableCell>
                 ))}
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHead>
+            <TableBody>
+              {importedData.rows.map((row) => (
+                <TableRow key={`imported-${row.id}`}>
+                  {row.data.map((value, index) => (
+                    <TableCell key={index}>{value}</TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
 
-      {/* Display All Selected Templates in One Card */}
-      {selectedTemplates.length > 0 && (
-        <Card sx={{ mt: 3, maxWidth: 600, mx: 'auto', p: 2 }}>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>
-              All Selected Templates
-            </Typography>
-            {selectedTemplates.map((template, index) => (
-              <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                <Typography sx={{ flexGrow: 1 }}>
-                  <strong>Template {index + 1}:</strong> Country - {template.country}, Therapeutic Area - {template.therapeuticArea}
-                </Typography>
-                <IconButton
-                  color="secondary"
-                  onClick={() => handleDeleteTemplate(index)}
-                  aria-label="delete template"
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+      {savedFiles.length > 0 && (
+        <>
+          <h3 style={{ marginTop: '40px', marginleft:'10px' }}>Saved Files</h3>
+          <TableContainer component={Paper} sx={{ mt: 3, padding: '10px' }}>
+            <Table aria-label="saved files table">
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{ padding: '10px' }}>ID</TableCell>
+                  <TableCell sx={{ padding: '10px' }}>Username</TableCell>
+                  <TableCell sx={{ padding: '10px' }}>Saved CSV Name</TableCell>
+                  <TableCell sx={{ padding: '10px' }}>Forecast Cycle</TableCell>
+                  <TableCell sx={{ padding: '10px' }}>Country</TableCell>
+                  <TableCell sx={{ padding: '10px' }}>Therapeutic Area</TableCell>
+                  <TableCell sx={{ padding: '10px' }}>Date and Time</TableCell>
+                  <TableCell sx={{ padding: '10px' }}>Status</TableCell>
+                  <TableCell sx={{ padding: '10px' }}>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {savedFiles.map((file) => (
+                  <TableRow key={file.id}>
+                    <TableCell sx={{ padding: '10px' }}>{file.id}</TableCell>
+                    <TableCell sx={{ padding: '10px' }}>{file.username}</TableCell>
+                    <TableCell sx={{ padding: '10px' }}>{file.fileName}</TableCell>
+                    <TableCell sx={{ padding: '10px' }}>{file.forecastCycle}</TableCell>
+                    <TableCell sx={{ padding: '10px' }}>{file.country}</TableCell>
+                    <TableCell sx={{ padding: '10px' }}>{file.therapeuticArea}</TableCell>
+                    <TableCell sx={{ padding: '10px' }}>{file.dateTime}</TableCell>
+                    <TableCell sx={{ padding: '10px' }}>
+                      {fileStatuses[file.id] === "locked" && <LockIcon color="action" />}
+                      {fileStatuses[file.id] === "finalized" && <CheckCircleIcon color="success" />}
+                    </TableCell>
+                    <TableCell sx={{ padding: '10px' }}>
+                      <IconButton onClick={(event) => setAnchorEl(event.currentTarget)}>
+                        <MoreVertIcon />
+                      </IconButton>
+                      <Menu
+                        anchorEl={anchorEl}
+                        open={Boolean(anchorEl)}
+                        onClose={() => setAnchorEl(null)}
+                      >
+                        <MenuItem onClick={() => handleLockClick(file)}>Lock</MenuItem>
+                        <MenuItem onClick={() => handleLockAndFinalizeClick(file)}>
+                          Lock & Finalize
+                        </MenuItem>
+                      </Menu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </>
+      )}
+
+      <Dialog
+        open={saveDialogOpen}
+        onClose={handleSaveDialogClose}
+      >
+        <DialogTitle>Save File</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            The filename starts with:
+            <strong>{`${forecastCycle}_${country}_${therapeuticArea}`}</strong>
+            <br />
+            Add any additional info if you need:
+          </DialogContentText>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="extra-file-name"
+            label="Additional Name (Optional)"
+            type="text"
+            fullWidth
+            value={extraFileName}
+            onChange={(e) => setExtraFileName(e.target.value)}
+          />
+
+          <FormControl component="fieldset" sx={{ mt: 2 }}>
+            <InputLabel id="file-format-select-label">File Format</InputLabel>
+            <Select
+              labelId="file-format-select-label"
+              id="file-format-select"
+              value={fileFormat}
+              label="File Format"
+              onChange={(event) => setFileFormat(event.target.value)}
+            >
+              <MenuItem value="csv">CSV</MenuItem>
+              <MenuItem value="excel">Excel</MenuItem>
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleSaveDialogClose}>Cancel</Button>
+          <Button onClick={handleConfirmSave} color="primary">Save</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={lockOpen}
+        onClose={handleDialogClose}
+      >
+        <DialogTitle>{`Are you sure you want to ${lockType} this file?`}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            You are about to {lockType.toLowerCase()} the following file:
+            <ul>
+              <li>Country: {selectedFile?.country}</li>
+              <li>Therapeutic Area: {selectedFile?.therapeuticArea}</li>
+              <li>Forecast Cycle: {selectedFile?.forecastCycle}</li>
+              <li>Date and Time: {selectedFile?.dateTime}</li>
+              <li>File name: {selectedFile?.fileName}</li>
+            </ul>
+            Once {lockType.toLowerCase()}ed, you won't be able to modify it.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDialogClose}>Cancel</Button>
+          <Button onClick={handleConfirmLock} color="primary">{`Confirm ${lockType}`}</Button>
+        </DialogActions>
+      </Dialog>
+
+      {loading && (
+        <div style={{ marginTop: '20px' }}>
+          <CircularProgress />
+          <p>Saving file...</p>
+        </div>
       )}
     </div>
   );

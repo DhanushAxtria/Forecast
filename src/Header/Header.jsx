@@ -163,8 +163,8 @@ export default function PersistentDrawerLeft() {
             <Typography
               variant="h6"
               sx={{
-                backgroundColor: '#e0e0e0',  // Light gray background color
                 padding: '5px 10px',
+                fontWeight:600,
                 borderRadius: '8px',        // Rounded corners for better appearance
                 display: 'inline-block',    // Make sure it only wraps around the text
               }}
@@ -177,8 +177,8 @@ export default function PersistentDrawerLeft() {
           {[
             { text: 'New Scenario', icon: <Assessment />, path: '/new-scenario'},
             { text: 'Saved Scenario', icon: <SaveAlt /> },
-            { text: 'Submissions', icon: <FilePresent /> },
-            { text: 'Scenario Comparsion', icon: <CompareArrows /> },
+            { text: 'Data consolidation', icon: <FilePresent />, path:'/data-consolidation' },
+            { text: 'Scenario Comparsion', icon: <CompareArrows /> , path:'/scenario-comparsion'},
             { text: 'Forecast Deep-dive', icon: <Insights /> },
             { text: 'Admin', icon: <Security /> }
           ].map((item) => (
