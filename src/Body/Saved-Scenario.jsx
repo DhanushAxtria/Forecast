@@ -47,7 +47,7 @@ const availableCycles = ['2013-H1', '2013-H2', '2014-H1', '2014-H2', '2015-H1', 
 const ForecastAndFlowDiagram = () => {
   const [greeting, setGreeting] = useState('');
   const [activeTab, setActiveTab] = useState('controlSheet'); // Manage which tab is active
-
+  
   // Control sheet form states
   const [historicalStartMonth, setHistoricalStartMonth] = useState('Jan-15');
   const [forecastStartMonth, setForecastStartMonth] = useState('Nov-24');
@@ -62,7 +62,7 @@ const ForecastAndFlowDiagram = () => {
     { id: 4, name: 'Product4', include: true, xyzProduct: true, launchDate: 'Feb-14', indication: 'Indication 1', country: 'USA', therapeuticArea: 'Cardiology', cycle: '2013-H1' },
     { id: 5, name: 'Product5', include: true, xyzProduct: true, launchDate: 'Feb-17', indication: 'Indication 2', country: 'Germany', therapeuticArea: 'Oncology', cycle: '2013-H2' },
     { id: 6, name: 'Product6', include: true, xyzProduct: true, launchDate: 'Mar-18', indication: 'Indication 3', country: 'UK', therapeuticArea: 'Neurology', cycle: '2014-H1' },
-  ]);
+  ]);   
 
   useEffect(() => {
     const currentHour = new Date().getHours();

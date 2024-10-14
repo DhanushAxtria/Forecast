@@ -1,6 +1,6 @@
 {
   "homepage": "http://dhanushaxtria.github.io/Forecast",
-  "new-scenario":"http://dhanushaxtria.github.io/Forecast/new-scenario",
+  "new-scenario":"http://dhanushaxtria.github.io/new-scenario",
   "name": "forecastapp",
   "version": "0.1.0",
   "private": true,
