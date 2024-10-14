@@ -293,11 +293,11 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
         <Button
           variant="contained"
           sx={{
-            backgroundColor: selectedAction === 'copySubmission' ? '#1e88e5' : selectedAction ? 'gray' : '#1e88e5',
+            backgroundColor: selectedAction === 'copySubmission' ? '#1e88e5' : 'gray',
             color: 'white',
             '&:hover': { backgroundColor: selectedAction === 'copySubmission' ? '#1565c0' : 'gray' },
           }}
-          disabled={selectedAction && selectedAction !== 'copySubmission'}
+          //disabled={selectedAction && selectedAction !== 'copySubmission'}
           onClick={() => handleActionClick('copySubmission')}
         >
           Copy from Submission Scenarios
@@ -305,11 +305,11 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
         <Button
           variant="contained"
           sx={{
-            backgroundColor: selectedAction === 'copySaved' ? '#43a047' : selectedAction ? 'gray' : '#43a047',
+            backgroundColor: selectedAction === 'copySaved' ? '#43a047' : 'gray',
             color: 'white',
             '&:hover': { backgroundColor: selectedAction === 'copySaved' ? '#388e3c' : 'gray' },
           }}
-          disabled={selectedAction && selectedAction !== 'copySaved'}
+          //disabled={selectedAction && selectedAction !== 'copySaved'}
           onClick={() => handleActionClick('copySaved')}
         >
           Copy from Saved Scenarios
@@ -317,11 +317,11 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
         <Button
           variant="contained"
           sx={{
-            backgroundColor: selectedAction === 'savedTemplates' ? '#f4511e' : selectedAction ? 'gray' : '#f4511e',
+            backgroundColor: selectedAction === 'savedTemplates' ? '#f4511e' : 'gray',
             color: 'white',
             '&:hover': { backgroundColor: selectedAction === 'savedTemplates' ? '#e64a19' : 'gray' },
           }}
-          disabled={selectedAction && selectedAction !== 'savedTemplates'}
+          //disabled={selectedAction && selectedAction !== 'savedTemplates'}
           onClick={() => handleActionClick('savedTemplates')}
         > 
           Using Saved Templates
@@ -438,14 +438,14 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
         <TableContainer component={Paper} sx={{ mt: 3, maxWidth: '100%' }}>
           <Table aria-label="submission scenarios table">
             <TableHead>
-              <TableRow>
-                <TableCell>Scenario</TableCell>
-                <TableCell>Forecast Cycle</TableCell>
-                <TableCell>Country</TableCell>
-                <TableCell>Therapeutic Area</TableCell>
-                <TableCell>Last Modified</TableCell>
-                <TableCell>Submitted by</TableCell>
-                <TableCell>Actions</TableCell>
+              <TableRow sx={{ backgroundColor: '#1976d2' }}>
+                <TableCell  sx={{ color: 'white', fontWeight: 'bold' }}>Scenario</TableCell>
+                <TableCell  sx={{ color: 'white', fontWeight: 'bold' }}>Forecast Cycle</TableCell>
+                <TableCell  sx={{ color: 'white', fontWeight: 'bold' }}>Country</TableCell>
+                <TableCell  sx={{ color: 'white', fontWeight: 'bold' }}>Therapeutic Area</TableCell>
+                <TableCell  sx={{ color: 'white', fontWeight: 'bold' }}>Last Modified</TableCell>
+                <TableCell  sx={{ color: 'white', fontWeight: 'bold' }}>Submitted by</TableCell>
+                <TableCell  sx={{ color: 'white', fontWeight: 'bold' }}>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

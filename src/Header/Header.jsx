@@ -176,7 +176,7 @@ export default function PersistentDrawerLeft() {
         <List>
           {[
             { text: 'New Scenario', icon: <Assessment />, path: '/new-scenario'},
-            { text: 'Saved Scenario', icon: <SaveAlt /> },
+            { text: 'Saved Scenario', icon: <SaveAlt />, path:'/saved-scenario'},
             { text: 'Data consolidation', icon: <FilePresent />, path:'/data-consolidation' },
             { text: 'Scenario Comparsion', icon: <CompareArrows /> , path:'/scenario-comparsion'},
             { text: 'Forecast Deep-dive', icon: <Insights /> },

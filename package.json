@@ -1,4 +1,5 @@
 {
+  "homepage": "http://dhanushaxtria.github.io/Forecast",
   "name": "forecastapp",
   "version": "0.1.0",
   "private": true,
@@ -14,6 +15,7 @@
     "@testing-library/user-event": "^13.5.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-flow-renderer": "^10.3.17",
     "react-icons": "^5.3.0",
     "react-router-dom": "^6.26.2",
     "react-scripts": "5.0.1",
@@ -26,7 +28,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
@@ -47,6 +51,7 @@
     ]
   },
   "devDependencies": {
-    "electron": "^32.1.2"
+    "electron": "^32.1.2",
+    "gh-pages": "^6.2.0"
   }
 }

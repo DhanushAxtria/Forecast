@@ -7,6 +7,8 @@ import ScenarioComparsion from './Body/ScenarioComparsion'; // Component for Sce
 import { SavedFilesProvider } from './Body/SavedFilesContext'; // Import the context provider
 import Page3 from './Body/Page3';
 import DataConsolidation from './Body/Data_Consolidation';
+import Savedpage from './Body/Savedpage';
+import SavedScenario from './Body/Saved-Scenario';
 function App() {
   return (
     <SavedFilesProvider> {/* Wrap the app with SavedFilesProvider */}
@@ -29,6 +31,7 @@ function App() {
           {/* Scenario Comparison Page Route */}
           <Route path="/scenario-comparsion" element={<ScenarioComparsion />} />
           <Route path="/data-consolidation" element={<DataConsolidation />} />
+          <Route path="/saved-scenario" element={<SavedScenario />} />
 
           {/* Add more routes as needed */}
         </Routes>

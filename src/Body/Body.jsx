@@ -68,7 +68,7 @@ const BlogGrid = () => {
             sx={{ maxWidth: 345, background: 'linear-gradient(135deg, #ff758c, #ff7eb3)', color: 'white' }}
             className='featureCard'
           >
-            <CardActionArea sx={{ cursor: 'pointer' }}>
+            <CardActionArea sx={{ cursor: 'pointer' }}onClick={()=>{window.open("/saved-scenario",  '_blank')}}>
               <SaveAlt sx={{ fontSize: 80, color: 'white', margin: '20px' }} />
               <CardContent
                 sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}

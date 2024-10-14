@@ -1,0 +1,152 @@
+/* Container for the flowchart */
+.model-flow-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+/* Section header */
+.section-header {
+  font-size: 1.5rem;
+  color: white;
+  background-color: #007bff;
+  padding: 10px;
+  margin-bottom: 20px;
+  text-align: center;
+  border-radius: 5px;
+}
+
+/* Flow boxes */
+.flow-box-container {
+  position: relative;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.flow-box {
+  background-color: #e0f7fa;
+  border: 2px solid #007bff;
+  border-radius: 8px;
+  padding: 20px;
+  width: 300px;
+  margin: 0 auto;
+  position: relative;
+  font-size: 1rem;
+}
+
+/* Arrows between boxes */
+.arrow-down {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: -30px;
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 20px solid #007bff;
+}
+
+.arrow-right {
+  font-size: 1.2rem;
+  color: #333;
+  margin-left: 0px;
+}
+
+/* Conversion section flow */
+.conversion-section {
+  margin-top: 40px;
+}
+
+/* Final box layout */
+.final-box {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 40px;
+}
+
+.final-box .flow-box {
+  width: 40%;
+}
+
+/* Product Indication Table */
+.product-indication-table {
+  margin-top: 40px;
+  text-align: center;
+}
+
+.product-indication-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.product-indication-table th,
+.product-indication-table td {
+  border: 1px solid #007bff;
+  padding: 10px;
+  font-size: 1rem;
+}
+
+.product-indication-table th {
+  background-color: #007bff;
+  color: white;
+}
+
+.product-indication-table td {
+  background-color: #f4f4f4;
+}
+
+/* Styling for table placement within the flow */
+.model-flow-container .table-section {
+  margin-top: 40px;
+}
+
+.flow-container {
+    background: #f0f0f0;
+  }
+  
+  .react-flow__node {
+    background: white;
+    color: black;
+    border: 1px solid #007bff;
+    border-radius: 5px;
+  }
+  
+  .react-flow__edge {
+    stroke: #007bff;
+  }
+/* Fixed headers */
+.fixed-header {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    z-index: 1000;
+  }
+  
+  .section-header {
+    background-color: #007bff;
+    color: white;
+    padding: 10px;
+    font-size: 1.5rem;
+    text-align: center;
+    border-radius: 5px;
+    width: 200px;
+  }
+  
+  /* Container for flowchart */
+  .flow-diagram-container {
+    display: flex;
+    flex-direction: row;
+    position: relative;
+  }
+  
+  .flow-container {
+    margin-left: 220px; /* Add space for fixed headers */
+    width: 100%;
+    height: 80vh;
+  }
+    
