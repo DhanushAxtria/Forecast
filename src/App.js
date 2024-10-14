@@ -33,6 +33,7 @@ function App() {
           <Route path="/data-consolidation" element={<DataConsolidation />} />
           <Route path="/saved-scenario" element={<SavedScenario />} />
           <Route path="/Forecast" element={<HomePage />} />
+          <Route path="/new-scenario" element={<BlankPage />} />
 
           {/* Add more routes as needed */}
         </Routes>
