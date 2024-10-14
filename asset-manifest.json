@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/Forecast/static/css/main.33baadf3.css",
-    "main.js": "/Forecast/static/js/main.0eeefb51.js",
+    "main.css": "/Forecast/static/css/main.1e507ce1.css",
+    "main.js": "/Forecast/static/js/main.27e7e477.js",
     "static/js/453.5b90228f.chunk.js": "/Forecast/static/js/453.5b90228f.chunk.js",
     "static/media/axtria-logo.png": "/Forecast/static/media/axtria-logo.0863735f09145ab530fe.png",
     "index.html": "/Forecast/index.html",
-    "main.33baadf3.css.map": "/Forecast/static/css/main.33baadf3.css.map",
-    "main.0eeefb51.js.map": "/Forecast/static/js/main.0eeefb51.js.map",
+    "main.1e507ce1.css.map": "/Forecast/static/css/main.1e507ce1.css.map",
+    "main.27e7e477.js.map": "/Forecast/static/js/main.27e7e477.js.map",
     "453.5b90228f.chunk.js.map": "/Forecast/static/js/453.5b90228f.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.33baadf3.css",
-    "static/js/main.0eeefb51.js"
+    "static/css/main.1e507ce1.css",
+    "static/js/main.27e7e477.js"
   ]
 }
