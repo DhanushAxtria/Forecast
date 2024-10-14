@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './Header/Header'; // Import Header correctly
 import BlankPage from './Body/Blankpage'; // Component for Forecast Page (New Scenario)
 import HomePage from './Header/Homepage'; // Home Page
@@ -19,7 +19,7 @@ function App() {
         {/* Routes determine what body content to show */}
         <Routes>
           {/* Home Page Route - Display HomePage and Body */}
-          <Route path="/Forecast" element={
+          <Route basename="/Forecast" element={
             <>
               <HomePage />
             </>
@@ -32,8 +32,7 @@ function App() {
           <Route path="/scenario-comparsion" element={<ScenarioComparsion />} />
           <Route path="/data-consolidation" element={<DataConsolidation />} />
           <Route path="/saved-scenario" element={<SavedScenario />} />
-          <Route path="/Forecast" element={<HomePage />} />
-          <Route path="/new-scenario" element={<BlankPage />} />
+          <Route exact path="/Forecast" element={<HomePage />} />
 
           {/* Add more routes as needed */}
         </Routes>
