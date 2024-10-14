@@ -29,7 +29,7 @@ import { useState,useContext } from 'react';
 import { SavedFilesContext } from './SavedFilesContext';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import AssessmentIcon from '@mui/icons-material/Assessment';
-import BlueFolder from "../assets/Blue_folder.png"
+import BlueFolder from "../assets/blue3.png"
 import GreyFolder from "../assets/Grey-folder.png"
 import Box from '@mui/material/Box';
 
@@ -69,8 +69,6 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
     { name: 'Oncology - Patient Projection Model', country: 'Germany', area: 'Oncology' },
     { name: 'Cardiology - Patient Projection Model v1', country: 'Canada', area: 'Cardiology' },
     { name: 'Cardiology - Patient Switch Model v1', country: 'Canada', area: 'Cardiology' },
-    { name: 'Neurology - Patient Switch Model', country: 'Germany', area: 'Neurology' },
-    { name: 'Neurology - Patient Projection Model', country: 'India', area: 'Neurology' },
   ];
 
   const handleCountryChange = (event) => {
@@ -297,7 +295,7 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
             color: 'white',
             '&:hover': { backgroundColor: selectedAction === 'copySubmission' ? '#1565c0' : 'gray' },
           }}
-          //disabled={selectedAction && selectedAction !== 'copySubmission'}
+          disabled={selectedAction && selectedAction !== 'copySubmission'}
           onClick={() => handleActionClick('copySubmission')}
         >
           Copy from Submission Scenarios
@@ -309,7 +307,7 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
             color: 'white',
             '&:hover': { backgroundColor: selectedAction === 'copySaved' ? '#388e3c' : 'gray' },
           }}
-          //disabled={selectedAction && selectedAction !== 'copySaved'}
+          disabled={selectedAction && selectedAction !== 'copySaved'}
           onClick={() => handleActionClick('copySaved')}
         >
           Copy from Saved Scenarios
@@ -317,11 +315,11 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
         <Button
           variant="contained"
           sx={{
-            backgroundColor: selectedAction === 'savedTemplates' ? '#f4511e' : 'gray',
+            backgroundColor: selectedAction === 'savedTemplates' ? '#1e88e5' : 'gray',
             color: 'white',
-            '&:hover': { backgroundColor: selectedAction === 'savedTemplates' ? '#e64a19' : 'gray' },
+            '&:hover': { backgroundColor: selectedAction === 'savedTemplates' ? '#1565c0' : 'gray' },
           }}
-          //disabled={selectedAction && selectedAction !== 'savedTemplates'}
+          disabled={selectedAction && selectedAction !== 'savedTemplates'}
           onClick={() => handleActionClick('savedTemplates')}
         > 
           Using Saved Templates
@@ -490,7 +488,7 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
       )}
       {/* Folder display section */}
       {showFolders && selectedAction === 'savedTemplates' && (
-        <div style={{ display: 'flex', flexWrap: 'wrap', marginTop: '20px', gap: '20px' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', marginTop: '20px', gap: '40px' }}>
           {folders.map((folder, index) => {
             const isHighlighted = folder.country === country && folder.area === therapeuticArea;
             return (
@@ -498,11 +496,11 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
                 key={index}
                 elevation={3}
                 style={{
-                  width: '150px',
+                  width: '200px',
                   padding: '10px',
                   textAlign: 'center',
                   cursor: 'pointer',
-                  backgroundColor: isHighlighted ? '#1e88e5' : '#e0e0e0', // Highlight selected folders
+                  backgroundColor: isHighlighted ? '#1976d2' : '#e0e0e0', // Highlight selected folders
                   color: isHighlighted ? 'white' : 'black',
                 }}
               >
