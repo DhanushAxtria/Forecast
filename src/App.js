@@ -19,7 +19,7 @@ function App() {
         {/* Routes determine what body content to show */}
         <Routes>
           {/* Home Page Route - Display HomePage and Body */}
-          <Route path="/" element={
+          <Route path="/Forecast" element={
             <>
               <HomePage />
             </>
@@ -32,7 +32,7 @@ function App() {
           <Route path="/scenario-comparsion" element={<ScenarioComparsion />} />
           <Route path="/data-consolidation" element={<DataConsolidation />} />
           <Route path="/saved-scenario" element={<SavedScenario />} />
-
+          <Route path="/Forecast" element={<HomePage />} />
           {/* Add more routes as needed */}
         </Routes>
       </Router>
