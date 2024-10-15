@@ -1,6 +1,19 @@
-import * as React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import ListItemText from '@mui/material/ListItemText';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import List from '@mui/material/List';
+import Summarize from '@mui/icons-material/Summarize'; // Summarize icon (for Generate Report)
+import TrackChanges from '@mui/icons-material/TrackChanges'; // TrackChanges icon (for Submission Tracking)
+import Assessment from '@mui/icons-material/Assessment';    // Forecast icon
+import SaveAlt from '@mui/icons-material/SaveAlt';    // Report design icon
+import FilePresent from '@mui/icons-material/FilePresent';  // Model design icon
+import CompareArrows from '@mui/icons-material/CompareArrows';  // Forecast manager icon
+import Insights from '@mui/icons-material/Insights';      // Data management icon
+import Security from '@mui/icons-material/Security';  // Admin icon
+import AccountCircle from '@mui/icons-material/AccountCircle';
+import { useNavigate } from 'react-router-dom';
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
@@ -12,16 +25,6 @@ import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import List from '@mui/material/List';
-import Assessment from '@mui/icons-material/Assessment';    // Forecast icon
-import SaveAlt from '@mui/icons-material/SaveAlt';    // Report design icon
-import FilePresent from '@mui/icons-material/FilePresent';  // Model design icon
-import CompareArrows from '@mui/icons-material/CompareArrows';  // Forecast manager icon
-import Insights from '@mui/icons-material/Insights';      // Data management icon
-import Security from '@mui/icons-material/Security';  // Admin icon
 import HelpIcon from '@mui/icons-material/Help';
 import SupportIcon from '@mui/icons-material/Support';
 import axtriaImage from "../assets/axtria-logo.png";
@@ -77,6 +80,7 @@ export default function PersistentDrawerLeft() {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const navigate = useNavigate(); 
+  const username = "John Doe";  // Replace this with dynamic data
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -124,20 +128,42 @@ export default function PersistentDrawerLeft() {
             Axtria Forecast Tool
           </Typography>
 
-          {/* Right side: Help and Support Icons */}
+          {/* Right side: Help, Support, and User Info */}
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            {/* Help Icon */}
             <HelpIcon
               onClick={() => {
-                window.open("https://google.com", "_blank");
+                navigate('/help');
               }}
               sx={{ mx: 1 }}
             />
+            {/* Generate Report Icon */}
+            <Summarize
+              onClick={() => {
+                navigate('/generate-report');
+              }}
+              sx={{ mx: 1, cursor: 'pointer' }}  // Added cursor: pointer for clickable effect
+            />
+            {/* Submission Tracking Icon */}
+            <TrackChanges
+              onClick={() => {
+                navigate('/submission-tracking');
+              }}
+              sx={{ mx: 1, cursor: 'pointer' }}  // Added cursor: pointer for clickable effect
+            />
+            {/* Support Icon */}
             <SupportIcon
               onClick={() => {
                 window.open("https://axtria.com", "_blank");
               }}
               sx={{ mx: 1 }}
             />
+
+            {/* User Icon with Username */}
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <AccountCircle sx={{ mr: 1 }} />  {/* User icon */}
+              <Typography variant="body1">{username}</Typography>  {/* Display username */}
+            </Box>
           </Box>
         </Toolbar>
       </AppBar>
@@ -164,7 +190,7 @@ export default function PersistentDrawerLeft() {
               variant="h6"
               sx={{
                 padding: '5px 10px',
-                fontWeight:600,
+                fontWeight: 600,
                 borderRadius: '8px',        // Rounded corners for better appearance
                 display: 'inline-block',    // Make sure it only wraps around the text
               }}
@@ -173,10 +199,11 @@ export default function PersistentDrawerLeft() {
             </Typography>
           </Box>
         </DrawerHeader>
+        {/* Rest of your Drawer content */}
         <List>
           {[
             { text: 'New Scenario', icon: <Assessment />, path: '/new-scenario'},
-            { text: 'Saved Scenario', icon: <SaveAlt />, path:'/saved-scenario'},
+            { text: 'Saved Scenario', icon: <SaveAlt />},
             { text: 'Data consolidation', icon: <FilePresent />, path:'/data-consolidation' },
             { text: 'Scenario Comparsion', icon: <CompareArrows /> , path:'/scenario-comparsion'},
             { text: 'Forecast Deep-dive', icon: <Insights /> },

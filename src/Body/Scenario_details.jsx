@@ -153,10 +153,10 @@ const ForecastAndFlowDiagram = () => {
       {/* Horizontal Tabs */}
       <div className="tabs">
         <button className={`tab ${activeTab === 'controlSheet' ? 'active' : ''}`} onClick={() => setActiveTab('controlSheet')}>
-          Control Sheet
+          Forecast Scenario
         </button>
         <button className={`tab ${activeTab === 'flowDiagram' ? 'active' : ''}`} onClick={() => setActiveTab('flowDiagram')}>
-          Flow Diagram
+          Model Flow
         </button>
       </div>
 
@@ -313,7 +313,6 @@ const ForecastAndFlowDiagram = () => {
                 style={{ height: '80vh' }}
               >
                 <Background color="#aaa" gap={16} />
-                <MiniMap nodeColor={() => 'blue'} />
                 <Controls />
               </ReactFlow>
             </div>

@@ -24,7 +24,7 @@ const BlogGrid = () => {
             }}
           >
             <div className="greeting__welcome f3 mb-3">
-              <h3>Welcome to the Forecast HomePage</h3>
+              <h3>Welcome User, Please Select an Action to Proceed</h3>
             </div>
           </div>
         </div>
@@ -68,7 +68,7 @@ const BlogGrid = () => {
             sx={{ maxWidth: 345, background: 'linear-gradient(135deg, #ff758c, #ff7eb3)', color: 'white' }}
             className='featureCard'
           >
-            <CardActionArea sx={{ cursor: 'pointer' }}onClick={()=>{window.open("/saved-scenario",  '_blank')}}>
+            <CardActionArea sx={{ cursor: 'pointer' }}>
               <SaveAlt sx={{ fontSize: 80, color: 'white', margin: '20px' }} />
               <CardContent
                 sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}

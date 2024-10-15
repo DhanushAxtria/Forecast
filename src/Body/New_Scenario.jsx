@@ -23,26 +23,28 @@ import IconButton from '@mui/material/IconButton';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import LockIcon from '@mui/icons-material/Lock';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import  Typography from '@mui/material/Typography';
+import Typography from '@mui/material/Typography';
 import * as XLSX from 'xlsx'; // Importing xlsx for Excel saving
-import { useState,useContext } from 'react';
+import { useState, useContext } from 'react';
 import { SavedFilesContext } from './SavedFilesContext';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import BlueFolder from "../assets/blue3.png"
 import GreyFolder from "../assets/Grey-folder.png"
 import Box from '@mui/material/Box';
-
-
-
+import { useNavigate } from 'react-router-dom';
+//import { Autocomplete, TextField, Box } from '@mui/material';
+import Checkbox from '@mui/material/Checkbox';
+import ListItemText from '@mui/material/ListItemText';
+import Autocomplete from '@mui/material/Autocomplete';
 
 
 export default function CountryAndTherapeuticSelect({ username = "User" }) {
   const { savedFiles, setSavedFiles } = useContext(SavedFilesContext);
   const [showTable, setShowTable] = React.useState(false);
-  const [country, setCountry] = React.useState('');
-  const [therapeuticArea, setTherapeuticArea] = React.useState('');
-  const [forecastCycle, setForecastCycle] = React.useState('');
+  const [countries, setCountries] = React.useState([]); // Multi-select for countries
+  const [therapeuticAreas, setTherapeuticAreas] = React.useState([]); // Multi-select for therapeutic areas
+  const [forecastCycles, setForecastCycles] = React.useState([]); // Multi-select for forecast cycles
   const [importedData, setImportedData] = React.useState({ headers: [], rows: [] });
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [selectedFile, setSelectedFile] = React.useState(null);
@@ -54,13 +56,16 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
   const [saveAnchorEl, setSaveAnchorEl] = React.useState(null);
   const [selectedAction, setSelectedAction] = useState('');
   const blueFolderIcon = BlueFolder;
-   // Update with actual path
+
+  const navigate = useNavigate();
+  // Update with actual path
   const grayFolderIcon = GreyFolder; // Update with actual path
   const [extraFileName, setExtraFileName] = React.useState('');
   const [saveDialogOpen, setSaveDialogOpen] = React.useState(false);
   const [fileFormat, setFileFormat] = React.useState('csv'); // To track file format (CSV or Excel)
   const fileInputRef = React.useRef(null);
   const [showFolders, setShowFolders] = useState(false);
+
   // List of available folders
   const folders = [
     { name: 'Cardiology - Patient Projection Model v2', country: 'USA', area: 'Cardiology' },
@@ -70,17 +75,22 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
     { name: 'Cardiology - Patient Projection Model v1', country: 'Canada', area: 'Cardiology' },
     { name: 'Cardiology - Patient Switch Model v1', country: 'Canada', area: 'Cardiology' },
   ];
-
+  const countryOptions = ['USA', 'Canada', 'Germany', 'India'];
+  const therapeuticAreaOptions = ['Cardiology', 'Oncology', 'Neurology', 'Diabetes'];
+  const forecastCycleOptions = ['2013-H1', '2013-H2', '2014-H1', '2014-H2'];
   const handleCountryChange = (event) => {
-    setCountry(event.target.value);
+    setCountries(event.target.value); // Update countries selection
   };
-
+  const handleSelectClick = (scenario) => {
+    // Navigate to the specific page, passing scenario data as state
+    navigate('/scenario-details', { state: { scenario } });
+  };
   const handleTherapeuticChange = (event) => {
-    setTherapeuticArea(event.target.value);
+    setTherapeuticAreas(event.target.value); // Update therapeutic areas selection
   };
 
   const handleForecastCycleChange = (event) => {
-    setForecastCycle(event.target.value);
+    setForecastCycles(event.target.value);
   };
   const handleCopyFromSubmissionScenarios = () => {
     setShowTable(true); // Show the table when the button is clicked
@@ -100,7 +110,7 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
       setShowFolders(false); // Hide folders when other buttons are clicked
     }
   };
-  
+
   const handleConfirmSave = async () => {
     setSaveDialogOpen(false);
 
@@ -109,7 +119,7 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
       return;
     }
 
-    const baseFileName = `${forecastCycle}_${country}_${therapeuticArea}`;
+    const baseFileName = `${forecastCycles}_${countries}_${therapeuticAreas}`;
     const fullFileName = `${baseFileName}${extraFileName ? `_${extraFileName}` : ''}`;
 
     if (fileFormat === 'csv') {
@@ -145,10 +155,10 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
       const ws = XLSX.utils.aoa_to_sheet([importedData.headers, ...importedData.rows.map((row) => row.data)]);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-      
+
       // Write the workbook to an array buffer
       const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-      
+
       // Create a blob from the array buffer
       const excelBlob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
 
@@ -182,9 +192,9 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
       id: newId,
       username,
       fileName: `${fileName}.${format}`,
-      forecastCycle,
-      country,
-      therapeuticArea,
+      forecastCycles,
+      countries,
+      therapeuticAreas,
       dateTime: new Date().toLocaleString(),
       locked: false,
     };
@@ -221,7 +231,14 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
     setSavedFiles((prevFiles) => [...prevFiles, lockedFile]);
     setLockOpen(false);
   };
-
+  const menuProps = {
+    PaperProps: {
+      style: {
+        maxHeight: 48 * 4.5 + 8,
+        width: 250,
+      },
+    },
+  };
   /*const handleDownloadTemplate = () => {
     setShowFolders(false); // Hide folders when downloading template
     const headers = ['Forecast Cycle', 'Country', 'Therapeutic Area'];
@@ -249,7 +266,7 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
           const values = row.split(',').map((value) => value.trim());
           return { id: index + 1, data: values };
         });
-        
+
         // Save the file in 'FileData' (Simulating saving to folder)
         const savedFile = {
           fileName: file.name,
@@ -285,9 +302,9 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
     <div style={{ backgroundColor: 'white', padding: '20px' }}>
       <h2>{getGreetingMessage()}, Welcome to the New Scenario!</h2>
       {/* Add the three buttons with background colors */}
-    {/* Add the three buttons with background colors */}
-    <h4>Choose an option to build Scenario</h4>
-    <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+      {/* Add the three buttons with background colors */}
+      <h4>Choose an option to build Scenario</h4>
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
         <Button
           variant="contained"
           sx={{
@@ -295,7 +312,7 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
             color: 'white',
             '&:hover': { backgroundColor: selectedAction === 'copySubmission' ? '#1565c0' : 'gray' },
           }}
-          disabled={selectedAction && selectedAction !== 'copySubmission'}
+          //disabled={selectedAction && selectedAction !== 'copySubmission'}
           onClick={() => handleActionClick('copySubmission')}
         >
           Copy from Submission Scenarios
@@ -307,7 +324,7 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
             color: 'white',
             '&:hover': { backgroundColor: selectedAction === 'copySaved' ? '#388e3c' : 'gray' },
           }}
-          disabled={selectedAction && selectedAction !== 'copySaved'}
+          //disabled={selectedAction && selectedAction !== 'copySaved'}
           onClick={() => handleActionClick('copySaved')}
         >
           Copy from Saved Scenarios
@@ -319,71 +336,89 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
             color: 'white',
             '&:hover': { backgroundColor: selectedAction === 'savedTemplates' ? '#1565c0' : 'gray' },
           }}
-          disabled={selectedAction && selectedAction !== 'savedTemplates'}
+          //disabled={selectedAction && selectedAction !== 'savedTemplates'}
           onClick={() => handleActionClick('savedTemplates')}
-        > 
+        >
           Using Saved Templates
         </Button>
       </div>
-      
+
 
       <h4>Please select a Scenario to Continue</h4>
-      <FormControl sx={{ m: 1, minWidth: 200 }} size="small">
-        <InputLabel id="forecast-cycle-select-label">Forecast Cycle</InputLabel>
-        <Select
-          labelId="forecast-cycle-select-label"
-          id="forecast-cycle-select"
-          value={forecastCycle}
-          label="Forecast Cycle"
-          onChange={handleForecastCycleChange}
-        >
-          <MenuItem value="">
-            <em>None</em>
-          </MenuItem>
-          <MenuItem value="2013-H1">2013-H1</MenuItem>
-          <MenuItem value="2013-H2">2013-H2</MenuItem>
-          <MenuItem value="2014-H1">2014-H1</MenuItem>
-          <MenuItem value="2014-H2">2014-H2</MenuItem>
-        </Select>
-      </FormControl>
+      <Box display="flex" gap={2} mb={6} sx={{ width: '100%' }}>
+        {/* Autocomplete with Checkboxes for Forecast Cycle */}
+        <Autocomplete
+          multiple
+          id="forecast-cycle-autocomplete"
+          options={forecastCycleOptions}
+          disableCloseOnSelect
+          getOptionLabel={(option) => option}
+          value={forecastCycles}
+          onChange={(event, newValue) => setForecastCycles(newValue)}
+          renderOption={(props, option, { selected }) => (
+            <li {...props}>
+              <Checkbox
+                style={{ marginRight: 8 }}
+                checked={selected}
+              />
+              <ListItemText primary={option} />
+            </li>
+          )}
+          renderInput={(params) => (
+            <TextField {...params} label="Forecast Cycle" placeholder="Select forecast cycle(s)" />
+          )}
+          sx={{ width: '300px' }}
+        />
 
-      <FormControl sx={{ m: 1, minWidth: 200 }} size="small">
-        <InputLabel id="country-select-label">Country</InputLabel>
-        <Select
-          labelId="country-select-label"
-          id="country-select"
-          value={country}
-          label="Country"
-          onChange={handleCountryChange}
-        >
-          <MenuItem value="">
-            <em>None</em>
-          </MenuItem>
-          <MenuItem value="USA">USA</MenuItem>
-          <MenuItem value="Canada">Canada</MenuItem>
-          <MenuItem value="Germany">Germany</MenuItem>
-          <MenuItem value="India">India</MenuItem>
-        </Select>
-      </FormControl>
+        {/* Autocomplete with Checkboxes for Country */}
+        <Autocomplete
+          multiple
+          id="country-autocomplete"
+          options={countryOptions}
+          disableCloseOnSelect
+          getOptionLabel={(option) => option}
+          value={countries}
+          onChange={(event, newValue) => setCountries(newValue)}
+          renderOption={(props, option, { selected }) => (
+            <li {...props}>
+              <Checkbox
+                style={{ marginRight: 8 }}
+                checked={selected}
+              />
+              <ListItemText primary={option} />
+            </li>
+          )}
+          renderInput={(params) => (
+            <TextField {...params} label="Country" placeholder="Select country(s)" />
+          )}
+          sx={{ width: '300px' }}
+        />
 
-      <FormControl sx={{ m: 1, minWidth: 200 }} size="small">
-        <InputLabel id="therapeutic-select-label">Therapeutic Area</InputLabel>
-        <Select
-          labelId="therapeutic-select-label"
-          id="therapeutic-select"
-          value={therapeuticArea}
-          label="Therapeutic Area"
-          onChange={handleTherapeuticChange}
-        >
-          <MenuItem value="">
-            <em>None</em>
-          </MenuItem>
-          <MenuItem value="Cardiology">Cardiology</MenuItem>
-          <MenuItem value="Oncology">Oncology</MenuItem>
-          <MenuItem value="Neurology">Neurology</MenuItem>
-          <MenuItem value="Diabetes">Diabetes</MenuItem>
-        </Select>
-      </FormControl>
+        {/* Autocomplete with Checkboxes for Therapeutic Area */}
+        <Autocomplete
+          multiple
+          id="therapeutic-area-autocomplete"
+          options={therapeuticAreaOptions}
+          disableCloseOnSelect
+          getOptionLabel={(option) => option}
+          value={therapeuticAreas}
+          onChange={(event, newValue) => setTherapeuticAreas(newValue)}
+          renderOption={(props, option, { selected }) => (
+            <li {...props}>
+              <Checkbox
+                style={{ marginRight: 8 }}
+                checked={selected}
+              />
+              <ListItemText primary={option} />
+            </li>
+          )}
+          renderInput={(params) => (
+            <TextField {...params} label="Therapeutic Area" placeholder="Select therapeutic area(s)" />
+          )}
+          sx={{ width: '300px' }}
+        />
+      </Box>
+      {/* Buttons to interact with selected options */}
       {/*<Button
         variant="contained"
         color="primary"
@@ -437,13 +472,13 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
           <Table aria-label="submission scenarios table">
             <TableHead>
               <TableRow sx={{ backgroundColor: '#1976d2' }}>
-                <TableCell  sx={{ color: 'white', fontWeight: 'bold' }}>Scenario</TableCell>
-                <TableCell  sx={{ color: 'white', fontWeight: 'bold' }}>Forecast Cycle</TableCell>
-                <TableCell  sx={{ color: 'white', fontWeight: 'bold' }}>Country</TableCell>
-                <TableCell  sx={{ color: 'white', fontWeight: 'bold' }}>Therapeutic Area</TableCell>
-                <TableCell  sx={{ color: 'white', fontWeight: 'bold' }}>Last Modified</TableCell>
-                <TableCell  sx={{ color: 'white', fontWeight: 'bold' }}>Submitted by</TableCell>
-                <TableCell  sx={{ color: 'white', fontWeight: 'bold' }}>Actions</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Scenario</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Forecast Cycle</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Country</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Therapeutic Area</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Last Modified</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Submitted by</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -464,15 +499,15 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
                   <TableCell>{row.user}</TableCell>
                   <TableCell>
                     <Box display="flex" alignItems="center" gap={1}>
-                    <IconButton>
-                      <OpenInNewIcon />
-                    </IconButton>
-                    <IconButton>
-                      <AssessmentIcon color="success" />
-                    </IconButton>
-                    <Button variant="contained" color="primary" size="small">
-                      Select
-                    </Button>
+                      <IconButton>
+                        <OpenInNewIcon />
+                      </IconButton>
+                      <IconButton>
+                        <AssessmentIcon color="success" />
+                      </IconButton>
+                      <Button variant="contained" color="primary" size="small" onClick={() => handleSelectClick(row)}>
+                        Select
+                      </Button>
                     </Box>
                   </TableCell>
                 </TableRow>
@@ -490,7 +525,12 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
       {showFolders && selectedAction === 'savedTemplates' && (
         <div style={{ display: 'flex', flexWrap: 'wrap', marginTop: '20px', gap: '40px' }}>
           {folders.map((folder, index) => {
-            const isHighlighted = folder.country === country && folder.area === therapeuticArea;
+            // Check if there are any selected filters
+            const isFiltered = countries.length > 0 || therapeuticAreas.length > 0;
+
+            // Check if folder matches selected country and therapeutic area
+            const isHighlighted = countries.includes(folder.country) && therapeuticAreas.includes(folder.area);
+
             return (
               <Paper
                 key={index}
@@ -500,16 +540,16 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
                   padding: '10px',
                   textAlign: 'center',
                   cursor: 'pointer',
-                  backgroundColor: isHighlighted ? '#1976d2' : '#e0e0e0', // Highlight selected folders
-                  color: isHighlighted ? 'white' : 'black',
+                  backgroundColor: isFiltered && !isHighlighted ? '#e0e0e0' : '#1976d2', // Grey for non-matching folders after selection, otherwise blue
+                  color: isFiltered && !isHighlighted ? 'black' : 'white', // Font color changes as per the background
                 }}
               >
                 <img
-                  src={isHighlighted ? blueFolderIcon : grayFolderIcon}
+                  src={isFiltered && !isHighlighted ? grayFolderIcon : blueFolderIcon} // Grey icon for non-matching folders, otherwise blue icon
                   alt="Folder Icon"
                   style={{ width: '80px', height: '80px' }}
                 />
-                <Typography variant="body1" sx={{ fontWeight: isHighlighted ? 'bold' : 'normal' }}>
+                <Typography variant="body1" sx={{ fontWeight: isFiltered && !isHighlighted ? 'normal' : 'bold' }}>
                   {folder.name}
                 </Typography>
               </Paper>
@@ -542,7 +582,7 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
 
       {savedFiles.length > 0 && (
         <>
-          <h3 style={{ marginTop: '40px', marginleft:'10px' }}>Saved Files</h3>
+          <h3 style={{ marginTop: '40px', marginleft: '10px' }}>Saved Files</h3>
           <TableContainer component={Paper} sx={{ mt: 3, padding: '10px' }}>
             <Table aria-label="saved files table">
               <TableHead>
@@ -603,7 +643,7 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
         <DialogContent>
           <DialogContentText>
             The filename starts with:
-            <strong>{`${forecastCycle}_${country}_${therapeuticArea}`}</strong>
+            <strong>{`${forecastCycles}_${countries}_${therapeuticAreas}`}</strong>
             <br />
             Add any additional info if you need:
           </DialogContentText>
