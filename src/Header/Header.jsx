@@ -123,7 +123,7 @@ export default function PersistentDrawerLeft() {
             variant="h6"
             noWrap
             component="div"
-            sx={{ flexGrow: 1, textAlign: 'center', fontWeight: 'bold' }}
+            sx={{ flexGrow: 1, textAlign: 'center', fontWeight: 'bold',paddingLeft:'200px' }}
           >
             Axtria Forecast Tool
           </Typography>
