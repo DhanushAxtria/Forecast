@@ -75,23 +75,46 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
     { name: 'Cardiology - Patient Projection Model v1', country: 'Canada', area: 'Cardiology' },
     { name: 'Cardiology - Patient Switch Model v1', country: 'Canada', area: 'Cardiology' },
   ];
-  const countryOptions = ['USA', 'Canada', 'Germany', 'India'];
-  const therapeuticAreaOptions = ['Cardiology', 'Oncology', 'Neurology', 'Diabetes'];
-  const forecastCycleOptions = ['2013-H1', '2013-H2', '2014-H1', '2014-H2'];
-  const handleCountryChange = (event) => {
-    setCountries(event.target.value); // Update countries selection
+  const countryOptions = ['All','USA', 'Canada', 'Germany', 'India'];
+  const therapeuticAreaOptions = ['All','Cardiology', 'Oncology', 'Neurology', 'Diabetes'];
+  const forecastCycleOptions = ['All','2013-H1', '2013-H2', '2014-H1', '2014-H2'];
+  const handleCountryChange = (event, newValue) => {
+    if (newValue.includes('All')) {
+      // If "All" is selected, select all countries
+      setCountries(countryOptions.slice(1)); // Slice to exclude "All"
+    } else {
+      setCountries(newValue);
+    }
   };
   const handleSelectClick = (scenario) => {
     // Navigate to the specific page, passing scenario data as state
     navigate('/scenario-details', { state: { scenario } });
   };
-  const handleTherapeuticChange = (event) => {
-    setTherapeuticAreas(event.target.value); // Update therapeutic areas selection
+  const handleReviewScenario=(scenario) => {
+    // Navigate to the specific page, passing scenario data as state
+    navigate('/review-scenario',{state:{scenario}});
+  };
+  const handleReviewScenarioSummary=(scenario) => {
+    // Navigate to the specific page, passing scenario data as state
+    navigate('/summary-scenario',{state:{scenario}});
+  };
+  const handleTherapeuticChange = (event, newValue) => {
+    if (newValue.includes('All')) {
+      // If "All" is selected, select all therapeutic areas
+      setTherapeuticAreas(therapeuticAreaOptions.slice(1)); // Slice to exclude "All"
+    } else {
+      setTherapeuticAreas(newValue);
+    }
+  };
+  const handleForecastCycleChange = (event, newValue) => {
+    if (newValue.includes('All')) {
+      // If "All" is selected, select all forecast cycles
+      setForecastCycles(forecastCycleOptions.slice(1)); // Slice to exclude "All"
+    } else {
+      setForecastCycles(newValue);
+    }
   };
 
-  const handleForecastCycleChange = (event) => {
-    setForecastCycles(event.target.value);
-  };
   const handleCopyFromSubmissionScenarios = () => {
     setShowTable(true); // Show the table when the button is clicked
   };
@@ -478,7 +501,7 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
                 <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Therapeutic Area</TableCell>
                 <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Last Modified</TableCell>
                 <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Submitted by</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Actions</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' , paddingLeft:'80px'}}>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -499,12 +522,12 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
                   <TableCell>{row.user}</TableCell>
                   <TableCell>
                     <Box display="flex" alignItems="center" gap={1}>
-                      <IconButton>
-                        <OpenInNewIcon />
+                      <IconButton onClick={() => handleReviewScenarioSummary(row)}>
+                        <OpenInNewIcon color="success" />
                       </IconButton>
-                      <IconButton>
+                      <IconButton onClick={() => handleReviewScenario(row)}>
                         <AssessmentIcon color="success" />
-                      </IconButton>
+                      </IconButton >
                       <Button variant="contained" color="primary" size="small" onClick={() => handleSelectClick(row)}>
                         Select
                       </Button>

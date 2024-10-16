@@ -11,6 +11,8 @@ import Savedpage from './Body/Savedpage';
 import SavedScenario from './Body/Saved-Scenario';
 import HelpPage from  './Header/HelpPage';
 import ScenarioDetails from './Body/Scenario_details'
+import ReviewScenario from './Body/ReviewScenario'
+import SummaryScenario from './Body/SummaryScenario'
 function App() {
   return (
     <SavedFilesProvider> {/* Wrap the app with SavedFilesProvider */}
@@ -21,7 +23,7 @@ function App() {
         {/* Routes determine what body content to show */}
         <Routes>
           {/* Home Page Route - Display HomePage and Body */}
-          <Route path="/Forecast" element={
+          <Route path="/" element={
             <>
               <HomePage />
             </>
@@ -35,6 +37,8 @@ function App() {
           <Route path="/data-consolidation" element={<DataConsolidation />} />
           <Route path="/Forecast" element={<HomePage />} />
           <Route path="/scenario-details" element={<ScenarioDetails />} />
+          <Route path="/review-scenario" element={<ReviewScenario />} />
+          <Route path="/Summary-scenario" element={<SummaryScenario />} />
 
           {/* Add more routes as needed */}
         </Routes>
