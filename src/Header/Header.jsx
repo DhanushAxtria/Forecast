@@ -4,21 +4,21 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import List from '@mui/material/List';
-import Summarize from '@mui/icons-material/Summarize'; // Summarize icon (for Generate Report)
-import TrackChanges from '@mui/icons-material/TrackChanges'; // TrackChanges icon (for Submission Tracking)
-import Assessment from '@mui/icons-material/Assessment';    // Forecast icon
-import SaveAlt from '@mui/icons-material/SaveAlt';    // Report design icon
-import FilePresent from '@mui/icons-material/FilePresent';  // Model design icon
-import CompareArrows from '@mui/icons-material/CompareArrows';  // Forecast manager icon
-import Insights from '@mui/icons-material/Insights';      // Data management icon
-import Security from '@mui/icons-material/Security';  // Admin icon
+import Summarize from '@mui/icons-material/Summarize';
+import TrackChanges from '@mui/icons-material/TrackChanges';
+import Assessment from '@mui/icons-material/Assessment';
+import SaveAlt from '@mui/icons-material/SaveAlt';
+import FilePresent from '@mui/icons-material/FilePresent';
+import CompareArrows from '@mui/icons-material/CompareArrows';
+import Insights from '@mui/icons-material/Insights';
+import Security from '@mui/icons-material/Security';
 import AccountCircle from '@mui/icons-material/AccountCircle';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import CssBaseline from '@mui/material/CssBaseline';
-import MuiAppBar from '@mui/material/AppBar';
+import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
@@ -27,22 +27,20 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import HelpIcon from '@mui/icons-material/Help';
 import SupportIcon from '@mui/icons-material/Support';
-import axtriaImage from "../assets/axtria-logo.png";
-import './Header.scss';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import HomeIcon from '@mui/icons-material/Home';
-import GrainIcon from '@mui/icons-material/Grain';
-import WhatshotIcon from '@mui/icons-material/Whatshot';
-import useLocation from 'react-router-dom';
-//import HomeIcon from '@mui/icons-material/Home';
+import axtriaImage from '../assets/axtria-logo.png';
 
+// **Define the drawer width**
 const drawerWidth = 240;
 
+// **Styled Main content layout**
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
   ({ theme, open }) => ({
     flexGrow: 1,
     padding: theme.spacing(3),
+    marginTop: '25px',
     transition: theme.transitions.create('margin', {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
@@ -55,34 +53,81 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
       }),
       marginLeft: 0,
     }),
-  }),
+  })
 );
 
-const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== 'open',
-})(({ theme, open }) => ({
-  transition: theme.transitions.create(['margin', 'width'], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    width: `calc(100% - ${drawerWidth}px)`,
-    marginLeft: `${drawerWidth}px`,
-    transition: theme.transitions.create(['margin', 'width'], {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
-}));
-
+// **DrawerHeader styled component for the drawer header**
 const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   padding: theme.spacing(0, 1),
   ...theme.mixins.toolbar,
-  justifyContent: 'space-between', // Center the name between arrow and edge
+  justifyContent: 'space-between',
 }));
 
+// Breadcrumb names mapping
+const breadcrumbNameMap = {
+  '/new-scenario': 'New Scenario',
+  '/saved-scenario': 'Saved Scenario',
+  '/data-consolidation': 'Data Consolidation',
+  '/scenario-comparison': 'Scenario Comparison',
+  '/forecast-deep-dive': 'Forecast Deep-dive',
+  '/admin': 'Admin',
+};
+
+// Component for dynamic breadcrumbs
+function DynamicBreadcrumbs() {
+  const location = useLocation(); // Get current location (pathname)
+  const navigate = useNavigate();
+
+  const pathnames = location.pathname.split('/').filter((x) => x);
+
+  return (
+    <Breadcrumbs aria-label="breadcrumb" sx={{ margin: '16px 0' }}> {/* Adjust the margin here */}
+      {/* Home link */}
+      <Link
+        underline="hover"
+        color="inherit"
+        href="/"
+        onClick={(event) => {
+          event.preventDefault();
+          navigate('/');
+        }}
+      >
+        <HomeIcon sx={{ mr: 0.5 }} fontSize="inherit" />
+        Home
+      </Link>
+
+      {/* Dynamic breadcrumbs */}
+      {pathnames.map((value, index) => {
+        const to = `/${pathnames.slice(0, index + 1).join('/')}`;
+
+        const isLast = index === pathnames.length - 1;
+        return isLast ? (
+          // The last breadcrumb should not be a link
+          <Typography color="text.primary" key={to}>
+            {breadcrumbNameMap[to] || value}
+          </Typography>
+        ) : (
+          // Other breadcrumbs are clickable links
+          <Link
+            underline="hover"
+            color="inherit"
+            key={to}
+            onClick={(event) => {
+              event.preventDefault();
+              navigate(to);
+            }}
+          >
+            {breadcrumbNameMap[to] || value}
+          </Link>
+        );
+      })}
+    </Breadcrumbs>
+  );
+}
+
+// Main layout with drawer and dynamic breadcrumbs
 export default function PersistentDrawerLeft() {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
@@ -96,13 +141,12 @@ export default function PersistentDrawerLeft() {
   const handleDrawerClose = () => {
     setOpen(false);
   };
-  function handleClick(event) {
-    event.preventDefault();
-    console.info('You clicked a breadcrumb.');
-  }
+
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
+      
+      {/* AppBar (Header) */}
       <AppBar position="fixed" open={open}>
         <Toolbar className="toolBarDiv" sx={{ justifyContent: 'space-between' }}>
           {/* Left side: Menu icon and Logo */}
@@ -123,60 +167,43 @@ export default function PersistentDrawerLeft() {
               aria-label="menu"
               sx={{ mr: 2 }}
             >
-              <img src={axtriaImage} id="headerImage" alt="Logo" />
+              <img src={axtriaImage} id="headerImage" alt="Logo" style={{ width: '120px', height: 'auto' }} />
             </IconButton>
           </Box>
 
           {/* Center: Header Text */}
-          <Typography
-            className="forecast_header"
-            variant="h6"
-            noWrap
-            component="div"
-            sx={{ flexGrow: 1, textAlign: 'center', fontWeight: 'bold',paddingLeft:'200px' }}
-          >
-            Axtria Forecast Tool
-          </Typography>
+          <Box sx={{ flexGrow: 1, textAlign: 'center' }}>
+            <Typography
+              className="forecast_header"
+              variant="h6"
+              noWrap
+              component="div"
+              sx={{ fontWeight: 'bold', paddingLeft: '80px' }}
+            >
+              Axtria Forecast Tool
+            </Typography>
+          </Box>
 
           {/* Right side: Help, Support, and User Info */}
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {/* Help Icon */}
-            <HelpIcon
-              onClick={() => {
-                navigate('/help');
-              }}
-              sx={{ mx: 1 }}
-            />
-            {/* Generate Report Icon */}
-            <Summarize
-              onClick={() => {
-                navigate('/generate-report');
-              }}
-              sx={{ mx: 1, cursor: 'pointer' }}  // Added cursor: pointer for clickable effect
-            />
-            {/* Submission Tracking Icon */}
-            <TrackChanges
-              onClick={() => {
-                navigate('/submission-tracking');
-              }}
-              sx={{ mx: 1, cursor: 'pointer' }}  // Added cursor: pointer for clickable effect
-            />
-            {/* Support Icon */}
-            <SupportIcon
-              onClick={() => {
-                window.open("https://axtria.com", "_blank");
-              }}
-              sx={{ mx: 1 }}
-            />
-
-            {/* User Icon with Username */}
+            <HelpIcon onClick={() => navigate('/help')} sx={{ mx: 1 }} />
+            <Summarize onClick={() => navigate('/generate-report')} sx={{ mx: 1, cursor: 'pointer' }} />
+            <TrackChanges onClick={() => navigate('/submission-tracking')} sx={{ mx: 1, cursor: 'pointer' }} />
+            <SupportIcon onClick={() => window.open("https://axtria.com", "_blank")} sx={{ mx: 1 }} />
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <AccountCircle sx={{ mr: 1 }} />  {/* User icon */}
-              <Typography variant="body1">{username}</Typography>  {/* Display username */}
+              <AccountCircle sx={{ mr: 1 }} /> 
+              <Typography variant="body1">{username}</Typography>
             </Box>
           </Box>
         </Toolbar>
       </AppBar>
+
+      {/* **Breadcrumbs placed below the header** */}
+      <Box component="nav" sx={{ width: '100%', padding: '16px', marginTop: '64px' }}> {/* Adjust marginTop to fit below AppBar */}
+        <DynamicBreadcrumbs />
+      </Box>
+
+      {/* Drawer component */}
       <Drawer
         sx={{
           width: drawerWidth,
@@ -194,34 +221,32 @@ export default function PersistentDrawerLeft() {
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
           </IconButton>
-          {/* Drawer name in the middle with background color */}
           <Box sx={{ flexGrow: 1, textAlign: 'center' }}>
             <Typography
               variant="h6"
               sx={{
                 padding: '5px 10px',
                 fontWeight: 600,
-                borderRadius: '8px',        // Rounded corners for better appearance
-                display: 'inline-block',    // Make sure it only wraps around the text
+                borderRadius: '8px',
+                display: 'inline-block',
               }}
             >
               Dashboard
             </Typography>
           </Box>
         </DrawerHeader>
-        {/* Rest of your Drawer content */}
+
+        {/* Drawer navigation items */}
         <List>
-          {[
-            { text: 'New Scenario', icon: <Assessment />, path: '/new-scenario'},
-            { text: 'Saved Scenario', icon: <SaveAlt />},
-            { text: 'Data consolidation', icon: <FilePresent />, path:'/data-consolidation' },
-            { text: 'Scenario Comparsion', icon: <CompareArrows /> , path:'/scenario-comparsion'},
+          {[{ text: 'New Scenario', icon: <Assessment />, path: '/new-scenario' },
+            { text: 'Saved Scenario', icon: <SaveAlt /> },
+            { text: 'Data consolidation', icon: <FilePresent />, path: '/data-consolidation' },
+            { text: 'Scenario Comparsion', icon: <CompareArrows />, path: '/scenario-comparison' },
             { text: 'Forecast Deep-dive', icon: <Insights /> },
             { text: 'Admin', icon: <Security /> }
           ].map((item) => (
             <ListItem key={item.text} disablePadding>
-              <ListItemButton onClick={() => item.path && window.open(item.path,  '_blank')}>
-
+              <ListItemButton onClick={() => navigate(item.path)}>
                 <ListItemIcon>{item.icon}</ListItemIcon>
                 <ListItemText primary={item.text} />
               </ListItemButton>
@@ -229,24 +254,13 @@ export default function PersistentDrawerLeft() {
           ))}
         </List>
       </Drawer>
-      <Main open={open}>
-      <Box sx={{ mb: 3 }}>
-          <div role="presentation" onClick={handleClick}>
-            <Breadcrumbs aria-label="breadcrumb">
-              <Link underline="hover" color="inherit" href="/">
-                MUI
-              </Link>
-              <Link underline="hover" color="inherit" href="/material-ui/getting-started/installation/">
-                Core
-              </Link>
-              <Link underline="hover" color="text.primary" href="/material-ui/react-breadcrumbs/" aria-current="page">
-                Breadcrumbs
-              </Link>
-            </Breadcrumbs>
-          </div>
-        </Box>
 
-        <Typography variant="h4">{/* Main content will go here */}</Typography>
+      {/* Main content area */}
+      <Main open={open}>
+        <DrawerHeader />
+        <Typography variant="h4">
+          {/* Main content will go here */}
+        </Typography>
       </Main>
     </Box>
   );

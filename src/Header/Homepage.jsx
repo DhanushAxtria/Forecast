@@ -5,7 +5,7 @@ import Body from '../Body/Body'
 function HomePage() {
     return (
         <>
-            <Header />
+            {/* <Header /> */}
             <Body />
         </>
     );
