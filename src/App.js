@@ -13,13 +13,14 @@ import HelpPage from  './Header/HelpPage';
 import ScenarioDetails from './Body/Scenario_details'
 import ReviewScenario from './Body/ReviewScenario'
 import SummaryScenario from './Body/SummaryScenario'
+//import Navbar from './Body/Navbar'
 function App() {
   return (
     <SavedFilesProvider> {/* Wrap the app with SavedFilesProvider */}
+      
       <Router>
         {/* Header stays fixed across all pages */}
         <Header />
-
         {/* Routes determine what body content to show */}
         <Routes>
           {/* Home Page Route - Display HomePage and Body */}

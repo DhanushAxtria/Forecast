@@ -29,6 +29,13 @@ import HelpIcon from '@mui/icons-material/Help';
 import SupportIcon from '@mui/icons-material/Support';
 import axtriaImage from "../assets/axtria-logo.png";
 import './Header.scss';
+import Breadcrumbs from '@mui/material/Breadcrumbs';
+import Link from '@mui/material/Link';
+import HomeIcon from '@mui/icons-material/Home';
+import GrainIcon from '@mui/icons-material/Grain';
+import WhatshotIcon from '@mui/icons-material/Whatshot';
+import useLocation from 'react-router-dom';
+//import HomeIcon from '@mui/icons-material/Home';
 
 const drawerWidth = 240;
 
@@ -89,7 +96,10 @@ export default function PersistentDrawerLeft() {
   const handleDrawerClose = () => {
     setOpen(false);
   };
-
+  function handleClick(event) {
+    event.preventDefault();
+    console.info('You clicked a breadcrumb.');
+  }
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
@@ -220,8 +230,23 @@ export default function PersistentDrawerLeft() {
         </List>
       </Drawer>
       <Main open={open}>
-        <DrawerHeader />
-        {/* Main content will go here */}
+      <Box sx={{ mb: 3 }}>
+          <div role="presentation" onClick={handleClick}>
+            <Breadcrumbs aria-label="breadcrumb">
+              <Link underline="hover" color="inherit" href="/">
+                MUI
+              </Link>
+              <Link underline="hover" color="inherit" href="/material-ui/getting-started/installation/">
+                Core
+              </Link>
+              <Link underline="hover" color="text.primary" href="/material-ui/react-breadcrumbs/" aria-current="page">
+                Breadcrumbs
+              </Link>
+            </Breadcrumbs>
+          </div>
+        </Box>
+
+        <Typography variant="h4">{/* Main content will go here */}</Typography>
       </Main>
     </Box>
   );
