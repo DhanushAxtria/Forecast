@@ -1,17 +1,12 @@
 #headerDiv {
   position: fixed;
-  /* This makes the header fixed */
   top: 0;
   left: 10px;
-  /* Sticks it to the top */
   width: 100%;
   height: auto;
-  /* Ensures it stretches across the full width */
   z-index: 1000;
-  /* Ensures it stays above other content */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 
-  /* Optional: adds a slight shadow */
   .toolBarDiv {
     display: flex;
     justify-content: space-between;
@@ -20,27 +15,27 @@
       display: flex;
       gap: 20px;
 
-      >svg {
+      > svg {
         cursor: pointer;
       }
     }
   }
 
+  /* Stronger selector for the header */
   header {
-    --AppBar-background: #2d3339;
-    background-color: var(--AppBar-background);
+    background-color: #428ed9 !important; /* Force the background color to #2ca5da */
     margin-left: -10px;
   }
 }
 
 #headerImage {
   position: absolute;
-  // top: 10px;
   left: 10px;
   width: 110px;
   height: auto;
   margin-left: 30px;
 }
+
 #forecast_header {
-  margin-right:850px
+  margin-right: 850px;
 }

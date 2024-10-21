@@ -94,8 +94,6 @@ function DynamicBreadcrumbs() {
           navigate('/');
         }}
       >
-        <HomeIcon sx={{ mr: 0.5 }} fontSize="inherit" />
-        Home
       </Link>
 
       {/* Dynamic breadcrumbs */}
@@ -147,7 +145,10 @@ export default function PersistentDrawerLeft() {
       <CssBaseline />
       
       {/* AppBar (Header) */}
-      <AppBar position="fixed" open={open}>
+      <AppBar position="fixed" open={open} sx={{
+          backgroundColor: '#87CEEB', // Custom background color for the header
+          boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)', // Optional shadow
+        }}>
         <Toolbar className="toolBarDiv" sx={{ justifyContent: 'space-between' }}>
           {/* Left side: Menu icon and Logo */}
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -158,7 +159,7 @@ export default function PersistentDrawerLeft() {
               edge="start"
               sx={{ mr: 2, ...(open && { display: 'none' }) }}
             >
-              <MenuIcon />
+              <MenuIcon sx={{ color: 'black' }}/>
             </IconButton>
             <IconButton
               size="large"
@@ -178,7 +179,7 @@ export default function PersistentDrawerLeft() {
               variant="h6"
               noWrap
               component="div"
-              sx={{ fontWeight: 'bold', paddingLeft: '80px' }}
+              sx={{ fontWeight: 'bold', color: 'black',paddingLeft: '80px'}}
             >
               Axtria Forecast Tool
             </Typography>
@@ -186,13 +187,13 @@ export default function PersistentDrawerLeft() {
 
           {/* Right side: Help, Support, and User Info */}
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <HelpIcon onClick={() => navigate('/help')} sx={{ mx: 1 }} />
-            <Summarize onClick={() => navigate('/generate-report')} sx={{ mx: 1, cursor: 'pointer' }} />
-            <TrackChanges onClick={() => navigate('/submission-tracking')} sx={{ mx: 1, cursor: 'pointer' }} />
-            <SupportIcon onClick={() => window.open("https://axtria.com", "_blank")} sx={{ mx: 1 }} />
+            <HelpIcon onClick={() => navigate('/help')} sx={{ mx: 1,color:'black' }} />
+            <Summarize onClick={() => navigate('/generate-report')} sx={{ mx: 1, cursor: 'pointer',color:'black' }} />
+            <TrackChanges onClick={() => navigate('/submission-tracking')} sx={{ mx: 1, cursor: 'pointer' ,color:'black'}} />
+            <SupportIcon onClick={() => window.open("https://axtria.com", "_blank")} sx={{ mx: 1 ,color:'black'}} />
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <AccountCircle sx={{ mr: 1 }} /> 
-              <Typography variant="body1">{username}</Typography>
+              <AccountCircle sx={{ mr: 1 ,color:'black'}} /> 
+              <Typography variant="body1" sx={{ color: 'black' }}>{username}</Typography>
             </Box>
           </Box>
         </Toolbar>

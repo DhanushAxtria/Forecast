@@ -316,14 +316,14 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
 
   const getGreetingMessage = () => {
     const hours = new Date().getHours();
-    if (hours < 12) return `Good Morning ${username}`;
-    if (hours < 18) return `Good Afternoon ${username}`;
-    return `Good Evening ${username}`;
+    if (hours < 12) return `Good Morning`;
+    if (hours < 18) return `Good Afternoon`;
+    return `Good Evening`;
   };
 
   return (
     <div style={{ backgroundColor: 'white', padding: '20px' }}>
-      <h2>{getGreetingMessage()}, Welcome to the New Scenario!</h2>
+      <h2>{getGreetingMessage()}, Please provide details for New Scenario Configuration</h2>
       {/* Add the three buttons with background colors */}
       {/* Add the three buttons with background colors */}
       <h4>Choose an option to build Scenario</h4>
