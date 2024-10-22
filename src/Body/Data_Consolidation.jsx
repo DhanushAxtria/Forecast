@@ -36,56 +36,119 @@ const DataConsolidation = () => {
     }
   }, []);
 
-  // Generate a random date within the past year
-  const getRandomDate = () => {
-    const start = new Date(new Date().setFullYear(new Date().getFullYear() - 1)); // 1 year ago
-    const end = new Date(); // today
-    return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()))
-      .toISOString()
-      .split('T')[0]; // format the date as yyyy-mm-dd
+  // Dummy data creation
+  const generateDummyData = () => {
+    // Create 10 rows of data that match the forecast cycle and the available options
+    return [
+      {
+        therapeuticArea: 'Cardiology',
+        country: 'USA',
+        worksheet: 'Output Sheet',
+        forecast: 'Forecast 1',
+        forecastStatus: 'goodToGo',
+        forecastStarted: '2023-01-15',
+        username: 'john_doe',
+      },
+      {
+        therapeuticArea: 'Oncology',
+        country: 'Canada',
+        worksheet: 'Output Sheet',
+        forecast: 'Forecast 2',
+        forecastStatus: 'lock',
+        forecastStarted: '2023-05-10',
+        username: 'jane_smith',
+      },
+      {
+        therapeuticArea: 'Neurology',
+        country: 'Germany',
+        worksheet: 'Output Sheet',
+        forecast: 'Forecast 3',
+        forecastStatus: 'goodToGo',
+        forecastStarted: '2023-02-20',
+        username: 'michael_wang',
+      },
+      {
+        therapeuticArea: 'Immunology',
+        country: 'UK',
+        worksheet: 'Output Sheet',
+        forecast: 'Forecast 4',
+        forecastStatus: 'lock',
+        forecastStarted: '2023-06-15',
+        username: 'emma_clark',
+      },
+      {
+        therapeuticArea: 'Dermatology',
+        country: 'Australia',
+        worksheet: 'Output Sheet',
+        forecast: 'Forecast 5',
+        forecastStatus: 'goodToGo',
+        forecastStarted: '2023-09-05',
+        username: 'chris_jones',
+      },
+      {
+        therapeuticArea: 'Cardiology',
+        country: 'Canada',
+        worksheet: 'Output Sheet',
+        forecast: 'Forecast 2',
+        forecastStatus: 'goodToGo',
+        forecastStarted: '2023-03-01',
+        username: 'jane_smith',
+      },
+      {
+        therapeuticArea: 'Oncology',
+        country: 'USA',
+        worksheet: 'Output Sheet',
+        forecast: 'Forecast 1',
+        forecastStatus: 'lock',
+        forecastStarted: '2023-07-10',
+        username: 'john_doe',
+      },
+      {
+        therapeuticArea: 'Neurology',
+        country: 'UK',
+        worksheet: 'Output Sheet',
+        forecast: 'Forecast 3',
+        forecastStatus: 'goodToGo',
+        forecastStarted: '2023-04-11',
+        username: 'emma_clark',
+      },
+      {
+        therapeuticArea: 'Immunology',
+        country: 'Germany',
+        worksheet: 'Output Sheet',
+        forecast: 'Forecast 4',
+        forecastStatus: 'lock',
+        forecastStarted: '2023-08-22',
+        username: 'michael_wang',
+      },
+      {
+        therapeuticArea: 'Dermatology',
+        country: 'Australia',
+        worksheet: 'Output Sheet',
+        forecast: 'Forecast 6',
+        forecastStatus: 'goodToGo',
+        forecastStarted: '2023-10-01',
+        username: 'chris_jones',
+      },
+    ];
   };
 
-  // Pick a random username from the sample list
-  const getRandomUsername = () => {
-    return sampleUsernames[Math.floor(Math.random() * sampleUsernames.length)];
-  };
-
-  // Pick a random Therapeutic Area
-  const getRandomTherapeuticArea = () => {
-    return therapeuticAreas[Math.floor(Math.random() * therapeuticAreas.length)];
-  };
-
-  // Pick a random Country
-  const getRandomCountry = () => {
-    return countries[Math.floor(Math.random() * countries.length)];
-  };
-
-  // Generate random lock or good-to-go status for forecast options
-  const getRandomForecastStatus = () => {
-    return Math.random() > 0.5 ? 'lock' : 'goodToGo';
-  };
-
-  // Initialize the table with 10 rows of random data
+  // Initialize the table with the dummy data
   useEffect(() => {
-    const rows = Array.from({ length: 10 }, () => ({
-      therapeuticArea: getRandomTherapeuticArea(),
-      country: getRandomCountry(),
-      worksheet: 'Output Sheet',
-      forecast: 'Forecast 1', // Default forecast, will be updated when the Forecast Cycle filter is applied
-      forecastStatus: getRandomForecastStatus(),
-      forecastStarted: getRandomDate(),
-      username: getRandomUsername(),
-    }));
+    const rows = generateDummyData();
     setRowsData(rows);
   }, []);
 
-  // Function to filter rows based on selected Therapeutic Area and Country
+  // Function to filter rows based on selected Therapeutic Area, Country, and Forecast Cycle
   const getFilteredRows = () => {
-    return rowsData.filter(row => {
+    return rowsData.filter((row) => {
       const matchesTherapeuticArea =
         selectedTherapeuticArea === '' || row.therapeuticArea === selectedTherapeuticArea;
       const matchesCountry = selectedCountry === '' || row.country === selectedCountry;
-      return matchesTherapeuticArea && matchesCountry;
+      const matchesForecastCycle =
+        selectedForecastCycle === '' ||
+        forecastOptions[selectedForecastCycle].includes(row.forecast);
+      return matchesTherapeuticArea && matchesCountry && matchesForecastCycle;
     });
   };
 
@@ -95,6 +158,11 @@ const DataConsolidation = () => {
       return forecastOptions[selectedForecastCycle];
     }
     return [];
+  };
+
+  // Check if all filters have been selected
+  const areAllFiltersSelected = () => {
+    return selectedTherapeuticArea !== '' && selectedCountry !== '' && selectedForecastCycle !== '';
   };
 
   return (
@@ -173,66 +241,68 @@ const DataConsolidation = () => {
       </div>
 
       {/* Data Table Section */}
-      <div style={styles.tableContainer}>
-        <h2 style={styles.tableHeading}>Therapeutic Area, Country and Connected Data</h2>
-        <table style={styles.table}>
-          <thead>
-            <tr>
-              <th>
-                Therapeutic Area <FaFilter style={styles.filterIcon} /> {/* Filter Icon for Therapeutic Area */}
-              </th>
-              <th>
-                Country/Region <FaFilter style={styles.filterIcon} /> {/* Filter Icon for Country/Region */}
-              </th>
-              <th>Connected Worksheet</th>
-              <th>Connected Forecast</th>
-              <th>Forecast Started</th>
-              <th>Username</th>
-            </tr>
-          </thead>
-          <tbody>
-            {getFilteredRows().map((row, index) => (
-              <tr key={index}>
-                {/* Therapeutic Area */}
-                <td>{row.therapeuticArea}</td>
-
-                {/* Country/Region */}
-                <td>{row.country}</td>
-
-                {/* Connected Worksheet Dropdown */}
-                <td>
-                  <select style={styles.select}>
-                    <option value="OutputSheet">Output Sheet</option>
-                    <option value="Worksheet1">Worksheet 1</option>
-                    <option value="Worksheet2">Worksheet 2</option>
-                  </select>
-                </td>
-
-                {/* Connected Forecast with Dynamic Icons */}
-                <td>
-                  <select style={styles.select}>
-                    {getFilteredForecastOptions().map((forecast, idx) => (
-                      <option key={idx} value={forecast}>
-                        {forecast} {row.forecastStatus === 'lock' ? lockIcon : goodToGoIcon}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-
-                {/* Forecast Started (Random Date) */}
-                <td>
-                  <input type="date" value={row.forecastStarted} style={styles.input} readOnly />
-                </td>
-
-                {/* Username (Random Name) */}
-                <td>
-                  <input type="text" value={row.username} style={styles.input} readOnly />
-                </td>
+      {areAllFiltersSelected() && ( // Conditional rendering of the table
+        <div style={styles.tableContainer}>
+          <h2 style={styles.tableHeading}>Therapeutic Area, Country and Connected Data</h2>
+          <table style={styles.table}>
+            <thead>
+              <tr>
+                <th>
+                  Therapeutic Area <FaFilter style={styles.filterIcon} /> {/* Filter Icon for Therapeutic Area */}
+                </th>
+                <th>
+                  Country/Region <FaFilter style={styles.filterIcon} /> {/* Filter Icon for Country/Region */}
+                </th>
+                <th>Select Worksheet</th>
+                <th>Scenario Details</th>
+                <th>Forecast Started</th>
+                <th>Username</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {getFilteredRows().map((row, index) => (
+                <tr key={index}>
+                  {/* Therapeutic Area */}
+                  <td>{row.therapeuticArea}</td>
+
+                  {/* Country/Region */}
+                  <td>{row.country}</td>
+
+                  {/* Connected Worksheet Dropdown */}
+                  <td>
+                    <select style={styles.select}>
+                      <option value="OutputSheet">Output Sheet</option>
+                      <option value="Worksheet1">Worksheet 1</option>
+                      <option value="Worksheet2">Worksheet 2</option>
+                    </select>
+                  </td>
+
+                  {/* Connected Forecast with Dynamic Icons */}
+                  <td>
+                    <select style={styles.select}>
+                      {getFilteredForecastOptions().map((forecast, idx) => (
+                        <option key={idx} value={forecast}>
+                          {forecast} {row.forecastStatus === 'lock' ? lockIcon : goodToGoIcon}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+
+                  {/* Forecast Started (Random Date) */}
+                  <td>
+                    <input type="date" value={row.forecastStarted} style={styles.input} readOnly />
+                  </td>
+
+                  {/* Username (Random Name) */}
+                  <td>
+                    <input type="text" value={row.username} style={styles.input} readOnly />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };

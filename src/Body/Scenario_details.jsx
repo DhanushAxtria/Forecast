@@ -13,8 +13,9 @@ import dayjs from 'dayjs'; // For date manipulation
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
-import { Grid, Button, TextField, MenuItem, Typography } from '@mui/material';
+import { Grid, Button, TextField, MenuItem, Typography, IconButton } from '@mui/material';
 import ApplyIcon from '@mui/icons-material/CheckCircle';
+import EditIcon from '@mui/icons-material/Edit';
 const initialNodes = [
     { id: '1', data: { label: 'Product Level Treated Patients' }, position: { x: 250, y: 50 }, style: { width: 200 } },
     { id: '2', data: { label: 'Patients per product (based on trending)' }, position: { x: 250, y: 150 }, style: { width: 250 } },
@@ -57,13 +58,16 @@ const ForecastAndFlowDiagram = () => {
     const [showForecastCalendar, setShowForecastCalendar] = useState(false);
     const [historicalView, setHistoricalView] = useState('year'); // Track the view state
     const [forecastView, setForecastView] = useState('year'); // Track the view state
-
+    const [openProductCalendars, setOpenProductCalendars] = useState({});//lauch date
+    //const [scenarioName, setScenarioName] = useState(predefinedScenarioNames[0]);
+    const [scenarioDetails, setScenarioDetails] = useState('Custom Scenario Details');
+    const [editMode, setEditMode] = useState(false);
     const [products, setProducts] = useState([
         { id: 1, name: 'Product1', include: true, xyzProduct: true, launchDate: dayjs('2014-02-01'), indications: {} },
         { id: 2, name: 'Product2', include: true, xyzProduct: true, launchDate: dayjs('2017-02-01'), indications: {} },
     ]);
     const [indicationColumns, setIndicationColumns] = useState([]);
-    const predefinedScenarios = ['Scenario 1', 'Scenario 2', 'Scenario 3'];
+    const predefinedScenarioNames = ['Scenario 1', 'Scenario 2', 'Scenario 3'];
     // State to control visibility of calendars for each product
     const [openCalendars, setOpenCalendars] = useState({});
 
@@ -71,7 +75,9 @@ const ForecastAndFlowDiagram = () => {
         const currentHour = new Date().getHours();
         setGreeting(currentHour < 12 ? 'Good Morning' : currentHour < 18 ? 'Good Afternoon' : 'Good Evening');
     }, []);
-
+    const handleEditToggle = () => {
+        setEditMode(!editMode);
+    };
     const handleAddProduct = () => {
         const newProductIndications = indicationColumns.reduce((acc, indication) => {
             acc[indication] = 'Yes';
@@ -156,14 +162,19 @@ const ForecastAndFlowDiagram = () => {
             prevProducts.map((product) => (product.id === id ? { ...product, xyzProduct: !product.xyzProduct } : product))
         );
     };
-
+    const toggleProductCalendar = (id) => {
+        setOpenProductCalendars((prev) => ({
+            ...prev,
+            [id]: !prev[id],
+        }));
+    };
     const handleLaunchDateChange = (id, date) => {
         setProducts((prevProducts) =>
             prevProducts.map((product) => (product.id === id ? { ...product, launchDate: date } : product))
         );
         setOpenCalendars((prev) => ({ ...prev, [id]: false })); // Hide the calendar after selection
     };
-    const [scenarioName, setScenarioName] = useState(predefinedScenarios[0]); 
+    const [scenarioName, setScenarioName] = useState(predefinedScenarioNames[0]);
     const [nodes, setNodes] = useState(initialNodes);
     const [edges, setEdges] = useState(initialEdges);
 
@@ -197,31 +208,50 @@ const ForecastAndFlowDiagram = () => {
                         <Grid container spacing={3}>
                             <Grid item xs={12}>
                                 <h2>General Information</h2>
-                                <TextField
-                                    select
-                                    fullWidth
-                                    label="Scenario Name"
-                                    value={scenarioName}
-                                    onChange={(e) => setScenarioName(e.target.value)}
-                                    variant="outlined"
-                                    margin="normal"
-                                >
-                                    {predefinedScenarios.map((scenario) => (
-                                        <MenuItem key={scenario} value={scenario}>
-                                            {scenario}
-                                        </MenuItem>
-                                    ))}
-                                </TextField>
-
-                                {/* Custom Scenario Name */}
-                                <TextField
-                                    fullWidth
-                                    label="Custom Scenario Name"
-                                    value={customScenarioName}
-                                    onChange={(e) => setCustomScenarioName(e.target.value)}
-                                    variant="outlined"
-                                    margin="normal"
-                                />
+                                <Grid container spacing={3}>
+                                    <Grid item xs={6}>
+                                        <TextField
+                                            select
+                                            fullWidth
+                                            label="Scenario Name"
+                                            value={scenarioName}
+                                            onChange={(e) => setScenarioName(e.target.value)}
+                                            variant="outlined"
+                                        >
+                                            {predefinedScenarioNames.map((name, index) => (
+                                                <MenuItem key={index} value={name}>
+                                                    {name}
+                                                </MenuItem>
+                                            ))}
+                                        </TextField>
+                                    </Grid>
+                                    <Grid item xs={5}>
+                                        {editMode ? (
+                                            <TextField
+                                                fullWidth
+                                                label="Scenario Details"
+                                                value={scenarioDetails}
+                                                onChange={(e) => setScenarioDetails(e.target.value)}
+                                                variant="outlined"
+                                            />
+                                        ) : (
+                                            <TextField
+                                                fullWidth
+                                                label="Scenario Details"
+                                                value={scenarioDetails}
+                                                InputProps={{
+                                                    readOnly: true,
+                                                }}
+                                                variant="outlined"
+                                            />
+                                        )}
+                                    </Grid>
+                                    <Grid item xs={1}>
+                                        <IconButton onClick={handleEditToggle}>
+                                            <EditIcon />
+                                        </IconButton>
+                                    </Grid>
+                                </Grid>
                                 <TextField
                                     fullWidth
                                     label="Forecast Cycle"
@@ -414,10 +444,10 @@ const ForecastAndFlowDiagram = () => {
                                                 </Button>
                                             </td>
                                             <td>
-                                                <div onClick={() => toggleCalendar(product.id)}>
+                                                <div onClick={() => toggleProductCalendar(product.id)}>
                                                     {product.launchDate.format('MMM-YYYY')}
                                                 </div>
-                                                {openCalendars[product.id] && (
+                                                {openProductCalendars[product.id] && (
                                                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                                                         <DateCalendar
                                                             value={product.launchDate}
@@ -428,7 +458,6 @@ const ForecastAndFlowDiagram = () => {
                                                                 borderRadius: 2,
                                                                 padding: 2,
                                                                 backgroundColor: '#fff',
-
                                                             }}
                                                         />
                                                     </LocalizationProvider>
@@ -448,35 +477,37 @@ const ForecastAndFlowDiagram = () => {
                                         </tr>
                                     ))}
                                 </tbody>
-                            </table>
-                        </div>
+                            </table >
+                        </div >
                     </>
                 )}
 
-                {activeTab === 'flowDiagram' && (
-                    <div className="flow-diagram-container">
-                        <div className="flow-layout">
-                            <div className="side-header left-side">Market and Shares</div>
-                            <div className="flow-diagram">
-                                <ReactFlow
-                                    nodes={nodes}
-                                    edges={edges}
-                                    onNodesChange={onNodesChange}
-                                    onEdgesChange={onEdgesChange}
-                                    onConnect={onConnect}
-                                    fitView
-                                    style={{ height: '80vh', width: '100%' }}
-                                >
-                                    <Background color="#aaa" gap={16} />
-                                    <Controls />
-                                </ReactFlow>
+                {
+                    activeTab === 'flowDiagram' && (
+                        <div className="flow-diagram-container">
+                            <div className="flow-layout">
+                                <div className="side-header left-side">Market and Shares</div>
+                                <div className="flow-diagram">
+                                    <ReactFlow
+                                        nodes={nodes}
+                                        edges={edges}
+                                        onNodesChange={onNodesChange}
+                                        onEdgesChange={onEdgesChange}
+                                        onConnect={onConnect}
+                                        fitView
+                                        style={{ height: '80vh', width: '100%' }}
+                                    >
+                                        <Background color="#aaa" gap={16} />
+                                        <Controls />
+                                    </ReactFlow>
+                                </div>
+                                <div className="side-header right-side">Conversion</div>
                             </div>
-                            <div className="side-header right-side">Conversion</div>
                         </div>
-                    </div>
-                )}
-            </div>
-        </div>
+                    )
+                }
+            </div >
+        </div >
     );
 };
 

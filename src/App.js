@@ -13,6 +13,7 @@ import HelpPage from  './Header/HelpPage';
 import ScenarioDetails from './Body/Scenario_details'
 import ReviewScenario from './Body/ReviewScenario'
 import SummaryScenario from './Body/SummaryScenario'
+import Admin from './Body/Submission_Tracker'
 //import Navbar from './Body/Navbar'
 function App() {
   return (
@@ -40,6 +41,8 @@ function App() {
           <Route path="/scenario-details" element={<ScenarioDetails />} />
           <Route path="/review-scenario" element={<ReviewScenario />} />
           <Route path="/Summary-scenario" element={<SummaryScenario />} />
+          <Route path="/admin" element={<Admin />} />
+
 
           {/* Add more routes as needed */}
         </Routes>

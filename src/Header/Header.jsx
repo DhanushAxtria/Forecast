@@ -81,20 +81,24 @@ function DynamicBreadcrumbs() {
   const navigate = useNavigate();
 
   const pathnames = location.pathname.split('/').filter((x) => x);
-
+  const isHomePage = location.pathname === '/';
   return (
     <Breadcrumbs aria-label="breadcrumb" sx={{ margin: '16px 0' }}> {/* Adjust the margin here */}
-      {/* Home link */}
-      <Link
-        underline="hover"
-        color="inherit"
-        href="/"
-        onClick={(event) => {
-          event.preventDefault();
-          navigate('/');
-        }}
-      >
-      </Link>
+      {!isHomePage && ( // Only show the Home Icon and link if it's NOT the homepage
+        <Link
+          underline="hover"
+          color="inherit"
+          href="/"
+          onClick={(event) => {
+            event.preventDefault();
+            navigate('/');
+          }}
+          sx={{ display: 'flex', alignItems: 'center' }}
+        >
+          <HomeIcon sx={{ mr: 0.5 }} fontSize="inherit" />
+          Home
+        </Link>
+      )}
 
       {/* Dynamic breadcrumbs */}
       {pathnames.map((value, index) => {
@@ -244,7 +248,7 @@ export default function PersistentDrawerLeft() {
             { text: 'Data consolidation', icon: <FilePresent />, path: '/data-consolidation' },
             { text: 'Scenario Comparsion', icon: <CompareArrows />, path: '/scenario-comparison' },
             { text: 'Forecast Deep-dive', icon: <Insights /> },
-            { text: 'Admin', icon: <Security /> }
+            { text: 'Admin', icon: <Security />,path:'/admin'}
           ].map((item) => (
             <ListItem key={item.text} disablePadding>
               <ListItemButton onClick={() => navigate(item.path)}>

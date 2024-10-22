@@ -4,12 +4,14 @@ import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import CardActionArea from '@mui/material/CardActionArea';
 import Box from '@mui/material/Box';
+import { useNavigate } from 'react-router-dom';
 import "./Body.scss";
 
 // Import new icons from Material UI
 import { Assessment, SaveAlt, FilePresent, CompareArrows, Insights, Security } from '@mui/icons-material'; 
 
 const BlogGrid = () => {
+  const navigate = useNavigate();
   return (
     <div id="bodyDiv">
         {/* Header Section */}
@@ -45,7 +47,7 @@ const BlogGrid = () => {
             sx={{ maxWidth: 345, background: 'linear-gradient(135deg, #00c6ff, #0072ff)', color: 'white' }}
             className='featureCard'
           >
-            <CardActionArea sx={{ cursor: 'pointer' }} onClick={()=>{window.open("/new-scenario",  '_blank')}}>
+            <CardActionArea sx={{ cursor: 'pointer' }} onClick={()=>navigate("/new-scenario")}>
               <Assessment sx={{ fontSize: 80, color: 'white', margin: '20px' }} />
               <CardContent
                 sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
@@ -160,7 +162,7 @@ const BlogGrid = () => {
             sx={{ maxWidth: 345, background: 'linear-gradient(135deg, #f857a6, #ff5858)', color: 'white' }}
             className='featureCard'
           >
-            <CardActionArea sx={{ cursor: 'pointer' }}>
+            <CardActionArea sx={{ cursor: 'pointer'}} onClick={()=>navigate("/admin")}>
               <Security sx={{ fontSize: 80, color: 'white', margin: '20px' }} />
               <CardContent
                 sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
