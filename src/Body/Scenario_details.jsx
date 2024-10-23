@@ -16,6 +16,7 @@ import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { Grid, Button, TextField, MenuItem, Typography, IconButton } from '@mui/material';
 import ApplyIcon from '@mui/icons-material/CheckCircle';
 import EditIcon from '@mui/icons-material/Edit';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 const initialNodes = [
     { id: '1', data: { label: 'Product Level Treated Patients' }, position: { x: 250, y: 50 }, style: { width: 200 } },
     { id: '2', data: { label: 'Patients per product (based on trending)' }, position: { x: 250, y: 150 }, style: { width: 250 } },
@@ -70,7 +71,7 @@ const ForecastAndFlowDiagram = () => {
     const predefinedScenarioNames = ['Scenario 1', 'Scenario 2', 'Scenario 3'];
     // State to control visibility of calendars for each product
     const [openCalendars, setOpenCalendars] = useState({});
-
+    const currentYear = dayjs();
     useEffect(() => {
         const currentHour = new Date().getHours();
         setGreeting(currentHour < 12 ? 'Good Morning' : currentHour < 18 ? 'Good Afternoon' : 'Good Evening');
@@ -172,7 +173,6 @@ const ForecastAndFlowDiagram = () => {
         setProducts((prevProducts) =>
             prevProducts.map((product) => (product.id === id ? { ...product, launchDate: date } : product))
         );
-        setOpenCalendars((prev) => ({ ...prev, [id]: false })); // Hide the calendar after selection
     };
     const [scenarioName, setScenarioName] = useState(predefinedScenarioNames[0]);
     const [nodes, setNodes] = useState(initialNodes);
@@ -324,78 +324,33 @@ const ForecastAndFlowDiagram = () => {
                                 <Typography variant="h6" gutterBottom>
                                     Historical Start Month
                                 </Typography>
-                                <div
-                                    onClick={() => toggleCalendar(true)}
-                                    style={{ cursor: 'pointer', fontSize: '16px', marginBottom: '10px' }}
-                                >
-                                    {historicalStartMonth.format('MMM-YYYY')}
-                                </div>
-                                {showHistoricalCalendar && (
-                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                        <div>
-                                            <Button
-                                                onClick={() => handleYearClick(true)}
-                                                style={{
-                                                    textTransform: 'none',
-                                                    marginBottom: '8px',
-                                                    cursor: 'pointer',
-                                                }}
-                                            >
-                                                {historicalStartMonth.format('YYYY')} (Change Year)
-                                            </Button>
-                                            <DateCalendar
-                                                value={historicalStartMonth}
-                                                views={[historicalView]} // Dynamically control the view
-                                                onChange={handleHistoricalDateChange}
-                                                sx={{
-                                                    boxShadow: 3,
-                                                    borderRadius: 2,
-                                                    padding: 2,
-                                                    backgroundColor: '#fff',
-                                                }}
-                                            />
-                                        </div>
-                                    </LocalizationProvider>
-                                )}
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                    <DatePicker
+                                        //label="Years in descending order"
+                                        maxDate={currentYear}
+                                        openTo="year"
+                                        views={['year', 'month']}
+                                        value={historicalStartMonth}
+                                        onChange={(newDate) => setHistoricalStartMonth(newDate)}
+                                        sx={{ minWidth: 250 }}
+                                    />
+                                </LocalizationProvider>
                             </Grid>
-
                             <Grid item xs={12} sm={6}>
                                 <Typography variant="h6" gutterBottom>
                                     Forecast Start Month
                                 </Typography>
-                                <div
-                                    onClick={() => toggleCalendar(false)}
-                                    style={{ cursor: 'pointer', fontSize: '16px', marginBottom: '10px' }}
-                                >
-                                    {forecastStartMonth.format('MMM-YYYY')}
-                                </div>
-                                {showForecastCalendar && (
-                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                        <div>
-                                            <Button
-                                                onClick={() => handleYearClick(false)}
-                                                style={{
-                                                    textTransform: 'none',
-                                                    marginBottom: '8px',
-                                                    cursor: 'pointer',
-                                                }}
-                                            >
-                                                {forecastStartMonth.format('YYYY')} (Change Year)
-                                            </Button>
-                                            <DateCalendar
-                                                value={forecastStartMonth}
-                                                views={[forecastView]} // Dynamically control the view
-                                                onChange={handleForecastDateChange}
-                                                sx={{
-                                                    boxShadow: 3,
-                                                    borderRadius: 2,
-                                                    padding: 2,
-                                                    backgroundColor: '#fff',
-                                                }}
-                                            />
-                                        </div>
-                                    </LocalizationProvider>
-                                )}
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                    <DatePicker
+                                        //label="Years in descending order"
+                                        maxDate={currentYear}
+                                        openTo="year"
+                                        views={['year', 'month']}
+                                        value={forecastStartMonth}
+                                        onChange={(newDate) => setForecastStartMonth(newDate)}
+                                        sx={{ minWidth: 250 }}
+                                    />
+                                </LocalizationProvider>
                             </Grid>
                         </Grid>
                         <div className="section">
@@ -444,24 +399,17 @@ const ForecastAndFlowDiagram = () => {
                                                 </Button>
                                             </td>
                                             <td>
-                                                <div onClick={() => toggleProductCalendar(product.id)}>
-                                                    {product.launchDate.format('MMM-YYYY')}
-                                                </div>
-                                                {openProductCalendars[product.id] && (
-                                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                                        <DateCalendar
-                                                            value={product.launchDate}
-                                                            views={['year', 'month']}
-                                                            onChange={(newDate) => handleLaunchDateChange(product.id, newDate)}
-                                                            sx={{
-                                                                boxShadow: 3,
-                                                                borderRadius: 2,
-                                                                padding: 2,
-                                                                backgroundColor: '#fff',
-                                                            }}
-                                                        />
-                                                    </LocalizationProvider>
-                                                )}
+                                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                    <DatePicker
+                                                        //label="Years in descending order"
+                                                        maxDate={currentYear}
+                                                        openTo="year"
+                                                        views={['year', 'month']}
+                                                        value={product.launchDate}
+                                                        onChange={(newDate) => handleLaunchDateChange(product.id, newDate)}
+                                                        sx={{ minWidth: 250 }}
+                                                    />
+                                                </LocalizationProvider>
                                             </td>
                                             {indicationColumns.map((indication, index) => (
                                                 <td key={index}>
