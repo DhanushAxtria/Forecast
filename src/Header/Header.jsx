@@ -183,7 +183,7 @@ export default function PersistentDrawerLeft() {
               variant="h6"
               noWrap
               component="div"
-              sx={{ fontWeight: 'bold', color: 'black',paddingLeft: '80px'}}
+              sx={{ fontWeight: 'bold', color: 'black',paddingLeft: '80px',fontSize:'2rem'}}
             >
               Axtria Forecast Tool
             </Typography>
