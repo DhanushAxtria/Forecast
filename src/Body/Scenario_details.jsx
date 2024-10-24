@@ -61,13 +61,16 @@ const ForecastAndFlowDiagram = () => {
     const [forecastView, setForecastView] = useState('year'); // Track the view state
     const [openProductCalendars, setOpenProductCalendars] = useState({});//lauch date
     //const [scenarioName, setScenarioName] = useState(predefinedScenarioNames[0]);
+    const [previousScenarioProducts, setPreviousScenarioProducts] = useState([]);
+    //const [scenarioName, setScenarioName] = useState(predefinedScenarioNames[0]);
+    const [indicationColumns, setIndicationColumns] = useState([]);
     const [scenarioDetails, setScenarioDetails] = useState('Custom Scenario Details');
     const [editMode, setEditMode] = useState(false);
     const [products, setProducts] = useState([
         { id: 1, name: 'Product1', include: true, xyzProduct: true, launchDate: dayjs('2014-02-01'), indications: {} },
         { id: 2, name: 'Product2', include: true, xyzProduct: true, launchDate: dayjs('2017-02-01'), indications: {} },
     ]);
-    const [indicationColumns, setIndicationColumns] = useState([]);
+    //const [indicationColumns, setIndicationColumns] = useState([]);
     const predefinedScenarioNames = ['Scenario 1', 'Scenario 2', 'Scenario 3'];
     // State to control visibility of calendars for each product
     const [openCalendars, setOpenCalendars] = useState({});
@@ -106,7 +109,10 @@ const ForecastAndFlowDiagram = () => {
             }))
         );
     };
-
+    const [scenarioName, setScenarioName] = useState(predefinedScenarioNames[0]);
+    const handleScenarioChange = (event) => {
+        setScenarioName(event.target.value);
+    };
     const handleToggleIndication = (productId, indicationKey) => {
         setProducts((prevProducts) =>
             prevProducts.map((product) =>
@@ -122,7 +128,30 @@ const ForecastAndFlowDiagram = () => {
             )
         );
     };
-
+    const savedScenarios = {
+        'Scenario 1': {
+            products: [
+                { id: 1, name: 'Product1', include: true, xyzProduct: true, launchDate: dayjs('2014-02-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'No' } },
+                { id: 2, name: 'Product2', include: true, xyzProduct: true, launchDate: dayjs('2017-02-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'Yes' } },
+            ],
+            indicationColumns: ['Indication 1', 'Indication 2']
+        },
+        'Scenario 2': {
+            products: [
+                { id: 1, name: 'ProductA', include: true, xyzProduct: false, launchDate: dayjs('2015-05-01'), indications: { 'Indication A': 'Yes', 'Indication B': 'No' } },
+                { id: 2, name: 'ProductB', include: true, xyzProduct: true, launchDate: dayjs('2018-08-01'), indications: { 'Indication A': 'Yes', 'Indication B': 'Yes' } },
+            ],
+            indicationColumns: ['Indication A', 'Indication B']
+        },
+        // Add more mock scenarios if needed
+    };
+    useEffect(() => {
+        if (savedScenarios[scenarioName]) {
+            const selectedScenario = savedScenarios[scenarioName];
+            setProducts(selectedScenario.products);
+            setIndicationColumns(selectedScenario.indicationColumns);
+        }
+    }, [scenarioName]);
     const handleIncludeChange = (id) => {
         setProducts((prevProducts) =>
             prevProducts.map((product) => (product.id === id ? { ...product, include: !product.include } : product))
@@ -174,7 +203,7 @@ const ForecastAndFlowDiagram = () => {
             prevProducts.map((product) => (product.id === id ? { ...product, launchDate: date } : product))
         );
     };
-    const [scenarioName, setScenarioName] = useState(predefinedScenarioNames[0]);
+    
     const [nodes, setNodes] = useState(initialNodes);
     const [edges, setEdges] = useState(initialEdges);
 
@@ -215,7 +244,7 @@ const ForecastAndFlowDiagram = () => {
                                             fullWidth
                                             label="Scenario Name"
                                             value={scenarioName}
-                                            onChange={(e) => setScenarioName(e.target.value)}
+                                            onChange={handleScenarioChange}
                                             variant="outlined"
                                         >
                                             {predefinedScenarioNames.map((name, index) => (

@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import "./Body.scss";
 
 // Import new icons from Material UI
-import { Assessment, SaveAlt, FilePresent, CompareArrows, Insights, Security } from '@mui/icons-material'; 
+import { Assessment, SaveAlt, FilePresent, CompareArrows, Insights, Security, QueryStats, Assignment } from '@mui/icons-material'; 
 
 const BlogGrid = () => {
   const navigate = useNavigate();
@@ -177,6 +177,52 @@ const BlogGrid = () => {
             </CardActionArea>
           </Card>
           <div className="tooltipAbove">Manage and secure forecast models with admin privileges.</div>
+        </div>
+
+        {/* Card 7: Generate Report */}
+        <div className="hoverCard">
+          <Card
+            sx={{ maxWidth: 345, background: 'linear-gradient(135deg, #36d1dc, #5b86e5)', color: 'white' }}
+            className='featureCard'
+          >
+            <CardActionArea sx={{ cursor: 'pointer' }} onClick={() => navigate("/generate-report")}>
+              <Assignment sx={{ fontSize: 80, color: 'white', margin: '20px' }} />
+              <CardContent
+                sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <Typography gutterBottom variant="h5" component="div">
+                  Generate Report
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary', textAlign: 'center' }}>
+                  Generate detailed reports based on your forecast scenarios.
+                </Typography>
+              </CardContent>
+            </CardActionArea>
+          </Card>
+          <div className="tooltipAbove">Generate detailed reports based on your forecast scenarios.</div>
+        </div>
+
+        {/* Card 8: Submissions Tracker */}
+        <div className="hoverCard">
+          <Card
+            sx={{ maxWidth: 345, background: 'linear-gradient(135deg, #ff9a9e, #fecfef)', color: 'black' }}
+            className='featureCard'
+          >
+            <CardActionArea sx={{ cursor: 'pointer' }} onClick={() => navigate("/submissions-tracker")}>
+              <QueryStats sx={{ fontSize: 80, color: 'black', margin: '20px' }} />
+              <CardContent
+                sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <Typography gutterBottom variant="h5" component="div">
+                  Submissions Tracker
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary', textAlign: 'center' }}>
+                  Track the status of all submitted forecast scenarios.
+                </Typography>
+              </CardContent>
+            </CardActionArea>
+          </Card>
+          <div className="tooltipAbove">Track the status of all submitted forecast scenarios.</div>
         </div>
       </Box>
     </div>

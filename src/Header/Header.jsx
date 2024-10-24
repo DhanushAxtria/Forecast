@@ -73,6 +73,8 @@ const breadcrumbNameMap = {
   '/scenario-comparison': 'Scenario Comparison',
   '/forecast-deep-dive': 'Forecast Deep-dive',
   '/admin': 'Admin',
+  '/generate-report': 'Generate Report',
+  '/submission-tracking': 'Submissions Tracker',
 };
 
 // Component for dynamic breadcrumbs
@@ -244,11 +246,13 @@ export default function PersistentDrawerLeft() {
         {/* Drawer navigation items */}
         <List>
           {[{ text: 'New Scenario', icon: <Assessment />, path: '/new-scenario' },
-            { text: 'Saved Scenario', icon: <SaveAlt /> },
-            { text: 'Data consolidation', icon: <FilePresent />, path: '/data-consolidation' },
-            { text: 'Scenario Comparsion', icon: <CompareArrows />, path: '/scenario-comparison' },
-            { text: 'Forecast Deep-dive', icon: <Insights /> },
-            { text: 'Admin', icon: <Security />,path:'/admin'}
+            { text: 'Saved Scenario', icon: <SaveAlt />, path: '/saved-scenario' },
+            { text: 'Data Consolidation', icon: <FilePresent />, path: '/data-consolidation' },
+            { text: 'Scenario Comparison', icon: <CompareArrows />, path: '/scenario-comparison' },
+            { text: 'Forecast Deep-dive', icon: <Insights />, path: '/forecast-deep-dive' },
+            { text: 'Generate Report', icon: <Summarize />, path: '/generate-report' },  // Added
+            { text: 'Submissions Tracker', icon: <TrackChanges />, path: '/submission-tracking' }, // Added
+            { text: 'Admin', icon: <Security />, path: '/admin' }
           ].map((item) => (
             <ListItem key={item.text} disablePadding>
               <ListItemButton onClick={() => navigate(item.path)}>
