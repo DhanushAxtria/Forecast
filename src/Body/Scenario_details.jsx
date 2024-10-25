@@ -17,6 +17,7 @@ import { Grid, Button, TextField, MenuItem, Typography, IconButton } from '@mui/
 import ApplyIcon from '@mui/icons-material/CheckCircle';
 import EditIcon from '@mui/icons-material/Edit';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+
 const initialNodes = [
     { id: '1', data: { label: 'Product Level Treated Patients' }, position: { x: 250, y: 50 }, style: { width: 200 } },
     { id: '2', data: { label: 'Patients per product (based on trending)' }, position: { x: 250, y: 150 }, style: { width: 250 } },
@@ -47,6 +48,7 @@ const ForecastAndFlowDiagram = () => {
     const [activeTab, setActiveTab] = useState('controlSheet'); // Manage which tab is active
     // Selected predefined scenario
     const [customScenarioName, setCustomScenarioName] = useState('');
+    const [forecastEndMonth, setForecastEndMonth] = useState(dayjs());
     // Control sheet form states
     const [historicalStartMonth, setHistoricalStartMonth] = useState(dayjs('2015-01-01'));
     const [forecastStartMonth, setForecastStartMonth] = useState(dayjs());
@@ -157,6 +159,39 @@ const ForecastAndFlowDiagram = () => {
             prevProducts.map((product) => (product.id === id ? { ...product, include: !product.include } : product))
         );
     };
+    const handleProductNameChange = (id, newName) => {
+        setProducts((prevProducts) =>
+            prevProducts.map((product) =>
+                product.id === id ? { ...product, name: newName } : product
+            )
+        );
+    };
+    const handleIndicationChange = (productId, indicationKey, newValue) => {
+        setProducts((prevProducts) =>
+            prevProducts.map((product) =>
+                product.id === productId
+                    ? {
+                        ...product,
+                        indications: {
+                            ...product.indications,
+                            [indicationKey]: newValue,
+                        },
+                    }
+                    : product
+            )
+        );
+    };
+    const handleReviewScenario = (id) => {
+        // Logic for handling review of the specific scenario
+        console.log(`Review Scenario for Product ID: ${id}`);
+        // Implement navigation or modal open here
+    };
+    
+    const handleReviewScenarioSummary = (id) => {
+        // Logic for handling review of the scenario summary
+        console.log(`Review Scenario Summary for Product ID: ${id}`);
+        // Implement navigation or modal open here
+    };
     const handleHistoricalDateChange = (newDate) => {
         setHistoricalStartMonth(newDate);
         setHistoricalView('month'); // Switch to month view after selecting a year
@@ -198,12 +233,31 @@ const ForecastAndFlowDiagram = () => {
             [id]: !prev[id],
         }));
     };
+    const handleIndicationColumnChange = (index, newName) => {
+        setIndicationColumns((prevColumns) =>
+            prevColumns.map((col, colIndex) => (colIndex === index ? newName : col))
+        );
+
+        // Update all products to map the new indication name with the previous values
+        setProducts((prevProducts) =>
+            prevProducts.map((product) => {
+                const oldIndicationName = indicationColumns[index]; // Get the old column name
+                const newIndications = { ...product.indications };
+
+                // Keep the Yes/No toggle under the new column name
+                newIndications[newName] = newIndications[oldIndicationName];
+                delete newIndications[oldIndicationName]; // Remove the old column entry
+
+                return { ...product, indications: newIndications };
+            })
+        );
+    };
     const handleLaunchDateChange = (id, date) => {
         setProducts((prevProducts) =>
             prevProducts.map((product) => (product.id === id ? { ...product, launchDate: date } : product))
         );
     };
-    
+
     const [nodes, setNodes] = useState(initialNodes);
     const [edges, setEdges] = useState(initialEdges);
 
@@ -213,13 +267,15 @@ const ForecastAndFlowDiagram = () => {
 
     return (
         <div className="container">
-            <Button
-                variant="contained"
-                className="fixed-apply-button" // Apply the custom CSS class
-                startIcon={<ApplyIcon />}
-            >
-                Apply
-            </Button>
+            {activeTab === 'controlSheet' && (
+                <Button
+                    variant="contained"
+                    className="fixed-apply-button" // Apply the custom CSS class
+                    startIcon={<ApplyIcon />}
+                >
+                    Apply
+                </Button>
+            )}
             <div className="tabs">
                 <Button variant="outlined" className={`tab ${activeTab === 'controlSheet' ? 'active' : ''}`} onClick={() => setActiveTab('controlSheet')}>
                     Forecast Scenario
@@ -281,42 +337,54 @@ const ForecastAndFlowDiagram = () => {
                                         </IconButton>
                                     </Grid>
                                 </Grid>
-                                <TextField
-                                    fullWidth
-                                    label="Forecast Cycle"
-                                    value={forecastCycle}
-                                    InputProps={{
-                                        readOnly: true,
-                                    }}
-                                    variant="outlined"
-                                    margin="normal"
-                                />
-                                <TextField
-                                    fullWidth
-                                    label="Country"
-                                    value={country}
-                                    InputProps={{
-                                        readOnly: true,
-                                    }}
-                                    variant="outlined"
-                                    margin="normal"
-                                />
-                                <TextField
-                                    fullWidth
-                                    label="Therapeutic Area"
-                                    value={therapeuticArea}
-                                    InputProps={{
-                                        readOnly: true,
-                                    }}
-                                    variant="outlined"
-                                    margin="normal"
-                                />
+
+                                {/* Align Forecast Cycle, Country, and Therapeutic Area side by side */}
+                                <Grid container spacing={3}>
+                                    <Grid item xs={4}>
+                                        <TextField
+                                            fullWidth
+                                            label="Forecast Cycle"
+                                            value={forecastCycle}
+                                            InputProps={{
+                                                readOnly: true,
+                                            }}
+                                            variant="outlined"
+                                            margin="normal"
+                                        />
+                                    </Grid>
+                                    <Grid item xs={4}>
+                                        <TextField
+                                            fullWidth
+                                            label="Country"
+                                            value={country}
+                                            InputProps={{
+                                                readOnly: true,
+                                            }}
+                                            variant="outlined"
+                                            margin="normal"
+                                        />
+                                    </Grid>
+                                    <Grid item xs={4}>
+                                        <TextField
+                                            fullWidth
+                                            label="Therapeutic Area"
+                                            value={therapeuticArea}
+                                            InputProps={{
+                                                readOnly: true,
+                                            }}
+                                            variant="outlined"
+                                            margin="normal"
+                                        />
+                                    </Grid>
+                                </Grid>
                             </Grid>
-                            {/* Scenario Parameters Section */}
+                        </Grid>
+                        {/* Scenario Parameters Section */}
+                        <Grid container spacing={3} style={{ marginTop: '-20px' }}>
                             <Grid item xs={12}>
                                 <h2>Scenario Parameters</h2>
                             </Grid>
-                            <Grid item xs={12} sm={6}>
+                            <Grid item xs={6}>
                                 <TextField
                                     select
                                     fullWidth
@@ -329,8 +397,7 @@ const ForecastAndFlowDiagram = () => {
                                     <MenuItem value="Units">Units</MenuItem>
                                 </TextField>
                             </Grid>
-
-                            <Grid item xs={12} sm={6}>
+                            <Grid item xs={6}>
                                 <TextField
                                     select
                                     fullWidth
@@ -345,41 +412,61 @@ const ForecastAndFlowDiagram = () => {
                                 </TextField>
                             </Grid>
                         </Grid>
-                        <Grid item xs={12}>
-                            <h2>Time Period</h2>
-                        </Grid>
-                        <Grid container spacing={3}>
-                            <Grid item xs={12} sm={6}>
-                                <Typography variant="h6" gutterBottom>
-                                    Historical Start Month
-                                </Typography>
-                                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                    <DatePicker
-                                        //label="Years in descending order"
-                                        maxDate={currentYear}
-                                        openTo="year"
-                                        views={['year', 'month']}
-                                        value={historicalStartMonth}
-                                        onChange={(newDate) => setHistoricalStartMonth(newDate)}
-                                        sx={{ minWidth: 250 }}
-                                    />
-                                </LocalizationProvider>
+                        <Grid container spacing={3} style={{ marginTop: '10px' }}>
+                            <Grid item xs={12}>
+                                <h2>Time Period</h2>
                             </Grid>
-                            <Grid item xs={12} sm={6}>
-                                <Typography variant="h6" gutterBottom>
-                                    Forecast Start Month
-                                </Typography>
-                                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                    <DatePicker
-                                        //label="Years in descending order"
-                                        maxDate={currentYear}
-                                        openTo="year"
-                                        views={['year', 'month']}
-                                        value={forecastStartMonth}
-                                        onChange={(newDate) => setForecastStartMonth(newDate)}
-                                        sx={{ minWidth: 250 }}
-                                    />
-                                </LocalizationProvider>
+                            <Grid container spacing={3} style={{ paddingLeft: '32px   ' }}>
+                                {/* Historical Start Month */}
+                                <Grid item xs={4}> {/* Set each field to take up 4/12 of the row width */}
+                                    <Typography variant="h6" gutterBottom>
+                                        Historical Start Month
+                                    </Typography>
+                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                        <DatePicker
+                                            maxDate={currentYear}
+                                            openTo="year"
+                                            views={['year', 'month']}
+                                            value={historicalStartMonth}
+                                            onChange={(newDate) => setHistoricalStartMonth(newDate)}
+                                            sx={{ minWidth: 250 }}
+                                        />
+                                    </LocalizationProvider>
+                                </Grid>
+
+                                {/* Forecast Start Month */}
+                                <Grid item xs={4}>
+                                    <Typography variant="h6" gutterBottom>
+                                        Forecast Start Month
+                                    </Typography>
+                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                        <DatePicker
+                                            maxDate={currentYear}
+                                            openTo="year"
+                                            views={['year', 'month']}
+                                            value={forecastStartMonth}
+                                            onChange={(newDate) => setForecastStartMonth(newDate)}
+                                            sx={{ minWidth: 250 }}
+                                        />
+                                    </LocalizationProvider>
+                                </Grid>
+
+                                {/* Forecast End Month */}
+                                <Grid item xs={4}>
+                                    <Typography variant="h6" gutterBottom>
+                                        Forecast End Month
+                                    </Typography>
+                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                        <DatePicker
+                                            maxDate={currentYear}
+                                            openTo="year"
+                                            views={['year', 'month']}
+                                            value={forecastEndMonth} // New state for forecast end month
+                                            onChange={(newDate) => setForecastEndMonth(newDate)} // New handler for forecast end month
+                                            sx={{ minWidth: 250 }}
+                                        />
+                                    </LocalizationProvider>
+                                </Grid>
                             </Grid>
                         </Grid>
                         <div className="section">
@@ -387,75 +474,89 @@ const ForecastAndFlowDiagram = () => {
                             <Button variant="contained" color="primary" onClick={handleAddProduct} style={{ marginRight: '10px' }}>
                                 + Add Product
                             </Button>
-                            <Button variant="contained" color="secondary" onClick={handleAddIndication}>
+                            <Button variant="contained" color="primary" onClick={handleAddIndication}>
                                 + Add Indication
                             </Button>
-
-                            <table className="product-table">
-                                <thead>
-                                    <tr>
-                                        <th>S No.</th>
-                                        <th>Product</th>
-                                        <th>Include?</th>
-                                        <th>XYZ Product?</th>
-                                        <th>Launch Date</th>
-                                        {indicationColumns.map((indication, index) => (
-                                            <th key={index}>{indication}</th>
-                                        ))}
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {products.map((product) => (
-                                        <tr key={product.id}>
-                                            <td>{product.id}</td>
-                                            <td>{product.name}</td>
-                                            <td>
-                                                <Button
-                                                    variant="outlined"
-                                                    className={`toggle-btn ${product.include ? 'yes' : 'no'}`}
-                                                    onClick={() => handleIncludeChange(product.id)}
-                                                >
-                                                    {product.include ? 'Yes' : 'No'}
-                                                </Button>
-                                            </td>
-                                            <td>
-                                                <Button
-                                                    variant="outlined"
-                                                    className={`toggle-btn ${product.xyzProduct ? 'yes' : 'no'}`}
-                                                    onClick={() => handleXYZProductChange(product.id)}
-                                                >
-                                                    {product.xyzProduct ? 'Yes' : 'No'}
-                                                </Button>
-                                            </td>
-                                            <td>
-                                                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                                    <DatePicker
-                                                        //label="Years in descending order"
-                                                        maxDate={currentYear}
-                                                        openTo="year"
-                                                        views={['year', 'month']}
-                                                        value={product.launchDate}
-                                                        onChange={(newDate) => handleLaunchDateChange(product.id, newDate)}
-                                                        sx={{ minWidth: 250 }}
-                                                    />
-                                                </LocalizationProvider>
-                                            </td>
+                            <div style={{ maxHeight: '400px', overflowX: 'auto', overflowY: 'auto', marginTop: '10px' }}> {/* Added scrollbars */}
+                                <table className="product-table" style={{ minWidth: indicationColumns.length > 2 ? '150%' : '100%' }}>
+                                    <thead>
+                                        <tr>
+                                            <th>S No.</th>
+                                            <th>Product</th>
+                                            <th>Include?</th>
+                                            <th>XYZ Product?</th>
+                                            <th>Launch Date</th>
                                             {indicationColumns.map((indication, index) => (
-                                                <td key={index}>
-                                                    <Button
+                                                <th key={index}>
+                                                    <TextField
+                                                        value={indication}
+                                                        onChange={(e) => handleIndicationColumnChange(index, e.target.value)} // Editable header
                                                         variant="outlined"
-                                                        className={`toggle-btn ${product.indications[indication] === 'Yes' ? 'yes' : 'no'}`}
-                                                        onClick={() => handleToggleIndication(product.id, indication)}
-                                                    >
-                                                        {product.indications[indication]}
-                                                    </Button>
-                                                </td>
+                                                    />
+                                                </th>
                                             ))}
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table >
-                        </div >
+                                    </thead>
+                                    <tbody>
+                                        {products.map((product) => (
+                                            <tr key={product.id}>
+                                                <td>{product.id}</td>
+                                                <td>
+                                                    <TextField
+                                                        value={product.name}
+                                                        onChange={(e) => handleProductNameChange(product.id, e.target.value)}
+                                                        variant="outlined"
+                                                        fullWidth
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <Button
+                                                        variant="outlined"
+                                                        className={`toggle-btn ${product.include ? 'yes' : 'no'}`}
+                                                        onClick={() => handleIncludeChange(product.id)}
+                                                    >
+                                                        {product.include ? 'Yes' : 'No'}
+                                                    </Button>
+                                                </td>
+                                                <td>
+                                                    <Button
+                                                        variant="outlined"
+                                                        className={`toggle-btn ${product.xyzProduct ? 'yes' : 'no'}`}
+                                                        onClick={() => handleXYZProductChange(product.id)}
+                                                    >
+                                                        {product.xyzProduct ? 'Yes' : 'No'}
+                                                    </Button>
+                                                </td>
+                                                <td>
+                                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                        <DatePicker
+                                                            //label="Years in descending order"
+                                                            maxDate={currentYear}
+                                                            openTo="year"
+                                                            views={['year', 'month']}
+                                                            value={product.launchDate}
+                                                            onChange={(newDate) => handleLaunchDateChange(product.id, newDate)}
+                                                            sx={{ minWidth: 250 }}
+                                                        />
+                                                    </LocalizationProvider>
+                                                </td>
+                                                {indicationColumns.map((indication, index) => (
+                                                    <td key={index}>
+                                                        <Button
+                                                            variant="outlined"
+                                                            className={`toggle-btn ${product.indications[indication] === 'Yes' ? 'yes' : 'no'}`}
+                                                            onClick={() => handleToggleIndication(product.id, indication)}
+                                                        >
+                                                            {product.indications[indication]}
+                                                        </Button>
+                                                    </td>
+                                                ))}
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table >
+                            </div >
+                        </div>
                     </>
                 )}
 
@@ -474,7 +575,6 @@ const ForecastAndFlowDiagram = () => {
                                         fitView
                                         style={{ height: '80vh', width: '100%' }}
                                     >
-                                        <Background color="#aaa" gap={16} />
                                         <Controls />
                                     </ReactFlow>
                                 </div>

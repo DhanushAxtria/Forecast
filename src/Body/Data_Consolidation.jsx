@@ -168,7 +168,7 @@ const DataConsolidation = () => {
   return (
     <div style={styles.container}>
       {/* Greeting section */}
-      <h1 style={styles.greeting}>{greeting}, Welcome to the Scenario-Comparison page!</h1>
+      <h1 style={styles.greeting}>{greeting}, Welcome to the Data Consolidation page!</h1>
 
       {/* Forecast and Worksheet Selections Container */}
       <div style={styles.selectionContainer}>

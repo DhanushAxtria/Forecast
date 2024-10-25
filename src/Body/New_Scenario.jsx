@@ -37,7 +37,7 @@ import { useNavigate } from 'react-router-dom';
 import Checkbox from '@mui/material/Checkbox';
 import ListItemText from '@mui/material/ListItemText';
 import Autocomplete from '@mui/material/Autocomplete';
-
+import Tooltip from '@mui/material/Tooltip';
 
 export default function CountryAndTherapeuticSelect({ username = "User" }) {
   const { savedFiles, setSavedFiles } = useContext(SavedFilesContext);
@@ -495,75 +495,213 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
       >
         Save File
       </Button>*/}
-      {/* Display the table only when "Copy from Submission Scenarios" is clicked */}
       {selectedAction === 'copySubmission' && (
-        <>
-          {/* Icon Legend */}
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Box display="flex" alignItems="center" gap={1}>
-                <OpenInNewIcon color="success" />
-                <Typography variant="body2" sx={{ color: 'gray' }}>
-                  Review Scenario in New Window
-                </Typography>
-              </Box>
-              <Box display="flex" alignItems="center" gap={1}>
-                <AssessmentIcon color="success" />
-                <Typography variant="body2" sx={{ color: 'gray' }}>
-                  Review Scenario Summary in New Window
-                </Typography>
-              </Box>
-              <Box display="flex" alignItems="center" gap={1}>
-                <Button variant="contained" color="primary" size="small">
-                  Select
-                </Button>
-                <Typography variant="body2" sx={{ color: 'gray' }}>
-                  Selected Scenario Configuration
-                </Typography>
-              </Box>
-            </Box>
-          </Box>
-          <TableContainer component={Paper} sx={{ mt: 3, maxWidth: '100%' }}>
-            <Table aria-label="submission scenarios table">
-              <TableHead>
-                <TableRow sx={{ backgroundColor: '#1976d2' }}>
-                  <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Scenario</TableCell>
-                  <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Forecast Cycle</TableCell>
-                  <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Country</TableCell>
-                  <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Therapeutic Area</TableCell>
-                  <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Last Modified</TableCell>
-                  <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Submitted by</TableCell>
-                  <TableCell sx={{ color: 'white', fontWeight: 'bold', paddingLeft: '80px' }}>Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {/* Populate the table with rows similar to the screenshot */}
-                {[
-                  { scenario: 'Main Submission', cycle: '2024 H2', country: 'Norway', area: 'TA 1', modified: '30 Sep 2024', user: 'User 1' },
-                  { scenario: 'Draft 1', cycle: '2024 H2', country: 'Norway', area: 'TA 1', modified: '29 Sep 2024', user: 'User 1' },
-                  { scenario: 'Draft 2', cycle: '2024 H2', country: 'Norway', area: 'TA 1', modified: '30 Sep 2024', user: 'User 1' },
-                  { scenario: 'Main Submission', cycle: '2024 H2', country: 'Finland', area: 'TA 1', modified: '29 Sep 2024', user: 'User 1' },
-                  { scenario: 'Draft 1', cycle: '2024 H2', country: 'Finland', area: 'TA 1', modified: '28 Sep 2024', user: 'User 1' },
-                ].map((row, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{row.scenario}</TableCell>
-                    <TableCell>{row.cycle}</TableCell>
-                    <TableCell>{row.country}</TableCell>
-                    <TableCell>{row.area}</TableCell>
-                    <TableCell>{row.modified}</TableCell>
-                    <TableCell>{row.user}</TableCell>
-                    <TableCell>
-                      <Box display="flex" alignItems="center" gap={1}>
+        <TableContainer component={Paper} sx={{ mt: 3, maxWidth: '100%' }}>
+          <Table aria-label="submission scenarios table">
+            <TableHead>
+              <TableRow sx={{ backgroundColor: '#1976d2' }}>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Scenario</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Forecast Cycle</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Country</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Therapeutic Area</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Last Modified</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Submitted by</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', paddingLeft: '80px' }}>Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {[
+                { scenario: 'Main Submission', cycle: '2024 H2', country: 'Norway', area: 'TA 1', modified: '30 Sep 2024', user: 'User 1' },
+                { scenario: 'Draft 1', cycle: '2024 H2', country: 'Norway', area: 'TA 1', modified: '29 Sep 2024', user: 'User 1' },
+                { scenario: 'Draft 2', cycle: '2024 H2', country: 'Norway', area: 'TA 1', modified: '30 Sep 2024', user: 'User 1' },
+                { scenario: 'Main Submission', cycle: '2024 H2', country: 'Finland', area: 'TA 1', modified: '29 Sep 2024', user: 'User 1' },
+                { scenario: 'Draft 1', cycle: '2024 H2', country: 'Finland', area: 'TA 1', modified: '28 Sep 2024', user: 'User 1' },
+              ].map((row, index) => (
+                <TableRow key={index}>
+                  <TableCell>{row.scenario}</TableCell>
+                  <TableCell>{row.cycle}</TableCell>
+                  <TableCell>{row.country}</TableCell>
+                  <TableCell>{row.area}</TableCell>
+                  <TableCell>{row.modified}</TableCell>
+                  <TableCell>{row.user}</TableCell>
+                  <TableCell>
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <Tooltip title="Review Scenario Summary">
                         <IconButton onClick={() => handleReviewScenarioSummary(row)}>
                           <OpenInNewIcon color="success" />
                         </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Review Scenario Details">
                         <IconButton onClick={() => handleReviewScenario(row)}>
                           <AssessmentIcon color="success" />
-                        </IconButton >
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Select Scenario">
                         <Button variant="contained" color="primary" size="small" onClick={() => handleSelectClick(row)}>
                           Select
                         </Button>
-                      </Box>
+                      </Tooltip>
+                    </Box>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
+      {selectedAction === 'copySaved' && (
+        <TableContainer component={Paper} sx={{ mt: 3, maxWidth: '100%' }}>
+          <Table aria-label="saved scenarios table">
+            <TableHead>
+              <TableRow sx={{ backgroundColor: '#1976d2' }}>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Scenario</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Forecast Cycle</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Country</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Therapeutic Area</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Last Modified</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Submitted by</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', paddingLeft: '27px' }}>Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {filteredSavedScenarios.map((row, index) => (
+                <TableRow key={index}>
+                  <TableCell>{row.scenario}</TableCell>
+                  <TableCell>{row.cycle}</TableCell>
+                  <TableCell>{row.country}</TableCell>
+                  <TableCell>{row.area}</TableCell>
+                  <TableCell>{row.modified}</TableCell>
+                  <TableCell>{row.user}</TableCell>
+                  <TableCell>
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <Tooltip title="Review Scenario Summary">
+                        <IconButton onClick={() => handleReviewScenarioSummary(row)}>
+                          <OpenInNewIcon color="success" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Review Scenario Details">
+                        <IconButton onClick={() => handleReviewScenario(row)}>
+                          <AssessmentIcon color="success" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Select Scenario">
+                        <Button variant="contained" color="primary" size="small" onClick={() => handleSelectClick(row)}>
+                          Select
+                        </Button>
+                      </Tooltip>
+                    </Box>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
+      {/* Folder display section */}
+      {showFolders && selectedAction === 'savedTemplates' && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', marginTop: '20px', gap: '40px' }}>
+          {folders.map((folder, index) => {
+            // Check if there are any selected filters
+            const isFiltered = countries.length > 0 || therapeuticAreas.length > 0;
+
+            // Check if folder matches selected country and therapeutic area
+            const isHighlighted = countries.includes(folder.country) && therapeuticAreas.includes(folder.area);
+
+            return (
+              <Paper
+                key={index}
+                elevation={3}
+                style={{
+                  width: '200px',
+                  padding: '10px',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  backgroundColor: isFiltered && !isHighlighted ? '#e0e0e0' : '#1976d2', // Grey for non-matching folders after selection, otherwise blue
+                  color: isFiltered && !isHighlighted ? 'black' : 'white', // Font color changes as per the background
+                }}
+              >
+                <img
+                  src={isFiltered && !isHighlighted ? grayFolderIcon : blueFolderIcon} // Grey icon for non-matching folders, otherwise blue icon
+                  alt="Folder Icon"
+                  style={{ width: '80px', height: '80px' }}
+                />
+                <Typography variant="body1" sx={{ fontWeight: isFiltered && !isHighlighted ? 'normal' : 'bold' }}>
+                  {folder.name}
+                </Typography>
+              </Paper>
+            );
+          })}
+        </div>
+      )}
+      {importedData.headers.length > 0 && (
+        <TableContainer component={Paper} sx={{ mt: 3, maxHeight: 400, maxWidth: '100%', overflow: 'auto' }}>
+          <Table stickyHeader aria-label="imported data table">
+            <TableHead>
+              <TableRow>
+                {importedData.headers.map((header, index) => (
+                  <TableCell key={index}>{header}</TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {importedData.rows.map((row) => (
+                <TableRow key={`imported-${row.id}`}>
+                  {row.data.map((value, index) => (
+                    <TableCell key={index}>{value}</TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
+
+      {savedFiles.length > 0 && (
+        <>
+          <h3 style={{ marginTop: '40px', marginleft: '10px' }}>Saved Files</h3>
+          <TableContainer component={Paper} sx={{ mt: 3, padding: '10px' }}>
+            <Table aria-label="saved files table">
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{ padding: '10px' }}>ID</TableCell>
+                  <TableCell sx={{ padding: '10px' }}>Username</TableCell>
+                  <TableCell sx={{ padding: '10px' }}>Saved CSV Name</TableCell>
+                  <TableCell sx={{ padding: '10px' }}>Forecast Cycle</TableCell>
+                  <TableCell sx={{ padding: '10px' }}>Country</TableCell>
+                  <TableCell sx={{ padding: '10px' }}>Therapeutic Area</TableCell>
+                  <TableCell sx={{ padding: '10px' }}>Date and Time</TableCell>
+                  <TableCell sx={{ padding: '10px' }}>Status</TableCell>
+                  <TableCell sx={{ padding: '10px' }}>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {savedFiles.map((file) => (
+                  <TableRow key={file.id}>
+                    <TableCell sx={{ padding: '10px' }}>{file.id}</TableCell>
+                    <TableCell sx={{ padding: '10px' }}>{file.username}</TableCell>
+                    <TableCell sx={{ padding: '10px' }}>{file.fileName}</TableCell>
+                    <TableCell sx={{ padding: '10px' }}>{file.forecastCycle}</TableCell>
+                    <TableCell sx={{ padding: '10px' }}>{file.country}</TableCell>
+                    <TableCell sx={{ padding: '10px' }}>{file.therapeuticArea}</TableCell>
+                    <TableCell sx={{ padding: '10px' }}>{file.dateTime}</TableCell>
+                    <TableCell sx={{ padding: '10px' }}>
+                      {fileStatuses[file.id] === "locked" && <LockIcon color="action" />}
+                      {fileStatuses[file.id] === "finalized" && <CheckCircleIcon color="success" />}
+                    </TableCell>
+                    <TableCell sx={{ padding: '10px' }}>
+                      <IconButton onClick={(event) => setAnchorEl(event.currentTarget)}>
+                        <MoreVertIcon />
+                      </IconButton>
+                      <Menu
+                        anchorEl={anchorEl}
+                        open={Boolean(anchorEl)}
+                        onClose={() => setAnchorEl(null)}
+                      >
+                        <MenuItem onClick={() => handleLockClick(file)}>Lock</MenuItem>
+                        <MenuItem onClick={() => handleLockAndFinalizeClick(file)}>
+                          Lock & Finalize
+                        </MenuItem>
+                      </Menu>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -572,229 +710,80 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
           </TableContainer>
         </>
       )}
-          {selectedAction === 'copySaved' && (
-            <TableContainer component={Paper} sx={{ mt: 3, maxWidth: '100%' }}>
-              <Table aria-label="saved scenarios table">
-                <TableHead>
-                  <TableRow sx={{ backgroundColor: '#1976d2' }}>
-                    <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Scenario</TableCell>
-                    <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Forecast Cycle</TableCell>
-                    <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Country</TableCell>
-                    <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Therapeutic Area</TableCell>
-                    <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Last Modified</TableCell>
-                    <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Submitted by</TableCell>
-                    <TableCell sx={{ color: 'white', fontWeight: 'bold', paddingLeft: '27px' }}>Actions</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {filteredSavedScenarios.map((row, index) => (
-                    <TableRow key={index}>
-                      <TableCell>{row.scenario}</TableCell>
-                      <TableCell>{row.cycle}</TableCell>
-                      <TableCell>{row.country}</TableCell>
-                      <TableCell>{row.area}</TableCell>
-                      <TableCell>{row.modified}</TableCell>
-                      <TableCell>{row.user}</TableCell>
-                      <TableCell>
-                        <Box display="flex" alignItems="center" gap={1}>
-                          <Button variant="contained" color="primary" size="small" onClick={() => handleSelectClick(row)}>
-                            Select
-                          </Button>
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
-          {/* Folder display section */}
-          {showFolders && selectedAction === 'savedTemplates' && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', marginTop: '20px', gap: '40px' }}>
-              {folders.map((folder, index) => {
-                // Check if there are any selected filters
-                const isFiltered = countries.length > 0 || therapeuticAreas.length > 0;
 
-                // Check if folder matches selected country and therapeutic area
-                const isHighlighted = countries.includes(folder.country) && therapeuticAreas.includes(folder.area);
+      <Dialog
+        open={saveDialogOpen}
+        onClose={handleSaveDialogClose}
+      >
+        <DialogTitle>Save File</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            The filename starts with:
+            <strong>{`${forecastCycles}_${countries}_${therapeuticAreas}`}</strong>
+            <br />
+            Add any additional info if you need:
+          </DialogContentText>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="extra-file-name"
+            label="Additional Name (Optional)"
+            type="text"
+            fullWidth
+            value={extraFileName}
+            onChange={(e) => setExtraFileName(e.target.value)}
+          />
 
-                return (
-                  <Paper
-                    key={index}
-                    elevation={3}
-                    style={{
-                      width: '200px',
-                      padding: '10px',
-                      textAlign: 'center',
-                      cursor: 'pointer',
-                      backgroundColor: isFiltered && !isHighlighted ? '#e0e0e0' : '#1976d2', // Grey for non-matching folders after selection, otherwise blue
-                      color: isFiltered && !isHighlighted ? 'black' : 'white', // Font color changes as per the background
-                    }}
-                  >
-                    <img
-                      src={isFiltered && !isHighlighted ? grayFolderIcon : blueFolderIcon} // Grey icon for non-matching folders, otherwise blue icon
-                      alt="Folder Icon"
-                      style={{ width: '80px', height: '80px' }}
-                    />
-                    <Typography variant="body1" sx={{ fontWeight: isFiltered && !isHighlighted ? 'normal' : 'bold' }}>
-                      {folder.name}
-                    </Typography>
-                  </Paper>
-                );
-              })}
-            </div>
-          )}
-          {importedData.headers.length > 0 && (
-            <TableContainer component={Paper} sx={{ mt: 3, maxHeight: 400, maxWidth: '100%', overflow: 'auto' }}>
-              <Table stickyHeader aria-label="imported data table">
-                <TableHead>
-                  <TableRow>
-                    {importedData.headers.map((header, index) => (
-                      <TableCell key={index}>{header}</TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {importedData.rows.map((row) => (
-                    <TableRow key={`imported-${row.id}`}>
-                      {row.data.map((value, index) => (
-                        <TableCell key={index}>{value}</TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
+          <FormControl component="fieldset" sx={{ mt: 2 }}>
+            <InputLabel id="file-format-select-label">File Format</InputLabel>
+            <Select
+              labelId="file-format-select-label"
+              id="file-format-select"
+              value={fileFormat}
+              label="File Format"
+              onChange={(event) => setFileFormat(event.target.value)}
+            >
+              <MenuItem value="csv">CSV</MenuItem>
+              <MenuItem value="excel">Excel</MenuItem>
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleSaveDialogClose}>Cancel</Button>
+          <Button onClick={handleConfirmSave} color="primary">Save</Button>
+        </DialogActions>
+      </Dialog>
 
-          {savedFiles.length > 0 && (
-            <>
-              <h3 style={{ marginTop: '40px', marginleft: '10px' }}>Saved Files</h3>
-              <TableContainer component={Paper} sx={{ mt: 3, padding: '10px' }}>
-                <Table aria-label="saved files table">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={{ padding: '10px' }}>ID</TableCell>
-                      <TableCell sx={{ padding: '10px' }}>Username</TableCell>
-                      <TableCell sx={{ padding: '10px' }}>Saved CSV Name</TableCell>
-                      <TableCell sx={{ padding: '10px' }}>Forecast Cycle</TableCell>
-                      <TableCell sx={{ padding: '10px' }}>Country</TableCell>
-                      <TableCell sx={{ padding: '10px' }}>Therapeutic Area</TableCell>
-                      <TableCell sx={{ padding: '10px' }}>Date and Time</TableCell>
-                      <TableCell sx={{ padding: '10px' }}>Status</TableCell>
-                      <TableCell sx={{ padding: '10px' }}>Actions</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {savedFiles.map((file) => (
-                      <TableRow key={file.id}>
-                        <TableCell sx={{ padding: '10px' }}>{file.id}</TableCell>
-                        <TableCell sx={{ padding: '10px' }}>{file.username}</TableCell>
-                        <TableCell sx={{ padding: '10px' }}>{file.fileName}</TableCell>
-                        <TableCell sx={{ padding: '10px' }}>{file.forecastCycle}</TableCell>
-                        <TableCell sx={{ padding: '10px' }}>{file.country}</TableCell>
-                        <TableCell sx={{ padding: '10px' }}>{file.therapeuticArea}</TableCell>
-                        <TableCell sx={{ padding: '10px' }}>{file.dateTime}</TableCell>
-                        <TableCell sx={{ padding: '10px' }}>
-                          {fileStatuses[file.id] === "locked" && <LockIcon color="action" />}
-                          {fileStatuses[file.id] === "finalized" && <CheckCircleIcon color="success" />}
-                        </TableCell>
-                        <TableCell sx={{ padding: '10px' }}>
-                          <IconButton onClick={(event) => setAnchorEl(event.currentTarget)}>
-                            <MoreVertIcon />
-                          </IconButton>
-                          <Menu
-                            anchorEl={anchorEl}
-                            open={Boolean(anchorEl)}
-                            onClose={() => setAnchorEl(null)}
-                          >
-                            <MenuItem onClick={() => handleLockClick(file)}>Lock</MenuItem>
-                            <MenuItem onClick={() => handleLockAndFinalizeClick(file)}>
-                              Lock & Finalize
-                            </MenuItem>
-                          </Menu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </>
-          )}
+      <Dialog
+        open={lockOpen}
+        onClose={handleDialogClose}
+      >
+        <DialogTitle>{`Are you sure you want to ${lockType} this file?`}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            You are about to {lockType.toLowerCase()} the following file:
+            <ul>
+              <li>Country: {selectedFile?.country}</li>
+              <li>Therapeutic Area: {selectedFile?.therapeuticArea}</li>
+              <li>Forecast Cycle: {selectedFile?.forecastCycle}</li>
+              <li>Date and Time: {selectedFile?.dateTime}</li>
+              <li>File name: {selectedFile?.fileName}</li>
+            </ul>
+            Once {lockType.toLowerCase()}ed, you won't be able to modify it.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDialogClose}>Cancel</Button>
+          <Button onClick={handleConfirmLock} color="primary">{`Confirm ${lockType}`}</Button>
+        </DialogActions>
+      </Dialog>
 
-          <Dialog
-            open={saveDialogOpen}
-            onClose={handleSaveDialogClose}
-          >
-            <DialogTitle>Save File</DialogTitle>
-            <DialogContent>
-              <DialogContentText>
-                The filename starts with:
-                <strong>{`${forecastCycles}_${countries}_${therapeuticAreas}`}</strong>
-                <br />
-                Add any additional info if you need:
-              </DialogContentText>
-              <TextField
-                autoFocus
-                margin="dense"
-                id="extra-file-name"
-                label="Additional Name (Optional)"
-                type="text"
-                fullWidth
-                value={extraFileName}
-                onChange={(e) => setExtraFileName(e.target.value)}
-              />
-
-              <FormControl component="fieldset" sx={{ mt: 2 }}>
-                <InputLabel id="file-format-select-label">File Format</InputLabel>
-                <Select
-                  labelId="file-format-select-label"
-                  id="file-format-select"
-                  value={fileFormat}
-                  label="File Format"
-                  onChange={(event) => setFileFormat(event.target.value)}
-                >
-                  <MenuItem value="csv">CSV</MenuItem>
-                  <MenuItem value="excel">Excel</MenuItem>
-                </Select>
-              </FormControl>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleSaveDialogClose}>Cancel</Button>
-              <Button onClick={handleConfirmSave} color="primary">Save</Button>
-            </DialogActions>
-          </Dialog>
-
-          <Dialog
-            open={lockOpen}
-            onClose={handleDialogClose}
-          >
-            <DialogTitle>{`Are you sure you want to ${lockType} this file?`}</DialogTitle>
-            <DialogContent>
-              <DialogContentText>
-                You are about to {lockType.toLowerCase()} the following file:
-                <ul>
-                  <li>Country: {selectedFile?.country}</li>
-                  <li>Therapeutic Area: {selectedFile?.therapeuticArea}</li>
-                  <li>Forecast Cycle: {selectedFile?.forecastCycle}</li>
-                  <li>Date and Time: {selectedFile?.dateTime}</li>
-                  <li>File name: {selectedFile?.fileName}</li>
-                </ul>
-                Once {lockType.toLowerCase()}ed, you won't be able to modify it.
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleDialogClose}>Cancel</Button>
-              <Button onClick={handleConfirmLock} color="primary">{`Confirm ${lockType}`}</Button>
-            </DialogActions>
-          </Dialog>
-
-          {loading && (
-            <div style={{ marginTop: '20px' }}>
-              <CircularProgress />
-              <p>Saving file...</p>
-            </div>
-          )}
+      {loading && (
+        <div style={{ marginTop: '20px' }}>
+          <CircularProgress />
+          <p>Saving file...</p>
         </div>
-      );
+      )}
+    </div>
+  );
 }

@@ -13,8 +13,7 @@ import { Assessment, SaveAlt, FilePresent, CompareArrows, Insights, Security, Qu
 const BlogGrid = () => {
   const navigate = useNavigate();
   return (
-    <div id="bodyDiv">
-        {/* Header Section */}
+    <div id="bodyDiv" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', marginTop: '-30px',paddingLeft:'80px' }}>
       <div className="container topDiv">
         <div id="mainHeader">
           <div
@@ -31,31 +30,33 @@ const BlogGrid = () => {
           </div>
         </div>
       </div>
-
-      {/* Cards Grid */}
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)', // 3 columns
+          gridTemplateColumns: 'repeat(4, 1fr)', // 4 columns
           gap: 2, // space between cards
-          padding: 2
+          padding: 2,
+          justifyContent: 'flex-start', // Aligns the cards to the left
         }}
       >
         {/* Card 1: New Scenario */}
         <div className="hoverCard">
           <Card
-            sx={{ maxWidth: 345, background: 'linear-gradient(135deg, #00c6ff, #0072ff)', color: 'white' }}
+            sx={{ width: 300, background: 'linear-gradient(135deg, #00c6ff, #0072ff)', color: 'white' }}
             className='featureCard'
           >
             <CardActionArea sx={{ cursor: 'pointer' }} onClick={()=>navigate("/new-scenario")}>
-              <Assessment sx={{ fontSize: 80, color: 'white', margin: '20px' }} />
+              <Assessment sx={{ fontSize: 60, color: 'white', margin: '20px' }} />
               <CardContent
                 sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
               >
-                <Typography gutterBottom variant="h5" component="div">
+                <Typography gutterBottom variant="h6" component="div">
                   New Scenario
                 </Typography>
-                <Typography variant="body2" sx={{ color: 'text.secondary', textAlign: 'center' }}>
+                <Typography 
+                  variant="body2" 
+                  sx={{ color: 'text.secondary', textAlign: 'center', fontSize: '14px' }}  // Changed font size here
+                >
                   Create a new forecast scenario based on market data and trends.
                 </Typography>
               </CardContent>
@@ -67,18 +68,21 @@ const BlogGrid = () => {
         {/* Card 2: Saved Scenarios */}
         <div className="hoverCard">
           <Card
-            sx={{ maxWidth: 345, background: 'linear-gradient(135deg, #ff758c, #ff7eb3)', color: 'white' }}
+            sx={{ width: 300, background: 'linear-gradient(135deg, #ff758c, #ff7eb3)', color: 'white' }}
             className='featureCard'
           >
             <CardActionArea sx={{ cursor: 'pointer' }}>
-              <SaveAlt sx={{ fontSize: 80, color: 'white', margin: '20px' }} />
+              <SaveAlt sx={{ fontSize: 60, color: 'white', margin: '20px' }} />
               <CardContent
                 sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
               >
-                <Typography gutterBottom variant="h5" component="div">
+                <Typography gutterBottom variant="h6" component="div">
                   Saved Scenarios
                 </Typography>
-                <Typography variant="body2" sx={{ color: 'text.secondary', textAlign: 'center' }}>
+                <Typography 
+                  variant="body2" 
+                  sx={{ color: 'text.secondary', textAlign: 'center', fontSize: '14px' }}  // Changed font size here
+                >
                   Access and manage your previously saved forecast scenarios.
                 </Typography>
               </CardContent>
@@ -90,18 +94,21 @@ const BlogGrid = () => {
         {/* Card 3: Data Consolidation */}
         <div className="hoverCard">
           <Card
-            sx={{ maxWidth: 345, background: 'linear-gradient(135deg, #ffafbd, #ffc3a0)', color: 'white' }}
+            sx={{ width: 300, background: 'linear-gradient(135deg, #ffafbd, #ffc3a0)', color: 'white' }}
             className='featureCard'
           >
-            <CardActionArea sx={{ cursor: 'pointer' }} onClick={()=>{window.open("/data-consolidation",  '_blank')}}>
-              <FilePresent sx={{ fontSize: 80, color: 'white', margin: '20px' }} />
+            <CardActionArea sx={{ cursor: 'pointer' }} onClick={()=>navigate("/data-consolidation")}>
+              <FilePresent sx={{ fontSize: 60, color: 'white', margin: '20px' }} />
               <CardContent
                 sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
               >
-                <Typography gutterBottom variant="h5" component="div">
-                  Data consolidation
+                <Typography gutterBottom variant="h6" component="div">
+                  Data Consolidation
                 </Typography>
-                <Typography variant="body2" sx={{ color: 'text.secondary', textAlign: 'center' }}>
+                <Typography 
+                  variant="body2" 
+                  sx={{ color: 'text.secondary', textAlign: 'center', fontSize: '14px' }}  // Changed font size here
+                >
                   Submit finalized forecast scenarios for review and approval.
                 </Typography>
               </CardContent>
@@ -113,18 +120,21 @@ const BlogGrid = () => {
         {/* Card 4: Scenario Comparison */}
         <div className="hoverCard">
           <Card
-            sx={{ maxWidth: 345, background: 'linear-gradient(135deg, #a1ffce, #faffd1)', color: 'black' }}
+            sx={{ width: 300, background: 'linear-gradient(135deg, #a1ffce, #faffd1)', color: 'black' }}
             className='featureCard'
           >
             <CardActionArea sx={{ cursor: 'pointer'}} onClick={()=>{window.open("/scenario-comparsion",  '_blank')}}>
-              <CompareArrows sx={{ fontSize: 80, color: 'black', margin: '20px' }} />
+              <CompareArrows sx={{ fontSize: 60, color: 'black', margin: '20px' }} />
               <CardContent
                 sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
               >
-                <Typography gutterBottom variant="h5" component="div">
+                <Typography gutterBottom variant="h6" component="div">
                   Scenario Comparison
                 </Typography>
-                <Typography variant="body2" sx={{ color: 'text.secondary', textAlign: 'center' }}>
+                <Typography 
+                  variant="body2" 
+                  sx={{ color: 'text.secondary', textAlign: 'center', fontSize: '14px' }}  // Changed font size here
+                >
                   Compare different forecast scenarios to find optimal solutions.
                 </Typography>
               </CardContent>
@@ -136,18 +146,21 @@ const BlogGrid = () => {
         {/* Card 5: Forecast Deep-dive */}
         <div className="hoverCard">
           <Card
-            sx={{ maxWidth: 345, background: 'linear-gradient(135deg, #667eea, #764ba2)', color: 'white' }}
+            sx={{ width: 300, background: 'linear-gradient(135deg, #667eea, #764ba2)', color: 'white' }}
             className='featureCard'
           >
             <CardActionArea sx={{ cursor: 'pointer' }}>
-              <Insights sx={{ fontSize: 80, color: 'white', margin: '20px' }} />
+              <Insights sx={{ fontSize: 60, color: 'white', margin: '20px' }} />
               <CardContent
                 sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
               >
-                <Typography gutterBottom variant="h5" component="div">
+                <Typography gutterBottom variant="h6" component="div">
                   Forecast Deep-dive
                 </Typography>
-                <Typography variant="body2" sx={{ color: 'text.secondary', textAlign: 'center' }}>
+                <Typography 
+                  variant="body2" 
+                  sx={{ color: 'text.secondary', textAlign: 'center', fontSize: '14px' }}  // Changed font size here
+                >
                   Dive deeper into your forecast results to uncover key insights.
                 </Typography>
               </CardContent>
@@ -159,18 +172,21 @@ const BlogGrid = () => {
         {/* Card 6: Admin */}
         <div className="hoverCard">
           <Card
-            sx={{ maxWidth: 345, background: 'linear-gradient(135deg, #f857a6, #ff5858)', color: 'white' }}
+            sx={{ width: 300, background: 'linear-gradient(135deg, #f857a6, #ff5858)', color: 'white' }}
             className='featureCard'
           >
             <CardActionArea sx={{ cursor: 'pointer'}} onClick={()=>navigate("/admin")}>
-              <Security sx={{ fontSize: 80, color: 'white', margin: '20px' }} />
+              <Security sx={{ fontSize: 60, color: 'white', margin: '20px' }} />
               <CardContent
                 sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
               >
-                <Typography gutterBottom variant="h5" component="div">
+                <Typography gutterBottom variant="h6" component="div">
                   Admin
                 </Typography>
-                <Typography variant="body2" sx={{ color: 'text.secondary', textAlign: 'center' }}>
+                <Typography 
+                  variant="body2" 
+                  sx={{ color: 'text.secondary', textAlign: 'center', fontSize: '14px' }}  // Changed font size here
+                >
                   Manage and secure forecast models with admin privileges.
                 </Typography>
               </CardContent>
@@ -182,18 +198,21 @@ const BlogGrid = () => {
         {/* Card 7: Generate Report */}
         <div className="hoverCard">
           <Card
-            sx={{ maxWidth: 345, background: 'linear-gradient(135deg, #36d1dc, #5b86e5)', color: 'white' }}
+            sx={{ width: 300, background: 'linear-gradient(135deg, #36d1dc, #5b86e5)', color: 'white' }}
             className='featureCard'
           >
             <CardActionArea sx={{ cursor: 'pointer' }} onClick={() => navigate("/generate-report")}>
-              <Assignment sx={{ fontSize: 80, color: 'white', margin: '20px' }} />
+              <Assignment sx={{ fontSize: 60, color: 'white', margin: '20px' }} />
               <CardContent
                 sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
               >
-                <Typography gutterBottom variant="h5" component="div">
+                <Typography gutterBottom variant="h6" component="div">
                   Generate Report
                 </Typography>
-                <Typography variant="body2" sx={{ color: 'text.secondary', textAlign: 'center' }}>
+                <Typography 
+                  variant="body2" 
+                  sx={{ color: 'text.secondary', textAlign: 'center', fontSize: '14px' }}  // Changed font size here
+                >
                   Generate detailed reports based on your forecast scenarios.
                 </Typography>
               </CardContent>
@@ -205,18 +224,21 @@ const BlogGrid = () => {
         {/* Card 8: Submissions Tracker */}
         <div className="hoverCard">
           <Card
-            sx={{ maxWidth: 345, background: 'linear-gradient(135deg, #ff9a9e, #fecfef)', color: 'black' }}
+            sx={{ width: 300, background: 'linear-gradient(135deg, #ff9a9e, #fecfef)', color: 'black' }}
             className='featureCard'
           >
             <CardActionArea sx={{ cursor: 'pointer' }} onClick={() => navigate("/submissions-tracker")}>
-              <QueryStats sx={{ fontSize: 80, color: 'black', margin: '20px' }} />
+              <QueryStats sx={{ fontSize: 60, color: 'black', margin: '20px' }} />
               <CardContent
                 sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
               >
-                <Typography gutterBottom variant="h5" component="div">
+                <Typography gutterBottom variant="h6" component="div">
                   Submissions Tracker
                 </Typography>
-                <Typography variant="body2" sx={{ color: 'text.secondary', textAlign: 'center' }}>
+                <Typography 
+                  variant="body2" 
+                  sx={{ color: 'text.secondary', textAlign: 'center', fontSize: '14px' }}  // Changed font size here
+                >
                   Track the status of all submitted forecast scenarios.
                 </Typography>
               </CardContent>

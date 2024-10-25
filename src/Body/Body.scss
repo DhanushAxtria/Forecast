@@ -185,7 +185,7 @@ hr {
     opacity: 0;
     transition: opacity 0.4s ease-in-out;
     color: white;
-    padding: 20px;
+    padding-left: 50px;
     text-align: center;
 }
 
@@ -241,13 +241,17 @@ body {
   
   /* Optionally, apply to a specific div or section */
   #bodyDiv {
-    //background: linear-gradient(135deg, #a1fda7 0%, #77aaf7 100%);
-    min-height: 100vh;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    flex-direction: column;   /* Makes the content stack vertically */
+    justify-content: center;  /* Centers vertically within the bodyDiv */
+    align-items: center;      /* Centers horizontally within the bodyDiv */
+    min-height: 100vh;        /* Ensures the bodyDiv takes the full height of the viewport */
     padding: 50px;
+    //box-sizing: border-box;   /* Ensures padding and borders are included in the element width and height */
+    width: 100%;              /* Ensures it spans the full width of the viewport */
+    max-width: 1200px;        /* Sets a max width for the content */
+    //background: rgba(13, 150, 175, 0.1);  /* Optional background for visual */
+    border-radius: 10px;      /* Optional rounded corners */
 }
   
   /* Optional: Adding a subtle pattern or texture */
@@ -287,7 +291,7 @@ body {
     margin-left: 0px;
     color:#2a0000;
     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
-    margin-top: -180px;
+    margin-top: -150px;
 } 
   #greeting__container {
     text-align: left;  /* Align text to the left */
