@@ -18,6 +18,7 @@ import ApplyIcon from '@mui/icons-material/CheckCircle';
 import EditIcon from '@mui/icons-material/Edit';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
     Dialog,
     DialogActions,
@@ -49,11 +50,21 @@ const initialEdges = [
     { id: 'e7-8', source: '7', target: '8', animated: true, label: '', type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } },
     { id: 'e8-9', source: '8', target: '9', animated: true, label: '', type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } },
 ];
+const defaultProducts = [
+    { id: 1, name: 'Product1', include: true, xyzProduct: true, launchDate: dayjs('2014-02-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'No', 'Indication 3': 'Yes' } },
+    { id: 2, name: 'Product2', include: true, xyzProduct: true, launchDate: dayjs('2017-02-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'Yes', 'Indication 3': 'No' } },
+    { id: 3, name: 'Product3', include: false, xyzProduct: false, launchDate: dayjs('2019-06-01'), indications: { 'Indication 1': 'No', 'Indication 2': 'Yes', 'Indication 3': 'Yes' } },
+    { id: 4, name: 'Product4', include: true, xyzProduct: true, launchDate: dayjs('2020-03-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'No', 'Indication 3': 'Yes' } },
+    { id: 5, name: 'Product5', include: true, xyzProduct: false, launchDate: dayjs('2016-11-01'), indications: { 'Indication 1': 'No', 'Indication 2': 'No', 'Indication 3': 'Yes' } },
+    { id: 6, name: 'Product6', include: false, xyzProduct: true, launchDate: dayjs('2018-01-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'Yes', 'Indication 3': 'No' } },
+];
+const defaultIndicationColumns = ['Indication 1', 'Indication 2', 'Indication 3'];
 
 const ForecastAndFlowDiagram = () => {
     const [greeting, setGreeting] = useState('');
     const [activeTab, setActiveTab] = useState('controlSheet'); // Manage which tab is active
     // Selected predefined scenario
+    //const [activeTab, setActiveTab] = useState(0);
     const [customScenarioName, setCustomScenarioName] = useState('');
     const [forecastEndMonth, setForecastEndMonth] = useState(dayjs());
     // Control sheet form states
@@ -72,7 +83,7 @@ const ForecastAndFlowDiagram = () => {
     //const [scenarioName, setScenarioName] = useState(predefinedScenarioNames[0]);
     const [previousScenarioProducts, setPreviousScenarioProducts] = useState([]);
     //const [scenarioName, setScenarioName] = useState(predefinedScenarioNames[0]);
-    const [indicationColumns, setIndicationColumns] = useState([]);
+    const [indicationColumns, setIndicationColumns] = useState(defaultIndicationColumns);
     const location = useLocation();
     const [scenarioDetails, setScenarioDetails] = useState('Custom Scenario Details');
     //const [editMode, setEditMode] = useState(false); // Track if edit is enabled
@@ -81,14 +92,7 @@ const ForecastAndFlowDiagram = () => {
     const folder = location.state?.folder;
     //const [scenarioDetails, setScenarioDetails] = useState('Custom Scenario Details');
     const [editMode, setEditMode] = useState(false);
-    const [products, setProducts] = useState([
-        { id: 1, name: 'Product1', include: true, xyzProduct: true, launchDate: dayjs('2014-02-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'No', 'Indication 3': 'Yes', 'Indication 4': 'No' } },
-        { id: 2, name: 'Product2', include: true, xyzProduct: true, launchDate: dayjs('2017-02-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'Yes', 'Indication 3': 'No', 'Indication 4': 'Yes' } },
-        { id: 3, name: 'Product3', include: false, xyzProduct: false, launchDate: dayjs('2019-06-01'), indications: { 'Indication 1': 'No', 'Indication 2': 'Yes', 'Indication 3': 'Yes', 'Indication 4': 'No' } },
-        { id: 4, name: 'Product4', include: true, xyzProduct: true, launchDate: dayjs('2020-03-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'No', 'Indication 3': 'Yes', 'Indication 4': 'No' } },
-        { id: 5, name: 'Product5', include: true, xyzProduct: false, launchDate: dayjs('2016-11-01'), indications: { 'Indication 1': 'No', 'Indication 2': 'No', 'Indication 3': 'Yes', 'Indication 4': 'Yes' } },
-        { id: 6, name: 'Product6', include: false, xyzProduct: true, launchDate: dayjs('2018-01-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'Yes', 'Indication 3': 'No', 'Indication 4': 'Yes' } },
-    ]);
+    const [products, setProducts] = useState(defaultProducts);
 
     //const [indicationColumns, setIndicationColumns] = useState(['Indication 1', 'Indication 2', 'Indication 3', 'Indication 4']);
     //const [indicationColumns, setIndicationColumns] = useState([]);
@@ -127,6 +131,10 @@ const ForecastAndFlowDiagram = () => {
         };
         setProducts([...products, newProduct]);
     };
+    useEffect(() => {
+        if (products.length === 0) setProducts(defaultProducts);
+        if (indicationColumns.length === 0) setIndicationColumns(defaultIndicationColumns);
+    }, [products, indicationColumns]);
 
     const handleAddIndication = () => {
         const newIndication = `Indication ${indicationColumns.length + 1}`;
@@ -161,10 +169,18 @@ const ForecastAndFlowDiagram = () => {
     const savedScenarios = {
         'Scenario 1': {
             products: [
-                { id: 1, name: 'Product1', include: true, xyzProduct: true, launchDate: dayjs('2014-02-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'No' } },
-                { id: 2, name: 'Product2', include: true, xyzProduct: true, launchDate: dayjs('2017-02-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'Yes' } },
+                { id: 1, name: 'Product1', include: true, xyzProduct: true, launchDate: dayjs('2014-02-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'Yes' ,'Indication 3':'Yes','Indication 4':'Yes'} },
+                { id: 2, name: 'Product2', include: true, xyzProduct: true, launchDate: dayjs('2017-02-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'Yes' ,'Indication 3':'Yes', 'Indication 4':'Yes'} },
+                { id: 3, name: 'Product3', include: true, xyzProduct: true, launchDate: dayjs('2018-04-02'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'Yes' ,'Indication 3':'Yes', 'Indication 4':'Yes'} },
+                { id: 4, name: 'Product4', include: true, xyzProduct: true, launchDate: dayjs('2012-02-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'Yes' ,'Indication 3':'Yes', 'Indication 4':'Yes'} },
+                { id: 5, name: 'Product5', include: true, xyzProduct: true, launchDate: dayjs('2015-07-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'Yes' ,'Indication 3':'Yes', 'Indication 4':'Yes'} },
+                { id: 6, name: 'Product6', include: true, xyzProduct: true, launchDate: dayjs('2020-02-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'Yes' ,'Indication 3':'Yes', 'Indication 4':'Yes'} },
+
+
+
+
             ],
-            indicationColumns: ['Indication 1', 'Indication 2']
+            indicationColumns: ['Indication 1', 'Indication 2','Indication 3','Indication 4']
         },
         'Scenario 2': {
             products: [
@@ -296,7 +312,10 @@ const ForecastAndFlowDiagram = () => {
             prevProducts.map((product) => (product.id === id ? { ...product, launchDate: date } : product))
         );
     };
-
+    const navigate = useNavigate();
+    const handleSaveAndContinue = () => {
+        navigate('/Inputpage'); // Navigate to the input page
+    };
     const [nodes, setNodes] = useState(initialNodes);
     const [edges, setEdges] = useState(initialEdges);
 
@@ -311,18 +330,11 @@ const ForecastAndFlowDiagram = () => {
                     variant="contained"
                     className="fixed-apply-button" // Apply the custom CSS class
                     startIcon={<ApplyIcon />}
+                    onClick={handleSaveAndContinue}
                 >
                     Save & Continue
                 </Button>
             )}
-            <div className="tabs">
-                <Button variant="outlined" className={`tab ${activeTab === 'controlSheet' ? 'active' : ''}`} onClick={() => setActiveTab('controlSheet')}>
-                    Forecast Scenario
-                </Button>
-                <Button variant="outlined" className={`tab ${activeTab === 'flowDiagram' ? 'active' : ''}`} onClick={() => setActiveTab('flowDiagram')}>
-                    Model Flow
-                </Button>
-            </div>
 
             <div className="content">
                 {activeTab === 'controlSheet' && (
@@ -555,7 +567,11 @@ const ForecastAndFlowDiagram = () => {
                                                 <th key={index}>
                                                     <TextField
                                                         value={indication}
-                                                        onChange={(e) => handleIndicationColumnChange(index, e.target.value)} // Editable header
+                                                        onChange={(e) => {
+                                                            const newIndicationColumns = [...indicationColumns];
+                                                            newIndicationColumns[index] = e.target.value;
+                                                            setIndicationColumns(newIndicationColumns);
+                                                        }} // Editable header
                                                         variant="outlined"
                                                     />
                                                 </th>
@@ -569,7 +585,12 @@ const ForecastAndFlowDiagram = () => {
                                                 <td>
                                                     <TextField
                                                         value={product.name}
-                                                        onChange={(e) => handleProductNameChange(product.id, e.target.value)}
+                                                        onChange={(e) => {
+                                                            const newProducts = [...products];
+                                                            const index = newProducts.findIndex((p) => p.id === product.id);
+                                                            newProducts[index].name = e.target.value;
+                                                            setProducts(newProducts);
+                                                        }}
                                                         variant="outlined"
                                                         fullWidth
                                                     />
@@ -578,7 +599,12 @@ const ForecastAndFlowDiagram = () => {
                                                     <Button
                                                         variant="outlined"
                                                         className={`toggle-btn ${product.include ? 'yes' : 'no'}`}
-                                                        onClick={() => handleIncludeChange(product.id)}
+                                                        onClick={() => {
+                                                            const newProducts = [...products];
+                                                            const index = newProducts.findIndex((p) => p.id === product.id);
+                                                            newProducts[index].include = !newProducts[index].include;
+                                                            setProducts(newProducts);
+                                                        }}
                                                     >
                                                         {product.include ? 'Yes' : 'No'}
                                                     </Button>
@@ -600,7 +626,12 @@ const ForecastAndFlowDiagram = () => {
                                                             openTo="year"
                                                             views={['year', 'month']}
                                                             value={product.launchDate}
-                                                            onChange={(newDate) => handleLaunchDateChange(product.id, newDate)}
+                                                            onChange={(newDate) => {
+                                                                const newProducts = [...products];
+                                                                const index = newProducts.findIndex((p) => p.id === product.id);
+                                                                newProducts[index].launchDate = newDate;
+                                                                setProducts(newProducts);
+                                                            }}
                                                             sx={{ minWidth: 250 }}
                                                         />
                                                     </LocalizationProvider>
@@ -610,7 +641,14 @@ const ForecastAndFlowDiagram = () => {
                                                         <Button
                                                             variant="outlined"
                                                             className={`toggle-btn ${product.indications[indication] === 'Yes' ? 'yes' : 'no'}`}
-                                                            onClick={() => handleToggleIndication(product.id, indication)}
+                                                            onClick={() => {
+                                                                const newProducts = [...products];
+                                                                const index = newProducts.findIndex((p) => p.id === product.id);
+                                                                newProducts[index].indications[indication] =
+                                                                    newProducts[index].indications[indication] === 'Yes' ? 'No' : 'Yes';
+                                                                setProducts(newProducts);
+                                                            }}
+            
                                                         >
                                                             {product.indications[indication]}
                                                         </Button>
@@ -624,30 +662,6 @@ const ForecastAndFlowDiagram = () => {
                         </div>
                     </>
                 )}
-
-                {
-                    activeTab === 'flowDiagram' && (
-                        <div className="flow-diagram-container">
-                            <div className="flow-layout">
-                                <div className="side-header left-side">Market and Shares</div>
-                                <div className="flow-diagram">
-                                    <ReactFlow
-                                        nodes={nodes}
-                                        edges={edges}
-                                        onNodesChange={onNodesChange}
-                                        onEdgesChange={onEdgesChange}
-                                        onConnect={onConnect}
-                                        fitView
-                                        style={{ height: '80vh', width: '100%' }}
-                                    >
-                                        <Controls />
-                                    </ReactFlow>
-                                </div>
-                                <div className="side-header right-side">Conversion</div>
-                            </div>
-                        </div>
-                    )
-                }
             </div >
         </div >
     );

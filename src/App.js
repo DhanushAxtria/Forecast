@@ -14,6 +14,7 @@ import ScenarioDetails from './Body/Scenario_details'
 import ReviewScenario from './Body/ReviewScenario'
 import SummaryScenario from './Body/SummaryScenario'
 import Submission_Tracker from './Body/Submission_Tracker'
+import Inputpage from './Body/Inputpage'
 //import Navbar from './Body/Navbar'
 function App() {
   return (
@@ -42,6 +43,9 @@ function App() {
           <Route path="/review-scenario" element={<ReviewScenario />} />
           <Route path="/Summary-scenario" element={<SummaryScenario />} />
           <Route path="/submissions-tracker" element={<Submission_Tracker/>} />
+          <Route path="/" element={<ScenarioDetails/>} />
+          <Route path="/Inputpage" element={<Inputpage/>} />
+
 
 
           {/* Add more routes as needed */}
