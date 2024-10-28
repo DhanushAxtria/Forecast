@@ -2,10 +2,11 @@
 
 /* Horizontal Tabs Styling */
 .tabs {
-  display: flex;
+  display: initial;
   justify-content: flex-start;
-  margin-bottom: 20px;
-  padding: 0;
+  margin-bottom: 7px;
+  padding: 0px;
+  margin-left: -183px;
 }
 
 .tab {
@@ -39,18 +40,28 @@
 
 /* Container Styling */
 .container {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 20px;
+  margin: -14 auto;
+  padding: 0px;
   font-family: Arial, sans-serif;
+  margin-left: 14px;
+  //overflow:auto;
+  //overflow: scroll;
 }
 
 h1.greeting {
   color: #333;
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 0px;
+  font-size: 1.7rem;
 }
-
+.sticky-apply-button {
+  position: sticky;
+  top: 1rem; /* Sticks button 1rem from the top */
+  margin-left: auto;
+  background-color: #1976d2;
+  color: white;
+  z-index: 10;
+}
 /* Flexbox and Section Styling */
 .flex-container {
   display: flex;
@@ -205,9 +216,9 @@ select {
     color: white;
 }
 .fixed-apply-button {
-    position: fixed;
-    top: 228px;
-    right: -845px;
+    position:sticky;
+    top: -54px;
+    right: -963px;
     z-index: 1000; /* Ensure the button stays above other content */
     background-color: #1976d2;
     color: rgb(255, 255, 255);

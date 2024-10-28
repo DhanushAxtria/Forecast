@@ -38,6 +38,7 @@ import Checkbox from '@mui/material/Checkbox';
 import ListItemText from '@mui/material/ListItemText';
 import Autocomplete from '@mui/material/Autocomplete';
 import Tooltip from '@mui/material/Tooltip';
+//import ScenarioDetails from './Scenario_details'
 
 export default function CountryAndTherapeuticSelect({ username = "User" }) {
   const { savedFiles, setSavedFiles } = useContext(SavedFilesContext);
@@ -139,7 +140,15 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
       setShowFolders(false); // Hide folders when other buttons are clicked
     }
   };
-
+  const handleFolderClick = (folder) => {
+    console.log("Folder clicked:", folder); // Check if click is detected
+    try {
+      navigate('/scenario-details', { state: { folder } });
+      console.log("Navigating to scenario-details"); // Confirms that navigation was called
+    } catch (error) {
+      console.error("Navigation error:", error); // Catch errors if navigation fails
+    }
+  };
   const handleConfirmSave = async () => {
     setSaveDialogOpen(false);
 
@@ -597,15 +606,12 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
           </Table>
         </TableContainer>
       )}
-      {/* Folder display section */}
       {showFolders && selectedAction === 'savedTemplates' && (
         <div style={{ display: 'flex', flexWrap: 'wrap', marginTop: '20px', gap: '40px' }}>
           {folders.map((folder, index) => {
-            // Check if there are any selected filters
+            // If no filters are selected, all folders are highlighted
             const isFiltered = countries.length > 0 || therapeuticAreas.length > 0;
-
-            // Check if folder matches selected country and therapeutic area
-            const isHighlighted = countries.includes(folder.country) && therapeuticAreas.includes(folder.area);
+            const isHighlighted = !isFiltered || (countries.includes(folder.country) && therapeuticAreas.includes(folder.area));
 
             return (
               <Paper
@@ -615,17 +621,22 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
                   width: '200px',
                   padding: '10px',
                   textAlign: 'center',
-                  cursor: 'pointer',
-                  backgroundColor: isFiltered && !isHighlighted ? '#e0e0e0' : '#1976d2', // Grey for non-matching folders after selection, otherwise blue
-                  color: isFiltered && !isHighlighted ? 'black' : 'white', // Font color changes as per the background
+                  cursor: isHighlighted ? 'pointer' : 'default', // Pointer cursor only for blue folders
+                  backgroundColor: isHighlighted ? '#1976d2' : '#e0e0e0', // Blue if highlighted, grey otherwise
+                  color: isHighlighted ? 'white' : 'black', // Font color based on highlight
+                }}
+                onClick={() => {
+                  if (isHighlighted) { // Only navigate if the folder is highlighted (blue)
+                    navigate('/scenario-details', { state: { folder } });
+                  }
                 }}
               >
                 <img
-                  src={isFiltered && !isHighlighted ? grayFolderIcon : blueFolderIcon} // Grey icon for non-matching folders, otherwise blue icon
+                  src={isHighlighted ? blueFolderIcon : grayFolderIcon} // Use grey icon for non-matching folders
                   alt="Folder Icon"
                   style={{ width: '80px', height: '80px' }}
                 />
-                <Typography variant="body1" sx={{ fontWeight: isFiltered && !isHighlighted ? 'normal' : 'bold' }}>
+                <Typography variant="body1" sx={{ fontWeight: isHighlighted ? 'bold' : 'normal' }}>
                   {folder.name}
                 </Typography>
               </Paper>

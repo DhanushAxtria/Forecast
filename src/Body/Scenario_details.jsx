@@ -17,6 +17,13 @@ import { Grid, Button, TextField, MenuItem, Typography, IconButton } from '@mui/
 import ApplyIcon from '@mui/icons-material/CheckCircle';
 import EditIcon from '@mui/icons-material/Edit';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { useLocation } from 'react-router-dom';
+import {
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+} from '@mui/material';
 
 const initialNodes = [
     { id: '1', data: { label: 'Product Level Treated Patients' }, position: { x: 250, y: 50 }, style: { width: 200 } },
@@ -66,12 +73,24 @@ const ForecastAndFlowDiagram = () => {
     const [previousScenarioProducts, setPreviousScenarioProducts] = useState([]);
     //const [scenarioName, setScenarioName] = useState(predefinedScenarioNames[0]);
     const [indicationColumns, setIndicationColumns] = useState([]);
+    const location = useLocation();
     const [scenarioDetails, setScenarioDetails] = useState('Custom Scenario Details');
+    //const [editMode, setEditMode] = useState(false); // Track if edit is enabled
+    const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal visibility
+    const [tempScenarioDetails, setTempScenarioDetails] = useState(scenarioDetails); // Temp storage for edit text
+    const folder = location.state?.folder;
+    //const [scenarioDetails, setScenarioDetails] = useState('Custom Scenario Details');
     const [editMode, setEditMode] = useState(false);
     const [products, setProducts] = useState([
-        { id: 1, name: 'Product1', include: true, xyzProduct: true, launchDate: dayjs('2014-02-01'), indications: {} },
-        { id: 2, name: 'Product2', include: true, xyzProduct: true, launchDate: dayjs('2017-02-01'), indications: {} },
+        { id: 1, name: 'Product1', include: true, xyzProduct: true, launchDate: dayjs('2014-02-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'No', 'Indication 3': 'Yes', 'Indication 4': 'No' } },
+        { id: 2, name: 'Product2', include: true, xyzProduct: true, launchDate: dayjs('2017-02-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'Yes', 'Indication 3': 'No', 'Indication 4': 'Yes' } },
+        { id: 3, name: 'Product3', include: false, xyzProduct: false, launchDate: dayjs('2019-06-01'), indications: { 'Indication 1': 'No', 'Indication 2': 'Yes', 'Indication 3': 'Yes', 'Indication 4': 'No' } },
+        { id: 4, name: 'Product4', include: true, xyzProduct: true, launchDate: dayjs('2020-03-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'No', 'Indication 3': 'Yes', 'Indication 4': 'No' } },
+        { id: 5, name: 'Product5', include: true, xyzProduct: false, launchDate: dayjs('2016-11-01'), indications: { 'Indication 1': 'No', 'Indication 2': 'No', 'Indication 3': 'Yes', 'Indication 4': 'Yes' } },
+        { id: 6, name: 'Product6', include: false, xyzProduct: true, launchDate: dayjs('2018-01-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'Yes', 'Indication 3': 'No', 'Indication 4': 'Yes' } },
     ]);
+
+    //const [indicationColumns, setIndicationColumns] = useState(['Indication 1', 'Indication 2', 'Indication 3', 'Indication 4']);
     //const [indicationColumns, setIndicationColumns] = useState([]);
     const predefinedScenarioNames = ['Scenario 1', 'Scenario 2', 'Scenario 3'];
     // State to control visibility of calendars for each product
@@ -82,7 +101,16 @@ const ForecastAndFlowDiagram = () => {
         setGreeting(currentHour < 12 ? 'Good Morning' : currentHour < 18 ? 'Good Afternoon' : 'Good Evening');
     }, []);
     const handleEditToggle = () => {
-        setEditMode(!editMode);
+        setTempScenarioDetails(scenarioDetails); // Set current details to the input field
+        setIsModalOpen(true); // Open the modal
+    };
+    const handleSaveScenarioDetails = () => {
+        setScenarioDetails(tempScenarioDetails); // Update scenario details
+        setIsModalOpen(false); // Close the modal
+    };
+    const handleCancelEdit = () => {
+        setTempScenarioDetails(scenarioDetails); // Reset temp details to original
+        setIsModalOpen(false); // Close the modal
     };
     const handleAddProduct = () => {
         const newProductIndications = indicationColumns.reduce((acc, indication) => {
@@ -152,6 +180,17 @@ const ForecastAndFlowDiagram = () => {
             const selectedScenario = savedScenarios[scenarioName];
             setProducts(selectedScenario.products);
             setIndicationColumns(selectedScenario.indicationColumns);
+        } else {
+            // Explicitly set 6 products and 4 indications if no saved scenario is found
+            setProducts([
+                { id: 1, name: 'Product1', include: true, xyzProduct: true, launchDate: dayjs('2014-02-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'No', 'Indication 3': 'Yes', 'Indication 4': 'No' } },
+                { id: 2, name: 'Product2', include: true, xyzProduct: true, launchDate: dayjs('2017-02-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'Yes', 'Indication 3': 'No', 'Indication 4': 'Yes' } },
+                { id: 3, name: 'Product3', include: false, xyzProduct: false, launchDate: dayjs('2019-06-01'), indications: { 'Indication 1': 'No', 'Indication 2': 'Yes', 'Indication 3': 'Yes', 'Indication 4': 'No' } },
+                { id: 4, name: 'Product4', include: true, xyzProduct: true, launchDate: dayjs('2020-03-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'No', 'Indication 3': 'Yes', 'Indication 4': 'No' } },
+                { id: 5, name: 'Product5', include: true, xyzProduct: false, launchDate: dayjs('2016-11-01'), indications: { 'Indication 1': 'No', 'Indication 2': 'No', 'Indication 3': 'Yes', 'Indication 4': 'Yes' } },
+                { id: 6, name: 'Product6', include: false, xyzProduct: true, launchDate: dayjs('2018-01-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'Yes', 'Indication 3': 'No', 'Indication 4': 'Yes' } },
+            ]);
+            setIndicationColumns(['Indication 1', 'Indication 2', 'Indication 3', 'Indication 4']);
         }
     }, [scenarioName]);
     const handleIncludeChange = (id) => {
@@ -186,7 +225,7 @@ const ForecastAndFlowDiagram = () => {
         console.log(`Review Scenario for Product ID: ${id}`);
         // Implement navigation or modal open here
     };
-    
+
     const handleReviewScenarioSummary = (id) => {
         // Logic for handling review of the scenario summary
         console.log(`Review Scenario Summary for Product ID: ${id}`);
@@ -273,7 +312,7 @@ const ForecastAndFlowDiagram = () => {
                     className="fixed-apply-button" // Apply the custom CSS class
                     startIcon={<ApplyIcon />}
                 >
-                    Apply
+                    Save & Continue
                 </Button>
             )}
             <div className="tabs">
@@ -330,11 +369,37 @@ const ForecastAndFlowDiagram = () => {
                                                 variant="outlined"
                                             />
                                         )}
+                                        {/* Edit Scenario Details Modal */}
+                                        <Dialog open={isModalOpen} onClose={handleCancelEdit}>
+                                            <DialogTitle>Edit Scenario Details</DialogTitle>
+                                            <DialogContent>
+                                                <TextField
+                                                    autoFocus
+                                                    margin="dense"
+                                                    label="Scenario Details"
+                                                    type="text"
+                                                    fullWidth
+                                                    variant="outlined"
+                                                    value={tempScenarioDetails}
+                                                    onChange={(e) => setTempScenarioDetails(e.target.value)}
+                                                />
+                                            </DialogContent>
+                                            <DialogActions>
+                                                <Button onClick={handleCancelEdit} color="secondary">
+                                                    Cancel
+                                                </Button>
+                                                <Button onClick={handleSaveScenarioDetails} color="primary">
+                                                    Save
+                                                </Button>
+                                            </DialogActions>
+                                        </Dialog>
                                     </Grid>
                                     <Grid item xs={1}>
                                         <IconButton onClick={handleEditToggle}>
                                             <EditIcon />
                                         </IconButton>
+
+                                        
                                     </Grid>
                                 </Grid>
 
