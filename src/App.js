@@ -39,7 +39,7 @@ function App() {
           <Route path="/scenario-comparsion" element={<ScenarioComparsion />} />
           <Route path="/data-consolidation" element={<DataConsolidation />} />
           /{/*<Route path="/Forecast" element={<HomePage />} />*/}
-          <Route path="/scenario-details" element={<ScenarioDetails />} />
+          <Route path="/new-scenario/scenario-details" element={<ScenarioDetails />} />
           <Route path="/review-scenario" element={<ReviewScenario />} />
           <Route path="/Summary-scenario" element={<SummaryScenario />} />
           <Route path="/submissions-tracker" element={<Submission_Tracker/>} />

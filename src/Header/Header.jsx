@@ -68,8 +68,11 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 // Breadcrumb names mapping
 const breadcrumbNameMap = {
   '/new-scenario': 'New Scenario',
+  '/new-scenario/scenario-details':'Scenario Details',
+  '/scenario-details':'New Scenario / Scenario Details',
+  '/new-scenario/scenaroi-details/inputpage':'Input page',
   '/saved-scenario': 'Saved Scenario',
-  '/data-consolidation': 'Data Consolidation',
+  '/data-consolidation': 'Data Consolidation',  
   '/scenario-comparison': 'Scenario Comparison',
   '/forecast-deep-dive': 'Forecast Deep-dive',
   '/admin': 'Admin',
@@ -79,14 +82,15 @@ const breadcrumbNameMap = {
 
 // Component for dynamic breadcrumbs
 function DynamicBreadcrumbs() {
-  const location = useLocation(); // Get current location (pathname)
+  const location = useLocation();
   const navigate = useNavigate();
 
-  const pathnames = location.pathname.split('/').filter((x) => x);
+  const pathnames = location.pathname.split('/').filter(Boolean);
   const isHomePage = location.pathname === '/';
+
   return (
-    <Breadcrumbs aria-label="breadcrumb" sx={{ margin: '16px 0' }}> {/* Adjust the margin here */}
-      {!isHomePage && ( // Only show the Home Icon and link if it's NOT the homepage
+    <Breadcrumbs aria-label="breadcrumb" sx={{ margin: '16px 0' }}>
+      {!isHomePage && (
         <Link
           underline="hover"
           color="inherit"
@@ -102,18 +106,19 @@ function DynamicBreadcrumbs() {
         </Link>
       )}
 
-      {/* Dynamic breadcrumbs */}
+      {/* Iterate through each path segment to build breadcrumbs */}
       {pathnames.map((value, index) => {
         const to = `/${pathnames.slice(0, index + 1).join('/')}`;
-
         const isLast = index === pathnames.length - 1;
+        
+        // Log each path for debugging
+        console.log(`Path: ${to}, Breadcrumb: ${breadcrumbNameMap[to] || value}`);
+
         return isLast ? (
-          // The last breadcrumb should not be a link
           <Typography color="text.primary" key={to}>
             {breadcrumbNameMap[to] || value}
           </Typography>
         ) : (
-          // Other breadcrumbs are clickable links
           <Link
             underline="hover"
             color="inherit"

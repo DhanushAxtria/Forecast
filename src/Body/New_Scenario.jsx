@@ -95,7 +95,7 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
   };
   const handleSelectClick = (scenario) => {
     // Navigate to the specific page, passing scenario data as state
-    navigate('/scenario-details', { state: { scenario } });
+    navigate('/new-scenario/scenario-details', { state: { scenario } });
   };
   const handleReviewScenario = (scenario) => {
     // Navigate to the specific page, passing scenario data as state
