@@ -169,18 +169,18 @@ const ForecastAndFlowDiagram = () => {
     const savedScenarios = {
         'Scenario 1': {
             products: [
-                { id: 1, name: 'Product1', include: true, xyzProduct: true, launchDate: dayjs('2014-02-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'Yes' ,'Indication 3':'Yes','Indication 4':'Yes'} },
-                { id: 2, name: 'Product2', include: true, xyzProduct: true, launchDate: dayjs('2017-02-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'Yes' ,'Indication 3':'Yes', 'Indication 4':'Yes'} },
-                { id: 3, name: 'Product3', include: true, xyzProduct: true, launchDate: dayjs('2018-04-02'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'Yes' ,'Indication 3':'Yes', 'Indication 4':'Yes'} },
-                { id: 4, name: 'Product4', include: true, xyzProduct: true, launchDate: dayjs('2012-02-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'Yes' ,'Indication 3':'Yes', 'Indication 4':'Yes'} },
-                { id: 5, name: 'Product5', include: true, xyzProduct: true, launchDate: dayjs('2015-07-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'Yes' ,'Indication 3':'Yes', 'Indication 4':'Yes'} },
-                { id: 6, name: 'Product6', include: true, xyzProduct: true, launchDate: dayjs('2020-02-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'Yes' ,'Indication 3':'Yes', 'Indication 4':'Yes'} },
+                { id: 1, name: 'Product1', include: true, xyzProduct: true, launchDate: dayjs('2014-02-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'Yes', 'Indication 3': 'Yes', 'Indication 4': 'Yes' } },
+                { id: 2, name: 'Product2', include: true, xyzProduct: true, launchDate: dayjs('2017-02-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'Yes', 'Indication 3': 'Yes', 'Indication 4': 'Yes' } },
+                { id: 3, name: 'Product3', include: true, xyzProduct: true, launchDate: dayjs('2018-04-02'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'Yes', 'Indication 3': 'Yes', 'Indication 4': 'Yes' } },
+                { id: 4, name: 'Product4', include: true, xyzProduct: true, launchDate: dayjs('2012-02-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'Yes', 'Indication 3': 'Yes', 'Indication 4': 'Yes' } },
+                { id: 5, name: 'Product5', include: true, xyzProduct: true, launchDate: dayjs('2015-07-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'Yes', 'Indication 3': 'Yes', 'Indication 4': 'Yes' } },
+                { id: 6, name: 'Product6', include: true, xyzProduct: true, launchDate: dayjs('2020-02-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'Yes', 'Indication 3': 'Yes', 'Indication 4': 'Yes' } },
 
 
 
 
             ],
-            indicationColumns: ['Indication 1', 'Indication 2','Indication 3','Indication 4']
+            indicationColumns: ['Indication 1', 'Indication 2', 'Indication 3', 'Indication 4']
         },
         'Scenario 2': {
             products: [
@@ -326,14 +326,17 @@ const ForecastAndFlowDiagram = () => {
     return (
         <div className="container">
             {activeTab === 'controlSheet' && (
-                <Button
-                    variant="contained"
-                    className="fixed-apply-button" // Apply the custom CSS class
-                    startIcon={<ApplyIcon />}
-                    onClick={handleSaveAndContinue}
-                >
-                    Save & Continue
-                </Button>
+                <div className='fixedApplyDiv'>
+                    <Button
+                        variant="contained"
+                        className="fixed-apply-button" // Apply the custom CSS class
+                        startIcon={<ApplyIcon />}
+                        onClick={handleSaveAndContinue}
+                    >
+                        Save & Continue
+                    </Button>
+                </div>
+
             )}
 
             <div className="content">
@@ -411,7 +414,7 @@ const ForecastAndFlowDiagram = () => {
                                             <EditIcon />
                                         </IconButton>
 
-                                        
+
                                     </Grid>
                                 </Grid>
 
@@ -648,7 +651,7 @@ const ForecastAndFlowDiagram = () => {
                                                                     newProducts[index].indications[indication] === 'Yes' ? 'No' : 'Yes';
                                                                 setProducts(newProducts);
                                                             }}
-            
+
                                                         >
                                                             {product.indications[indication]}
                                                         </Button>
