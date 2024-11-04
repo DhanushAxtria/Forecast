@@ -70,7 +70,8 @@ const breadcrumbNameMap = {
   '/new-scenario': 'New Scenario',
   '/new-scenario/scenario-details':'Scenario Details',
   '/scenario-details':'New Scenario / Scenario Details',
-  '/new-scenario/scenaroi-details/inputpage':'Input page',
+  '/new-scenario/scenario-details/Inputpage':'Input page',
+  '/Inputpage':'New Scenario / Scenario Details / Input page',
   '/saved-scenario': 'Saved Scenario',
   '/data-consolidation': 'Data Consolidation',  
   '/scenario-comparison': 'Scenario Comparison',
@@ -86,6 +87,7 @@ function DynamicBreadcrumbs() {
   const navigate = useNavigate();
 
   const pathnames = location.pathname.split('/').filter(Boolean);
+  const [breadcrumbs, setBreadCrumbs] = React.useState()
   const isHomePage = location.pathname === '/';
 
   return (
