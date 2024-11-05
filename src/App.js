@@ -44,7 +44,8 @@ function App() {
           <Route path="/Summary-scenario" element={<SummaryScenario />} />
           <Route path="/submissions-tracker" element={<Submission_Tracker/>} />
           <Route path="/" element={<ScenarioDetails/>} />
-          <Route path="/Inputpage" element={<Inputpage/>} />
+          <Route path="new-scenario/scenario-details/Inputpage" element={<Inputpage/>} />
+          {/* <Route path="/Inputpage" element={<Inputpage/>} /> */}
 
 
 

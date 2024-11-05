@@ -1,4 +1,4 @@
-import React from 'react';
+//import React from 'react';
 import ListItemText from '@mui/material/ListItemText';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -31,6 +31,8 @@ import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import HomeIcon from '@mui/icons-material/Home';
 import axtriaImage from '../assets/axtria-logo.png';
+import React, { useState, useEffect } from 'react';
+import { Dialog, DialogActions, DialogContent, DialogTitle, Button } from '@mui/material';
 
 // **Define the drawer width**
 const drawerWidth = 240;
@@ -65,7 +67,6 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   justifyContent: 'space-between',
 }));
 
-// Breadcrumb names mapping
 const breadcrumbNameMap = {
   '/new-scenario': 'New Scenario',
   '/new-scenario/scenario-details': 'Scenario Details',
@@ -139,9 +140,10 @@ function DynamicBreadcrumbs() {
 }
 
 // Main layout with drawer and dynamic breadcrumbs
-export default function PersistentDrawerLeft() {
+export default function PersistentDrawerLeft({ hasUnsavedChanges }) {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const isHomePage = location.pathname === "/";
@@ -153,6 +155,20 @@ export default function PersistentDrawerLeft() {
 
   const handleDrawerClose = () => {
     setOpen(false);
+  };
+  const handleHeaderClick = () => {
+    if (hasUnsavedChanges) {
+      setShowConfirmDialog(true); // Show the confirmation dialog if there are unsaved changes
+    } else {
+      navigate('/'); // Directly navigate to the homepage if no unsaved changes
+    }
+  };
+  const confirmNavigation = () => {
+    setShowConfirmDialog(false);
+    navigate('/');
+  };
+  const cancelNavigation = () => {
+    setShowConfirmDialog(false);
   };
 
   return (
@@ -167,7 +183,7 @@ export default function PersistentDrawerLeft() {
         <Toolbar className="toolBarDiv" sx={{ justifyContent: 'space-between' }}>
           {/* Left side: Menu icon and Logo */}
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          {isHomePage && (
+            {isHomePage && (
               <IconButton
                 color="inherit"
                 aria-label="open drawer"
@@ -175,7 +191,7 @@ export default function PersistentDrawerLeft() {
                 edge="start"
                 sx={{ mr: 2, ...(open && { display: 'none' }) }}
               >
-                <MenuIcon sx={{ color: 'black' }}/>
+                <MenuIcon sx={{ color: 'black' }} />
               </IconButton>
             )}
             <IconButton
@@ -196,7 +212,8 @@ export default function PersistentDrawerLeft() {
               variant="h6"
               noWrap
               component="div"
-              sx={{ fontWeight: 'bold', color: 'black', paddingLeft: '80px', fontSize: '2rem' }}
+              sx={{ fontWeight: 'bold', color: 'black', paddingLeft: '80px', fontSize: '2rem', cursor: 'pointer' }}
+              onClick={() => navigate('/')}
             >
               Axtria Forecast Tool
             </Typography>
@@ -215,6 +232,22 @@ export default function PersistentDrawerLeft() {
           </Box>
         </Toolbar>
       </AppBar>
+      <Dialog open={showConfirmDialog} onClose={cancelNavigation}>
+                <DialogTitle>Unsaved Changes</DialogTitle>
+                <DialogContent>
+                    <Typography>
+                        You have unsaved changes. Are you sure you want to leave this page without saving?
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={cancelNavigation} color="secondary">
+                        Cancel
+                    </Button>
+                    <Button onClick={confirmNavigation} color="primary">
+                        Leave Page
+                    </Button>
+                </DialogActions>
+            </Dialog>
 
       {/* **Breadcrumbs placed below the header** */}
       <Box component="nav" sx={{ width: '100%', padding: '16px', marginTop: '64px' }}> {/* Adjust marginTop to fit below AppBar */}

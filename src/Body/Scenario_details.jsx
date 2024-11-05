@@ -28,7 +28,7 @@ import {
     DialogContent,
     DialogTitle,
 } from '@mui/material';
-
+import Header from '../Header/Header'
 const initialNodes = [
     { id: '1', data: { label: 'Product Level Treated Patients' }, position: { x: 250, y: 50 }, style: { width: 200 } },
     { id: '2', data: { label: 'Patients per product (based on trending)' }, position: { x: 250, y: 150 }, style: { width: 250 } },
@@ -67,6 +67,7 @@ const ForecastAndFlowDiagram = () => {
     const [greeting, setGreeting] = useState('');
     const [activeTab, setActiveTab] = useState('controlSheet'); // Manage which tab is active
     // Selected predefined scenario
+    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
     //const [activeTab, setActiveTab] = useState(0);
     const [customScenarioName, setCustomScenarioName] = useState('');
     const [forecastEndMonth, setForecastEndMonth] = useState(dayjs());
@@ -114,6 +115,14 @@ const ForecastAndFlowDiagram = () => {
     const handleRemoveProduct = (id) => {
         setProducts((prevProducts) => prevProducts.filter((product) => product.id !== id));
     };
+    const handleScenarioNameChange = (event) => {
+        setScenarioName(event.target.value);
+        setHasUnsavedChanges(true);
+    };
+    const handleScenarioDetailsChange = (event) => {
+        setScenarioDetails(event.target.value);
+        setHasUnsavedChanges(true);
+    };
     const handleRemoveIndication = (index) => {
         const indicationToRemove = indicationColumns[index];
 
@@ -128,6 +137,10 @@ const ForecastAndFlowDiagram = () => {
                 return { ...product, indications: updatedIndications };
             })
         );
+    };
+    const handleSave = () => {
+        setHasUnsavedChanges(false); // Assume data is saved
+        console.log('Data saved!');
     };
     const handleSaveScenarioDetails = () => {
         setScenarioDetails(tempScenarioDetails); // Update scenario details
@@ -335,7 +348,7 @@ const ForecastAndFlowDiagram = () => {
     };
     const navigate = useNavigate();
     const handleSaveAndContinue = () => {
-        navigate('/Inputpage'); // Navigate to the input page
+        navigate('Inputpage'); // Navigate to the input page
     };
     const [nodes, setNodes] = useState(initialNodes);
     const [edges, setEdges] = useState(initialEdges);
@@ -344,7 +357,7 @@ const ForecastAndFlowDiagram = () => {
     const onEdgesChange = useCallback((changes) => setEdges((eds) => applyEdgeChanges(changes, eds)), []);
     const onConnect = useCallback((params) => setEdges((eds) => addEdge({ ...params, animated: true }, eds)), []);
 
-    return (
+    return ( 
         <div className="container">
             {activeTab === 'controlSheet' && (
                 <div className='fixedApplyDiv'>
@@ -362,7 +375,7 @@ const ForecastAndFlowDiagram = () => {
 
             <div className="content">
                 {activeTab === 'controlSheet' && (
-                    <>
+                    <>  
                         <h1 className="greeting">{greeting}, Welcome to the Forecast & Worksheet Selections</h1>
 
                         <Grid container spacing={3}>
