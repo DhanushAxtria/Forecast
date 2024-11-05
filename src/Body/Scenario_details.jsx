@@ -19,6 +19,9 @@ import EditIcon from '@mui/icons-material/Edit';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+import DeleteIcon from '@mui/icons-material/Delete'; // Trash can icon for products
+import CloseIcon from '@mui/icons-material/Close';
+import InputAdornment from '@mui/material/InputAdornment';  // Close icon for indications
 import {
     Dialog,
     DialogActions,
@@ -107,6 +110,24 @@ const ForecastAndFlowDiagram = () => {
     const handleEditToggle = () => {
         setTempScenarioDetails(scenarioDetails); // Set current details to the input field
         setIsModalOpen(true); // Open the modal
+    };
+    const handleRemoveProduct = (id) => {
+        setProducts((prevProducts) => prevProducts.filter((product) => product.id !== id));
+    };
+    const handleRemoveIndication = (index) => {
+        const indicationToRemove = indicationColumns[index];
+
+        // Update indication columns
+        setIndicationColumns((prevColumns) => prevColumns.filter((_, colIndex) => colIndex !== index));
+
+        // Update products to remove the indication
+        setProducts((prevProducts) =>
+            prevProducts.map((product) => {
+                const updatedIndications = { ...product.indications };
+                delete updatedIndications[indicationToRemove];
+                return { ...product, indications: updatedIndications };
+            })
+        );
     };
     const handleSaveScenarioDetails = () => {
         setScenarioDetails(tempScenarioDetails); // Update scenario details
@@ -557,7 +578,7 @@ const ForecastAndFlowDiagram = () => {
                             <Button variant="contained" color="primary" onClick={handleAddIndication}>
                                 + Add Indication
                             </Button>
-                            <div style={{ maxHeight: '400px', overflowX: 'auto', overflowY: 'auto', marginTop: '10px' }}> {/* Added scrollbars */}
+                            <div style={{ maxHeight: '400px', overflowX: 'auto', overflowY: 'auto', marginTop: '10px' }}>
                                 <table className="product-table" style={{ minWidth: indicationColumns.length > 2 ? '150%' : '100%' }}>
                                     <thead>
                                         <tr>
@@ -570,44 +591,56 @@ const ForecastAndFlowDiagram = () => {
                                                 <th key={index}>
                                                     <TextField
                                                         value={indication}
-                                                        onChange={(e) => {
-                                                            const newIndicationColumns = [...indicationColumns];
-                                                            newIndicationColumns[index] = e.target.value;
-                                                            setIndicationColumns(newIndicationColumns);
-                                                        }} // Editable header
+                                                        onChange={(e) => handleIndicationColumnChange(index, e.target.value)}
                                                         variant="outlined"
+                                                        InputProps={{
+                                                            endAdornment: (
+                                                                <InputAdornment position="end">
+                                                                    <IconButton
+                                                                        onClick={() => handleRemoveIndication(index)}
+                                                                        size="small"
+                                                                        color="error"
+                                                                    >
+                                                                        <CloseIcon fontSize="small" />
+                                                                    </IconButton>
+                                                                </InputAdornment>
+                                                            ),
+                                                        }}
                                                     />
                                                 </th>
                                             ))}
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {products.map((product) => (
+                                        {products.map((product, productIndex) => (
                                             <tr key={product.id}>
-                                                <td>{product.id}</td>
+                                                <td>{productIndex + 1}</td>
                                                 <td>
                                                     <TextField
                                                         value={product.name}
-                                                        onChange={(e) => {
-                                                            const newProducts = [...products];
-                                                            const index = newProducts.findIndex((p) => p.id === product.id);
-                                                            newProducts[index].name = e.target.value;
-                                                            setProducts(newProducts);
-                                                        }}
+                                                        onChange={(e) => handleProductNameChange(product.id, e.target.value)}
                                                         variant="outlined"
                                                         fullWidth
+                                                        InputProps={{
+                                                            endAdornment: (
+                                                                <InputAdornment position="end">
+                                                                    <IconButton
+                                                                        onClick={() => handleRemoveProduct(product.id)}
+                                                                        size="small"
+                                                                        color="error"
+                                                                    >
+                                                                        <DeleteIcon fontSize="small" />
+                                                                    </IconButton>
+                                                                </InputAdornment>
+                                                            ),
+                                                        }}
                                                     />
                                                 </td>
                                                 <td>
                                                     <Button
                                                         variant="outlined"
                                                         className={`toggle-btn ${product.include ? 'yes' : 'no'}`}
-                                                        onClick={() => {
-                                                            const newProducts = [...products];
-                                                            const index = newProducts.findIndex((p) => p.id === product.id);
-                                                            newProducts[index].include = !newProducts[index].include;
-                                                            setProducts(newProducts);
-                                                        }}
+                                                        onClick={() => handleIncludeChange(product.id)}
                                                     >
                                                         {product.include ? 'Yes' : 'No'}
                                                     </Button>
@@ -624,17 +657,11 @@ const ForecastAndFlowDiagram = () => {
                                                 <td>
                                                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                                                         <DatePicker
-                                                            //label="Years in descending order"
                                                             maxDate={currentYear}
                                                             openTo="year"
                                                             views={['year', 'month']}
                                                             value={product.launchDate}
-                                                            onChange={(newDate) => {
-                                                                const newProducts = [...products];
-                                                                const index = newProducts.findIndex((p) => p.id === product.id);
-                                                                newProducts[index].launchDate = newDate;
-                                                                setProducts(newProducts);
-                                                            }}
+                                                            onChange={(newDate) => handleLaunchDateChange(product.id, newDate)}
                                                             sx={{ minWidth: 250 }}
                                                         />
                                                     </LocalizationProvider>
@@ -644,14 +671,7 @@ const ForecastAndFlowDiagram = () => {
                                                         <Button
                                                             variant="outlined"
                                                             className={`toggle-btn ${product.indications[indication] === 'Yes' ? 'yes' : 'no'}`}
-                                                            onClick={() => {
-                                                                const newProducts = [...products];
-                                                                const index = newProducts.findIndex((p) => p.id === product.id);
-                                                                newProducts[index].indications[indication] =
-                                                                    newProducts[index].indications[indication] === 'Yes' ? 'No' : 'Yes';
-                                                                setProducts(newProducts);
-                                                            }}
-
+                                                            onClick={() => handleToggleIndication(product.id, indication)}
                                                         >
                                                             {product.indications[indication]}
                                                         </Button>

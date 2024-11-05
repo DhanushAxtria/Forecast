@@ -389,10 +389,11 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
           multiple
           id="forecast-cycle-autocomplete"
           options={forecastCycleOptions}
-          disableCloseOnSelect
+          disableCloseOnSelect // Only keep if needed for multi-select behavior
           getOptionLabel={(option) => option}
           value={forecastCycles}
           onChange={(event, newValue) => setForecastCycles(newValue)}
+          onBlur={() => setForecastCycles([...forecastCycles])} // Force re-render to close
           renderOption={(props, option, { selected }) => (
             <li {...props}>
               <Checkbox
@@ -407,6 +408,7 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
           )}
           sx={{ width: '300px' }}
         />
+
 
         {/* Autocomplete with Checkboxes for Country */}
         <Autocomplete
@@ -506,16 +508,16 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
       </Button>*/}
       {selectedAction === 'copySubmission' && (
         <TableContainer component={Paper} sx={{ mt: 3, maxWidth: '100%' }}>
-          <Table aria-label="submission scenarios table">
+          <Table aria-label="submission scenarios table" size="small">
             <TableHead>
               <TableRow sx={{ backgroundColor: '#1976d2' }}>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Scenario</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Forecast Cycle</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Country</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Therapeutic Area</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Last Modified</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Submitted by</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold', paddingLeft: '80px' }}>Actions</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Scenario</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Forecast Cycle</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Country</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Therapeutic Area</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Last Modified</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Submitted by</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -527,14 +529,14 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
                 { scenario: 'Draft 1', cycle: '2024 H2', country: 'Finland', area: 'TA 1', modified: '28 Sep 2024', user: 'User 1' },
               ].map((row, index) => (
                 <TableRow key={index}>
-                  <TableCell>{row.scenario}</TableCell>
-                  <TableCell>{row.cycle}</TableCell>
-                  <TableCell>{row.country}</TableCell>
-                  <TableCell>{row.area}</TableCell>
-                  <TableCell>{row.modified}</TableCell>
-                  <TableCell>{row.user}</TableCell>
-                  <TableCell>
-                    <Box display="flex" alignItems="center" gap={1}>
+                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.scenario}</TableCell>
+                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.cycle}</TableCell>
+                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.country}</TableCell>
+                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.area}</TableCell>
+                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.modified}</TableCell>
+                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.user}</TableCell>
+                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>
+                    <Box display="flex" justifyContent="center" alignItems="center" gap={1}>
                       <Tooltip title="Review Scenario Summary">
                         <IconButton onClick={() => handleReviewScenarioSummary(row)}>
                           <OpenInNewIcon color="success" />
@@ -560,29 +562,29 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
       )}
       {selectedAction === 'copySaved' && (
         <TableContainer component={Paper} sx={{ mt: 3, maxWidth: '100%' }}>
-          <Table aria-label="saved scenarios table">
+          <Table aria-label="saved scenarios table" size="small">
             <TableHead>
               <TableRow sx={{ backgroundColor: '#1976d2' }}>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Scenario</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Forecast Cycle</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Country</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Therapeutic Area</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Last Modified</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Submitted by</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold', paddingLeft: '27px' }}>Actions</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Scenario</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Forecast Cycle</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Country</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Therapeutic Area</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Last Modified</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Submitted by</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {filteredSavedScenarios.map((row, index) => (
                 <TableRow key={index}>
-                  <TableCell>{row.scenario}</TableCell>
-                  <TableCell>{row.cycle}</TableCell>
-                  <TableCell>{row.country}</TableCell>
-                  <TableCell>{row.area}</TableCell>
-                  <TableCell>{row.modified}</TableCell>
-                  <TableCell>{row.user}</TableCell>
-                  <TableCell>
-                    <Box display="flex" alignItems="center" gap={1}>
+                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.scenario}</TableCell>
+                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.cycle}</TableCell>
+                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.country}</TableCell>
+                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.area}</TableCell>
+                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.modified}</TableCell>
+                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.user}</TableCell>
+                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>
+                    <Box display="flex" justifyContent="center" alignItems="center" gap={1}>
                       <Tooltip title="Review Scenario Summary">
                         <IconButton onClick={() => handleReviewScenarioSummary(row)}>
                           <OpenInNewIcon color="success" />
@@ -606,6 +608,7 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
           </Table>
         </TableContainer>
       )}
+
       {showFolders && selectedAction === 'savedTemplates' && (
         <div style={{ display: 'flex', flexWrap: 'wrap', marginTop: '20px', gap: '40px' }}>
           {folders.map((folder, index) => {

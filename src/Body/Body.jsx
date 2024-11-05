@@ -32,21 +32,23 @@ const BlogGrid = () => {
       </div>
       <Box
         sx={{
-          display: 'grid',
+          display: 'inline-grid',
           gridTemplateColumns: 'repeat(4, 1fr)', // 4 columns
           gap: 2, // space between cards
           padding: 2,
-          justifyContent: 'flex-start', // Aligns the cards to the left
+          justifyContent: 'center', // Aligns the cards to the left
+          alignItems:'center',
+          marginLeft:'-30px'
         }}
       >
         {/* Card 1: New Scenario */}
         <div className="hoverCard">
           <Card
-            sx={{ width: 300, background: 'linear-gradient(135deg, #00c6ff, #0072ff)', color: 'white' }}
+            sx={{ width: 280, background: 'linear-gradient(135deg, #00c6ff, #0072ff)', color: 'white' }}
             className='featureCard'
           >
             <CardActionArea sx={{ cursor: 'pointer' }} onClick={()=>navigate("/new-scenario")}>
-              <Assessment sx={{ fontSize: 60, color: 'white', margin: '20px' }} />
+              <Assessment sx={{ fontSize: 50, color: 'white', margin: '20px' }} />
               <CardContent
                 sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
               >
@@ -68,11 +70,11 @@ const BlogGrid = () => {
         {/* Card 2: Saved Scenarios */}
         <div className="hoverCard">
           <Card
-            sx={{ width: 300, background: 'linear-gradient(135deg, #ff758c, #ff7eb3)', color: 'white' }}
+            sx={{ width: 280, background: 'linear-gradient(135deg, #ff758c, #ff7eb3)', color: 'white' }}
             className='featureCard'
           >
             <CardActionArea sx={{ cursor: 'pointer' }}>
-              <SaveAlt sx={{ fontSize: 60, color: 'white', margin: '20px' }} />
+              <SaveAlt sx={{ fontSize: 50, color: 'white', margin: '20px' }} />
               <CardContent
                 sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
               >
@@ -94,11 +96,11 @@ const BlogGrid = () => {
         {/* Card 3: Data Consolidation */}
         <div className="hoverCard">
           <Card
-            sx={{ width: 300, background: 'linear-gradient(135deg, #ffafbd, #ffc3a0)', color: 'white' }}
+            sx={{ width: 280, background: 'linear-gradient(135deg, #ffafbd, #ffc3a0)', color: 'white' }}
             className='featureCard'
           >
             <CardActionArea sx={{ cursor: 'pointer' }} onClick={()=>navigate("/data-consolidation")}>
-              <FilePresent sx={{ fontSize: 60, color: 'white', margin: '20px' }} />
+              <FilePresent sx={{ fontSize: 50, color: 'white', margin: '20px' }} />
               <CardContent
                 sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
               >
@@ -120,11 +122,11 @@ const BlogGrid = () => {
         {/* Card 4: Scenario Comparison */}
         <div className="hoverCard">
           <Card
-            sx={{ width: 300, background: 'linear-gradient(135deg, #a1ffce, #faffd1)', color: 'black' }}
+            sx={{ width: 280, background: 'linear-gradient(135deg, #a1ffce, #faffd1)', color: 'black' }}
             className='featureCard'
           >
             <CardActionArea sx={{ cursor: 'pointer'}} onClick={()=>{window.open("/scenario-comparsion",  '_blank')}}>
-              <CompareArrows sx={{ fontSize: 60, color: 'black', margin: '20px' }} />
+              <CompareArrows sx={{ fontSize: 50, color: 'black', margin: '20px' }} />
               <CardContent
                 sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
               >
@@ -146,11 +148,11 @@ const BlogGrid = () => {
         {/* Card 5: Forecast Deep-dive */}
         <div className="hoverCard">
           <Card
-            sx={{ width: 300, background: 'linear-gradient(135deg, #667eea, #764ba2)', color: 'white' }}
+            sx={{ width: 280, background: 'linear-gradient(135deg, #667eea, #764ba2)', color: 'white' }}
             className='featureCard'
           >
             <CardActionArea sx={{ cursor: 'pointer' }}>
-              <Insights sx={{ fontSize: 60, color: 'white', margin: '20px' }} />
+              <Insights sx={{ fontSize: 50, color: 'white', margin: '20px' }} />
               <CardContent
                 sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
               >
@@ -172,11 +174,11 @@ const BlogGrid = () => {
         {/* Card 6: Admin */}
         <div className="hoverCard">
           <Card
-            sx={{ width: 300, background: 'linear-gradient(135deg, #f857a6, #ff5858)', color: 'white' }}
+            sx={{ width: 280, background: 'linear-gradient(135deg, #f857a6, #ff5858)', color: 'white' }}
             className='featureCard'
           >
             <CardActionArea sx={{ cursor: 'pointer'}} onClick={()=>navigate("/admin")}>
-              <Security sx={{ fontSize: 60, color: 'white', margin: '20px' }} />
+              <Security sx={{ fontSize: 50, color: 'white', margin: '20px' }} />
               <CardContent
                 sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
               >
@@ -198,11 +200,11 @@ const BlogGrid = () => {
         {/* Card 7: Generate Report */}
         <div className="hoverCard">
           <Card
-            sx={{ width: 300, background: 'linear-gradient(135deg, #36d1dc, #5b86e5)', color: 'white' }}
+            sx={{ width: 280, background: 'linear-gradient(135deg, #36d1dc, #5b86e5)', color: 'white' }}
             className='featureCard'
           >
             <CardActionArea sx={{ cursor: 'pointer' }} onClick={() => navigate("/generate-report")}>
-              <Assignment sx={{ fontSize: 60, color: 'white', margin: '20px' }} />
+              <Assignment sx={{ fontSize: 50, color: 'white', margin: '20px' }} />
               <CardContent
                 sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
               >
@@ -224,11 +226,11 @@ const BlogGrid = () => {
         {/* Card 8: Submissions Tracker */}
         <div className="hoverCard">
           <Card
-            sx={{ width: 300, background: 'linear-gradient(135deg, #ff9a9e, #fecfef)', color: 'black' }}
+            sx={{ width: 280, background: 'linear-gradient(135deg, #ff9a9e, #fecfef)', color: 'black' }}
             className='featureCard'
           >
             <CardActionArea sx={{ cursor: 'pointer' }} onClick={() => navigate("/submissions-tracker")}>
-              <QueryStats sx={{ fontSize: 60, color: 'black', margin: '20px' }} />
+              <QueryStats sx={{ fontSize: 50, color: 'black', margin: '20px' }} />
               <CardContent
                 sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
               >

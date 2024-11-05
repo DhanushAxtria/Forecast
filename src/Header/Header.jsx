@@ -68,12 +68,12 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 // Breadcrumb names mapping
 const breadcrumbNameMap = {
   '/new-scenario': 'New Scenario',
-  '/new-scenario/scenario-details':'Scenario Details',
-  '/scenario-details':'New Scenario / Scenario Details',
-  '/new-scenario/scenario-details/Inputpage':'Input page',
-  '/Inputpage':'New Scenario / Scenario Details / Input page',
+  '/new-scenario/scenario-details': 'Scenario Details',
+  '/scenario-details': 'New Scenario / Scenario Details',
+  '/new-scenario/scenario-details/Inputpage': 'Input page',
+  '/Inputpage': 'New Scenario / Scenario Details / Input page',
   '/saved-scenario': 'Saved Scenario',
-  '/data-consolidation': 'Data Consolidation',  
+  '/data-consolidation': 'Data Consolidation',
   '/scenario-comparison': 'Scenario Comparison',
   '/forecast-deep-dive': 'Forecast Deep-dive',
   '/admin': 'Admin',
@@ -112,7 +112,7 @@ function DynamicBreadcrumbs() {
       {pathnames.map((value, index) => {
         const to = `/${pathnames.slice(0, index + 1).join('/')}`;
         const isLast = index === pathnames.length - 1;
-        
+
         // Log each path for debugging
         console.log(`Path: ${to}, Breadcrumb: ${breadcrumbNameMap[to] || value}`);
 
@@ -142,7 +142,9 @@ function DynamicBreadcrumbs() {
 export default function PersistentDrawerLeft() {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isHomePage = location.pathname === "/";
   const username = "John Doe";  // Replace this with dynamic data
 
   const handleDrawerOpen = () => {
@@ -156,24 +158,26 @@ export default function PersistentDrawerLeft() {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      
+
       {/* AppBar (Header) */}
       <AppBar position="fixed" open={open} sx={{
-          backgroundColor: '#87CEEB', // Custom background color for the header
-          boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)', // Optional shadow
-        }}>
+        backgroundColor: '#87CEEB', // Custom background color for the header
+        boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)', // Optional shadow
+      }}>
         <Toolbar className="toolBarDiv" sx={{ justifyContent: 'space-between' }}>
           {/* Left side: Menu icon and Logo */}
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              onClick={handleDrawerOpen}
-              edge="start"
-              sx={{ mr: 2, ...(open && { display: 'none' }) }}
-            >
-              <MenuIcon sx={{ color: 'black' }}/>
-            </IconButton>
+          {isHomePage && (
+              <IconButton
+                color="inherit"
+                aria-label="open drawer"
+                onClick={handleDrawerOpen}
+                edge="start"
+                sx={{ mr: 2, ...(open && { display: 'none' }) }}
+              >
+                <MenuIcon sx={{ color: 'black' }}/>
+              </IconButton>
+            )}
             <IconButton
               size="large"
               edge="start"
@@ -192,7 +196,7 @@ export default function PersistentDrawerLeft() {
               variant="h6"
               noWrap
               component="div"
-              sx={{ fontWeight: 'bold', color: 'black',paddingLeft: '80px',fontSize:'2rem'}}
+              sx={{ fontWeight: 'bold', color: 'black', paddingLeft: '80px', fontSize: '2rem' }}
             >
               Axtria Forecast Tool
             </Typography>
@@ -200,12 +204,12 @@ export default function PersistentDrawerLeft() {
 
           {/* Right side: Help, Support, and User Info */}
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <HelpIcon onClick={() => navigate('/help')} sx={{ mx: 1,color:'black' }} />
-            <Summarize onClick={() => navigate('/generate-report')} sx={{ mx: 1, cursor: 'pointer',color:'black' }} />
-            <TrackChanges onClick={() => navigate('/submission-tracking')} sx={{ mx: 1, cursor: 'pointer' ,color:'black'}} />
-            <SupportIcon onClick={() => window.open("https://axtria.com", "_blank")} sx={{ mx: 1 ,color:'black'}} />
+            <HelpIcon onClick={() => navigate('/help')} sx={{ mx: 1, color: 'black' }} />
+            <Summarize onClick={() => navigate('/generate-report')} sx={{ mx: 1, cursor: 'pointer', color: 'black' }} />
+            <TrackChanges onClick={() => navigate('/submission-tracking')} sx={{ mx: 1, cursor: 'pointer', color: 'black' }} />
+            <SupportIcon onClick={() => window.open("https://axtria.com", "_blank")} sx={{ mx: 1, color: 'black' }} />
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <AccountCircle sx={{ mr: 1 ,color:'black'}} /> 
+              <AccountCircle sx={{ mr: 1, color: 'black' }} />
               <Typography variant="body1" sx={{ color: 'black' }}>{username}</Typography>
             </Box>
           </Box>
@@ -217,59 +221,51 @@ export default function PersistentDrawerLeft() {
         <DynamicBreadcrumbs />
       </Box>
 
-      {/* Drawer component */}
-      <Drawer
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          '& .MuiDrawer-paper': {
+      {isHomePage && (
+        <Drawer
+          sx={{
             width: drawerWidth,
-            boxSizing: 'border-box',
-          },
-        }}
-        variant="persistent"
-        anchor="left"
-        open={open}
-      >
-        <DrawerHeader>
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-          </IconButton>
-          <Box sx={{ flexGrow: 1, textAlign: 'center' }}>
-            <Typography
-              variant="h6"
-              sx={{
-                padding: '5px 10px',
-                fontWeight: 600,
-                borderRadius: '8px',
-                display: 'inline-block',
-              }}
-            >
-              Dashboard
-            </Typography>
-          </Box>
-        </DrawerHeader>
+            flexShrink: 0,
+            '& .MuiDrawer-paper': {
+              width: drawerWidth,
+              boxSizing: 'border-box',
+            },
+          }}
+          variant="persistent"
+          anchor="left"
+          open={open}
+        >
+          <DrawerHeader>
+            <IconButton onClick={handleDrawerClose}>
+              {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+            </IconButton>
+            <Box sx={{ flexGrow: 1, textAlign: 'center' }}>
+              <Typography variant="h6" sx={{ padding: '5px 10px', fontWeight: 600, borderRadius: '8px', display: 'inline-block' }}>
+                Dashboard
+              </Typography>
+            </Box>
+          </DrawerHeader>
 
-        {/* Drawer navigation items */}
-        <List>
-          {[{ text: 'New Scenario', icon: <Assessment />, path: '/new-scenario' },
+          <List>
+            {[{ text: 'New Scenario', icon: <Assessment />, path: '/new-scenario' },
             { text: 'Saved Scenario', icon: <SaveAlt />, path: '/saved-scenario' },
             { text: 'Data Consolidation', icon: <FilePresent />, path: '/data-consolidation' },
             { text: 'Scenario Comparison', icon: <CompareArrows />, path: '/scenario-comparison' },
             { text: 'Forecast Deep-dive', icon: <Insights />, path: '/forecast-deep-dive' },
-            { text: 'Generate Report', icon: <Summarize />, path: '/generate-report' },  // Added
-            { text: 'Submissions Tracker', icon: <TrackChanges />, path: '/submission-tracking' }, // Added
+            { text: 'Generate Report', icon: <Summarize />, path: '/generate-report' },
+            { text: 'Submissions Tracker', icon: <TrackChanges />, path: '/submission-tracking' },
             { text: 'Admin', icon: <Security />, path: '/admin' }
-          ].map((item) => (
-            <ListItem key={item.text} disablePadding>
-              <ListItemButton onClick={() => navigate(item.path)}>
-                <ListItemIcon>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.text} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
-      </Drawer>
+            ].map((item) => (
+              <ListItem key={item.text} disablePadding>
+                <ListItemButton onClick={() => navigate(item.path)}>
+                  <ListItemIcon>{item.icon}</ListItemIcon>
+                  <ListItemText primary={item.text} />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </Drawer>
+      )}
 
       {/* Main content area */}
       <Main open={open}>
