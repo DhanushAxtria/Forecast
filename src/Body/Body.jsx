@@ -34,15 +34,17 @@ const BlogGrid = () => {
         sx={{
           display: 'inline-grid',
           gridTemplateColumns: 'repeat(4, 1fr)', // 4 columns
+          //gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 4fr))',
           gap: 2, // space between cards
           padding: 2,
-          justifyContent: 'center', // Aligns the cards to the left
+          justifyContent: 'center',
+          maxWidth:'1200px', // Aligns the cards to the left
           alignItems:'center',
           marginLeft:'-30px'
         }}
       >
         {/* Card 1: New Scenario */}
-        <div className="hoverCard">
+        <div className="hoverCard" >
           <Card
             sx={{ width: 280, background: 'linear-gradient(135deg, #00c6ff, #0072ff)', color: 'white' }}
             className='featureCard'
@@ -59,7 +61,8 @@ const BlogGrid = () => {
                   variant="body2" 
                   sx={{ color: 'text.secondary', textAlign: 'center', fontSize: '14px' }}  // Changed font size here
                 >
-                  Create a new forecast scenario based on market data and trends.
+                  Create a new forecast scenario
+                   based on market data and trends.
                 </Typography>
               </CardContent>
             </CardActionArea>
@@ -73,7 +76,7 @@ const BlogGrid = () => {
             sx={{ width: 280, background: 'linear-gradient(135deg, #ff758c, #ff7eb3)', color: 'white' }}
             className='featureCard'
           >
-            <CardActionArea sx={{ cursor: 'pointer' }}>
+            <CardActionArea sx={{ cursor: 'pointer' }}onClick={()=>navigate("/saved-scenario")}>
               <SaveAlt sx={{ fontSize: 50, color: 'white', margin: '20px' }} />
               <CardContent
                 sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}

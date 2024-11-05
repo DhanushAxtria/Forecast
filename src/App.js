@@ -7,7 +7,7 @@ import ScenarioComparsion from './Body/ScenarioComparsion'; // Component for Sce
 import { SavedFilesProvider } from './Body/SavedFilesContext'; // Import the context provider
 import Page3 from './Body/Page3';
 import DataConsolidation from './Body/Data_Consolidation';
-import Savedpage from './Body/Savedpage';
+//import Savedpage from './Body/Savedpage';
 import SavedScenario from './Body/Saved-Scenario';
 import HelpPage from  './Header/HelpPage';
 import ScenarioDetails from './Body/Scenario_details'
@@ -15,14 +15,16 @@ import ReviewScenario from './Body/ReviewScenario'
 import SummaryScenario from './Body/SummaryScenario'
 import Submission_Tracker from './Body/Submission_Tracker'
 import Inputpage from './Body/Inputpage'
+import Savedpage from './Body/Newpage'
 //import Navbar from './Body/Navbar'
 function App() {
+  const  [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false); // Initialize the state
   return (
     <SavedFilesProvider> {/* Wrap the app with SavedFilesProvider */}
       
       <Router>
         {/* Header stays fixed across all pages */}
-        <Header />
+        <Header hasUnsavedChanges={hasUnsavedChanges} setHasUnsavedChanges={setHasUnsavedChanges}/>
         {/* Routes determine what body content to show */}
         <Routes>
           {/* Home Page Route - Display HomePage and Body */}
@@ -43,8 +45,9 @@ function App() {
           <Route path="/review-scenario" element={<ReviewScenario />} />
           <Route path="/Summary-scenario" element={<SummaryScenario />} />
           <Route path="/submissions-tracker" element={<Submission_Tracker/>} />
-          <Route path="/" element={<ScenarioDetails/>} />
+          <Route path="/" element={<ScenarioDetails hasUnsavedChanges={hasUnsavedChanges} setHasUnsavedChanges={setHasUnsavedChanges}/>} />
           <Route path="new-scenario/scenario-details/Inputpage" element={<Inputpage/>} />
+          <Route path="/saved-scenario" element={<Savedpage/>} />
           {/* <Route path="/Inputpage" element={<Inputpage/>} /> */}
 
 

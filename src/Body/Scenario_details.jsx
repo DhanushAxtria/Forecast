@@ -63,11 +63,11 @@ const defaultProducts = [
 ];
 const defaultIndicationColumns = ['Indication 1', 'Indication 2', 'Indication 3'];
 
-const ForecastAndFlowDiagram = () => {
+const ForecastAndFlowDiagram = (props) => {
+    const {hasUnsavedChanges,setHasUnsavedChanges} = props;
     const [greeting, setGreeting] = useState('');
     const [activeTab, setActiveTab] = useState('controlSheet'); // Manage which tab is active
     // Selected predefined scenario
-    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
     //const [activeTab, setActiveTab] = useState(0);
     const [customScenarioName, setCustomScenarioName] = useState('');
     const [forecastEndMonth, setForecastEndMonth] = useState(dayjs());
@@ -357,7 +357,8 @@ const ForecastAndFlowDiagram = () => {
     const onEdgesChange = useCallback((changes) => setEdges((eds) => applyEdgeChanges(changes, eds)), []);
     const onConnect = useCallback((params) => setEdges((eds) => addEdge({ ...params, animated: true }, eds)), []);
 
-    return ( 
+    return (
+        
         <div className="container">
             {activeTab === 'controlSheet' && (
                 <div className='fixedApplyDiv'>

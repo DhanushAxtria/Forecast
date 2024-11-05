@@ -89,25 +89,24 @@ function DynamicBreadcrumbs() {
 
   const pathnames = location.pathname.split('/').filter(Boolean);
   const [breadcrumbs, setBreadCrumbs] = React.useState()
-  const isHomePage = location.pathname === '/';
+  if (location.pathname === '/') return null;
+  //const isHomePage = location.pathname === '/';
 
   return (
     <Breadcrumbs aria-label="breadcrumb" sx={{ margin: '16px 0' }}>
-      {!isHomePage && (
-        <Link
-          underline="hover"
-          color="inherit"
-          href="/"
-          onClick={(event) => {
-            event.preventDefault();
-            navigate('/');
-          }}
-          sx={{ display: 'flex', alignItems: 'center' }}
-        >
-          <HomeIcon sx={{ mr: 0.5 }} fontSize="inherit" />
-          Home
-        </Link>
-      )}
+      <Link
+        underline="hover"
+        color="inherit"
+        href="/"
+        onClick={(event) => {
+          event.preventDefault();
+          navigate('/');
+        }}
+        sx={{ display: 'flex', alignItems: 'center' }}
+      >
+        <HomeIcon sx={{ mr: 0.5 }} fontSize="inherit" />
+        Home
+      </Link>
 
       {/* Iterate through each path segment to build breadcrumbs */}
       {pathnames.map((value, index) => {
@@ -140,13 +139,14 @@ function DynamicBreadcrumbs() {
 }
 
 // Main layout with drawer and dynamic breadcrumbs
-export default function PersistentDrawerLeft({ hasUnsavedChanges }) {
+export default function PersistentDrawerLeft(props) {
+  const {hasUnsavedChanges} = props
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const isHomePage = location.pathname === "/";
+  //const isHomePage = location.pathname === "/";
   const username = "John Doe";  // Replace this with dynamic data
 
   const handleDrawerOpen = () => {
@@ -171,6 +171,11 @@ export default function PersistentDrawerLeft({ hasUnsavedChanges }) {
     setShowConfirmDialog(false);
   };
 
+  const navigateToHome = ()=>{
+    // navigate('/');
+    setShowConfirmDialog(true);
+  }
+
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
@@ -183,17 +188,16 @@ export default function PersistentDrawerLeft({ hasUnsavedChanges }) {
         <Toolbar className="toolBarDiv" sx={{ justifyContent: 'space-between' }}>
           {/* Left side: Menu icon and Logo */}
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {isHomePage && (
-              <IconButton
-                color="inherit"
-                aria-label="open drawer"
-                onClick={handleDrawerOpen}
-                edge="start"
-                sx={{ mr: 2, ...(open && { display: 'none' }) }}
-              >
-                <MenuIcon sx={{ color: 'black' }} />
-              </IconButton>
-            )}
+
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              onClick={handleDrawerOpen}
+              edge="start"
+              sx={{ mr: 2, ...(open && { display: 'none' }) }}
+            >
+              <MenuIcon sx={{ color: 'black' }} />
+            </IconButton>
             <IconButton
               size="large"
               edge="start"
@@ -213,7 +217,7 @@ export default function PersistentDrawerLeft({ hasUnsavedChanges }) {
               noWrap
               component="div"
               sx={{ fontWeight: 'bold', color: 'black', paddingLeft: '80px', fontSize: '2rem', cursor: 'pointer' }}
-              onClick={() => navigate('/')}
+              onClick={navigateToHome}
             >
               Axtria Forecast Tool
             </Typography>
@@ -233,72 +237,72 @@ export default function PersistentDrawerLeft({ hasUnsavedChanges }) {
         </Toolbar>
       </AppBar>
       <Dialog open={showConfirmDialog} onClose={cancelNavigation}>
-                <DialogTitle>Unsaved Changes</DialogTitle>
-                <DialogContent>
-                    <Typography>
-                        You have unsaved changes. Are you sure you want to leave this page without saving?
-                    </Typography>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={cancelNavigation} color="secondary">
-                        Cancel
-                    </Button>
-                    <Button onClick={confirmNavigation} color="primary">
-                        Leave Page
-                    </Button>
-                </DialogActions>
-            </Dialog>
+        <DialogTitle>Unsaved Changes</DialogTitle>
+        <DialogContent>
+          <Typography>
+            You have unsaved changes. Are you sure you want to leave this page without saving?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={cancelNavigation} color="secondary">
+            Cancel
+          </Button>
+          <Button onClick={confirmNavigation} color="primary">
+            Leave Page
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* **Breadcrumbs placed below the header** */}
       <Box component="nav" sx={{ width: '100%', padding: '16px', marginTop: '64px' }}> {/* Adjust marginTop to fit below AppBar */}
         <DynamicBreadcrumbs />
       </Box>
-
-      {isHomePage && (
-        <Drawer
-          sx={{
+      <Drawer
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          '& .MuiDrawer-paper': {
             width: drawerWidth,
-            flexShrink: 0,
-            '& .MuiDrawer-paper': {
-              width: drawerWidth,
-              boxSizing: 'border-box',
-            },
-          }}
-          variant="persistent"
-          anchor="left"
-          open={open}
-        >
-          <DrawerHeader>
-            <IconButton onClick={handleDrawerClose}>
-              {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-            </IconButton>
-            <Box sx={{ flexGrow: 1, textAlign: 'center' }}>
-              <Typography variant="h6" sx={{ padding: '5px 10px', fontWeight: 600, borderRadius: '8px', display: 'inline-block' }}>
-                Dashboard
-              </Typography>
-            </Box>
-          </DrawerHeader>
+            boxSizing: 'border-box',
+          },
+        }}
+        variant="persistent"
+        anchor="left"
+        open={open}
+      >
+        <DrawerHeader>
+          <IconButton onClick={handleDrawerClose}>
+            {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+          </IconButton>
+          <Box sx={{ flexGrow: 1, textAlign: 'center' }}>
+            <Typography variant="h6" sx={{ padding: '5px 10px', fontWeight: 600, borderRadius: '8px', display: 'inline-block' }}>
+              Dashboard
+            </Typography>
+          </Box>
+        </DrawerHeader>
 
-          <List>
-            {[{ text: 'New Scenario', icon: <Assessment />, path: '/new-scenario' },
-            { text: 'Saved Scenario', icon: <SaveAlt />, path: '/saved-scenario' },
-            { text: 'Data Consolidation', icon: <FilePresent />, path: '/data-consolidation' },
-            { text: 'Scenario Comparison', icon: <CompareArrows />, path: '/scenario-comparison' },
-            { text: 'Forecast Deep-dive', icon: <Insights />, path: '/forecast-deep-dive' },
-            { text: 'Generate Report', icon: <Summarize />, path: '/generate-report' },
-            { text: 'Submissions Tracker', icon: <TrackChanges />, path: '/submission-tracking' },
-            { text: 'Admin', icon: <Security />, path: '/admin' }
-            ].map((item) => (
-              <ListItem key={item.text} disablePadding>
-                <ListItemButton onClick={() => navigate(item.path)}>
-                  <ListItemIcon>{item.icon}</ListItemIcon>
-                  <ListItemText primary={item.text} />
-                </ListItemButton>
-              </ListItem>
-            ))}
-          </List>
-        </Drawer>
-      )}
+        <List>
+          {[{ text: 'New Scenario', icon: <Assessment />, path: '/new-scenario' },
+          { text: 'Saved Scenario', icon: <SaveAlt />, path: '/saved-scenario' },
+          { text: 'Data Consolidation', icon: <FilePresent />, path: '/data-consolidation' },
+          { text: 'Scenario Comparison', icon: <CompareArrows />, path: '/scenario-comparison' },
+          { text: 'Forecast Deep-dive', icon: <Insights />, path: '/forecast-deep-dive' },
+          { text: 'Generate Report', icon: <Summarize />, path: '/generate-report' },
+          { text: 'Submissions Tracker', icon: <TrackChanges />, path: '/submission-tracking' },
+          { text: 'Admin', icon: <Security />, path: '/admin' }
+          ].map((item) => (
+            <ListItem key={item.text} disablePadding>
+              <ListItemButton onClick={() => {
+                navigate(item.path);
+                handleDrawerClose();  // Close the drawer after navigating
+              }}>
+                <ListItemIcon>{item.icon}</ListItemIcon>
+                <ListItemText primary={item.text} />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+      </Drawer>
 
       {/* Main content area */}
       <Main open={open}>
