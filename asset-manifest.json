@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/static/css/main.dc8618cb.css",
-    "main.js": "/static/js/main.f862321d.js",
+    "main.css": "/static/css/main.abbdaed0.css",
+    "main.js": "/static/js/main.1879706e.js",
     "static/js/453.5b90228f.chunk.js": "/static/js/453.5b90228f.chunk.js",
     "static/media/axtria-logo.png": "/static/media/axtria-logo.0863735f09145ab530fe.png",
     "index.html": "/index.html",
-    "main.dc8618cb.css.map": "/static/css/main.dc8618cb.css.map",
-    "main.f862321d.js.map": "/static/js/main.f862321d.js.map",
+    "main.abbdaed0.css.map": "/static/css/main.abbdaed0.css.map",
+    "main.1879706e.js.map": "/static/js/main.1879706e.js.map",
     "453.5b90228f.chunk.js.map": "/static/js/453.5b90228f.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.dc8618cb.css",
-    "static/js/main.f862321d.js"
+    "static/css/main.abbdaed0.css",
+    "static/js/main.1879706e.js"
   ]
 }
