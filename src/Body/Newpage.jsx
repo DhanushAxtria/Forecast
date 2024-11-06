@@ -1,11 +1,10 @@
-// ScenarioFilterPage.js
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Autocomplete, TextField, Box, Checkbox, ListItemText, Button, Typography, Drawer,Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import { Autocomplete, TextField, Box, Checkbox, ListItemText, Button, Typography, Accordion, AccordionSummary, AccordionDetails, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, InputAdornment,List, ListItemButton, ListItemIcon } from '@mui/material';
+import { Add, Remove, ExpandMore } from '@mui/icons-material';
+import { Folder, InsertDriveFile } from '@mui/icons-material';
 import './Newpage.scss';
 
 const ScenarioFilterPage = () => {
-    const navigate = useNavigate();
     const [filters, setFilters] = useState({
         forecastCycles: [],
         countries: [],
@@ -16,23 +15,20 @@ const ScenarioFilterPage = () => {
         scenario1: null,
         scenario2: null,
     });
-
-    const [scenarioOptions, setScenarioOptions] = useState([]); // Options for Scenarios
-    const [isModalOpen, setModalOpen] = useState(false);
+    const [variance, setVariance] = useState(0.0);
+    const [scenarioOptions, setScenarioOptions] = useState([]);
     const [selectedSheet, setSelectedSheet] = useState(null);
-    const [sheetData, setSheetData] = useState(null);
-    const [isDrawerOpen, setDrawerOpen] = useState(false); // State to control drawer visibility
-    // Default scenarios to show when "All" is selected in both filters
+    const [tableData, setTableData] = useState(null);
+
     const defaultScenarios = [
         'Scenario A - Option 1',
         'Scenario B - Option 2',
         'Scenario C - Option 3',
         'Scenario D - Option 4',
-        'Scenario E - Option 5',
-        'Scenario F - Option 6',
     ];
+
     const excelSheets = ['Sheet1', 'Sheet2', 'Sheet3', 'Sheet4'];
-    // Simulated data for each sheet (replace with real data as needed)
+
     const sheetContents = {
         Sheet1: [
             { scenario: 'FN18', cycle: '55', country: '55.3', area: '0.2', modified: 'UNCHANGED', user: 'UNKNOWN' },
@@ -50,34 +46,25 @@ const ScenarioFilterPage = () => {
         Sheet4: [
             { scenario: 'FW18', cycle: '75', country: '90', area: '0.6', modified: 'UNCHANGED', user: 'UNKNOWN' },
             { scenario: 'FT18', cycle: '05', country: '80', area: '0.2', modified: 'UNCHANGED', user: 'UNKNOWN' },
-
-                    ],
-    };
-    const openModal = () => {
-        setModalOpen(true);
-    };
-
-    const closeModal = () => {
-        setModalOpen(false);
-    };
-    const openDrawer = () => {
-        setDrawerOpen(true);
+        ],
+        SheetA: [
+            { scenario: 'FA18', cycle: '45', country: '65.2', area: '0.3', modified: 'UPDATED', user: 'ADMIN' },
+        ],
+        SheetX: [
+            { scenario: 'FX18', cycle: '99', country: '20.4', area: '0.8', modified: 'NEW', user: 'USER1' },
+        ],
     };
 
-    const closeDrawer = () => {
-        setDrawerOpen(false);
-    };
-
-    const selectSheet = (sheet) => {
-        setSelectedSheet(sheet);
-        setSheetData(sheetContents[sheet]); // Set selected sheet data for display
-        closeDrawer();
-    };
     const handleChange = (name) => (event, newValue) => {
         setFilters((prev) => ({
             ...prev,
-            [name]: newValue.includes('All') ? ['All'] : newValue, // Keep 'All' if selected
+            [name]: newValue.includes('All') ? ['All'] : newValue,
         }));
+    };
+    const workbooks = {
+        Workbook1: ['Sheet1', 'Sheet2', 'Sheet3'],
+        Workbook2: ['SheetA', 'SheetB'],
+        Workbook3: ['SheetX', 'SheetY', 'SheetZ'],
     };
 
     const handleScenarioChange = (scenario) => (event, newValue) => {
@@ -88,17 +75,38 @@ const ScenarioFilterPage = () => {
     };
 
     const handleConfirm = () => {
-        navigate('/country-and-therapeutic-select', { state: { filters, scenarios } });
+        if (selectedSheet) {
+            setTableData(sheetContents[selectedSheet]);
+        } else {
+            alert("Please select a sheet.");
+        }
     };
-
     const getGreetingMessage = () => {
         const hours = new Date().getHours();
         if (hours < 12) return `Good Morning`;
         if (hours < 18) return `Good Afternoon`;
         return `Good Evening`;
     };
+    const selectSheet = (sheet) => {
+        setSelectedSheet(sheet);
+        setTableData(sheetContents[sheet]);
+    };
 
-    // Update scenario options based on selected countries and therapeutic areas
+    const handleVarianceChange = (event) => {
+        const inputValue = event.target.value;
+        if (inputValue === "" || /^[0-9]*\.?[0-9]*$/.test(inputValue)) {
+            setVariance(inputValue);
+        }
+    };
+
+    const incrementVariance = () => {
+        setVariance((prev) => (parseFloat(prev || "0") + 0.1).toFixed(1));
+    };
+
+    const decrementVariance = () => {
+        setVariance((prev) => Math.max(0, parseFloat(prev || "0") - 0.1).toFixed(1));
+    };
+
     useEffect(() => {
         const { countries, therapeuticAreas } = filters;
 
@@ -116,19 +124,19 @@ const ScenarioFilterPage = () => {
         }
     }, [filters.countries, filters.therapeuticAreas]);
 
-    // Automatically open the modal when both Scenario 1 and Scenario 2 are selected
     useEffect(() => {
-        if (scenarios.scenario1 && scenarios.scenario2) {
-            openDrawer();
+        if (scenarios.scenario1 && scenarios.scenario2 && selectedSheet) {
+            setTableData(sheetContents[selectedSheet]);
         }
-    }, [scenarios.scenario1, scenarios.scenario2]);
+    }, [scenarios.scenario1, scenarios.scenario2, selectedSheet]);
 
     return (
         <div style={{ padding: '20px', marginTop: '-44px' }}>
-            <h2>{getGreetingMessage()}, Please select a scenario to continue</h2>
+            <h2>{getGreetingMessage()}, Welcome!</h2>
+            <Typography variant="h7" gutterBottom sx={{ marginBottom: '50px' }}>Please select the below options: </Typography>
             <Box display="flex" gap={2} mb={4}>
+                {/* Multi-select for Forecast Cycles */}
                 <Autocomplete
-                    className="filter-box"
                     multiple
                     options={['All', '2013-H1', '2013-H2', '2014-H1', '2014-H2']}
                     onChange={handleChange('forecastCycles')}
@@ -141,8 +149,9 @@ const ScenarioFilterPage = () => {
                     )}
                     style={{ width: '250px' }}
                 />
+
+                {/* Multi-select for Country */}
                 <Autocomplete
-                    className="filter-box"
                     multiple
                     options={['All', 'USA', 'Canada', 'Germany', 'India']}
                     onChange={handleChange('countries')}
@@ -155,8 +164,9 @@ const ScenarioFilterPage = () => {
                     )}
                     style={{ width: '250px' }}
                 />
+
+                {/* Multi-select for Therapeutic Area */}
                 <Autocomplete
-                    className="filter-box"
                     multiple
                     options={['All', 'Cardiology', 'Oncology', 'Neurology', 'Diabetes']}
                     onChange={handleChange('therapeuticAreas')}
@@ -170,12 +180,9 @@ const ScenarioFilterPage = () => {
                     style={{ width: '250px' }}
                 />
             </Box>
-
-            {/* New "Compare active Scenario to" Section */}
-            <Typography variant="h6" gutterBottom>Compare active Scenario to:</Typography>
             <Box display="flex" gap={2} mb={4}>
+                {/* Scenario selectors */}
                 <Autocomplete
-                    className="filter-box"
                     options={scenarioOptions}
                     value={scenarios.scenario1}
                     onChange={handleScenarioChange('scenario1')}
@@ -183,65 +190,130 @@ const ScenarioFilterPage = () => {
                     style={{ width: '250px' }}
                 />
                 <Autocomplete
-                    className="filter-box"
                     options={scenarioOptions}
                     value={scenarios.scenario2}
                     onChange={handleScenarioChange('scenario2')}
                     renderInput={(params) => <TextField {...params} label="Scenario 2" />}
                     style={{ width: '250px' }}
                 />
+                <Button variant="contained" color="primary" onClick={handleConfirm} sx={{
+                    marginTop: 'auto',
+                    marginBottom: '36px',
+                    padding: '14px'
+                }}>
+                    Compare
+                </Button>
+            </Box>
+            <Box position="relative" mb={4}>
+                {/* Container for the Variance Greater Than input positioned at the bottom-right corner above the table */}
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        bottom: 0,
+                        right: 0,
+                        width: '250px',
+                        overflow: 'visible', // Ensures the full label is displayed without cutting off
+                    }}
+                >
+                    <TextField
+                        label="Variance Greater Than"
+                        variant="outlined"
+                        value={variance}
+                        onChange={handleVarianceChange}
+                        size="small"
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton onClick={incrementVariance} size="small">
+                                        <Add fontSize="small" />
+                                    </IconButton>
+                                    <IconButton onClick={decrementVariance} size="small">
+                                        <Remove fontSize="small" />
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                        }}
+                        fullWidth
+                    />
+                </Box>
+
+
             </Box>
 
-            <Button variant="contained" color="primary" onClick={handleConfirm}>
-                Compare
-            </Button>
-            <Drawer anchor="right" open={isDrawerOpen} onClose={closeDrawer}>
-                <Box p={2} width="250px" role="presentation">
-                    <Typography variant="h6">Select an Excel Sheet</Typography>
-                    {excelSheets.map((sheet) => (
-                        <Button
-                            key={sheet}
-                            onClick={() => selectSheet(sheet)}
-                            style={{ display: 'block', margin: '10px 0' }}
-                        >
-                            {sheet}
-                        </Button>
-                    ))}
-                    <Button onClick={closeDrawer} color="secondary" style={{ marginTop: '20px' }}>Close</Button>
-                </Box>
-            </Drawer>
-            {/* Display selected sheet data */}
-            {selectedSheet && (
-                <Box mt={4}>
-                    <Typography variant="h6">Data from {selectedSheet}</Typography>
-                    <TableContainer component={Paper} sx={{ mt: 2 }}>
-                        <Table aria-label="selected sheet data table" size="small">
-                            <TableHead>
-                                <TableRow sx={{ backgroundColor: '#1976d2' }}>
-                                    <TableCell sx={{ color: 'white', fontWeight: 'bold',padding: '6px', textAlign: 'center'  }}>Cell</TableCell>
-                                    <TableCell sx={{ color: 'white', fontWeight: 'bold',padding: '6px', textAlign: 'center'  }}>Active Scenario Value</TableCell>
-                                    <TableCell sx={{ color: 'white', fontWeight: 'bold',padding: '6px', textAlign: 'center'  }}>Compare To Scenario</TableCell>
-                                    <TableCell sx={{ color: 'white', fontWeight: 'bold',padding: '6px', textAlign: 'center'  }}>Variance</TableCell>
-                                    <TableCell sx={{ color: 'white', fontWeight: 'bold',padding: '6px', textAlign: 'center'  }}>Active Scenario Modified</TableCell>
-                                    <TableCell sx={{ color: 'white', fontWeight: 'bold',padding: '6px', textAlign: 'center' }}>Compare To Modified</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {sheetData.map((row, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.scenario}</TableCell>
-                                        <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.cycle}</TableCell>
-                                        <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.country}</TableCell>
-                                        <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.area}</TableCell>
-                                        <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.modified}</TableCell>
-                                        <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.user}</TableCell>
-                                    </TableRow>
+            {/* Left section for Select Excel Sheet and right section for the Table */}
+            <Box display="flex" alignItems="flex-start" gap={2}>
+                <Box width="250px" mt={4}>
+                    {scenarios.scenario1 && scenarios.scenario2 && (
+                        <Accordion>
+                            <AccordionSummary expandIcon={<ExpandMore />}>
+                                <Typography>Select Workbook and Excel Sheet</Typography>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                                {Object.keys(workbooks).map((workbook) => (
+                                    <Accordion key={workbook} disableGutters sx={{ boxShadow: 'none' }}>
+                                        <AccordionSummary expandIcon={<ExpandMore />}>
+                                            <ListItemIcon>
+                                                <Folder color="primary" />
+                                            </ListItemIcon>
+                                            <Typography variant="subtitle1">{workbook}</Typography>
+                                        </AccordionSummary>
+                                        <AccordionDetails>
+                                            <List disablePadding>
+                                                {workbooks[workbook].map((sheet) => (
+                                                    <ListItemButton
+                                                        key={sheet}
+                                                        onClick={() => selectSheet(sheet)}
+                                                        sx={{ pl: 4 }}
+                                                    >
+                                                        <ListItemIcon>
+                                                            <InsertDriveFile fontSize="small" />
+                                                        </ListItemIcon>
+                                                        <ListItemText primary={sheet} secondary={sheet.date} />
+                                                    </ListItemButton>
+                                                ))}
+                                            </List>
+                                        </AccordionDetails>
+                                    </Accordion>
                                 ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
+                            </AccordionDetails>
+                        </Accordion>
+
+                    )}
                 </Box>
-            )}
+
+                {/* Table display next to the Select Excel Sheet box */}
+                {tableData && (
+                    <Box flex="1">
+                        <Typography variant="h6">Data from {selectedSheet}</Typography>
+                        <TableContainer component={Paper} sx={{ mt: 2 }}>
+                            <Table aria-label="table data" size="small">
+                                <TableHead>
+                                    <TableRow sx={{ backgroundColor: '#1976d2' }}>
+                                        <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center'}}>Cell</TableCell>
+                                        <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Active Scenario Value</TableCell>
+                                        <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Compare To Scenario</TableCell>
+                                        <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Variance</TableCell>
+                                        <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Active Scenario Modified</TableCell>
+                                        <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Compare To Modified</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {tableData.map((row, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.scenario}</TableCell>
+                                            <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.cycle}</TableCell>
+                                            <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.country}</TableCell>
+                                            <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.area}</TableCell>
+                                            <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.modified}</TableCell>
+                                            <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.user}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </Box>
+                )}
+            </Box>
         </div>
     );
 };
