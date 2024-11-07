@@ -16,6 +16,7 @@ import SummaryScenario from './Body/SummaryScenario'
 import Submission_Tracker from './Body/Submission_Tracker'
 import Inputpage from './Body/Inputpage'
 import Savedpage from './Body/Newpage'
+import Admin from './Body/Forecastpage'
 //import Navbar from './Body/Navbar'
 function App() {
   const  [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false); // Initialize the state
@@ -49,6 +50,8 @@ function App() {
           <Route path="new-scenario/scenario-details/Inputpage" element={<Inputpage/>} />
           <Route path="/saved-scenario" element={<Savedpage/>} />
           {/* <Route path="/Inputpage" element={<Inputpage/>} /> */}
+          <Route path="/admin" element={<Admin/>} />
+
 
 
 

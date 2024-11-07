@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Autocomplete, TextField, Box, Checkbox, ListItemText, Button, Typography, Accordion, AccordionSummary, AccordionDetails, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, InputAdornment,List, ListItemButton, ListItemIcon } from '@mui/material';
+import { Autocomplete, TextField, Box, Checkbox, ListItemText, Button, Typography, Accordion, AccordionSummary, AccordionDetails, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, InputAdornment, List, ListItemButton, ListItemIcon,FormControl, InputLabel, OutlinedInput} from '@mui/material';
 import { Add, Remove, ExpandMore } from '@mui/icons-material';
 import { Folder, InsertDriveFile } from '@mui/icons-material';
 import './Newpage.scss';
@@ -204,25 +204,22 @@ const ScenarioFilterPage = () => {
                     Compare
                 </Button>
             </Box>
-            <Box position="relative" mb={4}>
-                {/* Container for the Variance Greater Than input positioned at the bottom-right corner above the table */}
-                <Box
-                    sx={{
-                        position: 'absolute',
-                        bottom: 0,
-                        right: 0,
-                        width: '250px',
-                        overflow: 'visible', // Ensures the full label is displayed without cutting off
-                    }}
-                >
-                    <TextField
-                        label="Variance Greater Than"
-                        variant="outlined"
-                        value={variance}
-                        onChange={handleVarianceChange}
-                        size="small"
-                        InputProps={{
-                            endAdornment: (
+            <Box position="relative" mb={2} width="100%">
+                <Box sx={{ position: 'absolute', top: 0, right: 0, minWidth: '250px', maxWidth: '100%' }}>
+                    <FormControl variant="outlined" fullWidth>
+                        <InputLabel
+                            htmlFor="variance-input"
+                            sx={{ whiteSpace: 'nowrap', overflow: 'visible' }} // Prevents label from being cut off
+                        >
+                            Variance Greater Than
+                        </InputLabel>
+                        <OutlinedInput
+                            id="variance-input"
+                            value={variance}
+                            onChange={handleVarianceChange}
+                            size="small"
+                            label="Variance Greater Than" // Associates label with OutlinedInput
+                            endAdornment={
                                 <InputAdornment position="end">
                                     <IconButton onClick={incrementVariance} size="small">
                                         <Add fontSize="small" />
@@ -231,15 +228,10 @@ const ScenarioFilterPage = () => {
                                         <Remove fontSize="small" />
                                     </IconButton>
                                 </InputAdornment>
-                            ),
-                        }}
-                        fullWidth
-                    />
+                            }
+                        />
+                    </FormControl>
                 </Box>
-
-
-            </Box>
-
             {/* Left section for Select Excel Sheet and right section for the Table */}
             <Box display="flex" alignItems="flex-start" gap={2}>
                 <Box width="250px" mt={4}>
@@ -268,7 +260,7 @@ const ScenarioFilterPage = () => {
                                                         <ListItemIcon>
                                                             <InsertDriveFile fontSize="small" />
                                                         </ListItemIcon>
-                                                        <ListItemText primary={sheet} secondary={sheet.date} />
+                                                        <ListItemText primary={sheet} />
                                                     </ListItemButton>
                                                 ))}
                                             </List>
@@ -289,7 +281,7 @@ const ScenarioFilterPage = () => {
                             <Table aria-label="table data" size="small">
                                 <TableHead>
                                     <TableRow sx={{ backgroundColor: '#1976d2' }}>
-                                        <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center'}}>Cell</TableCell>
+                                        <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Cell</TableCell>
                                         <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Active Scenario Value</TableCell>
                                         <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Compare To Scenario</TableCell>
                                         <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Variance</TableCell>
@@ -314,7 +306,8 @@ const ScenarioFilterPage = () => {
                     </Box>
                 )}
             </Box>
-        </div>
+            </Box>
+        </div >
     );
 };
 

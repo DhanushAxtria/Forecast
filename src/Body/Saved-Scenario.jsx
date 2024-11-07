@@ -160,7 +160,7 @@ const ForecastAndFlowDiagram = () => {
         </button>
       </div>
 
-      <div className="content">
+      <div className="content savedScenario">
         {/* Display Control Sheet content if activeTab is 'controlSheet' */}
         {activeTab === 'controlSheet' && (
           <>
