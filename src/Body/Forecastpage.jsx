@@ -30,6 +30,10 @@ const SidePanel = () => {
     const handleSheetSelect = (event) => {
         setSelectedSheet(event.target.value);
     };
+    const getColorForSheet = (index) => {
+        const colors = ['#FF5733', '#33A1FF', '#33FF57', '#FF33D1', '#FFC733'];
+        return colors[index % colors.length]; // Rotate colors for different sheets
+    };
 
     const handleAccordionToggle = (workbook) => (event, isExpanded) => {
         setExpandedAccordion(isExpanded ? workbook : null);
@@ -64,13 +68,6 @@ const SidePanel = () => {
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column'}}>
-            {/* Add Drug Button in Top-Right Corner */}
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', padding: 2 }}>
-                <Button variant="contained" color="primary" onClick={handleAddDrugClick}>
-                    Add Drug
-                </Button>
-            </Box>
-
             {/* Side Drawer */}
             <Drawer
                 variant="permanent"
@@ -94,58 +91,52 @@ const SidePanel = () => {
                         Select Forecast Projection Method
                     </Typography>
 
-                    {/* RadioGroup for single selection of workbooks */}
-                    <FormControl component="fieldset">
-                        <RadioGroup
-                            sx={{ marginTop: '10px', marginLeft: '-5px' }}
-                            value={selectedWorkbook}
-                            onChange={handleWorkbookSelect}
+                    {/* Accordion for workbooks without radio buttons */}
+                    {Object.keys(workbooks).map((workbook) => (
+                        <Accordion
+                            key={workbook}
+                            expanded={expandedAccordion === workbook}
+                            onChange={handleAccordionToggle(workbook)}
+                            disableGutters
                         >
-                            {Object.keys(workbooks).map((workbook) => (
-                                <Accordion
-                                    key={workbook}
-                                    expanded={expandedAccordion === workbook}
-                                    onChange={handleAccordionToggle(workbook)}
-                                    disableGutters
-                                >
-                                    <AccordionSummary expandIcon={<ExpandMore />}>
-                                        <FormControlLabel
-                                            value={workbook}
-                                            control={<Radio />}
-                                            label={<span style={{ fontSize: '0.875rem', whiteSpace: 'nowrap' }}>{workbook}</span>}
-                                            onClick={(e) => e.stopPropagation()}
-                                        />
-                                    </AccordionSummary>
+                            <AccordionSummary expandIcon={<ExpandMore />}>
+                                <Typography sx={{ fontSize: '0.875rem' }}>
+                                    {workbook}
+                                </Typography>
+                            </AccordionSummary>
 
-                                    {/* Show sheets as radio options if the accordion is expanded */}
-                                    <AccordionDetails>
-                                        <FormControl component="fieldset">
-                                            <RadioGroup
-                                                value={selectedSheet}
-                                                onChange={handleSheetSelect}
-                                            >
-                                                {workbooks[workbook].map((sheet) => (
-                                                    <FormControlLabel
-                                                        key={sheet}
-                                                        value={sheet}
-                                                        control={<Radio />}
-                                                        label={<span style={{ fontSize: '0.8125rem' }}>{sheet}</span>}
-                                                    />
-                                                ))}
-                                            </RadioGroup>
-                                        </FormControl>
-                                    </AccordionDetails>
-                                </Accordion>
-                            ))}
-                        </RadioGroup>
-                    </FormControl>
+                            {/* Show sheets as radio options with colors */}
+                            <AccordionDetails>
+                                <FormControl component="fieldset">
+                                    <RadioGroup
+                                        value={selectedSheet}
+                                        onChange={handleSheetSelect}
+                                    >
+                                        {workbooks[workbook].map((sheet, index) => (
+                                            <FormControlLabel
+                                                key={sheet}
+                                                value={sheet}
+                                                control={<Radio />}
+                                                label={
+                                                    <Typography sx={{ fontSize: '0.8125rem', color: getColorForSheet(index) }}>
+                                                        {sheet}
+                                                    </Typography>
+                                                }
+                                            />
+                                        ))}
+                                    </RadioGroup>
+                                </FormControl>
+                            </AccordionDetails>
+                        </Accordion>
+                    ))}
                 </Box>
             </Drawer>
 
             {/* Footer positioned below the Drawer */}
             <Box sx={{ ml: '309px', mt: 2 }}>
-                <Footer />
+                <Footer handleAddDrugClick={handleAddDrugClick} /> {/* Pass handleAddDrugClick to Footer */}
             </Box>
+
 
             {/* Right Side Drug List Drawer */}
             <Drawer anchor="right" open={drugDrawerOpen} onClose={handleDrawerClose}>

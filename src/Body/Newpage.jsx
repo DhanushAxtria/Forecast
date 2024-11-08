@@ -54,6 +54,17 @@ const ScenarioFilterPage = () => {
             { scenario: 'FX18', cycle: '99', country: '20.4', area: '0.8', modified: 'NEW', user: 'USER1' },
         ],
     };
+    const updateTableDataWithVariance = () => {
+        if (selectedSheet) {
+            const updatedData = sheetContents[selectedSheet].map(row => {
+                return {
+                    ...row,
+                    area: (parseFloat(row.area) + parseFloat(variance)).toFixed(1) // Adjusting the area by the variance value
+                };
+            });
+            setTableData(updatedData);
+        }
+    };
 
     const handleChange = (name) => (event, newValue) => {
         setFilters((prev) => ({
@@ -76,9 +87,15 @@ const ScenarioFilterPage = () => {
 
     const handleConfirm = () => {
         if (selectedSheet) {
-            setTableData(sheetContents[selectedSheet]);
+            updateTableDataWithVariance();
         } else {
             alert("Please select a sheet.");
+        }
+    };
+    const applyVarianceFilter = () => {
+        if (selectedSheet) {
+            const filteredData = sheetContents[selectedSheet].filter(row => parseFloat(row.area) >= parseFloat(variance));
+            setTableData(filteredData);
         }
     };
     const getGreetingMessage = () => {
@@ -89,7 +106,7 @@ const ScenarioFilterPage = () => {
     };
     const selectSheet = (sheet) => {
         setSelectedSheet(sheet);
-        setTableData(sheetContents[sheet]);
+        updateTableDataWithVariance();
     };
 
     const handleVarianceChange = (event) => {
@@ -123,6 +140,10 @@ const ScenarioFilterPage = () => {
             setScenarioOptions([]);
         }
     }, [filters.countries, filters.therapeuticAreas]);
+
+    useEffect(() => {
+        updateTableDataWithVariance();
+    }, [variance, selectedSheet]);
 
     useEffect(() => {
         if (scenarios.scenario1 && scenarios.scenario2 && selectedSheet) {
@@ -234,9 +255,9 @@ const ScenarioFilterPage = () => {
                 </Box>
             {/* Left section for Select Excel Sheet and right section for the Table */}
             <Box display="flex" alignItems="flex-start" gap={2}>
-                <Box width="250px" mt={4}>
+                <Box width="250px" sx={{mt:-4}}>
                     {scenarios.scenario1 && scenarios.scenario2 && (
-                        <Accordion>
+                        <Accordion sx={{ mt: -1 }}>
                             <AccordionSummary expandIcon={<ExpandMore />}>
                                 <Typography>Select Workbook and Excel Sheet</Typography>
                             </AccordionSummary>
