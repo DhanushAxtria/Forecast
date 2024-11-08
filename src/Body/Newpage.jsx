@@ -27,30 +27,30 @@ const ScenarioFilterPage = () => {
         'Scenario D - Option 4',
     ];
 
-    const excelSheets = ['Sheet1', 'Sheet2', 'Sheet3', 'Sheet4'];
+    const excelSheets = ['Control', 'Histroical Data', 'Baseline Projections', 'Sheet4'];
 
     const sheetContents = {
-        Sheet1: [
+        Control: [
             { scenario: 'FN18', cycle: '55', country: '55.3', area: '0.2', modified: 'UNCHANGED', user: 'UNKNOWN' },
             { scenario: 'FO18', cycle: '74', country: '74.1', area: '0.1', modified: 'UNCHANGED', user: 'UNKNOWN' },
             { scenario: 'Fp18', cycle: '85', country: '0', area: '0.6', modified: 'UNCHANGED', user: 'UNKNOWN' },
         ],
-        Sheet2: [
+        'Histroical Data': [
             { scenario: 'FN18', cycle: '55', country: '55.3', area: '0.2', modified: 'UNCHANGED', user: 'UNKNOWN' },
             { scenario: 'FP18', cycle: '85', country: '0', area: '0.6', modified: 'UNCHANGED', user: 'UNKNOWN' },
         ],
-        Sheet3: [
+        'Baseline Projections': [
             { scenario: 'FP18', cycle: '85', country: '0', area: '0.6', modified: 'UNCHANGED', user: 'UNKNOWN' },
             { scenario: 'FP18', cycle: '83', country: '0', area: '0.5', modified: 'UNCHANGED', user: 'UNKNOWN' },
         ],
-        Sheet4: [
+        'Exchange Rate': [
             { scenario: 'FW18', cycle: '75', country: '90', area: '0.6', modified: 'UNCHANGED', user: 'UNKNOWN' },
             { scenario: 'FT18', cycle: '05', country: '80', area: '0.2', modified: 'UNCHANGED', user: 'UNKNOWN' },
         ],
-        SheetA: [
+        'Notes-1': [
             { scenario: 'FA18', cycle: '45', country: '65.2', area: '0.3', modified: 'UPDATED', user: 'ADMIN' },
         ],
-        SheetX: [
+        Conversion: [
             { scenario: 'FX18', cycle: '99', country: '20.4', area: '0.8', modified: 'NEW', user: 'USER1' },
         ],
     };
@@ -73,9 +73,9 @@ const ScenarioFilterPage = () => {
         }));
     };
     const workbooks = {
-        Workbook1: ['Sheet1', 'Sheet2', 'Sheet3'],
-        Workbook2: ['SheetA', 'SheetB'],
-        Workbook3: ['SheetX', 'SheetY', 'SheetZ'],
+        Input: ['Control', 'Histroical Data', 'Baseline Projections'],
+        'Data Connected': ['Exchange Rate', 'Histroical LE1'],
+        Output: ['Notes-1', 'Conversion', 'Events'],
     };
 
     const handleScenarioChange = (scenario) => (event, newValue) => {
@@ -259,7 +259,7 @@ const ScenarioFilterPage = () => {
                     {scenarios.scenario1 && scenarios.scenario2 && (
                         <Accordion sx={{ mt: -1 }}>
                             <AccordionSummary expandIcon={<ExpandMore />}>
-                                <Typography>Select Workbook and Excel Sheet</Typography>
+                                <Typography>Select Required Excel Sheets</Typography>
                             </AccordionSummary>
                             <AccordionDetails>
                                 {Object.keys(workbooks).map((workbook) => (
