@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Autocomplete, TextField, Box, Checkbox, ListItemText, Button, Typography, Accordion, AccordionSummary, AccordionDetails, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, InputAdornment, List, ListItemButton, ListItemIcon,FormControl, InputLabel, OutlinedInput} from '@mui/material';
+import { Autocomplete, TextField, Box, Checkbox, ListItemText, Button, Typography, Accordion, AccordionSummary, AccordionDetails, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, InputAdornment, List, ListItemButton, ListItemIcon, FormControl, InputLabel, OutlinedInput } from '@mui/material';
 import { Add, Remove, ExpandMore } from '@mui/icons-material';
 import { Folder, InsertDriveFile } from '@mui/icons-material';
 import './Newpage.scss';
@@ -19,6 +19,7 @@ const ScenarioFilterPage = () => {
     const [scenarioOptions, setScenarioOptions] = useState([]);
     const [selectedSheet, setSelectedSheet] = useState(null);
     const [tableData, setTableData] = useState(null);
+    const [isVarianceVisible, setIsVarianceVisible] = useState(false);
 
     const defaultScenarios = [
         'Scenario A - Option 1',
@@ -27,7 +28,7 @@ const ScenarioFilterPage = () => {
         'Scenario D - Option 4',
     ];
 
-    const excelSheets = ['Control', 'Histroical Data', 'Baseline Projections', 'Sheet4'];
+    const excelSheets = ['Control', 'Histroical Data', 'Baseline Projections', 'Exchange Rate'];
 
     const sheetContents = {
         Control: [
@@ -56,12 +57,10 @@ const ScenarioFilterPage = () => {
     };
     const updateTableDataWithVariance = () => {
         if (selectedSheet) {
-            const updatedData = sheetContents[selectedSheet].map(row => {
-                return {
-                    ...row,
-                    area: (parseFloat(row.area) + parseFloat(variance)).toFixed(1) // Adjusting the area by the variance value
-                };
-            });
+            const updatedData = sheetContents[selectedSheet].map((row) => ({
+                ...row,
+                area: selectedSheet === "Control" ? parseFloat(variance).toFixed(1) : (parseFloat(row.area) + parseFloat(variance)).toFixed(1),
+            }));
             setTableData(updatedData);
         }
     };
@@ -86,11 +85,14 @@ const ScenarioFilterPage = () => {
     };
 
     const handleConfirm = () => {
-        if (selectedSheet) {
-            updateTableDataWithVariance();
+        // Set a default sheet and display data if no sheet has been selected
+        if (!selectedSheet) {
+            setSelectedSheet("Control"); // Default sheet
+            setTableData(sheetContents["Control"]); // Display default table data
         } else {
-            alert("Please select a sheet.");
+            updateTableDataWithVariance();
         }
+        setIsVarianceVisible(true); // Show the variance field on Compare button click
     };
     const applyVarianceFilter = () => {
         if (selectedSheet) {
@@ -225,46 +227,19 @@ const ScenarioFilterPage = () => {
                     Compare
                 </Button>
             </Box>
-            <Box position="relative" mb={2} width="100%">
-                <Box sx={{ position: 'absolute', top: 0, right: 0, minWidth: '250px', maxWidth: '100%' }}>
-                    <FormControl variant="outlined" fullWidth>
-                        <InputLabel
-                            htmlFor="variance-input"
-                            sx={{ whiteSpace: 'nowrap', overflow: 'visible' }} // Prevents label from being cut off
-                        >
-                            Variance Greater Than
-                        </InputLabel>
-                        <OutlinedInput
-                            id="variance-input"
-                            value={variance}
-                            onChange={handleVarianceChange}
-                            size="small"
-                            label="Variance Greater Than" // Associates label with OutlinedInput
-                            endAdornment={
-                                <InputAdornment position="end">
-                                    <IconButton onClick={incrementVariance} size="small">
-                                        <Add fontSize="small" />
-                                    </IconButton>
-                                    <IconButton onClick={decrementVariance} size="small">
-                                        <Remove fontSize="small" />
-                                    </IconButton>
-                                </InputAdornment>
-                            }
-                        />
-                    </FormControl>
-                </Box>
+            
             {/* Left section for Select Excel Sheet and right section for the Table */}
-            <Box display="flex" alignItems="flex-start" gap={2}>
-                <Box width="250px" sx={{mt:-4}}>
-                    {scenarios.scenario1 && scenarios.scenario2 && (
-                        <Accordion sx={{ mt: -1 }}>
-                            <AccordionSummary expandIcon={<ExpandMore />}>
-                                <Typography>Select Required Excel Sheets</Typography>
-                            </AccordionSummary>
-                            <AccordionDetails>
+            <Box display="flex" flexWrap="wrap" gap={2} mt={-4}>
+                {scenarios.scenario1 && scenarios.scenario2 && (
+                    <Accordion sx={{ mt: -1, width: '100%' }}>
+                        <AccordionSummary expandIcon={<ExpandMore />}>
+                            <Typography>Select Required Excel Sheets</Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <Box display="flex" flexWrap="wrap" gap={4}>
                                 {Object.keys(workbooks).map((workbook) => (
-                                    <Accordion key={workbook} disableGutters sx={{ boxShadow: 'none' }}>
-                                        <AccordionSummary expandIcon={<ExpandMore />}>
+                                    <Accordion key={workbook} disableGutters sx={{ boxShadow: 'none', minWidth: '200px' }}>
+                                        <AccordionSummary expandIcon={<ExpandMore />} sx={{ display: 'flex', alignItems: 'center' }}>
                                             <ListItemIcon>
                                                 <Folder color="primary" />
                                             </ListItemIcon>
@@ -288,46 +263,73 @@ const ScenarioFilterPage = () => {
                                         </AccordionDetails>
                                     </Accordion>
                                 ))}
-                            </AccordionDetails>
-                        </Accordion>
-
-                    )}
-                </Box>
-
-                {/* Table display next to the Select Excel Sheet box */}
-                {tableData && (
-                    <Box flex="1">
-                        <Typography variant="h6">Data from {selectedSheet}</Typography>
-                        <TableContainer component={Paper} sx={{ mt: 2 }}>
-                            <Table aria-label="table data" size="small">
-                                <TableHead>
-                                    <TableRow sx={{ backgroundColor: '#1976d2' }}>
-                                        <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Cell</TableCell>
-                                        <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Scenario 1</TableCell>
-                                        <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Scenario 2</TableCell>
-                                        <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Variance</TableCell>
-                                        <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Active Scenario Modified</TableCell>
-                                        <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Compare To Modified</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {tableData.map((row, index) => (
-                                        <TableRow key={index}>
-                                            <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.scenario}</TableCell>
-                                            <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.cycle}</TableCell>
-                                            <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.country}</TableCell>
-                                            <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.area}</TableCell>
-                                            <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.modified}</TableCell>
-                                            <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.user}</TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                    </Box>
+                            </Box>
+                        </AccordionDetails>
+                    </Accordion>
                 )}
             </Box>
-            </Box>
+
+            {/* Table display next to the Select Excel Sheet box */}
+            {tableData && (
+                <Box flex="1">
+                    <Typography variant="h6" sx={{ marginTop: '8px' }}>Variations in {selectedSheet}</Typography>
+                    {isVarianceVisible && (
+                <Box sx={{ minWidth: '250px', maxWidth: '300px',marginLeft:'900px',marginTop:'-16px' }}>
+                    <FormControl variant="outlined" fullWidth>
+                        <InputLabel
+                            htmlFor="variance-input"
+                            sx={{ whiteSpace: 'nowrap', overflow: 'visible' }}
+                        >
+                            Variance Greater Than
+                        </InputLabel>
+                        <OutlinedInput
+                            id="variance-input"
+                            value={variance}
+                            onChange={handleVarianceChange}
+                            size="small"
+                            label="Variance Greater Than"
+                            endAdornment={
+                                <InputAdornment position="end">
+                                    <IconButton onClick={incrementVariance} size="small">
+                                        <Add fontSize="small" />
+                                    </IconButton>
+                                    <IconButton onClick={decrementVariance} size="small">
+                                        <Remove fontSize="small" />
+                                    </IconButton>
+                                </InputAdornment>
+                            }
+                        />
+                    </FormControl>
+                </Box>
+            )}
+                    <TableContainer component={Paper} sx={{ mt: 2 }}>
+                        <Table aria-label="table data" size="small">
+                            <TableHead>
+                                <TableRow sx={{ backgroundColor: '#1976d2' }}>
+                                    <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Cell</TableCell>
+                                    <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Scenario 1</TableCell>
+                                    <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Scenario 2</TableCell>
+                                    <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Variance %</TableCell>
+                                    <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Active Scenario Modified</TableCell>
+                                    <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Compare To Modified</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {tableData.map((row, index) => (
+                                    <TableRow key={index}>
+                                        <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.scenario}</TableCell>
+                                        <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.cycle}</TableCell>
+                                        <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.country}</TableCell>
+                                        <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.area}</TableCell>
+                                        <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.modified}</TableCell>
+                                        <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.user}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </Box>
+            )}
         </div >
     );
 };

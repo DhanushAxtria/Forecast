@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { Box, Typography, FormControl, RadioGroup, FormLabel, Radio, FormControlLabel, TextField, Button } from '@mui/material';
+import { Box, Typography, FormControl, TextField, Button } from '@mui/material';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
-const Footer = ({ handleAddDrugClick }) => { // Receive handleAddDrugClick as prop
-    const [selectedOption, setSelectedOption] = useState('History');
+const Footer = ({ handleAddDrugClick }) => {
     const [historyFromDate, setHistoryFromDate] = useState(null);
     const [historyToDate, setHistoryToDate] = useState(null);
     const [selectedFromDate, setSelectedFromDate] = useState(null);
@@ -20,10 +19,6 @@ const Footer = ({ handleAddDrugClick }) => { // Receive handleAddDrugClick as pr
         console.log("Close button clicked");
     };
 
-    const handleOptionChange = (event) => {
-        setSelectedOption(event.target.value);
-    };
-
     return (
         <Box sx={{
             padding: 1,
@@ -36,30 +31,11 @@ const Footer = ({ handleAddDrugClick }) => { // Receive handleAddDrugClick as pr
                 Source Time Range, Selected Data Count
             </Typography>
 
-            {/* Radio buttons for History and Selected */}
-            <FormControl component="fieldset" sx={{ mb: 2 }}>
-                <FormLabel component="legend" sx={{ fontSize: '1rem', mb: 1 }}>Select Option</FormLabel>
-                <RadioGroup
-                    value={selectedOption}
-                    onChange={handleOptionChange}
-                    sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}
-                >
-                    <FormControlLabel
-                        value="Historical Data"
-                        control={<Radio sx={{ '& .MuiSvgIcon-root': { fontSize: '1rem' } }} />}
-                        label={<Typography sx={{ fontSize: '0.9rem' }}>Historical Data</Typography>}
-                    />
-                    <FormControlLabel
-                        value="Selection Data"
-                        control={<Radio sx={{ '& .MuiSvgIcon-root': { fontSize: '1rem' } }} />}
-                        label={<Typography sx={{ fontSize: '0.9rem' }}>Selection Data</Typography>}
-                    />
-                </RadioGroup>
-            </FormControl>
-
-            {/* History Date Pickers */}
+            {/* Historical Time Period Section */}
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
-                <FormLabel component="legend" sx={{ fontSize: '0.8rem' }}>Historical Data</FormLabel>
+                <Typography variant="subtitle2" sx={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
+                    Historical Time Period
+                </Typography>
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                     <Box sx={{ display: 'flex', gap: 2 }}>
                         <DatePicker
@@ -67,22 +43,24 @@ const Footer = ({ handleAddDrugClick }) => { // Receive handleAddDrugClick as pr
                             value={historyFromDate}
                             onChange={(newValue) => setHistoryFromDate(newValue)}
                             renderInput={(params) => <TextField {...params} size="small" sx={{ fontSize: '0.7rem' }} />}
-                            disabled={selectedOption !== 'Historical Data'}
+                            views={["year", "month"]}
                         />
                         <DatePicker
                             label="To"
                             value={historyToDate}
                             onChange={(newValue) => setHistoryToDate(newValue)}
                             renderInput={(params) => <TextField {...params} size="small" sx={{ fontSize: '0.7rem' }} />}
-                            disabled={selectedOption !== 'Historical Data'}
+                            views={["year", "month"]}
                         />
                     </Box>
                 </LocalizationProvider>
             </Box>
 
-            {/* Selected Date Pickers */}
+            {/* Forecast Time Period Section */}
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                <FormLabel component="legend" sx={{ fontSize: '0.8rem' }}>Selection Data</FormLabel>
+                <Typography variant="subtitle2" sx={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
+                    Forecast Time Period
+                </Typography>
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                     <Box sx={{ display: 'flex', gap: 2 }}>
                         <DatePicker
@@ -90,14 +68,14 @@ const Footer = ({ handleAddDrugClick }) => { // Receive handleAddDrugClick as pr
                             value={selectedFromDate}
                             onChange={(newValue) => setSelectedFromDate(newValue)}
                             renderInput={(params) => <TextField {...params} size="small" sx={{ fontSize: '0.7rem' }} />}
-                            disabled={selectedOption !== 'Selection Data'}
+                            views={["year", "month"]}
                         />
                         <DatePicker
                             label="To"
                             value={selectedToDate}
                             onChange={(newValue) => setSelectedToDate(newValue)}
                             renderInput={(params) => <TextField {...params} size="small" sx={{ fontSize: '0.7rem' }} />}
-                            disabled={selectedOption !== 'Selection Data'}
+                            views={["year", "month"]}
                         />
                     </Box>
                 </LocalizationProvider>
@@ -105,12 +83,10 @@ const Footer = ({ handleAddDrugClick }) => { // Receive handleAddDrugClick as pr
 
             {/* Button Container */}
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 2 }}>
-                {/* Add Drug Button */}
                 <Button variant="contained" color="primary" onClick={handleAddDrugClick} sx={{ fontSize: '0.8rem', mb: 1 }}>
                     Add Drug
                 </Button>
                 
-                {/* Save and Close Buttons */}
                 <Box sx={{ display: 'flex', gap: 2 }}>
                     <Button variant="contained" color="primary" onClick={handleSave} sx={{ fontSize: '0.8rem' }}>
                         Save
