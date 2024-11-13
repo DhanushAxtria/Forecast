@@ -154,7 +154,7 @@ const BlogGrid = () => {
             sx={{ width: 280, background: 'linear-gradient(135deg, #667eea, #764ba2)', color: 'white' }}
             className='featureCard'
           >
-            <CardActionArea sx={{ cursor: 'pointer' }}>
+            <CardActionArea sx={{ cursor: 'pointer' }} onClick={()=>navigate("/forecastdeepdive")}>
               <Insights sx={{ fontSize: 50, color: 'white', margin: '20px' }} />
               <CardContent
                 sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}

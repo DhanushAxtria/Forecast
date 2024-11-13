@@ -1,0 +1,235 @@
+@import 'react-datepicker/dist/react-datepicker.css';
+/* Only need to import once */
+
+/* Horizontal Tabs Styling */
+.tabs {
+  display: initial;
+  justify-content: flex-start;
+  margin-bottom: 7px;
+  padding: 0px;
+  margin-left: -183px;
+}
+
+.tab {
+  padding: 10px 20px;
+  cursor: pointer;
+  background-color: #f1f1f1;
+  color: #333;
+  font-weight: 500;
+  border: none;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s ease;
+  margin-right: 10px;
+  border-radius: 4px 4px 0 0;
+}
+
+.tab:hover {
+  background-color: #e0e0e0;
+}
+
+.tab.active {
+  background-color: #ffffff;
+  color: #007bff;
+  font-weight: bold;
+  border-bottom: 2px solid #007bff;
+}
+
+/* Content section */
+.content {
+  margin-top: 10px;
+}
+
+/* Container Styling */
+.container {
+  margin: -14 auto;
+  padding: 0px;
+  font-family: Arial, sans-serif;
+  margin-left: 14px;
+  //overflow:auto;
+  //overflow: scroll;
+}
+
+h1.greeting {
+  color: #333;
+  text-align: center;
+  margin-bottom: 0px;
+  font-size: 1.7rem;
+}
+
+.sticky-apply-button {
+  position: sticky;
+  top: 1rem;
+  /* Sticks button 1rem from the top */
+  margin-left: auto;
+  background-color: #1976d2;
+  color: white;
+  z-index: 10;
+}
+
+/* Flexbox and Section Styling */
+.flex-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.section {
+  flex: 1;
+  margin-bottom: 30px;
+}
+
+.input-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+input,
+select {
+  padding: 8px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 50%;
+}
+
+.savedScenario{
+  label {
+    width: 40%;
+    font-weight: bold;
+  }
+}
+
+
+/* Product Table Styling */
+.product-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.product-table th,
+.product-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+}
+
+.product-table th {
+  background-color: #f4f4f4;
+}
+
+.product-table select {
+  padding: 6px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 90%;
+  box-sizing: border-box;
+  appearance: none;
+}
+
+/* Button Styling */
+.toggle-btn,
+.product-table button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.toggle-btn.yes {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.toggle-btn.no {
+  background-color: #F44336;
+  color: white;
+}
+
+.toggle-btn:hover {
+  opacity: 0.8;
+}
+
+/* Add Product/Indication Buttons */
+.add-product-btn,
+.add-indication-btn {
+  padding: 12px 25px;
+  background-image: linear-gradient(135deg, #6e8efb, #6e8efb);
+  color: white;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  margin-bottom: 20px;
+}
+
+.add-product-btn:hover,
+.add-indication-btn:hover {
+  transform: scale(1.05);
+  background-image: linear-gradient(135deg, #6e8efb, #6e8efb);
+  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Month Cards Styling */
+.custom-month-picker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+select {
+  margin-bottom: 10px;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+}
+
+/* Month card container */
+.months-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 400px;
+}
+
+/* Styling for individual month cards */
+.month-card {
+  width: 70px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 5px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Hover state for month cards */
+.month-card:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+/* Styling for selected month card */
+.month-card.selected {
+  background-color: #007bff;
+  color: white;
+}
+
+.fixedApplyDiv {
+  right: 2px;
+  top: 91px;
+  position: fixed;
+  z-index: 999;
+}

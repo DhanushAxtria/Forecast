@@ -17,6 +17,7 @@ import Submission_Tracker from './Body/Submission_Tracker'
 import Inputpage from './Body/Inputpage'
 import Savedpage from './Body/Newpage'
 import Admin from './Body/Forecastpage'
+import Patient_Forecast from './Body/Patient_Forecast'
 //import Navbar from './Body/Navbar'
 function App() {
   const  [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false); // Initialize the state
@@ -51,6 +52,8 @@ function App() {
           <Route path="/saved-scenario" element={<Savedpage/>} />
           {/* <Route path="/Inputpage" element={<Inputpage/>} /> */}
           <Route path="/admin" element={<Admin/>} />
+          <Route path="/forecastdeepdive" element={<Patient_Forecast/>} />
+
 
 
 
