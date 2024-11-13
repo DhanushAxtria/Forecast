@@ -58,6 +58,8 @@ const ProductListPage = () => {
     const [timePeriod, setTimePeriod] = useState('Monthly');
     const [columns, setColumns] = useState([]);  // Column headers based on time period
     const [values, setValues] = useState({});
+    const [inputMethodDialogOpen, setInputMethodDialogOpen] = useState(true);
+    const [openSelectDataInputDialog, setOpenSelectDataInputDialog] = useState(false);
 
     const handleEditClick = (product) => {
         setEditingProductId(product.id);
@@ -71,10 +73,31 @@ const ProductListPage = () => {
         setEditingProductId(null);
         setEditedProductName('');
     };
+    const handleAddRow = (productId) => {
+        const newProduct = {
+            id: products.length + 1, // Incremental ID based on current product count
+            name: `New Product ${products.length + 1}`, // Default name for the new product
+        };
 
+        const updatedProducts = [...products];
+        const index = products.findIndex((product) => product.id === productId);
+        updatedProducts.splice(index + 1, 0, newProduct); // Insert new product below the clicked row
+        setProducts(updatedProducts); // Update products state with new row
+    };
+    const handleCloseInputMethodDialog = () => {
+        setOpenInputMethodDialog(false); // Close the "Select Data Input Method" dialog
+    };
+    const handleSaveGrowthRate = () => {
+        calculateGrowthRateValues(); // Calculate and save the values
+        // Optionally, show a message or indication of successful save
+    };
+    const handleSaveStartEndValues = () => {
+        distributeValuesForProduct(); // Apply and save the start-end distribution
+        // Optionally, show a message or indication of successful save
+    };
     const handleCancelClick = () => {
-        setEditingProductId(null);
-        setEditedProductName('');
+        setOpenGrowthRateDialog(false); // Close the growth rate dialog
+        setOpenInputMethodDialog(true); // Reopen the input method dialog
     };
     const generateMonthlyColumns = (start, end) => {
         const months = [];
@@ -84,6 +107,23 @@ const ProductListPage = () => {
             current = current.add(1, 'month');
         }
         return months;
+    };
+    const handleCloseAllDialogs = () => {
+        setOpenSelectDataInputDialog(false);
+        setOpenGrowthRateDialog(false);
+        setOpenStartEndDialog(false);
+        setOpenUploadDialog(false);
+        setInputMethodDialogOpen(true); // Go back to main page
+    };
+    const handleCancelAndOpenInputMethodDialog = () => {
+        setOpenGrowthRateDialog(false);
+        setOpenStartEndDialog(false);
+        setOpenUploadDialog(false);
+        setOpenInputMethodDialog(true); // Reopen the input method dialog
+    };
+    const handleGrowthRateCancel = () => {
+        setOpenGrowthRateDialog(false);
+        setOpenSelectDataInputDialog(true); // Reopen Select Data Input Method dialog
     };
     const generateYearlyColumns = (start, end) => {
         const years = [];
@@ -127,6 +167,7 @@ const ProductListPage = () => {
         setOpenGrowthRateDialog(false);
         setOpenStartEndDialog(false);
         setOpenUploadDialog(false);
+        setInputMethodDialogOpen(true);
     };
     const handleValueChange = (productId, date, value) => {
         setValues((prevValues) => ({
@@ -208,12 +249,19 @@ const ProductListPage = () => {
         updatedGrowthRates[index][field] = value;
         setGrowthRates(updatedGrowthRates);
     };
+    const getMinDate = (index) => {
+        if (index === 0) {
+            return fromDate; // Initial starting date for the first entry
+        }
+        return growthRates[index - 1].startDate; // Last added date for subsequent entries
+    };
     const handleGrowthRateDialogClose = () => {
         if (startingValue && initialGrowthRate) {
             calculateGrowthRateValues();
         }
         setOpenGrowthRateDialog(false);
     };
+
     const calculateValues = () => {
         if (!startingValue || !initialGrowthRate) return;
 
@@ -249,14 +297,19 @@ const ProductListPage = () => {
 
         setCalculatedValues(values);
     };
+    const handleSaveUploadDialog = () => {
+        // Logic to handle file upload or preparation for upload
+        console.log("File prepared for upload"); // Placeholder for file upload functionality
+        // Optionally, show a message or indication of successful file selection
+    };
     const calculateGrowthRateValues = () => {
         const productId = products[0].id; // Assuming Product 1
         const start = dayjs(fromDate).startOf('year');
         const end = dayjs(toDate).endOf('year');
-    
+
         const startYear = start.year();
         const endYear = end.year();
-    
+
         // Sort growthRates by year
         const sortedGrowthRates = [
             { startDate: start, growthRate: initialGrowthRate }, // Initial entry
@@ -265,24 +318,24 @@ const ProductListPage = () => {
                 growthRate: parseFloat(entry.growthRate),
             })),
         ].sort((a, b) => a.startDate.year() - b.startDate.year());
-    
+
         const newValues = {};
         let currentValue = parseFloat(startingValue);
-    
+
         // Apply growth rate formula for each period defined by the sorted growth rates
         sortedGrowthRates.forEach((entry, index) => {
             const currentStartYear = entry.startDate.year();
             const nextStartYear = sortedGrowthRates[index + 1]?.startDate.year() || endYear + 1; // next year or end year
-    
+
             newValues[currentStartYear] = currentValue.toFixed(2); // Starting value for the current segment
-    
+
             // Calculate values for each year in this segment
             for (let year = currentStartYear + 1; year < nextStartYear; year++) {
                 currentValue = currentValue * (1 + entry.growthRate / 100); // Apply growth rate
                 newValues[year] = currentValue.toFixed(2); // format to 2 decimals
             }
         });
-    
+
         // Update the values state for Product 1
         setValues((prevValues) => ({
             ...prevValues,
@@ -294,114 +347,127 @@ const ProductListPage = () => {
         calculateValues();
     }, [startingValue, initialGrowthRate, growthRates, columns]);
     return (
-        <div className="product-list-page">
-            <span gap="10px" sx={{ marginRight: '20px' }} >Select Time Period</span>
-            {/* Select Time Period Section */}
-            <Box display="flex" alignItems="center" gap="15px" mb={2} marginLeft='18px' marginTop='15px'>
-                <TextField
-                    select
-                    label="Time Period"
-                    value={timePeriod}
-                    onChange={(e) => setTimePeriod(e.target.value)}
-                    size="small"
-                    variant="outlined"
-                >
-                    <MenuItem value="Monthly">Monthly</MenuItem>
-                    <MenuItem value="Yearly">Yearly</MenuItem>
-                </TextField>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                        views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
-                        label="From"
-                        value={fromDate}
-                        onChange={(newValue) => setFromDate(newValue)}
-                        format={timePeriod === 'Monthly' ? 'MM-YYYY' : 'YYYY'}
-                        slotProps={{ textField: { size: 'small' } }}
-                        sx={{ width: '160px', padding: '5px' }}
-                    />
-                    <DatePicker
-                        views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
-                        label="To"
-                        value={toDate}
-                        onChange={(newValue) => setToDate(newValue)}
-                        format={timePeriod === 'Monthly' ? 'MM-YYYY' : 'YYYY'}
-                        slotProps={{ textField: { size: 'small' } }}
-                        sx={{ width: '160px', padding: '5px' }}
-                    />
-                </LocalizationProvider>
-            </Box>
-            <table className="product-table">
-                <thead>
-                    <tr>
-                        <th></th>
-                        {columns.map((column, index) => (
-                            <th key={index}>{column}</th>
-                        ))}
-                    </tr>
-                </thead>
-                <tbody>
-                    {products.map((product) => (
-                        <tr key={product.id}>
-                            <td>
-                                <div style={{ display: 'flex', alignItems: 'center' }}>
-                                    <IconButton color="info">
-                                        <InfoIcon fontSize="small" />
-                                    </IconButton>
-                                    <IconButton color="primary" onClick={handleCloudIconClick}>
-                                        <CloudUploadIcon fontSize="small" />
-                                    </IconButton>
-                                    {editingProductId === product.id ? (
-                                        <>
-                                            <TextField
-                                                value={editedProductName}
-                                                onChange={(e) => setEditedProductName(e.target.value)}
-                                                variant="outlined"
-                                                size="small"
-                                                style={{ marginLeft: '8px', marginRight: '8px' }}
-                                            />
-                                            <IconButton onClick={() => handleSaveClick(product.id)} color="primary">
-                                                <CheckIcon />
-                                            </IconButton>
-                                            <IconButton onClick={handleCancelClick} color="secondary">
-                                                <CloseIcon />
-                                            </IconButton>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <span style={{ marginLeft: '8px' }}>{product.name}</span>
-                                            <IconButton onClick={() => handleEditClick(product)} style={{ marginLeft: '8px' }}>
-                                                <EditIcon fontSize="small" />
-                                            </IconButton>
-                                        </>
-                                    )}
-                                </div>
-                            </td>
-                            {columns.map((date) => (
-                                <td key={date}>
-                                    {manualEntry ? (
-                                        <TextField
-                                            value={values[product.id]?.[date] || ''}
-                                            onChange={(e) => handleValueChange(product.id, date, e.target.value)}
-                                            variant="outlined"
-                                            size="small"
-                                            placeholder="Enter value"
-                                        />
-                                    ) : (
-                                        values[product.id]?.[date] || ''
-                                    )}
-                                </td>
+        <div className="product-list-page" >
+            <Box
+                sx={{
+                    maxHeight: '400px', // Set a fixed height for vertical scroll
+                    maxWidth: '100%',   // Set width to contain horizontal scroll
+                    overflowY: 'auto',  // Enable vertical scrolling
+                    overflowX: 'auto',  // Enable horizontal scrolling
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
+                }}
+            >
+                <span gap="10px" sx={{ marginRight: '20px' }} >Select Time Period</span>
+                {/* Select Time Period Section */}
+                <Box display="flex" alignItems="center" gap="15px" mb={2} marginLeft='18px' marginTop='15px'>
+                    <TextField
+                        select
+                        label="Time Period"
+                        value={timePeriod}
+                        onChange={(e) => setTimePeriod(e.target.value)}
+                        size="small"
+                        variant="outlined"
+                    >
+                        <MenuItem value="Monthly">Monthly</MenuItem>
+                        <MenuItem value="Yearly">Yearly</MenuItem>
+                    </TextField>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                            views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
+                            label="From"
+                            value={fromDate}
+                            onChange={(newValue) => setFromDate(newValue)}
+                            format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
+                            slotProps={{ textField: { size: 'small' } }}
+                            sx={{ width: '160px', padding: '5px' }}
+                        />
+                        <DatePicker
+                            views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
+                            label="To"
+                            value={toDate}
+                            onChange={(newValue) => setToDate(newValue)}
+                            format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
+                            slotProps={{ textField: { size: 'small' } }}
+                            sx={{ width: '160px', padding: '5px' }}
+                        />
+                    </LocalizationProvider>
+                </Box>
+                <table className="product-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            {columns.map((column, index) => (
+                                <th key={index}>{column}</th>
                             ))}
                         </tr>
-                    ))}
-                </tbody>
-            </table>
-
+                    </thead>
+                    <tbody>
+                        {products.map((product) => (
+                            <tr key={product.id}>
+                                <td>
+                                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                                        <IconButton color="info">
+                                            <InfoIcon fontSize="small" />
+                                        </IconButton>
+                                        <IconButton color="primary" onClick={handleCloudIconClick}>
+                                            <CloudUploadIcon fontSize="small" />
+                                        </IconButton>
+                                        {editingProductId === product.id ? (
+                                            <>
+                                                <TextField
+                                                    value={editedProductName}
+                                                    onChange={(e) => setEditedProductName(e.target.value)}
+                                                    variant="outlined"
+                                                    size="small"
+                                                    style={{ marginLeft: '8px', marginRight: '8px' }}
+                                                />
+                                                <IconButton onClick={() => handleSaveClick(product.id)} color="primary">
+                                                    <CheckIcon />
+                                                </IconButton>
+                                                <IconButton onClick={handleCancelClick} color="secondary">
+                                                    <CloseIcon />
+                                                </IconButton>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <span style={{ marginLeft: '8px' }}>{product.name}</span>
+                                                <IconButton onClick={() => handleEditClick(product)} style={{ marginLeft: '8px' }}>
+                                                    <EditIcon fontSize="small" />
+                                                </IconButton>
+                                                <IconButton onClick={() => handleAddRow(product.id)} style={{ marginLeft: '8px' }}>
+                                                    <AddIcon fontSize="small" />
+                                                </IconButton>
+                                            </>
+                                        )}
+                                    </div>
+                                </td>
+                                {columns.map((date) => (
+                                    <td key={date}>
+                                        {manualEntry ? (
+                                            <TextField
+                                                value={values[product.id]?.[date] || ''}
+                                                onChange={(e) => handleValueChange(product.id, date, e.target.value)}
+                                                variant="outlined"
+                                                size="small"
+                                                placeholder="Enter value"
+                                            />
+                                        ) : (
+                                            values[product.id]?.[date] || ''
+                                        )}
+                                    </td>
+                                ))}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </Box>
             {/* Granularity Selection Dialog */}
 
             {/* Input Method Selection Dialog */}
             <Dialog
                 open={openInputMethodDialog}
-                onClose={handleCloseDialogs}
+                onClose={handleCloseAllDialogs}
                 maxWidth="sm"
                 fullWidth
                 PaperProps={{
@@ -525,8 +591,8 @@ const ProductListPage = () => {
                     </List>
                 </DialogContent>
                 <DialogActions sx={{ padding: '16px', backgroundColor: '#f0f4fa' }}>
-                    <Button onClick={() => setOpenInputMethodDialog(false)} color="secondary" variant="contained" sx={{ fontWeight: 'bold', borderRadius: '8px' }}>
-                        Cancel
+                    <Button onClick={handleCloseInputMethodDialog} color="secondary" variant="contained" sx={{ fontWeight: 'bold', borderRadius: '8px' }}>
+                        Close
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -555,11 +621,14 @@ const ProductListPage = () => {
                     </Box>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleStartEndDialogClose} color="secondary">
+                    <Button onClick={handleCancelAndOpenInputMethodDialog} color="secondary">
                         Cancel
                     </Button>
-                    <Button color="primary" onClick={distributeValuesForProduct}>
+                    <Button onClick={handleSaveStartEndValues} color="primary">
                         Save
+                    </Button>
+                    <Button onClick={handleCloseAllDialogs} color="primary">
+                        Close
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -568,20 +637,26 @@ const ProductListPage = () => {
             <Dialog open={openUploadDialog} onClose={handleUploadDialogClose} maxWidth="sm" fullWidth>
                 <DialogTitle>Upload Data File</DialogTitle>
                 <Tooltip title="Only .csv or .xlsx formats allowed" arrow>
-                <DialogContent sx={{ paddingTop: '15px' }}>
-                    <Box sx={{ paddingTop: '15px' }} display="flex" flexDirection="column" gap="16px">
-                        <Button variant="outlined" color="primary" fullWidth>
-                            Select File from Local Storage
-                        </Button>
-                        <Button variant="outlined" color="primary" fullWidth>
-                            Select File from AWS/Azure
-                        </Button>
-                    </Box>
-                </DialogContent>
+                    <DialogContent sx={{ paddingTop: '15px' }}>
+                        <Box sx={{ paddingTop: '15px' }} display="flex" flexDirection="column" gap="16px">
+                            <Button variant="outlined" color="primary" fullWidth>
+                                Select File from Local Storage
+                            </Button>
+                            <Button variant="outlined" color="primary" fullWidth>
+                                Select File from AWS/Azure
+                            </Button>
+                        </Box>
+                    </DialogContent>
                 </Tooltip>
                 <DialogActions>
-                    <Button onClick={handleUploadDialogClose} color="secondary">
+                    <Button onClick={handleCancelAndOpenInputMethodDialog} color="secondary">
                         Cancel
+                    </Button>
+                    <Button onClick={handleSaveUploadDialog} color="primary">
+                        Save
+                    </Button>
+                    <Button onClick={handleCloseAllDialogs} color="primary">
+                        Close
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -629,6 +704,7 @@ const ProductListPage = () => {
                                     onChange={(newValue) => handleGrowthRateChange(index, 'startDate', newValue)}
                                     slotProps={{ textField: { size: 'small' } }}
                                     style={{ minWidth: '120px' }}
+                                    minDate={getMinDate(index)}
                                 />
                                 <TextField
                                     label="Growth Rate (%)"
@@ -642,11 +718,14 @@ const ProductListPage = () => {
                         ))}
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={() => setOpenGrowthRateDialog(false)} color="secondary">
+                        <Button onClick={handleCancelAndOpenInputMethodDialog} color="secondary">
                             Cancel
                         </Button>
-                        <Button color="primary" onClick={calculateGrowthRateValues}>
+                        <Button onClick={handleSaveGrowthRate} color="primary">
                             Save
+                        </Button>
+                        <Button onClick={handleCloseAllDialogs} color="primary">
+                            Close
                         </Button>
                     </DialogActions>
                 </Dialog>
