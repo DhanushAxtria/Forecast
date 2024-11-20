@@ -150,17 +150,22 @@ const ProductListPage = () => {
         }).filter((id) => id !== null);
         const operatorSliced = operators.slice(1);
         const idd = selectedIds[0];
-        let res;
+        let res = {};
         const value1 = values1[idd];
         const value2 = values2[idd];
         const value3 = values3[idd];
         if (value1 !== undefined) res = value1;
         if (value2 !== undefined) res = value2;
         if (value3 !== undefined) res = value3;
+        for (let i = 0; i < dayjs(toDate).diff(dayjs(fromDate), 'month') + 1; i++) {
+            const month = dayjs(fromDate).add(i, 'month').format('MMM-YYYY');
+            if (!res[month]) {
+                res[month] = 0;
+            }
+        }
         console.log('res is', res);
         for (let i = 1; i < selectedIds.length; i++) {
             const id = selectedIds[i];
-            console.log(id);
             const value1temp = values1[id];
             const value2temp = values2[id];
             const value3temp = values3[id];
@@ -168,7 +173,6 @@ const ProductListPage = () => {
             if (value1temp !== undefined) temp = value1temp;
             if (value2temp !== undefined) temp = value2temp;
             if (value3temp !== undefined) temp = value3temp;
-            console.log(temp);
             const summed = {};
             Object.keys(res).forEach((key) => {
             if (temp[key]) {
@@ -185,11 +189,10 @@ const ProductListPage = () => {
             });
             res = summed;
         }
-        console.log(row_id);
         setValues1((prevValues) => ({
             ...prevValues,
             [row_id]: Object.keys(res).reduce((acc, date) => {
-                acc[date] = res[date];
+                acc[date] = !res[date] || res[date] === 0 ? '0' : res[date];
                 return acc;
             }, {})
         }));
