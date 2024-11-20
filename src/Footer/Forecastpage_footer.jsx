@@ -3,6 +3,9 @@ import { Box, Typography, FormControl, TextField, Button } from '@mui/material';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import {IconButton,
+        Tooltip} from '@mui/material';
 
 const Footer = ({ handleAddDrugClick }) => {
     const [historyFromDate, setHistoryFromDate] = useState(null);
@@ -35,6 +38,12 @@ const Footer = ({ handleAddDrugClick }) => {
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
                 <Typography variant="subtitle2" sx={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
                     Historical Time Period
+                    <Tooltip title="Upload file" marginLeft="20px">
+                                    <IconButton color="primary"component="label" sx={{ position: 'relative', zIndex: 1 }}>
+                                    <CloudUploadIcon fontSize="small" />
+                                        <input type="file" hidden style={{ position: 'relative', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, zIndex: 2 }} />
+                                    </IconButton>
+                </Tooltip>
                 </Typography>
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                     <Box sx={{ display: 'flex', gap: 2 }}>
