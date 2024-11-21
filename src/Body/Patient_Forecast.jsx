@@ -48,7 +48,7 @@ const initialProducts1 = [
 
 ];
 const initialProducts2 = [
-    { id: 'T2-1', name: 'Patients on Chronic Therapy' },
+    { id: 'T2-1', name: '% Patients on Chronic Therapy' },
     { id: 'T2-2', name: '% Patients on Episodic Therapy ' },
     { id: 'T2-3', name: 'Patients on Chronic Therapy' },
     { id: 'T2-4', name: 'Patients on Episodic Therapy ' },
