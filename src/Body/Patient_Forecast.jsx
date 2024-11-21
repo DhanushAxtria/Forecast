@@ -751,7 +751,7 @@ const ProductListPage = () => {
                                                                 aria-labelledby="alert-dialog-title"
                                                                 aria-describedby="alert-dialog-description"
                                                             >
-                                                                <DialogTitle id="alert-dialog-title">Formula for row: {formulaProductId}</DialogTitle>
+                                                                <DialogTitle id="alert-dialog-title">Formula for row: {products1.find(product => product.id === formulaProductId)?.name}</DialogTitle>
                                                                 <DialogContent>
                                                                     <br></br>
                                                                     <br></br>
