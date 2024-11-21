@@ -19,6 +19,8 @@ import {
     Tooltip,
     Card,
     Box,
+    Tabs,
+    Tab,
     InputLabel
 } from '@mui/material';
 import RemoveIcon from '@mui/icons-material/Remove';
@@ -37,7 +39,6 @@ import UploadFileIcon from '@mui/icons-material/UploadFile';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import AdjustIcon from '@mui/icons-material/Adjust';
 import './ProductListpage.scss';
-
 
 
 const initialProducts1 = [
@@ -63,6 +64,12 @@ const initialProducts3 = [
 
 ];
 
+const initialProducts = {
+    downside: { table1: initialProducts1, table2: initialProducts2, table3: initialProducts3 },
+    base: { table1: initialProducts1, table2: initialProducts2, table3: initialProducts3 },
+    upside: { table1: initialProducts1, table2: initialProducts2, table3: initialProducts3 },
+};
+
 const ProductListPage = () => {
     const [products1, setProducts1] = useState(initialProducts1);
     const [products2, setProducts2] = useState(initialProducts2);
@@ -86,34 +93,60 @@ const ProductListPage = () => {
     const [calculatedValues, setCalculatedValues] = useState({});
     const [timePeriod, setTimePeriod] = useState('Monthly');
     const [columns, setColumns] = useState([]);  // Column headers based on time period
-    const [values1, setValues1] = useState({});
+    const [values, setValues] = useState({});
     const [values2, setValues2] = useState({});
     const [values3, setValues3] = useState({});
-    const [tablevalues1, setTableValues1] = useState({});
-    const [tablevalues2, setTableValues2] = useState({});
-    const [tablevalues3, setTableValues3] = useState({});
     const [inputMethodDialogOpen, setInputMethodDialogOpen] = useState(true);
     const [openSelectDataInputDialog, setOpenSelectDataInputDialog] = useState(false);
     const [showCard, setShowCard] = useState(false);
     const [showTable1, setShowTable1] = useState(false);
     const [showTable2, setShowTable2] = useState(false);
     const [showTable3, setShowTable3] = useState(false);
-    const [selectedTab, setSelectedTab] = useState(0);
+    const [selectedTab, setSelectedTab] = useState(false);
     const [anchorElOpen, setAnchorElOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null);
     const [openInfoMethodDialog, setOpenInfoMethodDialog] = useState(false);
     const [showFormula, setShowFormula] = useState(false);
     const [selectedValue, setSelectedValue] = useState("");
     const [formulaProductId, setFormulaProductId] = useState(null);
+    const [tab_value, setTabValue] = useState(null);
+    const [showTabs, setShowTabs] = useState(false);
+    const [products, setProducts] = useState(initialProducts);
     const combinedProducts = [...initialProducts1, ...initialProducts2, ...initialProducts3];
-
-
     const [selectedValues, setSelectedValues] = useState([combinedProducts[0]?.name]); // Start with one dropdown, default to first product
     const [operators, setOperators] = useState(['+']); // State to store selected operators for each dropdown
 
-    useEffect(() => {
-        console.log('Updated values1:', values1);
-    }, [values1]);
+
+    const [tabTableVisibility, setTabTableVisibility] = useState({
+        downside: { table1: false, table2: false, table3: false },
+        base: { table1: false, table2: false, table3: false },
+        upside: { table1: false, table2: false, table3: false },
+    });
+
+    const handleTabChange = (event, newValue) => {
+        setTabValue(newValue);
+
+        // Reset visibility of all tables when tab changes
+        const tabKey = newValue === 0 ? 'downside' : newValue === 1 ? 'base' : 'upside';
+        setTabTableVisibility((prev) => ({
+            ...prev,
+            [tabKey]: { table1: false, table2: false, table3: false }, // Reset table visibility
+        }));
+    };
+
+    const toggleTableVisibility = (tabKey, tableKey) => {
+        setTabTableVisibility((prev) => ({
+            ...prev,
+            [tabKey]: {
+                ...prev[tabKey],
+                [tableKey]: !prev[tabKey][tableKey], // Toggle specific table visibility
+            },
+        }));
+    };
+
+    const currentTabKey = tab_value === 0 ? 'downside' : tab_value === 1 ? 'base' : 'upside';
+
+
     // Handle changes for any dropdown (formula or operator)
     const handleSelectChange = (index, type, event) => {
         if (type === 'operator') {
@@ -142,21 +175,24 @@ const ProductListPage = () => {
     };
 
     // Handle applying the selected formula(s)
-    const handleApply = (row_id) => {
-        const combdata = [...products1, ...products2, ...products3]
+    const handleApply = (tabKey, row_id) => {
         const selectedIds = selectedValues.map((selectedValue) => {
-            const product = combdata.find((prod) => prod.name === selectedValue);
-            return product ? product.id : null;
-        }).filter((id) => id !== null);
+            // Iterate through all tableKeys under the current tabKey
+            for (const tableKey in products[tabKey]) {
+                // Find the product that matches the selected value
+                const product = products[tabKey][tableKey].find((prod) => prod.name === selectedValue);
+                if (product) {
+                    return product.id; // Return the id if a product is found
+                }
+            }
+            return null; // Return null if no product is found
+        }).filter((id) => id !== null); // Filter out null values
         const operatorSliced = operators.slice(1);
         const idd = selectedIds[0];
         let res = {};
-        const value1 = values1[idd];
-        const value2 = values2[idd];
-        const value3 = values3[idd];
-        if (value1 !== undefined) res = value1;
-        if (value2 !== undefined) res = value2;
-        if (value3 !== undefined) res = value3;
+
+        const value = tabKey === 'downside' ? values[idd] : tabKey === 'base' ? values2[idd] : values3[idd];
+        if (value !== undefined) res = value;
         for (let i = 0; i < dayjs(toDate).diff(dayjs(fromDate), 'month') + 1; i++) {
             const month = dayjs(fromDate).add(i, 'month').format('MMM-YYYY');
             if (!res[month]) {
@@ -166,61 +202,91 @@ const ProductListPage = () => {
         console.log('res is', res);
         for (let i = 1; i < selectedIds.length; i++) {
             const id = selectedIds[i];
-            const value1temp = values1[id];
-            const value2temp = values2[id];
-            const value3temp = values3[id];
+            const tempval = tabKey === 'downside' ? values[id] : tabKey === 'base' ? values2[id] : values3[id];
             let temp;
-            if (value1temp !== undefined) temp = value1temp;
-            if (value2temp !== undefined) temp = value2temp;
-            if (value3temp !== undefined) temp = value3temp;
+            if (tempval !== undefined) temp = tempval;
             const summed = {};
             Object.keys(res).forEach((key) => {
-            if (temp[key]) {
-                if (operatorSliced[i-1] == '+') {
-                    summed[key] = parseFloat(res[key], 10) + parseFloat(temp[key], 10);
-                } else if (operatorSliced[i-1] == '-') {
-                    summed[key] = parseFloat(res[key], 10) - parseFloat(temp[key], 10);
-                } else if (operatorSliced[i-1] == '*') {
-                    summed[key] = parseFloat(res[key], 10) * parseFloat(temp[key], 10);
-                } else if (operatorSliced[i-1] == '/') {
-                    summed[key] = parseFloat(res[key], 10) / parseFloat(temp[key], 10);
+                if (temp[key]) {
+                    if (operatorSliced[i - 1] == '+') {
+                        summed[key] = parseFloat(res[key], 10) + parseFloat(temp[key], 10);
+                    } else if (operatorSliced[i - 1] == '-') {
+                        summed[key] = parseFloat(res[key], 10) - parseFloat(temp[key], 10);
+                    } else if (operatorSliced[i - 1] == '*') {
+                        summed[key] = parseFloat(res[key], 10) * parseFloat(temp[key], 10);
+                    } else if (operatorSliced[i - 1] == '/') {
+                        summed[key] = parseFloat(res[key], 10) / parseFloat(temp[key], 10);
+                    }
                 }
-            }
             });
             res = summed;
         }
-        setValues1((prevValues) => ({
-            ...prevValues,
-            [row_id]: Object.keys(res).reduce((acc, date) => {
-                acc[date] = !res[date] || res[date] === 0 ? '0' : res[date];
-                return acc;
-            }, {})
-        }));
+        if (tabKey === 'downside') {
+            setValues((prevValues) => ({
+                ...prevValues,
+                [row_id]: Object.keys(res).reduce((acc, date) => {
+                    acc[date] = !res[date] || res[date] === 0 ? '0' : res[date];
+                    return acc;
+                }, {})
+            }));
+        }
+        else if (tabKey === 'base') {
+            setValues2((prevValues) => ({
+                ...prevValues,
+                [row_id]: Object.keys(res).reduce((acc, date) => {
+                    acc[date] = !res[date] || res[date] === 0 ? '0' : res[date];
+                    return acc;
+                }, {})
+            }));
+        }
+        else {
+            setValues3((prevValues) => ({
+                ...prevValues,
+                [row_id]: Object.keys(res).reduce((acc, date) => {
+                    acc[date] = !res[date] || res[date] === 0 ? '0' : res[date];
+                    return acc;
+                }, {})
+            }));
+        }
         setShowFormula(false);
-
     };
 
-    const handleTabChange = (event, newValue) => {
-        setSelectedTab(newValue); // Update the selectedTab state when a tab is clicked
-    };
-    const handleEditClick = (product) => {
-        setEditingProductId(product.id);
-        setEditedProductName(product.name);
+    const handleEditClick = (productId, tabKey, tableKey) => {
+        // Find the product by id in the table for the given tabKey and tableKey
+        const product = products[tabKey][tableKey].find((prod) => prod.id === productId);
+
+        if (product) {
+            setEditingProductId(product.id);
+            setEditedProductName(product.name);
+        }
     };
 
-    const handleSaveClick = (productId, table_num) => {
-        const tablee = table_num === 1 ? products1 : table_num === 2 ? products2 : products3
-        const setprod = table_num === 1 ? setProducts1 : table_num === 2 ? setProducts2 : setProducts3
-        setprod(tablee.map((product) =>
+    const handleSaveClick = (productId, tabKey, tableKey) => {
+        // Get the current list of products for the specific tab and table
+        const tableProducts = products[tabKey][tableKey];
+
+        // Update the product's name with the edited name
+        const updatedProducts = tableProducts.map((product) =>
             product.id === productId ? { ...product, name: editedProductName } : product
-        ));
+        );
+
+        // Update the state with the new product list
+        setProducts((prevProducts) => ({
+            ...prevProducts,
+            [tabKey]: {
+                ...prevProducts[tabKey],
+                [tableKey]: updatedProducts, // Update the correct table for this tab
+            },
+        }));
+
+        // Reset editing state
         setEditingProductId(null);
         setEditedProductName('');
     };
-    const handleAddRow = (productId, table_num) => {
-        const tablee = table_num === 1 ? products1 : table_num === 2 ? products2 : products3;
+    /*const handleAddRow = (tabKey, tableKey, productId, table_num) => {
+        const tablee = table_num === 1 ? products1 : table_num === 2 ? products2 : products3
         const newProduct = {
-            id: `T${table_num}-${tablee.length + 1}`, // Incremental ID based on current product count
+            id: tablee.length + 1, // Incremental ID based on current product count
             name: `New Product ${tablee.length + 1}`, // Default name for the new product
         };
 
@@ -236,9 +302,43 @@ const ProductListPage = () => {
         if (table_num == 3) {
             setProducts3(updatedProducts); // Update products state with new row in table 2
         }
+    };*/
+
+    const handleAddRow = (tabKey, tableKey, productId) => {
+        // Get the current list of products for the specific tab and table
+        const tableProducts = products[tabKey][tableKey];
+        const num = tableKey === 'table1' ? 1 : tableKey === 'table2' ? 2 : 3;
+        // Find the index of the clicked product
+        const index = tableProducts.findIndex((product) => product.id === productId);
+
+        if (index === -1) return; // Exit if productId doesn't match anything
+
+        // Create a new product object (incremental ID based on current product count)
+        const newProduct = {
+            id: `T${num}-${tableProducts.length + 1}`, // Make sure ID is unique and incremental
+            name: `New Product ${tableProducts.length + 1}`, // Default name for the new product
+        };
+
+
+        // Create a new array with the new product inserted below the clicked row
+        const updatedProducts = [
+            ...tableProducts.slice(0, index + 1), // Copy products before the clicked product
+            newProduct, // Insert new product below the clicked row
+            ...tableProducts.slice(index + 1), // Copy products after the clicked product
+        ];
+
+        // Update the state with the new row
+        setProducts((prevProducts) => ({
+            ...prevProducts,
+            [tabKey]: {
+                ...prevProducts[tabKey],
+                [tableKey]: updatedProducts, // Update the correct table for this tab
+            },
+        }));
+        console.log(products[tabKey][tableKey]);
     };
 
-    const handleDeleteRow = (productId, table_num) => {
+    /*const handleDeleteRow = (productId, table_num) => {
         let updatedProducts = products1;
         let updatedProducts2 = products2;
         let updatedProducts3 = products3;
@@ -254,6 +354,23 @@ const ProductListPage = () => {
         setProducts1(updatedProducts); // Update products state with new row in table 1
         setProducts2(updatedProducts2); // Update products state with new row in table 2
         setProducts3(updatedProducts3); // Update products state with new row in table 3
+    };*/
+
+    const handleDeleteRow = (productId, tabKey, tableKey) => {
+        // Get the current list of products for the specific tab and table
+        const tableProducts = products[tabKey][tableKey];
+
+        // Filter out the product with the specified productId
+        const updatedProducts = tableProducts.filter((product) => product.id !== productId);
+
+        // Update the state with the new list of products for the specified table
+        setProducts((prevProducts) => ({
+            ...prevProducts,
+            [tabKey]: {
+                ...prevProducts[tabKey],
+                [tableKey]: updatedProducts, // Update the correct table for this tab
+            },
+        }));
     };
 
     const handleCloseInputMethodDialog = () => {
@@ -341,17 +458,16 @@ const ProductListPage = () => {
         setOpenUploadDialog(false);
         setInputMethodDialogOpen(true);
     };
-    const handleValueChange = (productId, date, value, table_num) => {
-        if (table_num == 1) {
-            setValues1((prevValues) => ({
+    const handleValueChange = (tabKey, productId, date, value) => {
+        if (tabKey === 'downside') {
+            setValues((prevValues) => ({
                 ...prevValues,
                 [productId]: {
                     ...prevValues[productId],
                     [date]: value,
                 },
             }));
-        }
-        if (table_num == 2) {
+        } else if (tabKey === 'base') {
             setValues2((prevValues) => ({
                 ...prevValues,
                 [productId]: {
@@ -359,9 +475,7 @@ const ProductListPage = () => {
                     [date]: value,
                 },
             }));
-
-        }
-        if (table_num == 3) {
+        } else {
             setValues3((prevValues) => ({
                 ...prevValues,
                 [productId]: {
@@ -430,16 +544,13 @@ const ProductListPage = () => {
             currentValue += increment;
         }
 
-        // Update the values state for Product 1
-        setValues1((prevValues) => ({
+        //Update the values state for Product 1
+        setValues((prevValues) => ({
             ...prevValues,
             [productId]: newValues,
         }));
     };
 
-    /**
-     * Closes the upload dialog by setting the state to false.
-     */
     const handleUploadDialogClose = () => {
         setOpenUploadDialog(false);
     };
@@ -540,28 +651,210 @@ const ProductListPage = () => {
             }
         });
 
-        // Update the values state for Product 1
-        setValues1((prevValues) => ({
+        //Update the values state for Product 1
+        setValues((prevValues) => ({
             ...prevValues,
             [productId]: newValues,
         }));
     };
 
+    const renderTable = (tabKey, tableKey) => {
+        const tableProducts = products[tabKey][tableKey]; // Get the correct products for this table
+
+        return (
+            <Box
+                sx={{
+                    maxHeight: '400px', // Set a fixed height for vertical scroll
+                    maxWidth: '100%',
+                    overflowY: 'auto', // Enable vertical scrolling
+                    overflowX: 'auto', // Enable horizontal scrolling
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
+                }}
+            >
+                <table className="product-table">
+                    <thead>
+                        <tr>
+                            <th style={{ position: 'sticky', left: 0, backgroundColor: 'red', zIndex: 2 }}></th>
+                            {columns.map((column, index) => (
+                                <th key={index} style={{minWidth: '150px' }}>{column}</th>
+                            ))}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {tableProducts.map((product) => (
+                            <tr key={product.id}>
+                                <td style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', position: 'sticky', left: 0, background: 'white', zIndex: 2 }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '0.1fr 0.1fr 1fr 0.1fr 0.1fr 0.1fr 0.1fr', alignItems: 'center' }}>
+                                        <IconButton color="info" onClick={handleInfoIconClick}>
+                                            <InfoIcon fontSize="small" />
+                                        </IconButton>
+                                        <IconButton color="primary" onClick={handleCloudIconClick}>
+                                            <CloudUploadIcon fontSize="small" />
+                                        </IconButton>
+                                        {editingProductId === product.id ? (
+                                            <>
+                                                <TextField
+                                                    value={editedProductName}
+                                                    onChange={(e) => setEditedProductName(e.target.value)}
+                                                    variant="outlined"
+                                                    size="small"
+                                                    style={{ marginLeft: '8px', marginRight: '8px' }}
+                                                />
+                                                <IconButton onClick={() => handleSaveClick(product.id, tabKey, tableKey)} color="primary">
+                                                    <CheckIcon />
+                                                </IconButton>
+                                                <IconButton onClick={handleCancelClick} color="secondary">
+                                                    <CloseIcon />
+                                                </IconButton>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <span style={{ marginLeft: '8px' }}>{product.name}</span>
+                                                <IconButton onClick={() => handleEditClick(product.id, tabKey, tableKey)} style={{ marginLeft: '8px' }}>
+                                                    <EditIcon fontSize="small" />
+                                                </IconButton>
+                                                {tableProducts[tableProducts.length - 1].id !== product.id && (
+                                                    <IconButton onClick={() => handleAddRow(tabKey, tableKey, product.id)} style={{ marginLeft: '8px' }}>
+                                                        <AddIcon fontSize="small" />
+                                                    </IconButton>
+                                                )}
+                                                {tableProducts[tableProducts.length - 1].id === product.id && (
+                                                    <IconButton style={{marginLeft: '8px', color: 'lightgrey' }} disabled>
+                                                        <AddIcon fontSize="small" />
+                                                    </IconButton>
+                                                    )}
+                                                <IconButton onClick={() => { setFormulaProductId(product.id); setShowFormula(true); }} style={{ marginLeft: '4px' }}>
+                                                    <CalculateIcon fontSize="small" />
+                                                </IconButton>
+                                                {(
+                                                    <Dialog
+                                                        open={showFormula}
+                                                        onClose={() => {
+                                                            setShowFormula(false);
+                                                        }}
+                                                        aria-labelledby="alert-dialog-title"
+                                                        aria-describedby="alert-dialog-description"
+                                                    >
+                                                        <DialogTitle id="alert-dialog-title">Formula for row: {products1.find(product => product.id === formulaProductId)?.name}</DialogTitle>
+                                                        <DialogContent>
+                                                            <br></br>
+                                                            <br></br>
+                                                            {/* Render each dropdown dynamically based on selectedValues and operators */}
+                                                            {selectedValues.map((selectedValue, index) => (
+                                                                <div key={index} style={{ width: 400, display: 'flex', alignItems: 'center', marginBottom: 16 }}>
+                                                                    {/* Operator Dropdown on the left */}
+                                                                    {index > 0 && (
+                                                                        <FormControl style={{ width: 100, marginRight: 8 }}>
+                                                                            <InputLabel id={`operator-label-${index}`}>Operator</InputLabel>
+                                                                            <Select
+                                                                                labelId={`operator-label-${index}`}
+                                                                                id={`operator-${index}`}
+                                                                                value={operators[index]}
+                                                                                onChange={(e) => handleSelectChange(index, 'operator', e)}
+                                                                                label="Operator"
+                                                                            >
+                                                                                <MenuItem value="+">+</MenuItem>
+                                                                                <MenuItem value="-">-</MenuItem>
+                                                                                <MenuItem value="*">*</MenuItem>
+                                                                                <MenuItem value="/">/</MenuItem>
+                                                                            </Select>
+                                                                        </FormControl>
+                                                                    )}
+
+                                                                    {/* Formula Dropdown on the right */}
+                                                                    <FormControl fullWidth style={{ flexGrow: 1 }}>
+                                                                        <InputLabel id={`select-label-${index}`}>Select column {index + 1}</InputLabel>
+                                                                        <Select
+                                                                            labelId={`select-label-${index}`}
+                                                                            id={`select-${index}`}
+                                                                            value={selectedValue}
+                                                                            onChange={(e) => handleSelectChange(index, 'formula', e)}
+                                                                            label={`Select Formula ${index + 1}`}
+                                                                        >
+                                                                            {Object.keys(products[tabKey]).map((tableKey) => (
+                                                                                products[tabKey][tableKey].map((product) => (
+                                                                                    <MenuItem key={product.id} value={product.name}>
+                                                                                        {product.name}
+                                                                                    </MenuItem>
+                                                                                ))
+                                                                            ))}
+
+
+                                                                        </Select>
+                                                                    </FormControl>
+
+                                                                    {/* Delete Button */}
+                                                                    <IconButton
+                                                                        onClick={() => handleDeleteDropdown(index)}
+                                                                        color="secondary"
+                                                                        style={{ marginLeft: 8 }}
+                                                                    >
+                                                                        <DeleteIcon />
+                                                                    </IconButton>
+                                                                </div>
+                                                            ))}
+
+                                                            {/* Button to add a new dropdown */}
+                                                            <Button onClick={handleAddDropdown} color="primary" fullWidth>
+                                                                Add New Dropdown
+                                                            </Button>
+                                                        </DialogContent>
+
+                                                        <DialogActions>
+                                                            <Button onClick={() => { setShowFormula(false); }} color="primary">
+                                                                Cancel
+                                                            </Button>
+                                                            <Button color="primary" onClick={() => handleApply(tabKey, formulaProductId)}>
+                                                                Apply
+                                                            </Button>
+                                                        </DialogActions>
+                                                    </Dialog>
+                                                )}
+                                                <IconButton onClick={() => handleDeleteRow(product.id, tabKey, tableKey)} style={{ marginLeft: '8px' }}>
+                                                    <DeleteIcon fontSize="small" />
+                                                </IconButton>
+
+                                            </>
+                                        )}
+                                    </div>
+                                </td>
+                                {columns.map((date) => (
+                                    <td key={date}>
+                                        <TextField
+                                            type="number"
+                                            value={tabKey === 'downside' ? values[product.id]?.[date] || '' : tabKey === 'base' ? values2[product.id]?.[date] || '' : values3[product.id]?.[date] || ''}
+                                            onChange={(e) => {
+                                                console.log("is the tabkey");
+                                                handleValueChange(tabKey, product.id, date, e.target.value);
+
+                                            }}
+                                            variant="outlined"
+                                            size="small"
+                                            placeholder="Enter value"
+                                            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                                        />
+                                    </td>
+                                ))}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </Box>
+        );
+    };
+
     useEffect(() => {
         calculateValues();
     }, [startingValue, initialGrowthRate, growthRates, columns]);
-
-
     return (
         <div className="product-list-page" >
             <Box
                 sx={{
-                    maxHeight: '400px', // Set a fixed height for vertical scroll
                     maxWidth: '100%',   // Set width to contain horizontal scroll
                     overflowY: 'auto',  // Enable vertical scrolling
-
                     border: '1px solid #ccc',
-                    borderRadius: '4px',
+                    borderRadius: '2px'
                 }}
             >
                 <span gap="10px" sx={{ marginRight: '20px' }} >Select Time Period</span>
@@ -603,537 +896,659 @@ const ProductListPage = () => {
                         color="primary"
                         onClick={() => {
                             if (dayjs(fromDate).isBefore(toDate) || dayjs(fromDate).isSame(toDate, timePeriod === 'Monthly' ? 'month' : 'year')) {
-                                setShowCard(true);
+                                setShowTabs(true);
+
                             } else {
+                                setShowTabs(false);
                                 setShowCard(false);
                                 alert("Invalid date range: Start date must be before end date");
 
                             }
                         }}
-                        sx={{ marginLeft: '18px', marginBottom: '15px' }}
-                    >
+                        sx={{ marginLeft: '18px', marginBottom: '15px' }}>
                         Proceed
                     </Button>
+                </Box>
+
+                <Box sx={{ width: '90%', margin: '0 auto' }}>
+                    {showTabs && <Tabs tab_value={tab_value} onChange={handleTabChange} aria-label="basic tabs example"
+                        sx={{
+                            borderBottom: 2,
+                            borderColor: 'divider',
+                            marginBottom: 2,
+                            '.MuiTabs-flexContainer': {
+                                justifyContent: 'space-around', // Distribute tabs evenly
+                            },
+                        }} >
+                        <Tab label="Downside Case" sx={{
+                            fontWeight: 'bold',
+                            fontSize: '15px', // Increase font size
+                            color: tab_value === 0 ? '#007bff' : 'black', // Highlight selected tab
+                            '&.Mui-selected': {
+                                color: '#007bff', // Color of selected tab label
+                                fontSize: '20px', // Increase font size of selected tab
+                            }
+                        }} />
+                        <Tab label="Base Case" sx={{
+                            fontWeight: 'bold',
+                            fontSize: '15px', // Increase font size
+                            color: tab_value === 1 ? '#007bff' : 'black', // Highlight selected tab
+                            '&.Mui-selected': {
+                                color: '#007bff', // Color of selected tab label
+                                fontSize: '20px', // Increase font size of selected tab
+                            }
+                        }} />
+
+                        <Tab label="Upside Case" sx={{
+                            fontWeight: 'bold',
+                            fontSize: '15px', // Increase font size
+                            color: tab_value === 2 ? '#007bff' : 'black', // Highlight selected tab
+                            '&.Mui-selected': {
+                                color: '#007bff', // Color of selected tab label
+                                fontSize: '20px', // Increase font size of selected tab
+                            }
+                        }} />
+                    </Tabs>
+                    }
+                    {tab_value === 0 &&
+                        <div>
+                            {<Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    gap: 2,
+                                    left: 0,
+                                    marginTop: 2,
+                                    overflowY: 'auto',
+                                    overflowX: 'auto',
+                                    maxWidth: '100%',
+                                    position: 'sticky',
+
+                                    // position: column.id === 'id' ? 'sticky' : 'static',
+                                    // left: column.id === 'id' ? 0 : 'auto',
+                                    // zIndex: column.id === 'id' ? 2 : 1, // Ensure sticky column stays on top
+
+                                }}
+                            >
+                                <Card
+                                    sx={{
+                                        width: '100%', // Make the card responsive
+                                        maxHeight: tabTableVisibility[currentTabKey].table1 ? 100 : 200,
+                                        maxWidth: tabTableVisibility[currentTabKey].table1 ? 200 : 360, // Set max width for the card
+                                        padding: 3,
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        backgroundColor: '#e3f2fd', // Light blue background for a healthcare feel
+                                        borderRadius: 2, // Rounded corners for a softer look
+                                        boxShadow: 3, // Add subtle shadow for depth
+                                        '&:hover': {
+                                            boxShadow: 6, // Increase shadow on hover for interactivity
+                                            transform: 'scale(1.02)', // Slight zoom effect on hover
+                                            transition: 'transform 0.4s ease, box-shadow 0.5s ease', // Smooth transition
+                                        },
+                                        transition: 'transform 0.4s ease, box-shadow 0.5s ease', // Smooth transition for hover
+                                    }}
+                                >
+                                    <Box sx={{ flexGrow: 1 }}>
+                                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#0277bd' }}>
+                                            Epidemiology
+                                        </Typography>
+                                        <Typography variant="body2" sx={{ color: '#01579b', marginTop: 1 }}>
+                                            {tabTableVisibility[currentTabKey].table1 ? '' : 'Understand the spread of diseases and their impact.'}
+                                        </Typography>
+                                    </Box>
+                                    <IconButton
+                                        aria-label='add'
+                                        size="large"
+                                        sx={{
+                                            color: '#0277bd',
+                                            backgroundColor: '#e1f5fe',
+                                            borderRadius: '50%',
+                                            '&:hover': {
+                                                backgroundColor: '#b3e5fc',
+                                            },
+                                            transition: 'background-color 0.3s ease, transform 0.2s ease', // Added transition for smooth effects
+                                            transform: tabTableVisibility[currentTabKey].table1 ? 'rotate(45deg)' : 'rotate(0deg)', // Optional: rotate when toggling
+                                        }}
+                                        onClick={() => toggleTableVisibility(currentTabKey, 'table1')}
+                                    >
+                                        {tabTableVisibility[currentTabKey].table1 ? <RemoveIcon /> : <AddIcon />}
+                                    </IconButton>
+                                </Card>
+
+                                {tabTableVisibility[currentTabKey].table1 && renderTable(currentTabKey, 'table1')}
+
+
+                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <img src="https://pluspng.com/img-png/down-arrow-png-down-icon-1600.png" width="20px" height="20px" alt="Downward arrow" />
+                                </Box>
+
+                                <Card
+                                    sx={{
+                                        width: '100%', // Make it responsive
+                                        maxHeight: tabTableVisibility[currentTabKey].table2 ? 100 : 200,
+                                        maxWidth: tabTableVisibility[currentTabKey].table2 ? 200 : 360,
+                                        padding: 3, // Add more padding for better layout
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        backgroundColor: '#ffc5c5', // Light pink background
+                                        borderRadius: 2, // Rounded corners
+                                        boxShadow: 3, // Subtle shadow
+                                        '&:hover': {
+                                            boxShadow: 6, // Increased shadow on hover
+                                            transform: 'scale(1.02)', // Slight zoom effect
+                                            transition: 'transform 0.4s ease, box-shadow 0.5s ease', // Smooth transition
+                                        },
+                                        transition: 'transform 0.4s ease, box-shadow 0.5s ease', // Smooth transition for hover
+                                    }}
+                                >
+                                    <Box sx={{ flexGrow: 1 }}>
+                                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#c2185b' }}>
+                                            Total GH Patients
+                                        </Typography>
+                                        <Typography variant="body2" sx={{ color: '#880e4f', marginTop: 1 }}>
+                                            {tabTableVisibility[currentTabKey].table2 ? '' : 'Overview of total patients diagnosed with GH.'}
+                                        </Typography>
+                                    </Box>
+                                    <IconButton
+                                        aria-label='add'
+                                        size="large"
+                                        sx={{
+                                            color: '#c2185b', // Matching button color to the card title
+                                            backgroundColor: '#f1f8e9', // Light green background for the button
+                                            borderRadius: '50%', // Circular button
+                                            '&:hover': {
+                                                backgroundColor: '#c8e6c9', // Hover effect on the button
+                                            },
+                                            transition: 'background-color 0.3s ease, transform 0.2s ease', // Added transition for smooth effects
+                                            transform: tabTableVisibility[currentTabKey].table2 ? 'rotate(45deg)' : 'rotate(0deg)'
+                                        }}
+                                        onClick={() => toggleTableVisibility(currentTabKey, 'table2')}
+                                    >
+                                        {tabTableVisibility[currentTabKey].table2 ? <RemoveIcon /> : <AddIcon />}
+                                    </IconButton>
+                                </Card>
+                                {tabTableVisibility[currentTabKey].table2 && renderTable(currentTabKey, 'table2')}
+
+                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <img src="https://pluspng.com/img-png/down-arrow-png-down-icon-1600.png" width="20px" height="20px" alt="Downward arrow" />
+                                </Box>
+                                <Card
+                                    sx={{
+                                        width: '100%', // Make it responsive
+                                        maxHeight: tabTableVisibility[currentTabKey].table3 ? 100 : 200,
+                                        maxWidth: tabTableVisibility[currentTabKey].table3 ? 200 : 360,
+                                        padding: 3, // Add padding for better spacing
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        backgroundColor: '#ffe6cc', // Soft light orange background
+                                        borderRadius: 2, // Rounded corners
+                                        boxShadow: 3, // Subtle shadow for depth
+                                        '&:hover': {
+                                            boxShadow: 6, // Increase shadow on hover
+                                            transform: 'scale(1.02)', // Slight zoom effect on hover
+                                            transition: 'transform 0.4s ease, box-shadow 0.5s ease', // Smooth transition on hover
+                                        },
+                                        transition: 'transform 0.4s ease, box-shadow 0.5s ease', // Smooth transition for hover
+                                    }}
+                                >
+                                    <Box sx={{ flexGrow: 1 }}>
+                                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#d47d4c' }}>
+                                            Conversion Parameter
+                                        </Typography>
+                                        <Typography variant="body2" sx={{ color: '#bc5a3c', marginTop: 1 }}>
+                                            {tabTableVisibility[currentTabKey].table3 ? '' : 'Adjust conversion factors for accurate data representation.'}
+                                        </Typography>
+                                    </Box>
+                                    <IconButton
+                                        aria-label={tabTableVisibility[currentTabKey].table3 ? 'subtract' : 'add'}
+                                        size="large"
+                                        sx={{
+                                            color: '#d47d4c', // Match the color of the button with the title
+                                            backgroundColor: '#fff3e0', // Light peach button background
+                                            borderRadius: '50%', // Circular button
+                                            '&:hover': {
+                                                backgroundColor: '#ffcc80', // Button hover effect with a darker peach color
+                                            },
+                                            transition: 'background-color 0.3s ease, transform 0.2s ease', // Added transition for smooth effects
+                                            transform: tabTableVisibility[currentTabKey].table3 ? 'rotate(45deg)' : 'rotate(0deg)'
+                                        }}
+                                        onClick={() => toggleTableVisibility(currentTabKey, 'table3')}
+                                    >
+                                        {tabTableVisibility[currentTabKey].table3 ? <RemoveIcon /> : <AddIcon />}
+                                    </IconButton>
+                                </Card>
+                                {tabTableVisibility[currentTabKey].table3 && renderTable(currentTabKey, 'table3')}
+                            </Box>}
+                            <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 2 }}>
+                                <Box sx={{ display: 'flex', gap: 1 }}>
+                                    <Button variant="contained" onClick={() => {
+                                        if (!tabTableVisibility[currentTabKey].table1) toggleTableVisibility(currentTabKey, 'table1')
+                                        if (!tabTableVisibility[currentTabKey].table2) toggleTableVisibility(currentTabKey, 'table2')
+                                        if (!tabTableVisibility[currentTabKey].table3) toggleTableVisibility(currentTabKey, 'table3')
+
+                                    }} color="primary" sx={{ fontSize: '0.8rem' }}>
+                                        Show Preview
+                                    </Button>
+                                    <Button variant="contained" onClick={() => {
+                                        toggleTableVisibility(currentTabKey, 'table1');
+                                        toggleTableVisibility(currentTabKey, 'table2');
+                                        toggleTableVisibility(currentTabKey, 'table3');
+
+                                    }} color="primary" sx={{ fontSize: '0.8rem' }}>
+                                        Close Preview
+                                    </Button>
+                                </Box>
+                            </Box>
+                        </div>}
+
+
+                    {tab_value === 1 &&
+                        <div>
+                            {<Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    gap: 2,
+                                    left: 0,
+                                    marginTop: 2,
+                                    overflowY: 'auto',
+                                    overflowX: 'auto',
+                                    maxWidth: '100%',
+                                    position: 'sticky',
+
+                                    // position: column.id === 'id' ? 'sticky' : 'static',
+                                    // left: column.id === 'id' ? 0 : 'auto',
+                                    // zIndex: column.id === 'id' ? 2 : 1, // Ensure sticky column stays on top
+
+                                }}
+                            >
+                                <Card
+                                    sx={{
+                                        width: '100%', // Make the card responsive
+                                        maxHeight: tabTableVisibility[currentTabKey].table1 ? 100 : 200,
+                                        maxWidth: tabTableVisibility[currentTabKey].table1 ? 200 : 360, // Set max width for the card
+                                        padding: 3,
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        backgroundColor: '#e3f2fd', // Light blue background for a healthcare feel
+                                        borderRadius: 2, // Rounded corners for a softer look
+                                        boxShadow: 3, // Add subtle shadow for depth
+                                        '&:hover': {
+                                            boxShadow: 6, // Increase shadow on hover for interactivity
+                                            transform: 'scale(1.02)', // Slight zoom effect on hover
+                                            transition: 'transform 0.4s ease, box-shadow 0.5s ease', // Smooth transition
+                                        },
+                                        transition: 'transform 0.4s ease, box-shadow 0.5s ease', // Smooth transition for hover
+                                    }}
+                                >
+                                    <Box sx={{ flexGrow: 1 }}>
+                                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#0277bd' }}>
+                                            Epidemiology
+                                        </Typography>
+                                        <Typography variant="body2" sx={{ color: '#01579b', marginTop: 1 }}>
+                                            {tabTableVisibility[currentTabKey].table1 ? '' : 'Understand the spread of diseases and their impact.'}
+                                        </Typography>
+                                    </Box>
+                                    <IconButton
+                                        aria-label='add'
+                                        size="large"
+                                        sx={{
+                                            color: '#0277bd',
+                                            backgroundColor: '#e1f5fe',
+                                            borderRadius: '50%',
+                                            '&:hover': {
+                                                backgroundColor: '#b3e5fc',
+                                            },
+                                            transition: 'background-color 0.3s ease, transform 0.2s ease', // Added transition for smooth effects
+                                            transform: tabTableVisibility[currentTabKey].table1 ? 'rotate(45deg)' : 'rotate(0deg)', // Optional: rotate when toggling
+                                        }}
+                                        onClick={() => toggleTableVisibility(currentTabKey, 'table1')}
+                                    >
+                                        {tabTableVisibility[currentTabKey].table1 ? <RemoveIcon /> : <AddIcon />}
+                                    </IconButton>
+                                </Card>
+                                {tabTableVisibility[currentTabKey].table1 && renderTable(currentTabKey, 'table1')}
+
+
+                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <img src="https://pluspng.com/img-png/down-arrow-png-down-icon-1600.png" width="20px" height="20px" alt="Downward arrow" />
+                                </Box>
+
+                                <Card
+                                    sx={{
+                                        width: '100%', // Make it responsive
+                                        maxHeight: showTable2 ? 100 : 200,
+                                        maxWidth: showTable2 ? 200 : 360,
+                                        padding: 3, // Add more padding for better layout
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        backgroundColor: '#ffc5c5', // Light pink background
+                                        borderRadius: 2, // Rounded corners
+                                        boxShadow: 3, // Subtle shadow
+                                        '&:hover': {
+                                            boxShadow: 6, // Increased shadow on hover
+                                            transform: 'scale(1.02)', // Slight zoom effect
+                                            transition: 'transform 0.4s ease, box-shadow 0.5s ease', // Smooth transition
+                                        },
+                                        transition: 'transform 0.4s ease, box-shadow 0.5s ease', // Smooth transition for hover
+                                    }}
+                                >
+                                    <Box sx={{ flexGrow: 1 }}>
+                                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#c2185b' }}>
+                                            Total GH Patients
+                                        </Typography>
+                                        <Typography variant="body2" sx={{ color: '#880e4f', marginTop: 1 }}>
+                                            {showTable2 ? '' : 'Overview of total patients diagnosed with GH.'}
+                                        </Typography>
+                                    </Box>
+                                    <IconButton
+                                        aria-label='add'
+                                        size="large"
+                                        sx={{
+                                            color: '#c2185b', // Matching button color to the card title
+                                            backgroundColor: '#f1f8e9', // Light green background for the button
+                                            borderRadius: '50%', // Circular button
+                                            '&:hover': {
+                                                backgroundColor: '#c8e6c9', // Hover effect on the button
+                                            },
+                                            transition: 'background-color 0.3s ease, transform 0.2s ease', // Added transition for smooth effects
+                                            transform: showTable2 ? 'rotate(45deg)' : 'rotate(0deg)'
+                                        }}
+                                        onClick={() => toggleTableVisibility(currentTabKey, 'table2')}
+                                    >
+                                        {tabTableVisibility[currentTabKey].table2 ? <RemoveIcon /> : <AddIcon />}
+                                    </IconButton>
+                                </Card>
+                                {tabTableVisibility[currentTabKey].table2 && renderTable(currentTabKey, 'table2')}
+                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <img src="https://pluspng.com/img-png/down-arrow-png-down-icon-1600.png" width="20px" height="20px" alt="Downward arrow" />
+                                </Box>
+                                <Card
+                                    sx={{
+                                        width: '100%', // Make it responsive
+                                        maxHeight: showTable3 ? 100 : 200,
+                                        maxWidth: showTable3 ? 200 : 360,
+                                        padding: 3, // Add padding for better spacing
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        backgroundColor: '#ffe6cc', // Soft light orange background
+                                        borderRadius: 2, // Rounded corners
+                                        boxShadow: 3, // Subtle shadow for depth
+                                        '&:hover': {
+                                            boxShadow: 6, // Increase shadow on hover
+                                            transform: 'scale(1.02)', // Slight zoom effect on hover
+                                            transition: 'transform 0.4s ease, box-shadow 0.5s ease', // Smooth transition on hover
+                                        },
+                                        transition: 'transform 0.4s ease, box-shadow 0.5s ease', // Smooth transition for hover
+                                    }}
+                                >
+                                    <Box sx={{ flexGrow: 1 }}>
+                                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#d47d4c' }}>
+                                            Conversion Parameter
+                                        </Typography>
+                                        <Typography variant="body2" sx={{ color: '#bc5a3c', marginTop: 1 }}>
+                                            {showTable3 ? '' : 'Adjust conversion factors for accurate data representation.'}
+                                        </Typography>
+                                    </Box>
+                                    <IconButton
+                                        aria-label={showTable3 ? 'subtract' : 'add'}
+                                        size="large"
+                                        sx={{
+                                            color: '#d47d4c', // Match the color of the button with the title
+                                            backgroundColor: '#fff3e0', // Light peach button background
+                                            borderRadius: '50%', // Circular button
+                                            '&:hover': {
+                                                backgroundColor: '#ffcc80', // Button hover effect with a darker peach color
+                                            },
+                                            transition: 'background-color 0.3s ease, transform 0.2s ease', // Added transition for smooth effects
+                                            transform: showTable3 ? 'rotate(45deg)' : 'rotate(0deg)'
+                                        }}
+                                        onClick={() => toggleTableVisibility(currentTabKey, 'table3')}
+                                    >
+                                        {tabTableVisibility[currentTabKey].table3 ? <RemoveIcon /> : <AddIcon />}
+                                    </IconButton>
+                                </Card>
+                                {tabTableVisibility[currentTabKey].table3 && renderTable(currentTabKey, 'table3')}
+                            </Box>}
+                            <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 2 }}>
+                                <Box sx={{ display: 'flex', gap: 1 }}>
+                                    <Button variant="contained" onClick={() => {
+                                        if (!tabTableVisibility[currentTabKey].table1) toggleTableVisibility(currentTabKey, 'table1')
+                                        if (!tabTableVisibility[currentTabKey].table2) toggleTableVisibility(currentTabKey, 'table2')
+                                        if (!tabTableVisibility[currentTabKey].table3) toggleTableVisibility(currentTabKey, 'table3')
+
+                                    }} color="primary" sx={{ fontSize: '0.8rem' }}>
+                                        Show Preview
+                                    </Button>
+                                    <Button variant="contained" onClick={() => {
+                                        toggleTableVisibility(currentTabKey, 'table1');
+                                        toggleTableVisibility(currentTabKey, 'table2');
+                                        toggleTableVisibility(currentTabKey, 'table3');
+
+                                    }} color="primary" sx={{ fontSize: '0.8rem' }}>
+                                        Close Preview
+                                    </Button>
+                                </Box>
+                            </Box>
+                        </div>}
+
+
+                    {tab_value === 2 &&
+                        <div>
+                            {<Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    gap: 2,
+                                    left: 0,
+                                    marginTop: 2,
+                                    overflowY: 'auto',
+                                    overflowX: 'auto',
+                                    maxWidth: '100%',
+                                    position: 'sticky',
+
+                                    // position: column.id === 'id' ? 'sticky' : 'static',
+                                    // left: column.id === 'id' ? 0 : 'auto',
+                                    // zIndex: column.id === 'id' ? 2 : 1, // Ensure sticky column stays on top
+
+                                }}
+                            >
+                                <Card
+                                    sx={{
+                                        width: '100%', // Make the card responsive
+                                        maxHeight: tabTableVisibility[currentTabKey].table1 ? 100 : 200,
+                                        maxWidth: tabTableVisibility[currentTabKey].table1 ? 200 : 360, // Set max width for the card
+                                        padding: 3,
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        backgroundColor: '#e3f2fd', // Light blue background for a healthcare feel
+                                        borderRadius: 2, // Rounded corners for a softer look
+                                        boxShadow: 3, // Add subtle shadow for depth
+                                        '&:hover': {
+                                            boxShadow: 6, // Increase shadow on hover for interactivity
+                                            transform: 'scale(1.02)', // Slight zoom effect on hover
+                                            transition: 'transform 0.4s ease, box-shadow 0.5s ease', // Smooth transition
+                                        },
+                                        transition: 'transform 0.4s ease, box-shadow 0.5s ease', // Smooth transition for hover
+                                    }}
+                                >
+                                    <Box sx={{ flexGrow: 1 }}>
+                                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#0277bd' }}>
+                                            Epidemiology
+                                        </Typography>
+                                        <Typography variant="body2" sx={{ color: '#01579b', marginTop: 1 }}>
+                                            {tabTableVisibility[currentTabKey].table1 ? '' : 'Understand the spread of diseases and their impact.'}
+                                        </Typography>
+                                    </Box>
+                                    <IconButton
+                                        aria-label='add'
+                                        size="large"
+                                        sx={{
+                                            color: '#0277bd',
+                                            backgroundColor: '#e1f5fe',
+                                            borderRadius: '50%',
+                                            '&:hover': {
+                                                backgroundColor: '#b3e5fc',
+                                            },
+                                            transition: 'background-color 0.3s ease, transform 0.2s ease', // Added transition for smooth effects
+                                            transform: tabTableVisibility[currentTabKey].table1 ? 'rotate(45deg)' : 'rotate(0deg)', // Optional: rotate when toggling
+                                        }}
+                                        onClick={() => toggleTableVisibility(currentTabKey, 'table1')}
+                                    >
+                                        {tabTableVisibility[currentTabKey].table1 ? <RemoveIcon /> : <AddIcon />}
+                                    </IconButton>
+                                </Card>
+                                {tabTableVisibility[currentTabKey].table1 && renderTable(currentTabKey, 'table1')}
+
+
+                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <img src="https://pluspng.com/img-png/down-arrow-png-down-icon-1600.png" width="20px" height="20px" alt="Downward arrow" />
+                                </Box>
+
+                                <Card
+                                    sx={{
+                                        width: '100%', // Make it responsive
+                                        maxHeight: tabTableVisibility[currentTabKey].table2 ? 100 : 200,
+                                        maxWidth: tabTableVisibility[currentTabKey].table2 ? 200 : 360,
+                                        padding: 3, // Add more padding for better layout
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        backgroundColor: '#ffc5c5', // Light pink background
+                                        borderRadius: 2, // Rounded corners
+                                        boxShadow: 3, // Subtle shadow
+                                        '&:hover': {
+                                            boxShadow: 6, // Increased shadow on hover
+                                            transform: 'scale(1.02)', // Slight zoom effect
+                                            transition: 'transform 0.4s ease, box-shadow 0.5s ease', // Smooth transition
+                                        },
+                                        transition: 'transform 0.4s ease, box-shadow 0.5s ease', // Smooth transition for hover
+                                    }}
+                                >
+                                    <Box sx={{ flexGrow: 1 }}>
+                                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#c2185b' }}>
+                                            Total GH Patients
+                                        </Typography>
+                                        <Typography variant="body2" sx={{ color: '#880e4f', marginTop: 1 }}>
+                                            {tabTableVisibility[currentTabKey].table2 ? '' : 'Overview of total patients diagnosed with GH.'}
+                                        </Typography>
+                                    </Box>
+                                    <IconButton
+                                        aria-label='add'
+                                        size="large"
+                                        sx={{
+                                            color: '#c2185b', // Matching button color to the card title
+                                            backgroundColor: '#f1f8e9', // Light green background for the button
+                                            borderRadius: '50%', // Circular button
+                                            '&:hover': {
+                                                backgroundColor: '#c8e6c9', // Hover effect on the button
+                                            },
+                                            transition: 'background-color 0.3s ease, transform 0.2s ease', // Added transition for smooth effects
+                                            transform: tabTableVisibility[currentTabKey].table2 ? 'rotate(45deg)' : 'rotate(0deg)'
+                                        }}
+                                        onClick={() => toggleTableVisibility(currentTabKey, 'table2')}
+                                    >
+                                        {tabTableVisibility[currentTabKey].table2 ? <RemoveIcon /> : <AddIcon />}
+                                    </IconButton>
+                                </Card>
+                                {tabTableVisibility[currentTabKey].table2 && renderTable(currentTabKey, 'table2')}
+                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <img src="https://pluspng.com/img-png/down-arrow-png-down-icon-1600.png" width="20px" height="20px" alt="Downward arrow" />
+                                </Box>
+                                <Card
+                                    sx={{
+                                        width: '100%', // Make it responsive
+                                        maxHeight: tabTableVisibility[currentTabKey].table3 ? 100 : 200,
+                                        maxWidth: tabTableVisibility[currentTabKey].table3 ? 200 : 360,
+                                        padding: 3, // Add padding for better spacing
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        backgroundColor: '#ffe6cc', // Soft light orange background
+                                        borderRadius: 2, // Rounded corners
+                                        boxShadow: 3, // Subtle shadow for depth
+                                        '&:hover': {
+                                            boxShadow: 6, // Increase shadow on hover
+                                            transform: 'scale(1.02)', // Slight zoom effect on hover
+                                            transition: 'transform 0.4s ease, box-shadow 0.5s ease', // Smooth transition on hover
+                                        },
+                                        transition: 'transform 0.4s ease, box-shadow 0.5s ease', // Smooth transition for hover
+                                    }}
+                                >
+                                    <Box sx={{ flexGrow: 1 }}>
+                                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#d47d4c' }}>
+                                            Conversion Parameter
+                                        </Typography>
+                                        <Typography variant="body2" sx={{ color: '#bc5a3c', marginTop: 1 }}>
+                                            {tabTableVisibility[currentTabKey].table3 ? '' : 'Adjust conversion factors for accurate data representation.'}
+                                        </Typography>
+                                    </Box>
+                                    <IconButton
+                                        aria-label={tabTableVisibility[currentTabKey].table3 ? 'subtract' : 'add'}
+                                        size="large"
+                                        sx={{
+                                            color: '#d47d4c', // Match the color of the button with the title
+                                            backgroundColor: '#fff3e0', // Light peach button background
+                                            borderRadius: '50%', // Circular button
+                                            '&:hover': {
+                                                backgroundColor: '#ffcc80', // Button hover effect with a darker peach color
+                                            },
+                                            transition: 'background-color 0.3s ease, transform 0.2s ease', // Added transition for smooth effects
+                                            transform: tabTableVisibility[currentTabKey].table3 ? 'rotate(45deg)' : 'rotate(0deg)'
+                                        }}
+                                        onClick={() => toggleTableVisibility(currentTabKey, 'table3')}
+                                    >
+                                        {tabTableVisibility[currentTabKey].table3 ? <RemoveIcon /> : <AddIcon />}
+                                    </IconButton>
+                                </Card>
+                                {tabTableVisibility[currentTabKey].table3 && renderTable(currentTabKey, 'table3')}
+                            </Box>}
+                            <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 2 }}>
+                                <Box sx={{ display: 'flex', gap: 1 }}>
+                                    <Button variant="contained" onClick={() => {
+                                        if (!tabTableVisibility[currentTabKey].table1) toggleTableVisibility(currentTabKey, 'table1')
+                                        if (!tabTableVisibility[currentTabKey].table2) toggleTableVisibility(currentTabKey, 'table2')
+                                        if (!tabTableVisibility[currentTabKey].table3) toggleTableVisibility(currentTabKey, 'table3')
+
+                                    }} color="primary" sx={{ fontSize: '0.8rem' }}>
+                                        Show Preview
+                                    </Button>
+                                    <Button variant="contained" onClick={() => {
+                                        toggleTableVisibility(currentTabKey, 'table1');
+                                        toggleTableVisibility(currentTabKey, 'table2');
+                                        toggleTableVisibility(currentTabKey, 'table3');
+
+                                    }} color="primary" sx={{ fontSize: '0.8rem' }}>
+                                        Close Preview
+                                    </Button>
+                                </Box>
+                            </Box>
+                        </div>}
                 </Box>
             </Box>
 
 
-            {showCard && <Box
-                sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: 2,
-                    left: 0,
-                    marginTop: 2,
-                    overflowY: 'auto',
-                    overflowX: 'auto',
-                    maxWidth: '100%',
-                    position: 'sticky',
-                }}
-            >
-                <Card
-                    sx={{
-                        width: '100%', // Make the card responsive
-                        maxHeight: showTable1 ? 100 : 200,
-                        maxWidth: showTable1 ? 200 : 360, // Set max width for the card
-                        padding: 3,
-                        display: 'flex',
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        backgroundColor: '#e3f2fd', // Light blue background for a healthcare feel
-                        borderRadius: 2, // Rounded corners for a softer look
-                        boxShadow: 3, // Add subtle shadow for depth
-                        '&:hover': {
-                            boxShadow: 6, // Increase shadow on hover for interactivity
-                            transform: 'scale(1.02)', // Slight zoom effect on hover
-                            transition: 'transform 0.4s ease, box-shadow 0.5s ease', // Smooth transition
-                        },
-                        transition: 'transform 0.4s ease, box-shadow 0.5s ease', // Smooth transition for hover
-                    }}
-                >
-                    <Box sx={{ flexGrow: 1 }}>
-                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#0277bd' }}>
-                            Epidemiology
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: '#01579b', marginTop: 1 }}>
-                            {showTable1 ? '' : 'Understand the spread of diseases and their impact.'}
-                        </Typography>
-                    </Box>
-                    <IconButton
-                        aria-label='add'
-                        size="large"
-                        sx={{
-                            color: '#0277bd',
-                            backgroundColor: '#e1f5fe',
-                            borderRadius: '50%',
-                            '&:hover': {
-                                backgroundColor: '#b3e5fc',
-                            },
-                            transition: 'background-color 0.3s ease, transform 0.2s ease', // Added transition for smooth effects
-                            transform: showTable1 ? 'rotate(45deg)' : 'rotate(0deg)', // Optional: rotate when toggling
-                        }}
-                        onClick={() => setShowTable1(!showTable1)}
-                    >
-                        {showTable1 ? <RemoveIcon fontSize="inherit" /> : <AddIcon fontSize="inherit" />}
-                    </IconButton>
-                </Card>
-                {showTable1 &&
-                    <Box
-                        sx={{
-                            maxHeight: '400px', // Set a fixed height for vertical scroll
-                            maxWidth: '100%',   // Set width to contain horizontal scroll
-                            overflowY: 'auto',  // Enable vertical scrolling
-                            overflowX: 'auto',  // Enable horizontal scrolling
-                            border: '1px solid #ccc',
-                            borderRadius: '4px',
-                        }}>
-                        <table className="product-table">
-                            <thead>
-                                <tr>
-                                    <th style={{ position: 'sticky', left: 0, backgroundColor: 'red', zIndex: 2 }}></th>
-                                    {columns.map((column, index) => (
-                                        <th key={index} style={{ minWidth: '150px' }}>{column}</th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {products1.map((product) => (
-                                    <tr key={product.id}>
-                                        <td style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', position: 'sticky', left: 0, background: 'white', zIndex: 2 }}>
-                                            <div style={{ display: 'flex', alignItems: 'left', position: 'sticky', left: 0 }}>
-                                                <IconButton color="info">
-                                                    <IconButton color="primary" onClick={handleInfoIconClick}>
-                                                        <InfoIcon fontSize="small" />
-                                                    </IconButton>
-                                                </IconButton>
-                                                <IconButton color="primary" onClick={handleCloudIconClick}>
-                                                    <CloudUploadIcon fontSize="small" />
-                                                </IconButton>
-                                                {editingProductId === product.id ? (
-                                                    <>
-                                                        <TextField
-                                                            value={editedProductName}
-                                                            onChange={(e) => setEditedProductName(e.target.value)}
-                                                            variant="outlined"
-                                                            size="small"
-                                                            style={{ marginLeft: '8px', marginRight: '8px' }}
-                                                        />
-                                                        <IconButton onClick={() => handleSaveClick(product.id, 1)} color="primary">
-                                                            <CheckIcon />
-                                                        </IconButton>
-                                                        <IconButton onClick={handleCancelClick} color="secondary">
-                                                            <CloseIcon />
-                                                        </IconButton>
-                                                    </>
-                                                ) : (
-                                                    <>
 
-                                                        <span style={{ marginLeft: '8px' }}>{product.name}</span>
-                                                        <IconButton onClick={() => handleEditClick(product)} style={{ marginLeft: '8px' }}>
-                                                            <EditIcon fontSize="small" />
-                                                        </IconButton>
-                                                        {products1[products1.length - 1].id !== product.id && (
-                                                            <IconButton onClick={() => handleAddRow(product.id, 1)} style={{ marginLeft: '8px' }}>
-                                                                <AddIcon fontSize="small" />
-                                                            </IconButton>
-                                                        )}
-                                                        <IconButton onClick={() => { setFormulaProductId(product.id); setShowFormula(true); }} style={{ marginLeft: '4px' }}>
-                                                            <CalculateIcon fontSize="small" />
-                                                        </IconButton>
-                                                        {(
-                                                            <Dialog
-                                                                open={showFormula}
-                                                                onClose={() => {
-                                                                    setShowFormula(false);
-                                                                }}
-                                                                aria-labelledby="alert-dialog-title"
-                                                                aria-describedby="alert-dialog-description"
-                                                            >
-                                                                <DialogTitle id="alert-dialog-title">Formula for row: {products1.find(product => product.id === formulaProductId)?.name}</DialogTitle>
-                                                                <DialogContent>
-                                                                    <br></br>
-                                                                    <br></br>
-                                                                    {/* Render each dropdown dynamically based on selectedValues and operators */}
-                                                                    {selectedValues.map((selectedValue, index) => (
-                                                                        <div key={index} style={{ width: 400, display: 'flex', alignItems: 'center', marginBottom: 16 }}>
-                                                                            {/* Operator Dropdown on the left */}
-                                                                            {index > 0 && (
-                                                                                <FormControl style={{ width: 100, marginRight: 8 }}>
-                                                                                    <InputLabel id={`operator-label-${index}`}>Operator</InputLabel>
-                                                                                    <Select
-                                                                                        labelId={`operator-label-${index}`}
-                                                                                        id={`operator-${index}`}
-                                                                                        value={operators[index]}
-                                                                                        onChange={(e) => handleSelectChange(index, 'operator', e)}
-                                                                                        label="Operator"
-                                                                                    >
-                                                                                        <MenuItem value="+">+</MenuItem>
-                                                                                        <MenuItem value="-">-</MenuItem>
-                                                                                        <MenuItem value="*">*</MenuItem>
-                                                                                        <MenuItem value="/">/</MenuItem>
-                                                                                    </Select>
-                                                                                </FormControl>
-                                                                            )}
-
-                                                                            {/* Formula Dropdown on the right */}
-                                                                            <FormControl fullWidth style={{ flexGrow: 1 }}>
-                                                                                <InputLabel id={`select-label-${index}`}>Select column {index + 1}</InputLabel>
-                                                                                <Select
-                                                                                    labelId={`select-label-${index}`}
-                                                                                    id={`select-${index}`}
-                                                                                    value={selectedValue}
-                                                                                    onChange={(e) => handleSelectChange(index, 'formula', e)}
-                                                                                    label={`Select Formula ${index + 1}`}
-                                                                                >
-                                                                                    {products1.map((product) => (
-                                                                                        <MenuItem key={product.id} value={product.name}>
-                                                                                            {product.name}
-                                                                                        </MenuItem>
-                                                                                    ))}
-                                                                                    {products2.map((product) => (
-                                                                                        <MenuItem key={product.id} value={product.name}>
-                                                                                            {product.name}
-                                                                                        </MenuItem>
-                                                                                    ))}
-                                                                                    {products3.map((product) => (
-                                                                                        <MenuItem key={product.id} value={product.name}>
-                                                                                            {product.name}
-                                                                                        </MenuItem>
-                                                                                    ))}
-                                                                                </Select>
-                                                                            </FormControl>
-
-                                                                            {/* Delete Button */}
-                                                                            <IconButton
-                                                                                onClick={() => handleDeleteDropdown(index)}
-                                                                                color="secondary"
-                                                                                style={{ marginLeft: 8 }}
-                                                                            >
-                                                                                <DeleteIcon />
-                                                                            </IconButton>
-                                                                        </div>
-                                                                    ))}
-
-                                                                    {/* Button to add a new dropdown */}
-                                                                    <Button onClick={handleAddDropdown} color="primary" fullWidth>
-                                                                        Add New Dropdown
-                                                                    </Button>
-                                                                </DialogContent>
-
-                                                                <DialogActions>
-                                                                    <Button onClick={() => { setShowFormula(false); }} color="primary">
-                                                                        Cancel
-                                                                    </Button>
-                                                                    <Button color="primary" onClick={() => handleApply(formulaProductId)}>
-                                                                        Apply
-                                                                    </Button>
-                                                                </DialogActions>
-                                                            </Dialog>
-                                                        )}
-                                                        <IconButton onClick={() => handleDeleteRow(product.id, 1)} style={{ marginLeft: '8px' }}>
-                                                            <DeleteIcon fontSize="small" />
-                                                        </IconButton>
-                                                    </>
-                                                )}
-                                            </div>
-                                        </td>
-                                        {columns.map((date) => (
-                                            <td key={date}>
-                                                <TextField
-                                                    type="number"
-                                                    value={values1[product.id]?.[date] || ''}
-                                                    onChange={(e) => {
-                                                        handleValueChange(product.id, date, e.target.value, 1);
-
-                                                    }}
-                                                    variant="outlined"
-                                                    size="small"
-                                                    placeholder="Enter value"
-                                                    inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-                                                />
-                                            </td>
-                                        ))}
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </Box>}
-
-
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <img src="https://pluspng.com/img-png/down-arrow-png-down-icon-1600.png" width="20px" height="20px" alt="Downward arrow" />
-                </Box>
-
-                <Card
-                    sx={{
-                        width: '100%', // Make it responsive
-                        maxHeight: showTable2 ? 100 : 200,
-                        maxWidth: showTable2 ? 200 : 360,
-                        padding: 3, // Add more padding for better layout
-                        display: 'flex',
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        backgroundColor: '#ffc5c5', // Light pink background
-                        borderRadius: 2, // Rounded corners
-                        boxShadow: 3, // Subtle shadow
-                        '&:hover': {
-                            boxShadow: 6, // Increased shadow on hover
-                            transform: 'scale(1.02)', // Slight zoom effect
-                            transition: 'transform 0.4s ease, box-shadow 0.5s ease', // Smooth transition
-                        },
-                        transition: 'transform 0.4s ease, box-shadow 0.5s ease', // Smooth transition for hover
-                    }}
-                >
-                    <Box sx={{ flexGrow: 1 }}>
-                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#c2185b' }}>
-                            Total GH Patients
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: '#880e4f', marginTop: 1 }}>
-                            {showTable2 ? '' : 'Overview of total patients diagnosed with GH.'}
-                        </Typography>
-                    </Box>
-                    <IconButton
-                        aria-label='add'
-                        size="large"
-                        sx={{
-                            color: '#c2185b', // Matching button color to the card title
-                            backgroundColor: '#f1f8e9', // Light green background for the button
-                            borderRadius: '50%', // Circular button
-                            '&:hover': {
-                                backgroundColor: '#c8e6c9', // Hover effect on the button
-                            },
-                            transition: 'background-color 0.3s ease, transform 0.2s ease', // Added transition for smooth effects
-                            transform: showTable2 ? 'rotate(45deg)' : 'rotate(0deg)'
-                        }}
-                        onClick={() => {
-                            setShowTable2(!showTable2);
-                        }}
-                    >
-                        {showTable2 ? <RemoveIcon fontSize="inherit" /> : <AddIcon fontSize="inherit" />}
-                    </IconButton>
-                </Card>
-                {showTable2 &&
-                    <Box
-                        sx={{
-                            maxHeight: '400px', // Set a fixed height for vertical scroll
-                            maxWidth: '100%',   // Set width to contain horizontal scroll
-                            overflowY: 'auto',  // Enable vertical scrolling
-                            overflowX: 'auto',  // Enable horizontal scrolling
-                            border: '1px solid #ccc',
-                            borderRadius: '4px',
-                        }}>
-                        <table className="product-table">
-                            <thead>
-                                <tr>
-                                    <th style={{ position: 'sticky', left: 0, backgroundColor: 'red', zIndex: 2 }}></th>
-                                    {columns.map((column, index) => (
-                                        <th key={index} style={{ minWidth: '150px' }}>{column}</th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {products2.map((product) => (
-                                    <tr key={product.id}>
-                                        <td style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', position: 'sticky', left: 0, background: 'white', zIndex: 2 }}>
-                                            <div style={{ display: 'flex', alignItems: 'left', position: 'sticky', left: 0 }}>
-                                                <IconButton color="info" onClick={handleInfoIconClick}>
-                                                    <InfoIcon fontSize="small" />
-                                                </IconButton>
-                                                <IconButton color="primary" onClick={handleCloudIconClick}>
-                                                    <CloudUploadIcon fontSize="small" />
-                                                </IconButton>
-                                                {editingProductId === product.id ? (
-                                                    <>
-                                                        <TextField
-                                                            value={editedProductName}
-                                                            onChange={(e) => setEditedProductName(e.target.value)}
-                                                            variant="outlined"
-                                                            size="small"
-                                                            style={{ marginLeft: '8px', marginRight: '8px' }}
-                                                        />
-                                                        <IconButton onClick={() => handleSaveClick(product.id, 2)} color="primary">
-                                                            <CheckIcon />
-                                                        </IconButton>
-                                                        <IconButton onClick={handleCancelClick} color="secondary">
-                                                            <CloseIcon />
-                                                        </IconButton>
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <span style={{ marginLeft: '8px' }}>{product.name}</span>
-                                                        <IconButton onClick={() => handleEditClick(product, 2)} style={{ marginLeft: '8px' }}>
-                                                            <EditIcon fontSize="small" />
-                                                        </IconButton>
-                                                        {products2[products2.length - 1].id !== product.id && (
-                                                            <IconButton onClick={() => handleAddRow(product.id, 2)} style={{ marginLeft: '8px' }}>
-                                                                <AddIcon fontSize="small" />
-                                                            </IconButton>
-                                                        )}
-                                                        <IconButton onClick={() => handleDeleteRow(product.id, 2)} style={{ marginLeft: '8px' }}>
-                                                            <DeleteIcon fontSize="small" />
-                                                        </IconButton>
-                                                    </>
-                                                )}
-                                            </div>
-                                        </td>
-                                        {columns.map((date) => (
-                                            <td key={date}>
-                                                <TextField
-                                                    type="number"
-                                                    value={values2[product.id]?.[date] || ''}
-                                                    onChange={(e) => handleValueChange(product.id, date, e.target.value, 2)}
-                                                    variant="outlined"
-                                                    size="small"
-                                                    placeholder="Enter value"
-                                                    inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-                                                />
-                                            </td>
-                                        ))}
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </Box>
-                }
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <img src="https://pluspng.com/img-png/down-arrow-png-down-icon-1600.png" width="20px" height="20px" alt="Downward arrow" />
-                </Box>
-                <Card
-                    sx={{
-                        width: '100%', // Make it responsive
-                        maxHeight: showTable3 ? 100 : 200,
-                        maxWidth: showTable3 ? 200 : 360,
-                        padding: 3, // Add padding for better spacing
-                        display: 'flex',
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        backgroundColor: '#ffe6cc', // Soft light orange background
-                        borderRadius: 2, // Rounded corners
-                        boxShadow: 3, // Subtle shadow for depth
-                        '&:hover': {
-                            boxShadow: 6, // Increase shadow on hover
-                            transform: 'scale(1.02)', // Slight zoom effect on hover
-                            transition: 'transform 0.4s ease, box-shadow 0.5s ease', // Smooth transition on hover
-                        },
-                        transition: 'transform 0.4s ease, box-shadow 0.5s ease', // Smooth transition for hover
-                    }}
-                >
-                    <Box sx={{ flexGrow: 1 }}>
-                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#d47d4c' }}>
-                            Conversion Parameter
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: '#bc5a3c', marginTop: 1 }}>
-                            {showTable3 ? '' : 'Adjust conversion factors for accurate data representation.'}
-                        </Typography>
-                    </Box>
-                    <IconButton
-                        aria-label={showTable3 ? 'subtract' : 'add'}
-                        size="large"
-                        sx={{
-                            color: '#d47d4c', // Match the color of the button with the title
-                            backgroundColor: '#fff3e0', // Light peach button background
-                            borderRadius: '50%', // Circular button
-                            '&:hover': {
-                                backgroundColor: '#ffcc80', // Button hover effect with a darker peach color
-                            },
-                            transition: 'background-color 0.3s ease, transform 0.2s ease', // Added transition for smooth effects
-                            transform: showTable3 ? 'rotate(45deg)' : 'rotate(0deg)'
-                        }}
-                        onClick={() => {
-                            setShowTable3(!showTable3);
-                        }}
-                    >
-                        {showTable3 ? <RemoveIcon fontSize="inherit" /> : <AddIcon fontSize="inherit" />}
-                    </IconButton>
-                </Card>
-                {showTable3 &&
-                    <Box
-                        sx={{
-                            maxHeight: '400px', // Set a fixed height for vertical scroll
-                            maxWidth: '100%',   // Set width to contain horizontal scroll
-                            overflowY: 'auto',  // Enable vertical scrolling
-                            overflowX: 'auto',  // Enable horizontal scrolling
-                            border: '1px solid #ccc',
-                            borderRadius: '4px',
-                        }}>
-                        <table className="product-table">
-                            <thead>
-                                <tr>
-                                    <th style={{ position: 'sticky', left: 0, backgroundColor: 'red', zIndex: 2 }}></th>
-                                    {columns.map((column, index) => (
-                                        <th key={index} style={{ minWidth: '150px' }}>{column}</th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {products3.map((product) => (
-                                    <tr key={product.id}>
-                                        <td style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', position: 'sticky', left: 0, background: 'white', zIndex: 2 }}>
-                                            <div style={{ display: 'flex', alignItems: 'left', position: 'sticky', left: 0 }}>
-                                                <IconButton color="info" onClick={handleInfoIconClick}>
-                                                    <InfoIcon fontSize="small" />
-                                                </IconButton>
-                                                <IconButton color="primary" onClick={handleCloudIconClick}>
-                                                    <CloudUploadIcon fontSize="small" />
-                                                </IconButton>
-                                                {editingProductId === product.id ? (
-                                                    <>
-                                                        <TextField
-                                                            value={editedProductName}
-                                                            onChange={(e) => setEditedProductName(e.target.value)}
-                                                            variant="outlined"
-                                                            size="small"
-                                                            style={{ marginLeft: '8px', marginRight: '8px' }}
-                                                        />
-                                                        <IconButton onClick={() => handleSaveClick(product.id, 3)} color="primary">
-                                                            <CheckIcon />
-                                                        </IconButton>
-                                                        <IconButton onClick={handleCancelClick} color="secondary">
-                                                            <CloseIcon />
-                                                        </IconButton>
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <span style={{ marginLeft: '8px' }}>{product.name}</span>
-                                                        <IconButton onClick={() => handleEditClick(product, 3)} style={{ marginLeft: '8px' }}>
-                                                            <EditIcon fontSize="small" />
-                                                        </IconButton>
-                                                        {products3[products3.length - 1].id !== product.id && (
-                                                            <IconButton onClick={() => handleAddRow(product.id, 3)} style={{ marginLeft: '8px' }}>
-                                                                <AddIcon fontSize="small" />
-                                                            </IconButton>
-                                                        )}
-                                                        <IconButton onClick={() => handleDeleteRow(product.id, 3)} style={{ marginLeft: '8px' }}>
-                                                            <DeleteIcon fontSize="small" />
-                                                        </IconButton>
-                                                    </>
-                                                )}
-                                            </div>
-                                        </td>
-                                        {columns.map((date) => (
-                                            <td key={date}>
-                                                <TextField
-                                                    type="number"
-                                                    value={values3[product.id]?.[date] || ''}
-                                                    onChange={(e) => handleValueChange(product.id, date, e.target.value, 3)}
-                                                    variant="outlined"
-                                                    size="small"
-                                                    placeholder="Enter value"
-                                                    inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-                                                />
-                                            </td>
-                                        ))}
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </Box>
-                }
-            </Box>}
             <Dialog
                 open={openInfoMethodDialog}
                 onClose={handleCloseAllDialogs}
@@ -1515,27 +1930,10 @@ const ProductListPage = () => {
                 </Dialog>
             </LocalizationProvider>
 
-            {
-                showCard && <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 2 }}>
-                    <Box sx={{ display: 'flex', gap: 1 }}>
-                        <Button variant="contained" onClick={() => {
-                            setShowTable1(true);
-                            setShowTable2(true);
-                            setShowTable3(true);
-                        }} color="primary" sx={{ fontSize: '0.8rem' }}>
-                            Show Preview
-                        </Button>
-                        <Button variant="contained" onClick={() => {
-                            setShowTable1(false);
-                            setShowTable2(false);
-                            setShowTable3(false);
-                        }} color="primary" sx={{ fontSize: '0.8rem' }}>
-                            Close Preview
-                        </Button>
-                    </Box>
-                </Box>
-            }
+
         </div >
     );
 };
+
+
 export default ProductListPage;
