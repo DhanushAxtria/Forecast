@@ -31,6 +31,7 @@ import dayjs from 'dayjs';
 import EditIcon from '@mui/icons-material/Edit';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
+import SaveIcon from '@mui/icons-material/Save';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import InfoIcon from '@mui/icons-material/Info';
 import AddIcon from '@mui/icons-material/Add';
@@ -70,6 +71,22 @@ const initialProducts = {
     upside: { table1: initialProducts1, table2: initialProducts2, table3: initialProducts3 },
 };
 
+/*const initialCards1 = 
+    { id: 'C1', title: 'Epidemiology', body:'Understand the spread of diseases and their impact.'}
+
+const initialCards2 =
+    { id: 'C2', title: 'Total GH Patients', body:'Overview of total patients diagnosed with GH.'}
+
+const initialCards3 =
+    { id: 'C3', title: 'Conversion Parameter', body:'Adjust conversion factors for accurate data representation.'}
+
+const initialCards = {
+        downside: { card1: initialCards1, card2: initialCards2, card3: initialCards3 },
+        base: { card1: initialCards1, card2: initialCards2, card3: initialCards3 },
+        upside: { card1: initialCards1, card2: initialCards2, card3: initialCards3},
+    };*/
+
+
 const ProductListPage = () => {
     const [products1, setProducts1] = useState(initialProducts1);
     const [products2, setProducts2] = useState(initialProducts2);
@@ -99,10 +116,8 @@ const ProductListPage = () => {
     const [inputMethodDialogOpen, setInputMethodDialogOpen] = useState(true);
     const [openSelectDataInputDialog, setOpenSelectDataInputDialog] = useState(false);
     const [showCard, setShowCard] = useState(false);
-    const [showTable1, setShowTable1] = useState(false);
-    const [showTable2, setShowTable2] = useState(false);
-    const [showTable3, setShowTable3] = useState(false);
-    const [selectedTab, setSelectedTab] = useState(false);
+    
+    const [selectedTab, setSelectedTab] = useState(null);
     const [anchorElOpen, setAnchorElOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null);
     const [openInfoMethodDialog, setOpenInfoMethodDialog] = useState(false);
@@ -115,6 +130,29 @@ const ProductListPage = () => {
     const combinedProducts = [...initialProducts1, ...initialProducts2, ...initialProducts3];
     const [selectedValues, setSelectedValues] = useState([combinedProducts[0]?.name]); // Start with one dropdown, default to first product
     const [operators, setOperators] = useState(['+']); // State to store selected operators for each dropdown
+
+    
+        // State for editing each card
+        const [isCardEditing1, setIsCardEditing1] = useState(false);
+        const [isCardEditing2, setIsCardEditing2] = useState(false);
+        const [isCardEditing3, setIsCardEditing3] = useState(false);
+
+        // States for card title and body (editable content)
+        const [cardTitle1, setCardTitle1] = useState('Epidemiology');
+        const [cardBody1, setCardBody1] = useState('Understand the spread of diseases and their impact.');
+        const [cardTitle2, setCardTitle2] = useState('Total GH Patients');
+        const [cardBody2, setCardBody2] = useState('Overview of total patients diagnosed with GH.');
+        const [cardTitle3, setCardTitle3] = useState('Conversion Parameter');
+        const [cardBody3, setCardBody3] = useState('Adjust conversion factors for accurate data representation.');
+
+        let [EditedCardTitle1, setEditedCardTitle1] = useState('Epidemiology');
+        const [EditedCardBody1, setEditedCardBody1] = useState('Understand the spread of diseases and their impact.');
+        const [EditedCardTitle2, setEditedCardTitle2] = useState('Total GH Patients');
+        const [EditedCardBody2, setEditedCardBody2] = useState('Overview of total patients diagnosed with GH.');
+        const [EditedCardTitle3, setEditedCardTitle3] = useState('Conversion Parameter');
+        const [EditedCardBody3, setEditedCardBody3] = useState('Adjust conversion factors for accurate data representation.');
+
+
 
 
     const [tabTableVisibility, setTabTableVisibility] = useState({
@@ -145,6 +183,70 @@ const ProductListPage = () => {
     };
 
     const currentTabKey = tab_value === 0 ? 'downside' : tab_value === 1 ? 'base' : 'upside';
+    
+    //Start editing card 1
+    const startEditingCard1 = () => {
+    setEditedCardTitle1(cardTitle1);
+    setEditedCardBody1(cardBody1);
+    setIsCardEditing1(true);
+  };
+  
+
+  const handleSaveClick1 = () => {
+    setIsCardEditing1(false);
+    setEditedCardTitle1(cardTitle1);
+    setEditedCardBody1(cardBody1);
+  };
+
+  const cancelCardEditing1 = () => {
+    setIsCardEditing1(false)
+    setCardTitle1(EditedCardTitle1);
+    setCardBody1(EditedCardBody1);
+    
+  };
+
+
+  // Start editing card 2
+  const startEditingCard2 = () => {
+    setEditedCardTitle2(cardTitle2);
+    setEditedCardBody2(cardBody2);
+    setIsCardEditing2(true);
+  };
+  
+
+  const handleSaveClick2 = () => {
+    setIsCardEditing2(false);
+    setEditedCardTitle2(cardTitle2);
+    setEditedCardBody2(cardBody2);
+  };
+
+  const cancelCardEditing2 = () => {
+    setIsCardEditing2(false)
+    setCardTitle2(EditedCardTitle2);
+    setCardBody2(EditedCardBody2);
+    
+  };
+
+  // Start editing card 3
+  const startEditingCard3 = () => {
+    setEditedCardTitle3(cardTitle3);
+    setEditedCardBody3(cardBody3);
+    setIsCardEditing3(true);
+  };
+  
+
+  const handleSaveClick3 = () => {
+    setIsCardEditing3(false);
+    setEditedCardTitle3(cardTitle3);
+    setEditedCardBody3(cardBody3);
+  };
+
+  const cancelCardEditing3 = () => {
+    setIsCardEditing3(false)
+    setCardTitle3(EditedCardTitle3);
+    setCardBody3(EditedCardBody3);
+    
+  };
 
 
     // Handle changes for any dropdown (formula or operator)
@@ -283,26 +385,6 @@ const ProductListPage = () => {
         setEditingProductId(null);
         setEditedProductName('');
     };
-    /*const handleAddRow = (tabKey, tableKey, productId, table_num) => {
-        const tablee = table_num === 1 ? products1 : table_num === 2 ? products2 : products3
-        const newProduct = {
-            id: tablee.length + 1, // Incremental ID based on current product count
-            name: `New Product ${tablee.length + 1}`, // Default name for the new product
-        };
-
-        const updatedProducts = [...tablee];
-        const index = tablee.findIndex((product) => product.id === productId);
-        updatedProducts.splice(index + 1, 0, newProduct); // Insert new product below the clicked row
-        if (table_num == 1) {
-            setProducts1(updatedProducts); // Update products state with new row in table 1  
-        }
-        if (table_num == 2) {
-            setProducts2(updatedProducts); // Update products state with new row in table 2
-        }
-        if (table_num == 3) {
-            setProducts3(updatedProducts); // Update products state with new row in table 2
-        }
-    };*/
 
     const handleAddRow = (tabKey, tableKey, productId) => {
         // Get the current list of products for the specific tab and table
@@ -338,23 +420,7 @@ const ProductListPage = () => {
         console.log(products[tabKey][tableKey]);
     };
 
-    /*const handleDeleteRow = (productId, table_num) => {
-        let updatedProducts = products1;
-        let updatedProducts2 = products2;
-        let updatedProducts3 = products3;
-        if (table_num == 1) {
-            updatedProducts = products1.filter((product) => product.id !== productId);
-        }
-        if (table_num == 2) {
-            updatedProducts2 = products2.filter((product) => product.id !== productId);
-        }
-        if (table_num == 3) {
-            updatedProducts3 = products3.filter((product) => product.id !== productId);
-        }
-        setProducts1(updatedProducts); // Update products state with new row in table 1
-        setProducts2(updatedProducts2); // Update products state with new row in table 2
-        setProducts3(updatedProducts3); // Update products state with new row in table 3
-    };*/
+    
 
     const handleDeleteRow = (productId, tabKey, tableKey) => {
         // Get the current list of products for the specific tab and table
@@ -664,7 +730,7 @@ const ProductListPage = () => {
         return (
             <Box
                 sx={{
-                    maxHeight: '400px', // Set a fixed height for vertical scroll
+                    maxHeight: '100%', // Set a fixed height for vertical scroll
                     maxWidth: '100%',
                     overflowY: 'auto', // Enable vertical scrolling
                     overflowX: 'auto', // Enable horizontal scrolling
@@ -672,10 +738,17 @@ const ProductListPage = () => {
                     borderRadius: '4px',
                 }}
             >
-                <table className="product-table">
+                <table className="product-table" >
                     <thead>
                         <tr>
-                            <th style={{ position: 'sticky', left: 0, backgroundColor: 'red', zIndex: 2 }}></th>
+                            <th 
+                            style={{ 
+                                position: 'sticky', 
+                                left: 0, 
+                                backgroundColor: 'red', 
+                                zIndex: 2,
+                                width: '600px'
+                                }}></th>
                             {columns.map((column, index) => (
                                 <th key={index} style={{minWidth: '150px' }}>{column}</th>
                             ))}
@@ -684,14 +757,19 @@ const ProductListPage = () => {
                     <tbody>
                         {tableProducts.map((product) => (
                             <tr key={product.id}>
-                                <td style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', position: 'sticky', left: 0, background: 'white', zIndex: 2 }}>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '0.1fr 0.1fr 1fr 0.1fr 0.1fr 0.1fr 0.1fr', alignItems: 'center' }}>
+                                <td >
+                                    <div style={{ display: 'grid', gridTemplateColumns: '0.1fr 0.1fr 1fr 0.1fr 0.1fr 0.1fr 0.1fr', 
+                                    justifyContent: 'center', alignItems: 'center',width: '720px' }}>
+                                        <Tooltip title="Source Info" placement="top" >
                                         <IconButton color="info" onClick={handleInfoIconClick}>
                                             <InfoIcon fontSize="small" />
                                         </IconButton>
+                                        </Tooltip>
+                                        <Tooltip title="Upload" placement="top">
                                         <IconButton color="primary" onClick={handleCloudIconClick}>
                                             <CloudUploadIcon fontSize="small" />
                                         </IconButton>
+                                        </Tooltip>
                                         {editingProductId === product.id ? (
                                             <>
                                                 <TextField
@@ -699,7 +777,7 @@ const ProductListPage = () => {
                                                     onChange={(e) => setEditedProductName(e.target.value)}
                                                     variant="outlined"
                                                     size="small"
-                                                    style={{ marginLeft: '8px', marginRight: '8px' }}
+                                                    
                                                 />
                                                 <IconButton onClick={() => handleSaveClick(product.id, tabKey, tableKey)} color="primary">
                                                     <CheckIcon />
@@ -710,23 +788,39 @@ const ProductListPage = () => {
                                             </>
                                         ) : (
                                             <>
-                                                <span style={{ marginLeft: '8px' }}>{product.name}</span>
+                                                <span 
+                                                    style={{ 
+                                                        marginLeft: '8px', 
+                                                        overflow: 'auto', 
+                                                        whiteSpace: 'nowrap',
+                                                    }}
+                                                >
+                                                    {product.name}
+                                                </span>
+                                               
+                                                <Tooltip title="Edit Row Name" placement="top" >
                                                 <IconButton onClick={() => handleEditClick(product.id, tabKey, tableKey)} style={{ marginLeft: '8px' }}>
                                                     <EditIcon fontSize="small" />
                                                 </IconButton>
+                                                </Tooltip>
                                                 {tableProducts[tableProducts.length - 1].id !== product.id && (
+                                                    <Tooltip title="Add Row" placement="top" >
                                                     <IconButton onClick={() => handleAddRow(tabKey, tableKey, product.id)} style={{ marginLeft: '8px' }}>
                                                         <AddIcon fontSize="small" />
                                                     </IconButton>
+                                                    </Tooltip>
                                                 )}
                                                 {tableProducts[tableProducts.length - 1].id === product.id && (
+                                                    
                                                     <IconButton style={{marginLeft: '8px', color: 'lightgrey' }} disabled>
                                                         <AddIcon fontSize="small" />
-                                                    </IconButton>
+                                                    </IconButton>                    
                                                     )}
+                                                <Tooltip title="Insert Formula" placement="top" >
                                                 <IconButton onClick={() => { setFormulaProductId(product.id); setShowFormula(true); }} style={{ marginLeft: '4px' }}>
                                                     <CalculateIcon fontSize="small" />
                                                 </IconButton>
+                                                </Tooltip>
                                                 {(
                                                     <Dialog
                                                         open={showFormula}
@@ -811,9 +905,11 @@ const ProductListPage = () => {
                                                         </DialogActions>
                                                     </Dialog>
                                                 )}
+                                                <Tooltip title="Delete Row" placement="top" >
                                                 <IconButton onClick={() => handleDeleteRow(product.id, tabKey, tableKey)} style={{ marginLeft: '8px' }}>
                                                     <DeleteIcon fontSize="small" />
                                                 </IconButton>
+                                                </Tooltip>
 
                                             </>
                                         )}
@@ -843,12 +939,31 @@ const ProductListPage = () => {
             </Box>
         );
     };
+    const [greeting, setGreeting] = useState('');
+
+  // Set the greeting based on the current time
+  useEffect(() => {
+    const currentHour = new Date().getHours();
+
+    if (currentHour < 12) {
+      setGreeting('Good Morning');
+    } else if (currentHour < 18) {
+      setGreeting('Good Afternoon');
+    } else {
+      setGreeting('Good Evening');
+    }
+  }, []);
+
+    
 
     useEffect(() => {
         calculateValues();
     }, [startingValue, initialGrowthRate, growthRates, columns]);
     return (
-        <div className="product-list-page" >
+        
+        <div className="product-list-page" style={{marginLeft: '10px'}}>    
+      <div style={{ backgroundColor: 'white', padding: '0.5px', marginLeft: '10px'}}>
+      <h2>{greeting}, Welcome to the Forecast-DeepDive page!</h2> </div>
             <Box
                 sx={{
                     maxWidth: '100%',   // Set width to contain horizontal scroll
@@ -992,31 +1107,69 @@ const ProductListPage = () => {
                                         transition: 'transform 0.4s ease, box-shadow 0.5s ease', // Smooth transition for hover
                                     }}
                                 >
-                                    <Box sx={{ flexGrow: 1 }}>
-                                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#0277bd' }}>
-                                            Epidemiology
-                                        </Typography>
-                                        <Typography variant="body2" sx={{ color: '#01579b', marginTop: 1 }}>
-                                            {tabTableVisibility[currentTabKey].table1 ? '' : 'Understand the spread of diseases and their impact.'}
-                                        </Typography>
+                                     <Box sx={{ flexGrow: 1 }}>
+                                        {isCardEditing1 ? (
+                                            <TextField
+                                            value={cardTitle1}
+                                            onChange={(e) => setCardTitle1(e.target.value)}
+                                            variant="outlined"
+                                            fullWidth
+                                            sx={{ marginBottom: 1 }}
+                                            />
+                                        ) : (
+                                            <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#0277bd' }}>
+                                            {cardTitle1}
+                                            </Typography>
+                                        )}
+
+                                        {isCardEditing1 ? (
+                                            <TextField
+                                            value={cardBody1}
+                                            onChange={(e) => setCardBody1(e.target.value)}
+                                            variant="outlined"
+                                            fullWidth
+                                            sx={{ marginTop: 1 }}
+                                            />
+                                        ) : (
+                                            <Typography variant="body2" sx={{ color: '#01579b', marginTop: 1 }}>
+                                            {tabTableVisibility[currentTabKey].table1? '': cardBody1}
+                                            </Typography>
+                                        )}
+                                        </Box>
+
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                        {isCardEditing1 ? (
+                                                <>
+                                                <IconButton onClick={handleSaveClick1} color="primary">
+                                                    <CheckIcon />
+                                                </IconButton>
+                                                <IconButton onClick={cancelCardEditing1} color="secondary">
+                                                    <CloseIcon />
+                                                </IconButton>
+                                                </>
+                                            ) : (
+                                                <IconButton onClick={startEditingCard1} color="primary">
+                                                <EditIcon />
+                                                </IconButton>
+              )}
+                                        <IconButton
+                                            aria-label='add'
+                                            size="large"
+                                            sx={{
+                                                color: '#0277bd',
+                                                backgroundColor: '#e1f5fe',
+                                                borderRadius: '50%',
+                                                '&:hover': {
+                                                    backgroundColor: '#b3e5fc',
+                                                },
+                                                transition: 'background-color 0.3s ease, transform 0.2s ease', // Added transition for smooth effects
+                                                transform: tabTableVisibility[currentTabKey].table1 ? 'rotate(45deg)' : 'rotate(0deg)', // Optional: rotate when toggling
+                                            }}
+                                            onClick={() => toggleTableVisibility(currentTabKey, 'table1')}
+                                        >
+                                            {tabTableVisibility[currentTabKey].table1 ? <RemoveIcon /> : <AddIcon />}
+                                        </IconButton>
                                     </Box>
-                                    <IconButton
-                                        aria-label='add'
-                                        size="large"
-                                        sx={{
-                                            color: '#0277bd',
-                                            backgroundColor: '#e1f5fe',
-                                            borderRadius: '50%',
-                                            '&:hover': {
-                                                backgroundColor: '#b3e5fc',
-                                            },
-                                            transition: 'background-color 0.3s ease, transform 0.2s ease', // Added transition for smooth effects
-                                            transform: tabTableVisibility[currentTabKey].table1 ? 'rotate(45deg)' : 'rotate(0deg)', // Optional: rotate when toggling
-                                        }}
-                                        onClick={() => toggleTableVisibility(currentTabKey, 'table1')}
-                                    >
-                                        {tabTableVisibility[currentTabKey].table1 ? <RemoveIcon /> : <AddIcon />}
-                                    </IconButton>
                                 </Card>
 
                                 {tabTableVisibility[currentTabKey].table1 && renderTable(currentTabKey, 'table1')}
@@ -1048,30 +1201,68 @@ const ProductListPage = () => {
                                     }}
                                 >
                                     <Box sx={{ flexGrow: 1 }}>
-                                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#c2185b' }}>
-                                            Total GH Patients
-                                        </Typography>
-                                        <Typography variant="body2" sx={{ color: '#880e4f', marginTop: 1 }}>
-                                            {tabTableVisibility[currentTabKey].table2 ? '' : 'Overview of total patients diagnosed with GH.'}
-                                        </Typography>
-                                    </Box>
-                                    <IconButton
-                                        aria-label='add'
-                                        size="large"
-                                        sx={{
-                                            color: '#c2185b', // Matching button color to the card title
+                                        {isCardEditing2 ? (
+                                            <TextField
+                                            value={cardTitle2}
+                                            onChange={(e) => setCardTitle2(e.target.value)}
+                                            variant="outlined"
+                                            fullWidth
+                                            sx={{ marginBottom: 1 }}
+                                            />
+                                        ) : (
+                                            <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#c2185b' }}>
+                                            {cardTitle2}
+                                            </Typography>
+                                        )}
+
+                                        {isCardEditing2 ? (
+                                            <TextField
+                                            value={cardBody2}
+                                            onChange={(e) => setCardBody2(e.target.value)}
+                                            variant="outlined"
+                                            fullWidth
+                                            sx={{ marginTop: 1 }}
+                                            />
+                                        ) : (
+                                            <Typography variant="body2" sx={{ color: '#c2185b', marginTop: 1 }}>
+                                            {tabTableVisibility[currentTabKey].table2 ? '' :cardBody2}
+                                            </Typography>
+                                        )}
+                                        </Box>
+
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                        {isCardEditing2 ? (
+                                                <>
+                                                <IconButton onClick={handleSaveClick2} color="primary">
+                                                    <CheckIcon />
+                                                </IconButton>
+                                                <IconButton onClick={cancelCardEditing2} color="secondary">
+                                                    <CloseIcon />
+                                                </IconButton>
+                                                </>
+                                            ) : (
+                                                <IconButton onClick={startEditingCard2} sx={{ color: '#c2185b'}}>
+                                                <EditIcon />
+                                                </IconButton>
+              )}
+                                        <IconButton
+                                            aria-label='add'
+                                            size="large"
+                                            sx={{
+                                                color: '#c2185b', // Matching button color to the card title
                                             backgroundColor: '#f1f8e9', // Light green background for the button
                                             borderRadius: '50%', // Circular button
-                                            '&:hover': {
-                                                backgroundColor: '#c8e6c9', // Hover effect on the button
-                                            },
-                                            transition: 'background-color 0.3s ease, transform 0.2s ease', // Added transition for smooth effects
-                                            transform: tabTableVisibility[currentTabKey].table2 ? 'rotate(45deg)' : 'rotate(0deg)'
-                                        }}
-                                        onClick={() => toggleTableVisibility(currentTabKey, 'table2')}
-                                    >
-                                        {tabTableVisibility[currentTabKey].table2 ? <RemoveIcon /> : <AddIcon />}
-                                    </IconButton>
+                                                '&:hover': {
+                                                    backgroundColor: '#b3e5fc',
+                                                },
+                                                transition: 'background-color 0.3s ease, transform 0.2s ease', // Added transition for smooth effects
+                                                transform: tabTableVisibility[currentTabKey].table2 ? 'rotate(45deg)' : 'rotate(0deg)', // Optional: rotate when toggling
+                                            }}
+                                            onClick={() => toggleTableVisibility(currentTabKey, 'table2')}
+                                        >
+                                            {tabTableVisibility[currentTabKey].table2 ? <RemoveIcon /> : <AddIcon />}
+                                        </IconButton>
+                                    </Box>
                                 </Card>
                                 {tabTableVisibility[currentTabKey].table2 && renderTable(currentTabKey, 'table2')}
 
@@ -1100,30 +1291,68 @@ const ProductListPage = () => {
                                     }}
                                 >
                                     <Box sx={{ flexGrow: 1 }}>
-                                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#d47d4c' }}>
-                                            Conversion Parameter
-                                        </Typography>
-                                        <Typography variant="body2" sx={{ color: '#bc5a3c', marginTop: 1 }}>
-                                            {tabTableVisibility[currentTabKey].table3 ? '' : 'Adjust conversion factors for accurate data representation.'}
-                                        </Typography>
-                                    </Box>
-                                    <IconButton
-                                        aria-label={tabTableVisibility[currentTabKey].table3 ? 'subtract' : 'add'}
-                                        size="large"
-                                        sx={{
-                                            color: '#d47d4c', // Match the color of the button with the title
+                                        {isCardEditing3 ? (
+                                            <TextField
+                                            value={cardTitle3}
+                                            onChange={(e) => setCardTitle3(e.target.value)}
+                                            variant="outlined"
+                                            fullWidth
+                                            sx={{ marginBottom: 1 }}
+                                            />
+                                        ) : (
+                                            <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#d47d4c' }}>
+                                            {cardTitle3}
+                                            </Typography>
+                                        )}
+
+                                        {isCardEditing3 ? (
+                                            <TextField
+                                            value={cardBody3}
+                                            onChange={(e) => setCardBody3(e.target.value)}
+                                            variant="outlined"
+                                            fullWidth
+                                            sx={{ marginTop: 1 }}
+                                            />
+                                        ) : (
+                                            <Typography variant="body2" sx={{ color: '#d47d4c', marginTop: 1 }}>
+                                            {tabTableVisibility[currentTabKey].table3 ? '' :cardBody3}
+                                            </Typography>
+                                        )}
+                                        </Box>
+
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                        {isCardEditing3 ? (
+                                                <>
+                                                <IconButton onClick={handleSaveClick3} color="primary">
+                                                    <CheckIcon />
+                                                </IconButton>
+                                                <IconButton onClick={cancelCardEditing3} color="secondary">
+                                                    <CloseIcon />
+                                                </IconButton>
+                                                </>
+                                            ) : (
+                                                <IconButton onClick={startEditingCard3} sx={{ color: '#d47d4c'}}>
+                                                <EditIcon />
+                                                </IconButton>
+              )}
+                                        <IconButton
+                                            aria-label='add'
+                                            size="large"
+                                            sx={{
+                                                color: '#d47d4c', // Match the color of the button with the title
                                             backgroundColor: '#fff3e0', // Light peach button background
-                                            borderRadius: '50%', // Circular button
-                                            '&:hover': {
-                                                backgroundColor: '#ffcc80', // Button hover effect with a darker peach color
-                                            },
-                                            transition: 'background-color 0.3s ease, transform 0.2s ease', // Added transition for smooth effects
-                                            transform: tabTableVisibility[currentTabKey].table3 ? 'rotate(45deg)' : 'rotate(0deg)'
-                                        }}
-                                        onClick={() => toggleTableVisibility(currentTabKey, 'table3')}
-                                    >
-                                        {tabTableVisibility[currentTabKey].table3 ? <RemoveIcon /> : <AddIcon />}
-                                    </IconButton>
+                                            borderRadius: '50%',
+                                                '&:hover': {
+                                                    backgroundColor: '#b3e5fc',
+                                                },
+                                                transition: 'background-color 0.3s ease, transform 0.2s ease', // Added transition for smooth effects
+                                                transform: tabTableVisibility[currentTabKey].table3 ? 'rotate(45deg)' : 'rotate(0deg)', // Optional: rotate when toggling
+                                            }}
+                                            onClick={() => toggleTableVisibility(currentTabKey, 'table3')}
+                                        >
+                                            {tabTableVisibility[currentTabKey].table3 ? <RemoveIcon /> : <AddIcon />}
+                                        </IconButton>
+                                    </Box>
                                 </Card>
                                 {tabTableVisibility[currentTabKey].table3 && renderTable(currentTabKey, 'table3')}
                             </Box>}
@@ -1193,30 +1422,68 @@ const ProductListPage = () => {
                                     }}
                                 >
                                     <Box sx={{ flexGrow: 1 }}>
-                                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#0277bd' }}>
-                                            Epidemiology
-                                        </Typography>
-                                        <Typography variant="body2" sx={{ color: '#01579b', marginTop: 1 }}>
-                                            {tabTableVisibility[currentTabKey].table1 ? '' : 'Understand the spread of diseases and their impact.'}
-                                        </Typography>
+                                        {isCardEditing1 ? (
+                                            <TextField
+                                            value={cardTitle1}
+                                            onChange={(e) => setCardTitle1(e.target.value)}
+                                            variant="outlined"
+                                            fullWidth
+                                            sx={{ marginBottom: 1 }}
+                                            />
+                                        ) : (
+                                            <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#0277bd' }}>
+                                            {cardTitle1}
+                                            </Typography>
+                                        )}
+
+                                        {isCardEditing1 ? (
+                                            <TextField
+                                            value={cardBody1}
+                                            onChange={(e) => setCardBody1(e.target.value)}
+                                            variant="outlined"
+                                            fullWidth
+                                            sx={{ marginTop: 1 }}
+                                            />
+                                        ) : (
+                                            <Typography variant="body2" sx={{ color: '#01579b', marginTop: 1 }}>
+                                            {tabTableVisibility[currentTabKey].table1 ? '' :cardBody1}
+                                            </Typography>
+                                        )}
+                                        </Box>
+
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                        {isCardEditing1 ? (
+                                                <>
+                                                <IconButton onClick={handleSaveClick1} color="primary">
+                                                    <CheckIcon />
+                                                </IconButton>
+                                                <IconButton onClick={cancelCardEditing1} color="secondary">
+                                                    <CloseIcon />
+                                                </IconButton>
+                                                </>
+                                            ) : (
+                                                <IconButton onClick={startEditingCard1} color="primary">
+                                                <EditIcon />
+                                                </IconButton>
+              )}
+                                        <IconButton
+                                            aria-label='add'
+                                            size="large"
+                                            sx={{
+                                                color: '#0277bd',
+                                                backgroundColor: '#e1f5fe',
+                                                borderRadius: '50%',
+                                                '&:hover': {
+                                                    backgroundColor: '#b3e5fc',
+                                                },
+                                                transition: 'background-color 0.3s ease, transform 0.2s ease', // Added transition for smooth effects
+                                                transform: tabTableVisibility[currentTabKey].table1 ? 'rotate(45deg)' : 'rotate(0deg)', // Optional: rotate when toggling
+                                            }}
+                                            onClick={() => toggleTableVisibility(currentTabKey, 'table1')}
+                                        >
+                                            {tabTableVisibility[currentTabKey].table1 ? <RemoveIcon /> : <AddIcon />}
+                                        </IconButton>
                                     </Box>
-                                    <IconButton
-                                        aria-label='add'
-                                        size="large"
-                                        sx={{
-                                            color: '#0277bd',
-                                            backgroundColor: '#e1f5fe',
-                                            borderRadius: '50%',
-                                            '&:hover': {
-                                                backgroundColor: '#b3e5fc',
-                                            },
-                                            transition: 'background-color 0.3s ease, transform 0.2s ease', // Added transition for smooth effects
-                                            transform: tabTableVisibility[currentTabKey].table1 ? 'rotate(45deg)' : 'rotate(0deg)', // Optional: rotate when toggling
-                                        }}
-                                        onClick={() => toggleTableVisibility(currentTabKey, 'table1')}
-                                    >
-                                        {tabTableVisibility[currentTabKey].table1 ? <RemoveIcon /> : <AddIcon />}
-                                    </IconButton>
                                 </Card>
                                 {tabTableVisibility[currentTabKey].table1 && renderTable(currentTabKey, 'table1')}
 
@@ -1228,8 +1495,8 @@ const ProductListPage = () => {
                                 <Card
                                     sx={{
                                         width: '100%', // Make it responsive
-                                        maxHeight: showTable2 ? 100 : 200,
-                                        maxWidth: showTable2 ? 200 : 360,
+                                        maxHeight: tabTableVisibility[currentTabKey].table2 ? 100 : 200,
+                                        maxWidth: tabTableVisibility[currentTabKey].table2 ? 200 : 360,
                                         padding: 3, // Add more padding for better layout
                                         display: 'flex',
                                         flexDirection: 'row',
@@ -1247,30 +1514,68 @@ const ProductListPage = () => {
                                     }}
                                 >
                                     <Box sx={{ flexGrow: 1 }}>
-                                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#c2185b' }}>
-                                            Total GH Patients
-                                        </Typography>
-                                        <Typography variant="body2" sx={{ color: '#880e4f', marginTop: 1 }}>
-                                            {showTable2 ? '' : 'Overview of total patients diagnosed with GH.'}
-                                        </Typography>
-                                    </Box>
-                                    <IconButton
-                                        aria-label='add'
-                                        size="large"
-                                        sx={{
-                                            color: '#c2185b', // Matching button color to the card title
+                                        {isCardEditing2 ? (
+                                            <TextField
+                                            value={cardTitle2}
+                                            onChange={(e) => setCardTitle2(e.target.value)}
+                                            variant="outlined"
+                                            fullWidth
+                                            sx={{ marginBottom: 1 }}
+                                            />
+                                        ) : (
+                                            <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#c2185b' }}>
+                                            {cardTitle2}
+                                            </Typography>
+                                        )}
+
+                                        {isCardEditing2 ? (
+                                            <TextField
+                                            value={cardBody2}
+                                            onChange={(e) => setCardBody2(e.target.value)}
+                                            variant="outlined"
+                                            fullWidth
+                                            sx={{ marginTop: 1 }}
+                                            />
+                                        ) : (
+                                            <Typography variant="body2" sx={{ color: '#c2185b', marginTop: 1 }}>
+                                            {tabTableVisibility[currentTabKey].table2 ? '' :cardBody2}
+                                            </Typography>
+                                        )}
+                                        </Box>
+
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                        {isCardEditing2 ? (
+                                                <>
+                                                <IconButton onClick={handleSaveClick2} color="primary">
+                                                    <CheckIcon />
+                                                </IconButton>
+                                                <IconButton onClick={cancelCardEditing2} color="secondary">
+                                                    <CloseIcon />
+                                                </IconButton>
+                                                </>
+                                            ) : (
+                                                <IconButton onClick={startEditingCard2} sx={{ color: '#c2185b'}}>
+                                                <EditIcon />
+                                                </IconButton>
+              )}
+                                        <IconButton
+                                            aria-label='add'
+                                            size="large"
+                                            sx={{
+                                                color: '#c2185b', // Matching button color to the card title
                                             backgroundColor: '#f1f8e9', // Light green background for the button
                                             borderRadius: '50%', // Circular button
-                                            '&:hover': {
-                                                backgroundColor: '#c8e6c9', // Hover effect on the button
-                                            },
-                                            transition: 'background-color 0.3s ease, transform 0.2s ease', // Added transition for smooth effects
-                                            transform: showTable2 ? 'rotate(45deg)' : 'rotate(0deg)'
-                                        }}
-                                        onClick={() => toggleTableVisibility(currentTabKey, 'table2')}
-                                    >
-                                        {tabTableVisibility[currentTabKey].table2 ? <RemoveIcon /> : <AddIcon />}
-                                    </IconButton>
+                                                '&:hover': {
+                                                    backgroundColor: '#b3e5fc',
+                                                },
+                                                transition: 'background-color 0.3s ease, transform 0.2s ease', // Added transition for smooth effects
+                                                transform: tabTableVisibility[currentTabKey].table2 ? 'rotate(45deg)' : 'rotate(0deg)', // Optional: rotate when toggling
+                                            }}
+                                            onClick={() => toggleTableVisibility(currentTabKey, 'table2')}
+                                        >
+                                            {tabTableVisibility[currentTabKey].table2 ? <RemoveIcon /> : <AddIcon />}
+                                        </IconButton>
+                                    </Box>
                                 </Card>
                                 {tabTableVisibility[currentTabKey].table2 && renderTable(currentTabKey, 'table2')}
                                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -1279,8 +1584,8 @@ const ProductListPage = () => {
                                 <Card
                                     sx={{
                                         width: '100%', // Make it responsive
-                                        maxHeight: showTable3 ? 100 : 200,
-                                        maxWidth: showTable3 ? 200 : 360,
+                                        maxHeight: tabTableVisibility[currentTabKey].table3 ? 100 : 200,
+                                        maxWidth: tabTableVisibility[currentTabKey].table3 ? 200 : 360,
                                         padding: 3, // Add padding for better spacing
                                         display: 'flex',
                                         flexDirection: 'row',
@@ -1298,30 +1603,68 @@ const ProductListPage = () => {
                                     }}
                                 >
                                     <Box sx={{ flexGrow: 1 }}>
-                                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#d47d4c' }}>
-                                            Conversion Parameter
-                                        </Typography>
-                                        <Typography variant="body2" sx={{ color: '#bc5a3c', marginTop: 1 }}>
-                                            {showTable3 ? '' : 'Adjust conversion factors for accurate data representation.'}
-                                        </Typography>
-                                    </Box>
-                                    <IconButton
-                                        aria-label={showTable3 ? 'subtract' : 'add'}
-                                        size="large"
-                                        sx={{
-                                            color: '#d47d4c', // Match the color of the button with the title
+                                        {isCardEditing3 ? (
+                                            <TextField
+                                            value={cardTitle3}
+                                            onChange={(e) => setCardTitle3(e.target.value)}
+                                            variant="outlined"
+                                            fullWidth
+                                            sx={{ marginBottom: 1 }}
+                                            />
+                                        ) : (
+                                            <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#d47d4c' }}>
+                                            {cardTitle3}
+                                            </Typography>
+                                        )}
+
+                                        {isCardEditing3 ? (
+                                            <TextField
+                                            value={cardBody3}
+                                            onChange={(e) => setCardBody3(e.target.value)}
+                                            variant="outlined"
+                                            fullWidth
+                                            sx={{ marginTop: 1 }}
+                                            />
+                                        ) : (
+                                            <Typography variant="body2" sx={{ color: '#d47d4c', marginTop: 1 }}>
+                                            {tabTableVisibility[currentTabKey].table3 ? '' :cardBody3}
+                                            </Typography>
+                                        )}
+                                        </Box>
+
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                        {isCardEditing3 ? (
+                                                <>
+                                                <IconButton onClick={handleSaveClick3} color="primary">
+                                                    <CheckIcon />
+                                                </IconButton>
+                                                <IconButton onClick={cancelCardEditing3} color="secondary">
+                                                    <CloseIcon />
+                                                </IconButton>
+                                                </>
+                                            ) : (
+                                                <IconButton onClick={startEditingCard3} sx={{ color: '#d47d4c'}}>
+                                                <EditIcon />
+                                                </IconButton>
+              )}
+                                        <IconButton
+                                            aria-label='add'
+                                            size="large"
+                                            sx={{
+                                                color: '#d47d4c', // Match the color of the button with the title
                                             backgroundColor: '#fff3e0', // Light peach button background
-                                            borderRadius: '50%', // Circular button
-                                            '&:hover': {
-                                                backgroundColor: '#ffcc80', // Button hover effect with a darker peach color
-                                            },
-                                            transition: 'background-color 0.3s ease, transform 0.2s ease', // Added transition for smooth effects
-                                            transform: showTable3 ? 'rotate(45deg)' : 'rotate(0deg)'
-                                        }}
-                                        onClick={() => toggleTableVisibility(currentTabKey, 'table3')}
-                                    >
-                                        {tabTableVisibility[currentTabKey].table3 ? <RemoveIcon /> : <AddIcon />}
-                                    </IconButton>
+                                            borderRadius: '50%',
+                                                '&:hover': {
+                                                    backgroundColor: '#b3e5fc',
+                                                },
+                                                transition: 'background-color 0.3s ease, transform 0.2s ease', // Added transition for smooth effects
+                                                transform: tabTableVisibility[currentTabKey].table3 ? 'rotate(45deg)' : 'rotate(0deg)', // Optional: rotate when toggling
+                                            }}
+                                            onClick={() => toggleTableVisibility(currentTabKey, 'table3')}
+                                        >
+                                            {tabTableVisibility[currentTabKey].table3 ? <RemoveIcon /> : <AddIcon />}
+                                        </IconButton>
+                                    </Box>
                                 </Card>
                                 {tabTableVisibility[currentTabKey].table3 && renderTable(currentTabKey, 'table3')}
                             </Box>}
@@ -1391,13 +1734,51 @@ const ProductListPage = () => {
                                     }}
                                 >
                                     <Box sx={{ flexGrow: 1 }}>
-                                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#0277bd' }}>
-                                            Epidemiology
-                                        </Typography>
-                                        <Typography variant="body2" sx={{ color: '#01579b', marginTop: 1 }}>
-                                            {tabTableVisibility[currentTabKey].table1 ? '' : 'Understand the spread of diseases and their impact.'}
-                                        </Typography>
-                                    </Box>
+                                        {isCardEditing1 ? (
+                                            <TextField
+                                            value={cardTitle1}
+                                            onChange={(e) => setCardTitle1(e.target.value)}
+                                            variant="outlined"
+                                            fullWidth
+                                            sx={{ marginBottom: 1 }}
+                                            />
+                                        ) : (
+                                            <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#0277bd' }}>
+                                            {cardTitle1}
+                                            </Typography>
+                                        )}
+
+                                        {isCardEditing1 ? (
+                                            <TextField
+                                            value={cardBody1}
+                                            onChange={(e) => setCardBody1(e.target.value)}
+                                            variant="outlined"
+                                            fullWidth
+                                            sx={{ marginTop: 1 }}
+                                            />
+                                        ) : (
+                                            <Typography variant="body2" sx={{ color: '#01579b', marginTop: 1 }}>
+                                            {tabTableVisibility[currentTabKey].table1? '': cardBody1}
+                                            </Typography>
+                                        )}
+                                        </Box>
+
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                        {isCardEditing1 ? (
+                                                <>
+                                                <IconButton onClick={handleSaveClick1} color="primary">
+                                                    <CheckIcon />
+                                                </IconButton>
+                                                <IconButton onClick={cancelCardEditing1} color="secondary">
+                                                    <CloseIcon />
+                                                </IconButton>
+                                                </>
+                                            ) : (
+                                                <IconButton onClick={startEditingCard1} color="primary">
+                                                <EditIcon />
+                                                </IconButton>
+                                        )}
+                                        
                                     <IconButton
                                         aria-label='add'
                                         size="large"
@@ -1415,6 +1796,7 @@ const ProductListPage = () => {
                                     >
                                         {tabTableVisibility[currentTabKey].table1 ? <RemoveIcon /> : <AddIcon />}
                                     </IconButton>
+                                    </Box>
                                 </Card>
                                 {tabTableVisibility[currentTabKey].table1 && renderTable(currentTabKey, 'table1')}
 
@@ -1445,30 +1827,68 @@ const ProductListPage = () => {
                                     }}
                                 >
                                     <Box sx={{ flexGrow: 1 }}>
-                                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#c2185b' }}>
-                                            Total GH Patients
-                                        </Typography>
-                                        <Typography variant="body2" sx={{ color: '#880e4f', marginTop: 1 }}>
-                                            {tabTableVisibility[currentTabKey].table2 ? '' : 'Overview of total patients diagnosed with GH.'}
-                                        </Typography>
-                                    </Box>
-                                    <IconButton
-                                        aria-label='add'
-                                        size="large"
-                                        sx={{
-                                            color: '#c2185b', // Matching button color to the card title
+                                        {isCardEditing2 ? (
+                                            <TextField
+                                            value={cardTitle2}
+                                            onChange={(e) => setCardTitle2(e.target.value)}
+                                            variant="outlined"
+                                            fullWidth
+                                            sx={{ marginBottom: 1 }}
+                                            />
+                                        ) : (
+                                            <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#c2185b' }}>
+                                            {cardTitle2}
+                                            </Typography>
+                                        )}
+
+                                        {isCardEditing2 ? (
+                                            <TextField
+                                            value={cardBody2}
+                                            onChange={(e) => setCardBody2(e.target.value)}
+                                            variant="outlined"
+                                            fullWidth
+                                            sx={{ marginTop: 1 }}
+                                            />
+                                        ) : (
+                                            <Typography variant="body2" sx={{ color: '#c2185b', marginTop: 1 }}>
+                                            {tabTableVisibility[currentTabKey].table2 ? '' :cardBody2}
+                                            </Typography>
+                                        )}
+                                        </Box>
+
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                        {isCardEditing2 ? (
+                                                <>
+                                                <IconButton onClick={handleSaveClick2} color="primary">
+                                                    <CheckIcon />
+                                                </IconButton>
+                                                <IconButton onClick={cancelCardEditing2} color="secondary">
+                                                    <CloseIcon />
+                                                </IconButton>
+                                                </>
+                                            ) : (
+                                                <IconButton onClick={startEditingCard2} sx={{ color: '#c2185b'}}>
+                                                <EditIcon />
+                                                </IconButton>
+              )}
+                                        <IconButton
+                                            aria-label='add'
+                                            size="large"
+                                            sx={{
+                                                color: '#c2185b', // Matching button color to the card title
                                             backgroundColor: '#f1f8e9', // Light green background for the button
                                             borderRadius: '50%', // Circular button
-                                            '&:hover': {
-                                                backgroundColor: '#c8e6c9', // Hover effect on the button
-                                            },
-                                            transition: 'background-color 0.3s ease, transform 0.2s ease', // Added transition for smooth effects
-                                            transform: tabTableVisibility[currentTabKey].table2 ? 'rotate(45deg)' : 'rotate(0deg)'
-                                        }}
-                                        onClick={() => toggleTableVisibility(currentTabKey, 'table2')}
-                                    >
-                                        {tabTableVisibility[currentTabKey].table2 ? <RemoveIcon /> : <AddIcon />}
-                                    </IconButton>
+                                                '&:hover': {
+                                                    backgroundColor: '#b3e5fc',
+                                                },
+                                                transition: 'background-color 0.3s ease, transform 0.2s ease', // Added transition for smooth effects
+                                                transform: tabTableVisibility[currentTabKey].table2 ? 'rotate(45deg)' : 'rotate(0deg)', // Optional: rotate when toggling
+                                            }}
+                                            onClick={() => toggleTableVisibility(currentTabKey, 'table2')}
+                                        >
+                                            {tabTableVisibility[currentTabKey].table2 ? <RemoveIcon /> : <AddIcon />}
+                                        </IconButton>
+                                    </Box>
                                 </Card>
                                 {tabTableVisibility[currentTabKey].table2 && renderTable(currentTabKey, 'table2')}
                                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -1496,30 +1916,68 @@ const ProductListPage = () => {
                                     }}
                                 >
                                     <Box sx={{ flexGrow: 1 }}>
-                                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#d47d4c' }}>
-                                            Conversion Parameter
-                                        </Typography>
-                                        <Typography variant="body2" sx={{ color: '#bc5a3c', marginTop: 1 }}>
-                                            {tabTableVisibility[currentTabKey].table3 ? '' : 'Adjust conversion factors for accurate data representation.'}
-                                        </Typography>
-                                    </Box>
-                                    <IconButton
-                                        aria-label={tabTableVisibility[currentTabKey].table3 ? 'subtract' : 'add'}
-                                        size="large"
-                                        sx={{
-                                            color: '#d47d4c', // Match the color of the button with the title
+                                        {isCardEditing3 ? (
+                                            <TextField
+                                            value={cardTitle3}
+                                            onChange={(e) => setCardTitle3(e.target.value)}
+                                            variant="outlined"
+                                            fullWidth
+                                            sx={{ marginBottom: 1 }}
+                                            />
+                                        ) : (
+                                            <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#d47d4c' }}>
+                                            {cardTitle3}
+                                            </Typography>
+                                        )}
+
+                                        {isCardEditing3 ? (
+                                            <TextField
+                                            value={cardBody3}
+                                            onChange={(e) => setCardBody3(e.target.value)}
+                                            variant="outlined"
+                                            fullWidth
+                                            sx={{ marginTop: 1 }}
+                                            />
+                                        ) : (
+                                            <Typography variant="body2" sx={{ color: '#d47d4c', marginTop: 1 }}>
+                                            {tabTableVisibility[currentTabKey].table3 ? '' :cardBody3}
+                                            </Typography>
+                                        )}
+                                        </Box>
+
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                        {isCardEditing3 ? (
+                                                <>
+                                                <IconButton onClick={handleSaveClick3} color="primary">
+                                                    <CheckIcon />
+                                                </IconButton>
+                                                <IconButton onClick={cancelCardEditing3} color="secondary">
+                                                    <CloseIcon />
+                                                </IconButton>
+                                                </>
+                                            ) : (
+                                                <IconButton onClick={startEditingCard3} sx={{ color: '#d47d4c'}}>
+                                                <EditIcon />
+                                                </IconButton>
+                                            )}
+                                        <IconButton
+                                            aria-label='add'
+                                            size="large"
+                                            sx={{
+                                                color: '#d47d4c', // Match the color of the button with the title
                                             backgroundColor: '#fff3e0', // Light peach button background
-                                            borderRadius: '50%', // Circular button
-                                            '&:hover': {
-                                                backgroundColor: '#ffcc80', // Button hover effect with a darker peach color
-                                            },
-                                            transition: 'background-color 0.3s ease, transform 0.2s ease', // Added transition for smooth effects
-                                            transform: tabTableVisibility[currentTabKey].table3 ? 'rotate(45deg)' : 'rotate(0deg)'
-                                        }}
-                                        onClick={() => toggleTableVisibility(currentTabKey, 'table3')}
-                                    >
-                                        {tabTableVisibility[currentTabKey].table3 ? <RemoveIcon /> : <AddIcon />}
-                                    </IconButton>
+                                            borderRadius: '50%',
+                                                '&:hover': {
+                                                    backgroundColor: '#b3e5fc',
+                                                },
+                                                transition: 'background-color 0.3s ease, transform 0.2s ease', // Added transition for smooth effects
+                                                transform: tabTableVisibility[currentTabKey].table3 ? 'rotate(45deg)' : 'rotate(0deg)', // Optional: rotate when toggling
+                                            }}
+                                            onClick={() => toggleTableVisibility(currentTabKey, 'table3')}
+                                        >
+                                            {tabTableVisibility[currentTabKey].table3 ? <RemoveIcon /> : <AddIcon />}
+                                        </IconButton>
+                                    </Box>
                                 </Card>
                                 {tabTableVisibility[currentTabKey].table3 && renderTable(currentTabKey, 'table3')}
                             </Box>}
@@ -1867,10 +2325,11 @@ const ProductListPage = () => {
                     <DialogContent sx={{ paddingTop: '15px' }}>
                         <Box display="flex" alignItems="center" gap="16px" mb={2} sx={{ paddingTop: '20px' }}>
                             <DatePicker
-                                views={['year']}
-                                label="Starting Date"
+                                views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
+                                label={timePeriod === 'Monthly' ? 'Start Month' : 'Start Year'}
                                 value={fromDate} // Auto-populated
                                 disabled
+                                format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
                                 slotProps={{ textField: { size: 'small' } }}
                                 style={{ minWidth: '120px' }}
                             />
@@ -1897,13 +2356,15 @@ const ProductListPage = () => {
                         {growthRates.map((entry, index) => (
                             <Box key={index} display="flex" alignItems="center" gap="16px" mb={2}>
                                 <DatePicker
-                                    views={['year']}
-                                    label="Starting Date"
+                                   views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
+                                   label={timePeriod === 'Monthly' ? 'Next Month' : 'Next Year'}
                                     value={entry.startDate}
                                     onChange={(newValue) => handleGrowthRateChange(index, 'startDate', newValue)}
+                                    format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
                                     slotProps={{ textField: { size: 'small' } }}
                                     style={{ minWidth: '120px' }}
-                                    minDate={getMinDate(index)}
+                                    minDate={getMinDate(index)} //The user cannot select a Date that is before the Start Date
+                                    maxDate={toDate} //The user cannot select a Start Date that is after the End Date
                                 />
                                 <TextField
                                     label="Growth Rate (%)"
