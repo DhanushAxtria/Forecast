@@ -10,7 +10,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ClearIcon from '@mui/icons-material/Clear';
 import UploadIcon from '@mui/icons-material/Upload';
 import axios from 'axios';
-
+ 
 const LinearRegression = ({ handleAddDrugClick }) => {
     const [historyFromDate, setHistoryFromDate] = useState(null);
     const [historyToDate, setHistoryToDate] = useState(null);
@@ -22,18 +22,18 @@ const LinearRegression = ({ handleAddDrugClick }) => {
     const { ForecastedValue, setForecastValue } = useContext(MyContext);
     const { ParsedData, setParsedData } = useContext(MyContext);
     const navigate = useNavigate();
-
+ 
     // Snackbar states
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarType, setSnackbarType] = useState('success'); // 'success' or 'error'
-
+ 
     const handleFileChange = (event) => {
         const file = event.target.files[0]; // Get the first file
         if (file) {
             setSelectedFile(file);
             setFileName(file.name);
-
+ 
             // Show success Snackbar
             setSnackbarMessage(`File uploaded: ${file.name}`);
             setSnackbarType('success');
@@ -44,7 +44,7 @@ const LinearRegression = ({ handleAddDrugClick }) => {
         setSelectedFile(null);
         setFileName("");
     };
-
+ 
     const handleSave = async () => {
         if (selectedFile === null && selectedSheet === null) {
             alert("Please upload the data and select the method");
@@ -59,14 +59,15 @@ const LinearRegression = ({ handleAddDrugClick }) => {
             alert("Please select all the dates properly");
         }
         else {
-            if (selectedSheet === "Linear Regression") {
+           
                 const formData = new FormData();
                 formData.append('file', selectedFile);
+                formData.append('selectedSheet', selectedSheet);
                 formData.append('historyFromDate', historyFromDate);
                 formData.append('historyToDate', historyToDate);
                 formData.append('selectedFromDate', selectedFromDate);
                 formData.append('selectedToDate', selectedToDate);
-
+ 
                 try {
                     const response = await axios.post('http://127.0.0.1:8000/upload', formData, {
                         headers: {
@@ -86,18 +87,18 @@ const LinearRegression = ({ handleAddDrugClick }) => {
                     alert("Please upload the correct data");
                     console.error('Error uploading file:', error);
                 }
-            }
+           
         }
     };
-
+ 
     const handleClose = () => {
         console.log("Close button clicked");
     };
-
+ 
     const handleSnackbarClose = () => {
         setSnackbarOpen(false);
     };
-
+ 
     return (
         <>
             <Box sx={{
@@ -107,20 +108,21 @@ const LinearRegression = ({ handleAddDrugClick }) => {
                 alignItems: 'flex-start',
                 marginTop: '-60px',
             }}>
-
-
-
-
+ 
+ 
+ 
+ 
                 {/* File Upload Status */}
                 <Box sx={{ mt: 2 }}>
                     <Button
                         variant="contained"
                         color="primary"
                         component="label"
-                        sx={{ borderRadius: 1,
-                            marginRight:'10px',
-                            marginBottom:'10px'
-                         }}
+                        sx={{
+                            borderRadius: 1,
+                            marginRight: '10px',
+                            marginBottom: '10px'
+                        }}
                         startIcon={<UploadIcon />}
                     >
                         <Typography variant="caption">Upload file</Typography>
@@ -131,7 +133,7 @@ const LinearRegression = ({ handleAddDrugClick }) => {
                             onChange={(event) => handleFileChange(event)}
                         />
                     </Button>
-
+ 
                     {selectedFile && (
                         <Typography variant="body2" component="span" fontWeight="bold">
                             <span style={{ color: 'black' }}>Uploaded file: </span>
@@ -145,8 +147,8 @@ const LinearRegression = ({ handleAddDrugClick }) => {
                         <ClearIcon />
                     </IconButton>}
                 </Box>
-
-
+ 
+ 
                 {/* Historical Time Period Section */}
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
                     <Typography variant="subtitle2" sx={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
@@ -171,7 +173,7 @@ const LinearRegression = ({ handleAddDrugClick }) => {
                         </Box>
                     </LocalizationProvider>
                 </Box>
-
+ 
                 {/* Forecast Time Period Section */}
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                     <Typography variant="subtitle2" sx={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
@@ -196,7 +198,7 @@ const LinearRegression = ({ handleAddDrugClick }) => {
                         </Box>
                     </LocalizationProvider>
                 </Box>
-
+ 
                 {/* Button Container */}
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 2 }}>
                     <Box sx={{ display: 'flex', gap: 2 }}>
@@ -209,7 +211,7 @@ const LinearRegression = ({ handleAddDrugClick }) => {
                     </Box>
                 </Box>
             </Box>
-
+ 
             {/* Snackbar for file upload */}
             <Snackbar
                 open={snackbarOpen}
@@ -225,5 +227,5 @@ const LinearRegression = ({ handleAddDrugClick }) => {
         </>
     );
 };
-
+ 
 export default LinearRegression;
