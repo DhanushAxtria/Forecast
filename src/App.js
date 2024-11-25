@@ -9,7 +9,7 @@ import Page3 from './Body/Page3';
 import DataConsolidation from './Body/Data_Consolidation';
 //import Savedpage from './Body/Savedpage';
 import SavedScenario from './Body/Saved-Scenario';
-import HelpPage from  './Header/HelpPage';
+import HelpPage from './Header/HelpPage';
 import ScenarioDetails from './Body/Scenario_details'
 import ReviewScenario from './Body/ReviewScenario'
 import SummaryScenario from './Body/SummaryScenario'
@@ -18,15 +18,16 @@ import Inputpage from './Body/Inputpage'
 import Savedpage from './Body/Newpage'
 import Admin from './Body/Forecastpage'
 import Patient_Forecast from './Body/Patient_Forecast'
+import LinearRegression from './Body/LinearRegression';
 //import Navbar from './Body/Navbar'
 function App() {
-  const  [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false); // Initialize the state
+  const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false); // Initialize the state
   return (
     <SavedFilesProvider> {/* Wrap the app with SavedFilesProvider */}
-      
+
       <Router>
         {/* Header stays fixed across all pages */}
-        <Header hasUnsavedChanges={hasUnsavedChanges} setHasUnsavedChanges={setHasUnsavedChanges}/>
+        <Header hasUnsavedChanges={hasUnsavedChanges} setHasUnsavedChanges={setHasUnsavedChanges} />
         {/* Routes determine what body content to show */}
         <Routes>
           {/* Home Page Route - Display HomePage and Body */}
@@ -38,7 +39,7 @@ function App() {
 
           {/* New Scenario Page Route - Display BlankPage only */}
           <Route path="/new-scenario" element={<BlankPage />} />
-          <Route path="/help" element={<HelpPage />} /> 
+          <Route path="/help" element={<HelpPage />} />
           {/* Scenario Comparison Page Route */}
           <Route path="/scenario-comparsion" element={<ScenarioComparsion />} />
           <Route path="/data-consolidation" element={<DataConsolidation />} />
@@ -46,14 +47,14 @@ function App() {
           <Route path="/new-scenario/scenario-details" element={<ScenarioDetails />} />
           <Route path="/review-scenario" element={<ReviewScenario />} />
           <Route path="/Summary-scenario" element={<SummaryScenario />} />
-          <Route path="/submissions-tracker" element={<Submission_Tracker/>} />
-          <Route path="/" element={<ScenarioDetails hasUnsavedChanges={hasUnsavedChanges} setHasUnsavedChanges={setHasUnsavedChanges}/>} />
-          <Route path="new-scenario/scenario-details/Inputpage" element={<Inputpage/>} />
-          <Route path="/saved-scenario" element={<Savedpage/>} />
+          <Route path="/submissions-tracker" element={<Submission_Tracker />} />
+          <Route path="/" element={<ScenarioDetails hasUnsavedChanges={hasUnsavedChanges} setHasUnsavedChanges={setHasUnsavedChanges} />} />
+          <Route path="new-scenario/scenario-details/Inputpage" element={<Inputpage />} />
+          <Route path="/saved-scenario" element={<Savedpage />} />
           {/* <Route path="/Inputpage" element={<Inputpage/>} /> */}
-          <Route path="/admin" element={<Admin/>} />
-          <Route path="/forecastdeepdive" element={<Patient_Forecast/>} />
-
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/forecastdeepdive" element={<Patient_Forecast />} />
+          <Route path="/linearregression" element={<LinearRegression />} />
 
 
 
@@ -61,7 +62,7 @@ function App() {
           {/* Add more routes as needed */}
         </Routes>
       </Router>
-    </SavedFilesProvider> 
+    </SavedFilesProvider>
   );
 }
 

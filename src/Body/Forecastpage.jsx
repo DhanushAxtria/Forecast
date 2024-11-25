@@ -3,10 +3,12 @@ import { Drawer, Accordion, AccordionSummary, AccordionDetails, Typography, Box,
 import { ExpandMore } from '@mui/icons-material';
 import CloseIcon from '@mui/icons-material/Close';
 import Footer from '../Footer/Forecastpage_footer';
+import { MyContext } from './context';
+import { useContext } from 'react';
 
-const SidePanel = () => {
+const Admin = () => {
     const [selectedWorkbook, setSelectedWorkbook] = useState(null); // Track selected workbook
-    const [selectedSheet, setSelectedSheet] = useState(null); // Track selected sheet
+    const {selectedSheet, setSelectedSheet} = useContext(MyContext);   // Track selected sheet
     const [expandedAccordion, setExpandedAccordion] = useState(null); // Track which accordion is expanded
     const [drugDrawerOpen, setDrugDrawerOpen] = useState(false); // State to open/close drug drawer
     const [selectedDrugs, setSelectedDrugs] = useState([]); // Track selected drugs
@@ -29,6 +31,7 @@ const SidePanel = () => {
 
     const handleSheetSelect = (event) => {
         setSelectedSheet(event.target.value);
+        console.log(event.target.value);
     };
     const getColorForSheet = (index) => {
         const colors = ['#FF5733', '#33A1FF', '#33FF57', '#FF33D1', '#FFC733'];
@@ -179,4 +182,4 @@ const SidePanel = () => {
     );
 };
 
-export default SidePanel;
+export default Admin;
