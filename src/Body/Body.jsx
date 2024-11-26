@@ -6,10 +6,10 @@ import CardActionArea from '@mui/material/CardActionArea';
 import Box from '@mui/material/Box';
 import { useNavigate } from 'react-router-dom';
 import "./Body.scss";
-
+ 
 // Import new icons from Material UI
-import { Assessment, SaveAlt, FilePresent, CompareArrows, Insights, Security, QueryStats, Assignment } from '@mui/icons-material'; 
-
+import { Assessment, SaveAlt, FilePresent, CompareArrows, Insights, Security, QueryStats, Assignment } from '@mui/icons-material';
+ 
 const BlogGrid = () => {
   const navigate = useNavigate();
   return (
@@ -40,11 +40,11 @@ const BlogGrid = () => {
           justifyContent: 'center',
           maxWidth:'1200px', // Aligns the cards to the left
           alignItems:'center',
-          marginLeft:'-30px'
+          marginLeft: 'auto'
         }}
       >
         {/* Card 1: New Scenario */}
-        <div className="hoverCard" >
+        <div className="hoverCard" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <Card
             sx={{ width: 280, background: 'linear-gradient(135deg, #00c6ff, #0072ff)', color: 'white' }}
             className='featureCard'
@@ -57,8 +57,8 @@ const BlogGrid = () => {
                 <Typography gutterBottom variant="h6" component="div">
                   New Scenario
                 </Typography>
-                <Typography 
-                  variant="body2" 
+                <Typography
+                  variant="body2"
                   sx={{ color: 'text.secondary', textAlign: 'center', fontSize: '14px' }}  // Changed font size here
                 >
                   Create a new forecast scenario
@@ -69,9 +69,9 @@ const BlogGrid = () => {
           </Card>
           <div className="tooltipAbove">Create a new forecast scenario based on market data and trends.</div>
         </div>
-
+ 
         {/* Card 2: Saved Scenarios */}
-        <div className="hoverCard">
+        <div className="hoverCard" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <Card
             sx={{ width: 280, background: 'linear-gradient(135deg, #ff758c, #ff7eb3)', color: 'white' }}
             className='featureCard'
@@ -84,8 +84,8 @@ const BlogGrid = () => {
                 <Typography gutterBottom variant="h6" component="div">
                   Saved Scenarios
                 </Typography>
-                <Typography 
-                  variant="body2" 
+                <Typography
+                  variant="body2"
                   sx={{ color: 'text.secondary', textAlign: 'center', fontSize: '14px' }}  // Changed font size here
                 >
                   Access and manage your previously saved forecast scenarios.
@@ -95,9 +95,9 @@ const BlogGrid = () => {
           </Card>
           <div className="tooltipAbove">Access and manage your previously saved forecast scenarios.</div>
         </div>
-
+ 
         {/* Card 3: Data Consolidation */}
-        <div className="hoverCard">
+        <div className="hoverCard" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <Card
             sx={{ width: 280, background: 'linear-gradient(135deg, #ffafbd, #ffc3a0)', color: 'white' }}
             className='featureCard'
@@ -110,8 +110,8 @@ const BlogGrid = () => {
                 <Typography gutterBottom variant="h6" component="div">
                   Data Consolidation
                 </Typography>
-                <Typography 
-                  variant="body2" 
+                <Typography
+                  variant="body2"
                   sx={{ color: 'text.secondary', textAlign: 'center', fontSize: '14px' }}  // Changed font size here
                 >
                   Submit finalized forecast scenarios for review and approval.
@@ -121,9 +121,9 @@ const BlogGrid = () => {
           </Card>
           <div className="tooltipAbove">Submit finalized forecast scenarios for review and approval.</div>
         </div>
-
+ 
         {/* Card 4: Scenario Comparison */}
-        <div className="hoverCard">
+        <div className="hoverCard" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <Card
             sx={{ width: 280, background: 'linear-gradient(135deg, #a1ffce, #faffd1)', color: 'black' }}
             className='featureCard'
@@ -136,8 +136,8 @@ const BlogGrid = () => {
                 <Typography gutterBottom variant="h6" component="div">
                   Scenario Comparison
                 </Typography>
-                <Typography 
-                  variant="body2" 
+                <Typography
+                  variant="body2"
                   sx={{ color: 'text.secondary', textAlign: 'center', fontSize: '14px' }}  // Changed font size here
                 >
                   Compare different forecast scenarios to find optimal solutions.
@@ -147,7 +147,7 @@ const BlogGrid = () => {
           </Card>
           <div className="tooltipAbove">Compare different forecast scenarios to find optimal solutions.</div>
         </div>
-
+ 
         {/* Card 5: Forecast Deep-dive */}
         <div className="hoverCard">
           <Card
@@ -162,8 +162,8 @@ const BlogGrid = () => {
                 <Typography gutterBottom variant="h6" component="div">
                   Forecast Deep-dive
                 </Typography>
-                <Typography 
-                  variant="body2" 
+                <Typography
+                  variant="body2"
                   sx={{ color: 'text.secondary', textAlign: 'center', fontSize: '14px' }}  // Changed font size here
                 >
                   Dive deeper into your forecast results to uncover key insights.
@@ -173,7 +173,7 @@ const BlogGrid = () => {
           </Card>
           <div className="tooltipAbove">Dive deeper into your forecast results to uncover key insights.</div>
         </div>
-
+ 
         {/* Card 6: Admin */}
         <div className="hoverCard">
           <Card
@@ -188,8 +188,8 @@ const BlogGrid = () => {
                 <Typography gutterBottom variant="h6" component="div">
                   Admin
                 </Typography>
-                <Typography 
-                  variant="body2" 
+                <Typography
+                  variant="body2"
                   sx={{ color: 'text.secondary', textAlign: 'center', fontSize: '14px' }}  // Changed font size here
                 >
                   Manage and secure forecast models with admin privileges.
@@ -199,7 +199,7 @@ const BlogGrid = () => {
           </Card>
           <div className="tooltipAbove">Manage and secure forecast models with admin privileges.</div>
         </div>
-
+ 
         {/* Card 7: Generate Report */}
         <div className="hoverCard">
           <Card
@@ -214,8 +214,8 @@ const BlogGrid = () => {
                 <Typography gutterBottom variant="h6" component="div">
                   Generate Report
                 </Typography>
-                <Typography 
-                  variant="body2" 
+                <Typography
+                  variant="body2"
                   sx={{ color: 'text.secondary', textAlign: 'center', fontSize: '14px' }}  // Changed font size here
                 >
                   Generate detailed reports based on your forecast scenarios.
@@ -225,7 +225,7 @@ const BlogGrid = () => {
           </Card>
           <div className="tooltipAbove">Generate detailed reports based on your forecast scenarios.</div>
         </div>
-
+ 
         {/* Card 8: Submissions Tracker */}
         <div className="hoverCard">
           <Card
@@ -240,8 +240,8 @@ const BlogGrid = () => {
                 <Typography gutterBottom variant="h6" component="div">
                   Submissions Tracker
                 </Typography>
-                <Typography 
-                  variant="body2" 
+                <Typography
+                  variant="body2"
                   sx={{ color: 'text.secondary', textAlign: 'center', fontSize: '14px' }}  // Changed font size here
                 >
                   Track the status of all submitted forecast scenarios.
@@ -255,5 +255,5 @@ const BlogGrid = () => {
     </div>
   );
 };
-
+ 
 export default BlogGrid;
