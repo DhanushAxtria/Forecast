@@ -69,7 +69,7 @@ const LinearRegression = ({ handleAddDrugClick }) => {
                 formData.append('selectedToDate', selectedToDate);
  
                 try {
-                    const response = await axios.post('http://127.0.0.1:8000/upload', formData, {
+                    const response = await axios.post('https://axtria-forecast.vercel.app/upload', formData, {
                         headers: {
                             'Content-Type': 'multipart/form-data',
                         },
@@ -81,7 +81,7 @@ const LinearRegression = ({ handleAddDrugClick }) => {
                     console.log("dateee", response.data.selectedFromDate);
                     console.log("dateee", response.data.selectedToDate);
                     if (selectedFile !== null && selectedSheet !== null) {
-                        navigate("/linearregression");
+                        navigate("/forecasted_results");
                     }
                 } catch (error) {
                     alert("Please upload the correct data");
