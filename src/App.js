@@ -18,7 +18,7 @@ import Inputpage from './Body/Inputpage'
 import Savedpage from './Body/Newpage'
 import Admin from './Body/Forecastpage'
 import Patient_Forecast from './Body/Patient_Forecast'
-import LinearRegression from './Body/LinearRegression';
+import Forecasted_Results from './Body/forecasted_results';
 //import Navbar from './Body/Navbar'
 function App() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false); // Initialize the state
@@ -54,11 +54,7 @@ function App() {
           {/* <Route path="/Inputpage" element={<Inputpage/>} /> */}
           <Route path="/admin" element={<Admin />} />
           <Route path="/forecastdeepdive" element={<Patient_Forecast />} />
-          <Route path="/linearregression" element={<LinearRegression />} />
-
-
-
-
+          <Route path="/forecasted_results" element={<Forecasted_Results />} />
           {/* Add more routes as needed */}
         </Routes>
       </Router>
