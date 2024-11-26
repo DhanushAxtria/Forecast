@@ -10,7 +10,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ClearIcon from '@mui/icons-material/Clear';
 import UploadIcon from '@mui/icons-material/Upload';
 import axios from 'axios';
- 
+
 const LinearRegression = ({ handleAddDrugClick }) => {
     const [historyFromDate, setHistoryFromDate] = useState(null);
     const [historyToDate, setHistoryToDate] = useState(null);
