@@ -374,44 +374,61 @@ const ProductListPage = () => {
     };
 
     const handleAddRow = (tabKey, tableKey, productId) => {
-        // Get the current list of products for the specific tab and table
-        const tableProducts = products[tabKey][tableKey];
-        const num = tableKey === 'table1' ? 1 : tableKey === 'table2' ? 2 : 3;
-        // Find the index of the clicked product
+        const tableProducts = products[tabKey][tableKey];  // Get the correct list of products for this table
+
+        // Find the index of the clicked product (if it's a valid productId)
         const index = tableProducts.findIndex((product) => product.id === productId);
 
-        if (index === -1) return; // Exit if productId doesn't match anything
-
-        // Create a new product object (incremental ID based on current product count)
-        const newProduct = {
-            id: `T${num}-${tableProducts.length + 1}`, // Make sure ID is unique and incremental
-            name: `New Product ${tableProducts.length + 1}`, // Default name for the new product
+        // Generate a unique ID using timestamp to avoid duplicates
+        const generateUniqueId = () => {
+            return `${tableKey}-${Date.now()}`;
         };
 
+        // If no valid index is found (productId doesn't match), add the new row at the end
+        if (index === -1) {
+            const newProduct = {
+                id: generateUniqueId(),  // Generate unique ID
+                name: `New Product ${tableProducts.length + 1}`,
+            };
 
-        // Create a new array with the new product inserted below the clicked row
+            // Add the new product at the end of the array
+            const updatedProducts = [...tableProducts, newProduct];
+
+            setProducts((prevProducts) => ({
+                ...prevProducts,
+                [tabKey]: {
+                    ...prevProducts[tabKey],
+                    [tableKey]: updatedProducts,  // Update the table with the new product
+                },
+            }));
+            return;
+        }
+
+        // Create a new product object with a unique ID and name for insertion
+        const newProduct = {
+            id: generateUniqueId(),  // Generate unique ID for the new row
+            name: `New Product ${tableProducts.length + 1}`,
+        };
+
+        // Insert the new row just below the clicked product
         const updatedProducts = [
-            ...tableProducts.slice(0, index + 1), // Copy products before the clicked product
-            newProduct, // Insert new product below the clicked row
-            ...tableProducts.slice(index + 1), // Copy products after the clicked product
+            ...tableProducts.slice(0, index + 1),  // Get products before the clicked row
+            newProduct,                            // Insert new product below the clicked row
+            ...tableProducts.slice(index + 1),     // Get products after the clicked row
         ];
 
-        // Update the state with the new row
+        // Update the state with the new list of products
         setProducts((prevProducts) => ({
             ...prevProducts,
             [tabKey]: {
                 ...prevProducts[tabKey],
-                [tableKey]: updatedProducts, // Update the correct table for this tab
+                [tableKey]: updatedProducts, // Update the table in the state
             },
         }));
-        console.log(products[tabKey][tableKey]);
     };
 
-
-
     const handleDeleteRow = (productId, tabKey, tableKey) => {
-        // Get the current list of products for the specific tab and table
-        const tableProducts = products[tabKey][tableKey];
+        const tableProducts = products[tabKey][tableKey];  // Get the current list of products
 
         // Filter out the product with the specified productId
         const updatedProducts = tableProducts.filter((product) => product.id !== productId);
@@ -421,7 +438,7 @@ const ProductListPage = () => {
             ...prevProducts,
             [tabKey]: {
                 ...prevProducts[tabKey],
-                [tableKey]: updatedProducts, // Update the correct table for this tab
+                [tableKey]: updatedProducts, // Update the table for this tab with the updated products
             },
         }));
     };
@@ -711,6 +728,7 @@ const ProductListPage = () => {
         }));
     };
 
+
     const renderTable = (tabKey, tableKey) => {
         const tableProducts = products[tabKey][tableKey]; // Get the correct products for this table
 
@@ -742,7 +760,7 @@ const ProductListPage = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {tableProducts.map((product) => (
+                        {tableProducts.map((product, index) => (
                             <tr key={product.id}>
                                 <td >
                                     <div style={{
@@ -792,15 +810,13 @@ const ProductListPage = () => {
                                                         <EditIcon fontSize="small" />
                                                     </IconButton>
                                                 </Tooltip>
-                                                {tableProducts[tableProducts.length - 1].id !== product.id && (
+                                                {index !== tableProducts.length - 1 ? (
                                                     <Tooltip title="Add Row" placement="top" >
                                                         <IconButton onClick={() => handleAddRow(tabKey, tableKey, product.id)} style={{ marginLeft: '8px' }}>
                                                             <AddIcon fontSize="small" />
                                                         </IconButton>
                                                     </Tooltip>
-                                                )}
-                                                {tableProducts[tableProducts.length - 1].id === product.id && (
-
+                                                ) : (
                                                     <IconButton style={{ marginLeft: '8px', color: 'lightgrey' }} disabled>
                                                         <AddIcon fontSize="small" />
                                                     </IconButton>

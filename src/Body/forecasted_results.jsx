@@ -3,12 +3,15 @@ import { MyContext } from '../Body/context';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from '@mui/material';
 import { Box, Typography } from '@mui/material';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import * as XLSX from 'xlsx';  // Import xlsx for CSV export functionality
+import { ShowChart } from '@mui/icons-material';
 
 export default function Forecasted_Results() {
   const { ForecastedValue } = useContext(MyContext);
   const { ParsedData } = useContext(MyContext);
   const { selectedSheet } = useContext(MyContext);
+  const { isCol, setIsCol } = useContext(MyContext);
+  const { met, setMet } = useContext(MyContext);
+  const [ShowPara, setShowPara] = useState(false);
 
   // State to control the visibility of the tables
   const [showParsedData, setShowParsedData] = useState(false);
@@ -56,17 +59,6 @@ export default function Forecasted_Results() {
         >
           {title}
         </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          size="small"
-          onClick={() =>
-            exportToCSV(title === 'Historical Data' ? ParsedData : ForecastedValue, title)
-          }
-          sx={{ marginRight: 1 }}
-        >
-          download {title}
-        </Button>
         <TableContainer
           component={Paper}
           sx={{ boxShadow: 3, borderRadius: 2, padding: 2, overflowX: 'auto' }}
@@ -118,26 +110,24 @@ export default function Forecasted_Results() {
   };
 
   // Function to export the table as CSV
-  const exportToCSV = (data, title) => {
-    const { months, ...forecastData } = data;
-    const rows = Object.values(forecastData);
-
-    // Prepare data to be in CSV format
-    const formattedData = rows.map((row, rowIndex) => {
-      const formattedRow = {};  // Add month as the first column
-      row.forEach((value, colIndex) => {
-        formattedRow[months[colIndex]] = value !== null ? value.toFixed(2) : '-';  // Use the month as the column header
-      });
-      return formattedRow;
-    });
-
-    // Create the sheet and generate the CSV file
-    const ws = XLSX.utils.json_to_sheet(formattedData);  // Include months in header
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, title);
-
-    // Export the CSV file
-    XLSX.writeFile(wb, `${title}.csv`);
+  const exportToCSV = (data1, data2, isCol) => {
+    let csvContent;
+    const months = data1.months.concat(data2.months);
+    const forecastRows = data1[0].concat(data2[0]);
+    if (isCol) {
+      csvContent = months.map((month, index) => `${month},${forecastRows[index]}`).join('\n');
+    }
+    else {
+      csvContent = [months.join(','), forecastRows.join(',')].join('\n');
+    }
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `${selectedSheet}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -157,14 +147,14 @@ export default function Forecasted_Results() {
             onClick={() => setShowParsedData(!showParsedData)}
             sx={{ marginRight: 2 }}
           >
-            {showParsedData ? 'Hide Historical Data' : 'Show Historical Data'}
+            {showParsedData ? 'Hide Historical Table' : 'Show Historical Table'}
           </Button>
           <Button
             variant="contained"
             color="secondary"
             onClick={() => setShowForecastedValue(!showForecastedValue)}
           >
-            {showForecastedValue ? 'Hide Forecasted Data' : 'Show Forecasted Data'}
+            {showForecastedValue ? 'Hide Forecasted Table' : 'Show Forecasted Table'}
           </Button>
         </Box>
 
@@ -176,7 +166,47 @@ export default function Forecasted_Results() {
         {showForecastedValue && ForecastedValue && renderTable(ForecastedValue, 'Forecasted Data')}
       </Box>
 
-      {/* Chart for the combined data */}
+      <Button
+        variant="contained"
+        color="primary"
+        size="small"
+        onClick={() =>
+          exportToCSV(ParsedData, ForecastedValue, isCol)
+        }
+        sx={{ marginLeft: 3, marginBottom: 2 }}
+      >
+        download the data
+      </Button>
+      <Typography variant="h5" gutterBottom sx={{ textAlign: 'center', fontWeight: 'bold', color: 'primary.main' }}>
+          Evaluation Metrics
+        </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 2, marginTop: 2, marginBottom: 2, height: '50%' }}>
+        
+        {Object.entries(met).map(([key, value]) => (
+          <Box
+            key={key}
+            sx={{
+              padding: 0.5,
+              border: '1px solid',
+              borderColor: 'primary.dark',
+              borderRadius: '8px',
+              textAlign: 'center',
+              backgroundColor: 'background.paper',
+              boxShadow: 3,
+              transition: 'transform 0.3s, box-shadow 0.3s',
+              '&:hover': {
+                transform: 'scale(1.05)',
+                boxShadow: 6,
+              },
+              width: 'fit-content',
+            }}
+          >
+            <Typography variant="h10" sx={{ color: 'primary.main' }}>
+              <span style={{fontWeight: 'normal'}}>{key}:</span> <span style={{fontWeight: 'bold'}}>{value.toFixed(4)}</span>
+            </Typography>
+          </Box>
+        ))}
+      </Box>
       <ResponsiveContainer width="100%" height={400}>
         <LineChart data={combinedData}>
           <CartesianGrid strokeDasharray="5 5" stroke="#ddd" />
@@ -228,6 +258,7 @@ export default function Forecasted_Results() {
           />
         </LineChart>
       </ResponsiveContainer>
+
     </>
   );
 }

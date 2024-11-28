@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Box, Typography, TextField, Button, Snackbar, IconButton } from '@mui/material';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers';
@@ -11,6 +11,8 @@ import ClearIcon from '@mui/icons-material/Clear';
 import UploadIcon from '@mui/icons-material/Upload';
 import LinearProgress from '@mui/material/LinearProgress';
 import axios from 'axios';
+import Papa from 'papaparse';
+
 
 const LinearRegression = ({ handleAddDrugClick }) => {
     const [historyFromDate, setHistoryFromDate] = useState(null);
@@ -22,18 +24,47 @@ const LinearRegression = ({ handleAddDrugClick }) => {
     const { selectedSheet, setSelectedSheet } = useContext(MyContext);
     const { ForecastedValue, setForecastValue } = useContext(MyContext);
     const { ParsedData, setParsedData } = useContext(MyContext);
-    //const [loading, setloading] = useState(false);
+    const [HistoricalFrom, setHistoricalFrom] = useState(null);
+    const [HistoricalTO, setHistoricalTo] = useState(null);
+    const [Loading, setLoading] = useState(false);
     const navigate = useNavigate();
-
-    // Snackbar states
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarType, setSnackbarType] = useState('success'); // 'success' or 'error'
+    const {isCol, setIsCol} = useContext(MyContext);
+    const {met, setMet} = useContext(MyContext);
+
+
+    const parseDate = (dateStr) => {
+        const [monthStr, yearStr] = dateStr.split('-');
+        const month = new Date(`${monthStr}-01-2000`).getMonth(); // Get month index
+        const year = 2000 + parseInt(yearStr); // Convert to full year
+        return new Date(year, month, 1); // Create Date object for the first day of the month
+    };
 
     const handleFileChange = (event) => {
         const file = event.target.files[0]; // Get the first file
         if (file) {
             setSelectedFile(file);
+
+            // to get the min and max dates for the historical data
+            Papa.parse(file, {
+                complete: (result) => {
+                    if (result.data && result.data.length > 0 && result.data[0].length > 2) {
+                        setIsCol(false);
+                        // Assuming the first row is the header
+                        setHistoricalFrom(result.data[0][0]);
+                        setHistoricalTo(result.data[0][result.data[0].length - 1]);
+                    }
+                    else {
+                        setIsCol(true);
+                        setHistoricalFrom(result.data[0][0]);
+                        setHistoricalTo(result.data[result.data.length - 1][0]);
+                    }
+                },
+                skipEmptyLines: true,
+            });
+
             setFileName(file.name);
 
             // Show success Snackbar
@@ -42,6 +73,8 @@ const LinearRegression = ({ handleAddDrugClick }) => {
             setSnackbarOpen(true);
         }
     };
+
+
     const handleRemoveFile = () => {
         setSelectedFile(null);
         setFileName("");
@@ -70,22 +103,18 @@ const LinearRegression = ({ handleAddDrugClick }) => {
             formData.append('selectedFromDate', selectedFromDate);
             formData.append('selectedToDate', selectedToDate);
             console.log("dataaa", selectedFile);
-            // setloading(true);
-            // {
-            //     loading &&
-            //     <Box sx={{ width: '100%' }}>
-            //         <LinearProgress />
-            //     </Box>
-            // }
+            setLoading(true);
             try {
                 const response = await axios.post('https://fast-api-forecast.onrender.com/upload', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
                 });
-                // setloading(false);
+                setLoading(false);
                 setForecastValue(response.data.forecast);
                 setParsedData(response.data.dt);
+                console.log(response.data.metrices);
+                setMet(response.data.metrices);
                 console.log("dateee", response.data.historyFromDate);
                 console.log("dateee", response.data.historyToDate);
                 console.log("dateee", response.data.selectedFromDate);
@@ -94,7 +123,7 @@ const LinearRegression = ({ handleAddDrugClick }) => {
                     navigate("/forecasted_results");
                 }
             } catch (error) {
-                // setloading(false);
+                setLoading(false);
                 alert("Please upload the correct data");
                 console.error('Error uploading file:', error);
             }
@@ -119,12 +148,12 @@ const LinearRegression = ({ handleAddDrugClick }) => {
                 alignItems: 'flex-start',
                 marginTop: '-60px',
             }}>
-
-
-
-
                 {/* File Upload Status */}
-                <Box sx={{ mt: 2 }}>
+                <Typography variant="subtitle2" sx={{ fontSize: '0.9rem', fontWeight: 'bold', marginTop: '20px' }}>
+                    Upload historical data
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 2, marginTop: '10px', alignItems: 'center' }}>
+
                     <Button
                         variant="contained"
                         color="primary"
@@ -132,7 +161,7 @@ const LinearRegression = ({ handleAddDrugClick }) => {
                         sx={{
                             borderRadius: 1,
                             marginRight: '10px',
-                            marginBottom: '10px'
+                            marginBottom: '5px'
                         }}
                         startIcon={<UploadIcon />}
                     >
@@ -159,9 +188,38 @@ const LinearRegression = ({ handleAddDrugClick }) => {
                     </IconButton>}
                 </Box>
 
+                <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, marginTop: '10px', alignItems: 'center' }}>
+                    <Typography variant="subtitle2" sx={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
+                        Uploaded file should be in either of the two formats:
+                    </Typography>
+                    <Typography variant="subtitle2" component="span" sx={{ fontSize: '0.9rem', '&:hover': { cursor: 'pointer', color: 'blue' } }}
+                        onClick={() => {
+                            const link = document.createElement('a');
+                            link.href = '/demo_file_1.csv';
+                            link.setAttribute('download', 'demo_file_1.csv');
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        }}
+                    >
+                        Demo File 1
+                    </Typography>
+                    <Typography variant="subtitle2" component="span" sx={{ fontSize: '0.9rem', '&:hover': { cursor: 'pointer', color: 'blue' } }}
+                        onClick={() => {
+                            const link = document.createElement('a');
+                            link.href = '/demo_file_2.csv';
+                            link.setAttribute('download', 'demo_file_2.csv');
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        }}>
+                        Demo File 2
+                    </Typography>
+                </Box>
+
 
                 {/* Historical Time Period Section */}
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2, marginTop: '10px' }}>
                     <Typography variant="subtitle2" sx={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
                         Historical Time Period
                     </Typography>
@@ -173,6 +231,9 @@ const LinearRegression = ({ handleAddDrugClick }) => {
                                 onChange={(newValue) => setHistoryFromDate(newValue)}
                                 renderInput={(params) => <TextField {...params} size="small" sx={{ fontSize: '0.7rem' }} />}
                                 views={["year", "month"]}
+                                minDate={HistoricalFrom !== null ? parseDate(HistoricalFrom) : null}
+                                maxDate={HistoricalTO !== null ? parseDate(HistoricalTO) : null}
+
                             />
                             <DatePicker
                                 label="To"
@@ -180,6 +241,8 @@ const LinearRegression = ({ handleAddDrugClick }) => {
                                 onChange={(newValue) => setHistoryToDate(newValue)}
                                 renderInput={(params) => <TextField {...params} size="small" sx={{ fontSize: '0.7rem' }} />}
                                 views={["year", "month"]}
+                                minDate={HistoricalFrom !== null ? parseDate(HistoricalFrom) : null}
+                                maxDate={HistoricalTO !== null ? parseDate(HistoricalTO) : null}
                             />
                         </Box>
                     </LocalizationProvider>
@@ -221,8 +284,15 @@ const LinearRegression = ({ handleAddDrugClick }) => {
                         </Button>
                     </Box>
                 </Box>
+
             </Box>
 
+            {Loading &&
+                <Box sx={{ width: '100%' }}>
+                    <Typography variant="body2" sx={{ mt: 2, textAlign: 'left', fontSize: '1.1rem', fontWeight: 'bold' }}>Please wait while the model is working on your data.</Typography>
+                    <LinearProgress color="success" />
+                </Box>
+            }
             {/* Snackbar for file upload */}
             <Snackbar
                 open={snackbarOpen}
