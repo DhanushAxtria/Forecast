@@ -108,7 +108,7 @@ const LinearRegression = ({ handleAddDrugClick }) => {
             console.log("dataaa", selectedFile);
             setLoading(true);
             try {
-                const response = await axios.post('http://localhost:8000/upload', formData, {
+                const response = await axios.post('https://fast-api-forecast.onrender.com/upload', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
