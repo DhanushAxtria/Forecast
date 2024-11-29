@@ -11,14 +11,15 @@ import ClearIcon from '@mui/icons-material/Clear';
 import UploadIcon from '@mui/icons-material/Upload';
 import LinearProgress from '@mui/material/LinearProgress';
 import axios from 'axios';
+import CircularProgress from '@mui/material/CircularProgress';
 import Papa from 'papaparse';
 
 
 const LinearRegression = ({ handleAddDrugClick }) => {
-    const [historyFromDate, setHistoryFromDate] = useState(null);
-    const [historyToDate, setHistoryToDate] = useState(null);
-    const [selectedFromDate, setSelectedFromDate] = useState(null);
-    const [selectedToDate, setSelectedToDate] = useState(null);
+    const {historyFromDate, setHistoryFromDate} = useContext(MyContext);
+    const {historyToDate, setHistoryToDate} = useContext(MyContext);
+    const {selectedFromDate, setSelectedFromDate} = useContext(MyContext);
+    const {selectedToDate, setSelectedToDate} = useContext(MyContext);
     const [FileName, setFileName] = useState("");
     const { selectedFile, setSelectedFile } = useContext(MyContext);
     const { selectedSheet, setSelectedSheet } = useContext(MyContext);
@@ -31,8 +32,10 @@ const LinearRegression = ({ handleAddDrugClick }) => {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarType, setSnackbarType] = useState('success'); // 'success' or 'error'
-    const {isCol, setIsCol} = useContext(MyContext);
-    const {met, setMet} = useContext(MyContext);
+    const { isCol, setIsCol } = useContext(MyContext);
+    const { met, setMet } = useContext(MyContext);
+
+
 
 
     const parseDate = (dateStr) => {
@@ -105,7 +108,7 @@ const LinearRegression = ({ handleAddDrugClick }) => {
             console.log("dataaa", selectedFile);
             setLoading(true);
             try {
-                const response = await axios.post('https://fast-api-forecast.onrender.com/upload', formData, {
+                const response = await axios.post('http://localhost:8000/upload', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
@@ -120,7 +123,7 @@ const LinearRegression = ({ handleAddDrugClick }) => {
                 console.log("dateee", response.data.selectedFromDate);
                 console.log("dateee", response.data.selectedToDate);
                 if (selectedFile !== null && selectedSheet !== null) {
-                    navigate("/forecasted_results");
+                    navigate("/admin/forecasted_results");
                 }
             } catch (error) {
                 setLoading(false);
@@ -177,7 +180,7 @@ const LinearRegression = ({ handleAddDrugClick }) => {
                     {selectedFile && (
                         <Typography variant="body2" component="span" fontWeight="bold">
                             <span style={{ color: 'black' }}>Uploaded file: </span>
-                            <span style={{ color: 'red' }}>{FileName}</span>
+                            <span style={{ color: 'red' }}>{selectedFile.name}</span>
                         </Typography>
                     )}
                     {selectedFile && <IconButton
@@ -192,7 +195,7 @@ const LinearRegression = ({ handleAddDrugClick }) => {
                     <Typography variant="subtitle2" sx={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
                         Uploaded file should be in either of the two formats:
                     </Typography>
-                    <Typography variant="subtitle2" component="span" sx={{ fontSize: '0.9rem', '&:hover': { cursor: 'pointer', color: 'blue' } }}
+                    <Typography variant="subtitle2" component="span" sx={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'blue', textDecoration: 'underline', '&:hover': { cursor: 'pointer' } }}
                         onClick={() => {
                             const link = document.createElement('a');
                             link.href = '/demo_file_1.csv';
@@ -204,7 +207,7 @@ const LinearRegression = ({ handleAddDrugClick }) => {
                     >
                         Demo File 1
                     </Typography>
-                    <Typography variant="subtitle2" component="span" sx={{ fontSize: '0.9rem', '&:hover': { cursor: 'pointer', color: 'blue' } }}
+                    <Typography variant="subtitle2" component="span" sx={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'blue', textDecoration: 'underline', '&:hover': { cursor: 'pointer' } }}
                         onClick={() => {
                             const link = document.createElement('a');
                             link.href = '/demo_file_2.csv';
@@ -261,6 +264,8 @@ const LinearRegression = ({ handleAddDrugClick }) => {
                                 onChange={(newValue) => setSelectedFromDate(newValue)}
                                 renderInput={(params) => <TextField {...params} size="small" sx={{ fontSize: '0.7rem' }} />}
                                 views={["year", "month"]}
+                                minDate={historyToDate !== null ? new Date(historyToDate.getFullYear(), historyToDate.getMonth() + 1, 1) : null}
+
                             />
                             <DatePicker
                                 label="To"
@@ -268,6 +273,8 @@ const LinearRegression = ({ handleAddDrugClick }) => {
                                 onChange={(newValue) => setSelectedToDate(newValue)}
                                 renderInput={(params) => <TextField {...params} size="small" sx={{ fontSize: '0.7rem' }} />}
                                 views={["year", "month"]}
+                                minDate={selectedFromDate !== null ? new Date(selectedFromDate.getFullYear(), selectedFromDate.getMonth(), 1) : null}
+
                             />
                         </Box>
                     </LocalizationProvider>
@@ -288,9 +295,26 @@ const LinearRegression = ({ handleAddDrugClick }) => {
             </Box>
 
             {Loading &&
-                <Box sx={{ width: '100%' }}>
-                    <Typography variant="body2" sx={{ mt: 2, textAlign: 'left', fontSize: '1.1rem', fontWeight: 'bold' }}>Please wait while the model is working on your data.</Typography>
-                    <LinearProgress color="success" />
+                <Box
+                    sx={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        width: '100vw',
+                        height: '100vh',
+                        backgroundColor: 'rgba(255,255,255,0.8)',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        zIndex: 1000
+                    }}
+                >
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <CircularProgress />
+                        <Typography variant="body2" sx={{ textAlign: 'center', fontSize: '1.1rem', fontWeight: 'bold', marginTop: 2 }}>
+                            Please wait while the model is working on your data.
+                        </Typography>
+                    </Box>
                 </Box>
             }
             {/* Snackbar for file upload */}

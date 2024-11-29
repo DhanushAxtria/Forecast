@@ -54,7 +54,7 @@ function App() {
           {/* <Route path="/Inputpage" element={<Inputpage/>} /> */}
           <Route path="/admin" element={<Admin />} />
           <Route path="/forecastdeepdive" element={<Patient_Forecast />} />
-          <Route path="/forecasted_results" element={<Forecasted_Results />} />
+          <Route path="/admin/forecasted_results" element={<Forecasted_Results />} />
           {/* Add more routes as needed */}
         </Routes>
       </Router>

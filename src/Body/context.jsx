@@ -9,6 +9,10 @@ const MyProvider = ({ children }) => {
     const [ ParsedData, setParsedData ] = useState(null);
     const [isCol, setIsCol] = useState(false);
     const [met, setMet] = useState(null);
+    const [historyFromDate, setHistoryFromDate] = useState(null);
+    const [historyToDate, setHistoryToDate] = useState(null);
+    const [selectedFromDate, setSelectedFromDate] = useState(null);
+    const [selectedToDate, setSelectedToDate] = useState(null);
 
   return (
     <MyContext.Provider value={{  
@@ -18,6 +22,10 @@ const MyProvider = ({ children }) => {
         ParsedData, setParsedData,
         isCol, setIsCol,
         met, setMet,
+        historyFromDate, setHistoryFromDate,
+        historyToDate, setHistoryToDate,
+        selectedFromDate, setSelectedFromDate,
+        selectedToDate, setSelectedToDate,
         }}>
       {children}
     </MyContext.Provider>

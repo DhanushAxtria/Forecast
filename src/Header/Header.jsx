@@ -32,6 +32,7 @@ import Link from '@mui/material/Link';
 import HomeIcon from '@mui/icons-material/Home';
 import axtriaImage from '../assets/axtria-logo.png';
 import React, { useState, useEffect } from 'react';
+import Tooltip from '@mui/material/Tooltip';
 import { Dialog, DialogActions, DialogContent, DialogTitle, Button } from '@mui/material';
 
 // **Define the drawer width**
@@ -281,23 +282,26 @@ export default function PersistentDrawerLeft(props) {
           </Box>
         </DrawerHeader>
 
-        <List>
-          {[{ text: 'New Scenario', icon: <Assessment />, path: '/new-scenario' },
-          { text: 'Saved Scenario', icon: <SaveAlt />, path: '/saved-scenario' },
-          { text: 'Data Consolidation', icon: <FilePresent />, path: '/data-consolidation' },
-          { text: 'Scenario Comparison', icon: <CompareArrows />, path: '/scenario-comparison' },
-          { text: 'Forecast Deep-dive', icon: <Insights />, path: '/forecast-deep-dive' },
-          { text: 'Generate Report', icon: <Summarize />, path: '/generate-report' },
-          { text: 'Submissions Tracker', icon: <TrackChanges />, path: '/submission-tracking' },
-          { text: 'Admin', icon: <Security />, path: '/admin' }
+        <List sx={{ width: '100', bgcolor: 'background.paper', borderRadius: '10px', overflow: 'auto' }}>
+          {[
+            { text: 'New Scenario', icon: <Assessment />, path: '/new-scenario' },
+            { text: 'Saved Scenario', icon: <SaveAlt />, path: '/saved-scenario' },
+            { text: 'Data Consolidation', icon: <FilePresent />, path: '/data-consolidation' },
+            { text: 'Scenario Comparison', icon: <CompareArrows />, path: '/scenario-comparison' },
+            { text: 'Forecast Deep-dive', icon: <Insights />, path: '/forecast-deep-dive' },
+            { text: 'Generate Report', icon: <Summarize />, path: '/generate-report' },
+            { text: 'Submissions Tracker', icon: <TrackChanges />, path: '/submission-tracking' },
+            { text: 'Admin', icon: <Security />, path: '/admin' }
           ].map((item) => (
-            <ListItem key={item.text} disablePadding>
+            <ListItem key={item.text} disablePadding sx={{ '&:hover': { bgcolor: '#f5f5f5' } }}>
               <ListItemButton onClick={() => {
                 navigate(item.path);
                 handleDrawerClose();  // Close the drawer after navigating
-              }}>
-                <ListItemIcon>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.text} />
+              }} sx={{ borderRadius: '10px' }}>
+                <ListItemIcon sx={{ color: 'primary.main' }}>{item.icon}</ListItemIcon>
+                <Tooltip title={item.text} placement="top">
+                  <ListItemText primary={item.text} primaryTypographyProps={{ fontWeight: 600, fontSize: 16, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} />
+                </Tooltip>
               </ListItemButton>
             </ListItem>
           ))}

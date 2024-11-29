@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import CalculateIcon from '@mui/icons-material/Calculate';
 import FormControl from '@mui/material/FormControl';
+import UploadIcon from '@mui/icons-material/Upload';
 import Select from '@mui/material/Select';
 import {
     TextField,
@@ -826,116 +827,7 @@ const ProductListPage = () => {
                                                         <CalculateIcon fontSize="small" />
                                                     </IconButton>
                                                 </Tooltip>
-                                                {(
-                                                    <Dialog
-                                                        open={showFormula}
-                                                        onClose={() => {
-                                                            setShowFormula(false);
-                                                        }}
-                                                        aria-labelledby="alert-dialog-title"
-                                                        aria-describedby="alert-dialog-description"
-                                                        fullWidth
-                                                        maxWidth='sm'
-                                                        BackdropProps={{
-                                                            style: {
-                                                                backgroundColor: 'rgba(0,0,0,0.2)', // Make backdrop slightly dark and transparent
-                                                            },
-                                                        }}
 
-                                                        PaperProps={{
-                                                            sx: {
-                                                                borderRadius: '12px',
-                                                                boxShadow: 4,
-                                                                overflow: 'hidden',
-                                                            },
-                                                        }}
-
-                                                    >
-                                                        <DialogTitle sx={{
-                                                            textAlign: 'center',
-                                                            fontWeight: 'bold',
-                                                            fontSize: '1.8rem',
-                                                            color: '#1976d2',
-                                                            bgcolor: '#f0f4fa',
-                                                            padding: '20px',
-                                                            borderRadius: '12px 12px 0 0'
-                                                        }}
-                                                            id="alert-dialog-title">Formula for row: {tableProducts.find(product => product.id === formulaProductId)?.name}</DialogTitle>
-                                                        <DialogContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-
-                                                            <br></br>
-                                                            <br></br>
-                                                            {/* Render each dropdown dynamically based on selectedValues and operators */}
-                                                            {selectedValues.map((selectedValue, index) => (
-                                                                <div key={index} style={{ width: 400, display: 'flex', alignItems: 'center', marginBottom: 16 }}>
-                                                                    {/* Operator Dropdown on the left */}
-                                                                    {index > 0 && (
-                                                                        <FormControl style={{ width: 100, marginRight: 8 }}>
-                                                                            <InputLabel id={`operator-label-${index}`}>Operator</InputLabel>
-                                                                            <Select
-                                                                                labelId={`operator-label-${index}`}
-                                                                                id={`operator-${index}`}
-                                                                                value={operators[index]}
-                                                                                onChange={(e) => handleSelectChange(index, 'operator', e)}
-                                                                                label="Operator"
-                                                                            >
-                                                                                <MenuItem value="+">+</MenuItem>
-                                                                                <MenuItem value="-">-</MenuItem>
-                                                                                <MenuItem value="*">*</MenuItem>
-                                                                                <MenuItem value="/">/</MenuItem>
-                                                                            </Select>
-                                                                        </FormControl>
-                                                                    )}
-
-                                                                    {/* Formula Dropdown on the right */}
-                                                                    <FormControl fullWidth style={{ flexGrow: 1 }}>
-                                                                        <InputLabel id={`select-label-${index}`}>Select column {index + 1}</InputLabel>
-                                                                        <Select
-                                                                            labelId={`select-label-${index}`}
-                                                                            id={`select-${index}`}
-                                                                            value={selectedValue}
-                                                                            onChange={(e) => handleSelectChange(index, 'formula', e)}
-                                                                            label={`Select Formula ${index + 1}`}
-                                                                        >
-                                                                            {Object.keys(products[tabKey]).map((tableKey) => (
-                                                                                products[tabKey][tableKey].map((product) => (
-                                                                                    <MenuItem key={product.id} value={product.name}>
-                                                                                        {product.name}
-                                                                                    </MenuItem>
-                                                                                ))
-                                                                            ))}
-
-
-                                                                        </Select>
-                                                                    </FormControl>
-
-                                                                    {/* Delete Button */}
-                                                                    <IconButton
-                                                                        onClick={() => handleDeleteDropdown(index)}
-                                                                        color="secondary"
-                                                                        style={{ marginLeft: 8 }}
-                                                                    >
-                                                                        <DeleteIcon />
-                                                                    </IconButton>
-                                                                </div>
-                                                            ))}
-
-                                                            {/* Button to add a new dropdown */}
-                                                            <Button onClick={handleAddDropdown} color="primary" fullWidth>
-                                                                Add New Dropdown
-                                                            </Button>
-                                                        </DialogContent>
-
-                                                        <DialogActions >
-                                                            <Button onClick={() => { setShowFormula(false); }} color="secondary" variant="contained" sx={{ fontWeight: 'bold', borderRadius: '8px' }}>
-                                                                Cancel
-                                                            </Button>
-                                                            <Button color="secondary" variant="contained" sx={{ fontWeight: 'bold', borderRadius: '8px' }} onClick={() => handleApply(tabKey, formulaProductId)}>
-                                                                Apply
-                                                            </Button>
-                                                        </DialogActions>
-                                                    </Dialog>
-                                                )}
                                                 <Tooltip title="Delete Row" placement="top" >
                                                     <IconButton onClick={() => handleDeleteRow(product.id, tabKey, tableKey)} style={{ marginLeft: '8px' }}>
                                                         <DeleteIcon fontSize="small" />
@@ -967,6 +859,118 @@ const ProductListPage = () => {
                         ))}
                     </tbody>
                 </table>
+                {(
+                    <Dialog
+                        open={showFormula}
+                        onClose={() => {
+                            setShowFormula(false);
+                        }}
+                        aria-labelledby="alert-dialog-title"
+                        aria-describedby="alert-dialog-description"
+                        fullWidth
+                        maxWidth='sm'
+                        BackdropProps={{
+                            style: {
+                                zIndex: 1400,
+                                backgroundColor: 'rgba(0,0,0,0.2)', // Make backdrop slightly dark and transparent
+                            },
+                        }}
+
+                        PaperProps={{
+                            sx: {
+                                zIndex: 1600,
+                                borderRadius: '12px',
+                                boxShadow: 4,
+                                overflow: 'hidden',
+                            },
+                        }}
+
+                    >
+                        <DialogTitle sx={{
+                            textAlign: 'center',
+                            fontWeight: 'bold',
+                            fontSize: '1.8rem',
+                            color: '#1976d2',
+                            bgcolor: '#f0f4fa',
+                            padding: '20px',
+                            borderRadius: '12px 12px 0 0'
+                        }}
+                            id="alert-dialog-title">Formula for row: {tableProducts.find(product => product.id === formulaProductId)?.name}</DialogTitle>
+                        <DialogContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+
+                            <br></br>
+                            <br></br>
+                            {/* Render each dropdown dynamically based on selectedValues and operators */}
+                            {selectedValues.map((selectedValue, index) => (
+                                <div key={index} style={{ width: 400, display: 'flex', alignItems: 'center', marginBottom: 16 }}>
+                                    {/* Operator Dropdown on the left */}
+                                    {index > 0 && (
+                                        <FormControl style={{ width: 100, marginRight: 8 }}>
+                                            <InputLabel id={`operator-label-${index}`}>Operator</InputLabel>
+                                            <Select
+                                                labelId={`operator-label-${index}`}
+                                                id={`operator-${index}`}
+                                                value={operators[index]}
+                                                onChange={(e) => handleSelectChange(index, 'operator', e)}
+                                                label="Operator"
+                                            >
+                                                <MenuItem value="+">+</MenuItem>
+                                                <MenuItem value="-">-</MenuItem>
+                                                <MenuItem value="*">*</MenuItem>
+                                                <MenuItem value="/">/</MenuItem>
+                                            </Select>
+                                        </FormControl>
+                                    )}
+
+                                    {/* Formula Dropdown on the right */}
+                                    <FormControl fullWidth style={{ flexGrow: 1 }}>
+                                        <InputLabel id={`select-label-${index}`}>Select column {index + 1}</InputLabel>
+                                        <Select
+                                            labelId={`select-label-${index}`}
+                                            id={`select-${index}`}
+                                            value={selectedValue}
+                                            onChange={(e) => handleSelectChange(index, 'formula', e)}
+                                            label={`Select Formula ${index + 1}`}
+                                        >
+                                            {Object.keys(products[tabKey]).map((tableKey) => (
+                                                products[tabKey][tableKey].map((product) => (
+                                                    <MenuItem key={product.id} value={product.name}>
+                                                        {product.name}
+                                                    </MenuItem>
+                                                ))
+                                            ))}
+
+
+                                        </Select>
+                                    </FormControl>
+
+                                    {/* Delete Button */}
+                                    <IconButton
+                                        onClick={() => handleDeleteDropdown(index)}
+                                        color="secondary"
+                                        style={{ marginLeft: 8 }}
+                                    >
+                                        <DeleteIcon />
+                                    </IconButton>
+                                </div>
+                            ))}
+
+                            {/* Button to add a new dropdown */}
+                            <Button onClick={handleAddDropdown} color="primary" fullWidth>
+                                Add New Dropdown
+                            </Button>
+                        </DialogContent>
+
+                        <DialogActions >
+                            <Button onClick={() => { setShowFormula(false); }} color="secondary" variant="contained" sx={{ fontWeight: 'bold', borderRadius: '8px' }}>
+                                Cancel
+                            </Button>
+                            <Button color="secondary" variant="contained" sx={{ fontWeight: 'bold', borderRadius: '8px' }} onClick={() => handleApply(tabKey, formulaProductId)}>
+                                Apply
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
+                )}
             </Box>
         );
     };
@@ -2169,7 +2173,6 @@ const ProductListPage = () => {
                         >
                             <ListItemText primary="Source Link/Upload" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
                             <TextField
-                                fullWidth
                                 variant="outlined"
                                 size="small"
                                 placeholder="Enter Source Link/Upload File"
@@ -2177,16 +2180,31 @@ const ProductListPage = () => {
                                     sx: {
                                         fontSize: '1.1rem',
                                         fontWeight: 'medium',
-                                        marginLeft: '10px'
+                                        //width: '350px',
+                                        //marginLeft: '10px'
                                     },
                                 }}
                             />
                             <ListItemIcon sx={{ minWidth: 'unset' }}>
                                 <Tooltip title="Upload file" marginLeft="20px">
-                                    <IconButton component="label" sx={{ position: 'relative', zIndex: 1 }}>
-                                        <UploadFileIcon />
-                                        <input type="file" hidden style={{ position: 'relative', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, zIndex: 2 }} />
-                                    </IconButton>
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        component="label"
+                                        sx={{
+                                            borderRadius: 1,
+                                            marginLeft: '15px',
+                                            marginBottom: '5px',
+                                            marginTop: '5px'
+                                        }}
+                                        startIcon={<UploadIcon />}
+                                    >
+                                        <Typography variant="caption">Upload</Typography>
+                                        <input
+                                            type="file"
+                                            hidden
+                                        />
+                                    </Button>
                                 </Tooltip>
                             </ListItemIcon>
                         </ListItem>
