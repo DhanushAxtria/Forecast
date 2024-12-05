@@ -16,10 +16,10 @@ import Papa from 'papaparse';
 
 
 const LinearRegression = ({ handleAddDrugClick }) => {
-    const {historyFromDate, setHistoryFromDate} = useContext(MyContext);
-    const {historyToDate, setHistoryToDate} = useContext(MyContext);
-    const {selectedFromDate, setSelectedFromDate} = useContext(MyContext);
-    const {selectedToDate, setSelectedToDate} = useContext(MyContext);
+    const { historyFromDate, setHistoryFromDate } = useContext(MyContext);
+    const { historyToDate, setHistoryToDate } = useContext(MyContext);
+    const { selectedFromDate, setSelectedFromDate } = useContext(MyContext);
+    const { selectedToDate, setSelectedToDate } = useContext(MyContext);
     const [FileName, setFileName] = useState("");
     const { selectedFile, setSelectedFile } = useContext(MyContext);
     const { selectedSheet, setSelectedSheet } = useContext(MyContext);
@@ -37,6 +37,15 @@ const LinearRegression = ({ handleAddDrugClick }) => {
 
 
 
+
+    const handleResetAll = () => {
+        setSelectedFile(null);
+        setSelectedSheet(null);
+        setHistoryFromDate(null);
+        setHistoryToDate(null);
+        setSelectedFromDate(null);
+        setSelectedToDate(null);
+    }
 
     const parseDate = (dateStr) => {
         const [monthStr, yearStr] = dateStr.split('-');
@@ -286,9 +295,21 @@ const LinearRegression = ({ handleAddDrugClick }) => {
                         <Button variant="contained" color="primary" onClick={handleSave} sx={{ fontSize: '0.8rem' }}>
                             Proceed
                         </Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => {
+                                if (window.confirm("Are you sure you want to clear all data? This action cannot be undone.")) {
+                                    handleResetAll();
+                                }
+                            }}
+                            sx={{ fontSize: '0.8rem' }}>
+                            Clear All Data
+                        </Button>
                         <Button variant="outlined" color="secondary" onClick={handleClose} sx={{ fontSize: '0.8rem' }}>
                             Close
                         </Button>
+
                     </Box>
                 </Box>
 

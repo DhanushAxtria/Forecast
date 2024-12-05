@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import CalculateIcon from '@mui/icons-material/Calculate';
 import FormControl from '@mui/material/FormControl';
 import UploadIcon from '@mui/icons-material/Upload';
+import { useNavigate } from 'react-router-dom';
 import Select from '@mui/material/Select';
 import {
     TextField,
@@ -42,43 +43,10 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import AdjustIcon from '@mui/icons-material/Adjust';
 import './ProductListpage.scss';
 import { tab } from '@testing-library/user-event/dist/tab';
+import { MyContext } from './context';
 
-const initialProducts1 = [
-    { id: 'T1-1', name: 'US Population(14-49)' },
-    { id: 'T1-2', name: 'Prevalence Rate' },
-    { id: 'T1-3', name: 'Diagonsis Rate (%)' },
-    { id: 'T1-4', name: 'Diagnosis GH Patients(%)' }
-
-];
-const initialProducts2 = [
-    { id: 'T2-1', name: '% Patients on Chronic Therapy' },
-    { id: 'T2-2', name: '% Patients on Episodic Therapy ' },
-    { id: 'T2-3', name: 'Patients on Chronic Therapy' },
-    { id: 'T2-4', name: 'Patients on Episodic Therapy ' },
-    { id: 'T2-5', name: 'Total GH Patients ' },
-    { id: 'T2-6', name: 'Chronic Therapy' },
-    { id: 'T2-7', name: 'Episodic Therapy' }
-];
-const initialProducts3 = [
-    { id: 'T3-1', name: 'Compliance' },
-    { id: 'T3-2', name: 'Payer Access' },
-    { id: 'T3-3', name: 'Patients on GS1179 (post Compliance) - Chronic Therapy' }
-
-];
-
-const initialProducts = {
-    downside: { table1: initialProducts1, table2: initialProducts2, table3: initialProducts3 },
-    base: { table1: initialProducts1, table2: initialProducts2, table3: initialProducts3 },
-    upside: { table1: initialProducts1, table2: initialProducts2, table3: initialProducts3 },
-};
-
-
-const Temp = () => {
+const Patient_Forecast = () => {
     const [formulaDetails, setFormulaDetails] = useState({ tableKey: null, tabKey: null, productId: null });
-
-    const [products1, setProducts1] = useState(initialProducts1);
-    const [products2, setProducts2] = useState(initialProducts2);
-    const [products3, setProducts3] = useState(initialProducts3);
     const [editingProductId, setEditingProductId] = useState(null);
     const [editedProductName, setEditedProductName] = useState('');
     const [openGranularityDialog, setOpenGranularityDialog] = useState(false);
@@ -89,19 +57,18 @@ const Temp = () => {
     const [startValue, setStartValue] = useState(''); // Start value for Specify Start and Target Values
     const [endValue, setEndValue] = useState(''); // End value for Specify Start and Target Values
     const [selectedRowId, setselectedRowId] = useState(null);
-    const [dates, setDates] = useState([]); // Mock date list
-    const [distributedValues, setDistributedValues] = useState({}); // Store distributed values by product ID
-    const [timePeriod, setTimePeriod] = useState('Monthly');
-    const [values, setValues] = useState({});
-    const [values2, setValues2] = useState({});
-    const [values3, setValues3] = useState({});
+    const { timePeriod, setTimePeriod } = useContext(MyContext);
+    const navigate = useNavigate();
+    const { values, setValues } = useContext(MyContext);
+    const { values2, setValues2 } = useContext(MyContext);
+    const { values3, setValues3 } = useContext(MyContext);
 
     const [UploadedFileToFill, setUploadedFileToFill] = useState(null);
 
     const [openUploadDialog, setOpenUploadDialog] = useState(false); // Dialog for file upload
     const [granularity, setGranularity] = useState('');
-    const [fromDate, setFromDate] = useState(dayjs());
-    const [toDate, setToDate] = useState(dayjs());
+    const { fromDate, setFromDate } = useContext(MyContext);
+    const { toDate, setToDate } = useContext(MyContext);
     const [manualEntry, setManualEntry] = useState(false);
     const [growthRates, setGrowthRates] = useState([]);
     const [startingValue, setStartingValue] = useState('');
@@ -123,9 +90,12 @@ const Temp = () => {
     const [selectedValue, setSelectedValue] = useState("");
     const [formulaProductId, setFormulaProductId] = useState(null);
     const [tab_value, setTabValue] = useState(null);
-    const [showTabs, setShowTabs] = useState(false);
-    const [products, setProducts] = useState(initialProducts);
-    const combinedProducts = [...initialProducts1, ...initialProducts2, ...initialProducts3];
+    const { showTabs, setShowTabs } = useContext(MyContext);
+
+    const { products, setProducts } = useContext(MyContext);
+
+
+    const combinedProducts = useContext(MyContext);
     const [selectedValues, setSelectedValues] = useState([combinedProducts[0]?.name]); // Start with one dropdown, default to first product
     const [operators, setOperators] = useState(['+']); // State to store selected operators for each dropdown
 
@@ -136,11 +106,12 @@ const Temp = () => {
     const [isCardEditing3, setIsCardEditing3] = useState(false);
 
     // States for card title and body (editable content)
-    const [cardTitle1, setCardTitle1] = useState('Epidemiology');
+    const { cardTitle1, setCardTitle1 } = useContext(MyContext);
+
     const [cardBody1, setCardBody1] = useState('Understand the spread of diseases and their impact.');
-    const [cardTitle2, setCardTitle2] = useState('Total GH Patients');
+    const { cardTitle2, setCardTitle2 } = useContext(MyContext);
     const [cardBody2, setCardBody2] = useState('Overview of total patients diagnosed with GH.');
-    const [cardTitle3, setCardTitle3] = useState('Conversion Parameter');
+    const { cardTitle3, setCardTitle3 } = useContext(MyContext);
     const [cardBody3, setCardBody3] = useState('Adjust conversion factors for accurate data representation.');
 
     let [EditedCardTitle1, setEditedCardTitle1] = useState('Epidemiology');
@@ -181,6 +152,16 @@ const Temp = () => {
                         sx={{ fontSize: '0.8rem' }}
                     >
                         Close Preview
+                    </Button>
+                    <Button
+                        variant="contained"
+                        onClick={() => {
+                            navigate("/forecastdeepdive/dashboard");
+                        }}
+                        color="success"
+                        sx={{ fontSize: '0.8rem' }}
+                    >
+                        Show Dashboard
                     </Button>
                 </Box>
             </Box>
@@ -358,10 +339,10 @@ const Temp = () => {
                                     size="large"
                                     sx={{
                                         color: '#c2185b', // Matching button color to the card title
-                                        backgroundColor: '#f1f8e9', // Light green background for the button
+                                        backgroundColor: '#ffc5c5',
                                         borderRadius: '50%', // Circular button
                                         '&:hover': {
-                                            backgroundColor: '#b3e5fc',
+                                            backgroundColor: '#ff9999',
                                         },
                                         transition: 'background-color 0.3s ease, transform 0.2s ease', // Added transition for smooth effects
                                         transform: tabTableVisibility[currentTabKey].table2 ? 'rotate(45deg)' : 'rotate(0deg)', // Optional: rotate when toggling
@@ -454,10 +435,10 @@ const Temp = () => {
                                     size="large"
                                     sx={{
                                         color: '#d47d4c', // Match the color of the button with the title
-                                        backgroundColor: '#fff3e0', // Light peach button background
+                                        backgroundColor: '#ffe6cc', // Light peach button background
                                         borderRadius: '50%',
                                         '&:hover': {
-                                            backgroundColor: '#b3e5fc',
+                                            backgroundColor: '#ffcc99',
                                         },
                                         transition: 'background-color 0.3s ease, transform 0.2s ease', // Added transition for smooth effects
                                         transform: tabTableVisibility[currentTabKey].table3 ? 'rotate(45deg)' : 'rotate(0deg)', // Optional: rotate when toggling
@@ -762,7 +743,7 @@ const Temp = () => {
                         </DialogActions>
                     </Dialog>
                 )}
-               {openInfoMethodDialog && (
+                {openInfoMethodDialog && (
                     <Dialog
                         open={openInfoMethodDialog}
                         onClose={() => setOpenInfoMethodDialog(false)}
@@ -1088,8 +1069,9 @@ const Temp = () => {
                         {/* File Upload Dialog */}
                         <Dialog open={openUploadDialog} onClose={handleUploadDialogClose} maxWidth="sm" fullWidth>
 
-                            <DialogTitle>Upload Data File
-                                <Typography variant="subtitle2" component="span" sx={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'blue', textDecoration: 'underline', float: 'right', '&:hover': { cursor: 'pointer' } }}
+                            <DialogTitle style={{ cursor: 'pointer' }}>
+                                Upload Data File
+                                <Typography variant="subtitle2" component="span" sx={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'blue', textDecoration: 'underline', display: 'block', marginTop: '10px' }}
                                     onClick={() => {
                                         const link = document.createElement('a');
                                         link.href = timePeriod === 'Monthly' ? '/demo_file_1.csv' : '/demo_file_1_year.csv';
@@ -1098,8 +1080,9 @@ const Temp = () => {
                                         link.click();
                                         document.body.removeChild(link);
                                     }}
+                                    onMouseOver={(e) => e.target.style.cursor = 'pointer'}
                                 >
-                                    see the demo file({timePeriod === 'Monthly' ? 'monthly' : 'yearly'})
+                                    see the demo file ({timePeriod === 'Monthly' ? 'monthly' : 'yearly'})
                                 </Typography>
                             </DialogTitle>
                             <Tooltip title="Only .csv or .xlsx formats allowed" arrow>
@@ -1208,7 +1191,7 @@ const Temp = () => {
                                     <Button onClick={handleCancelAndOpenInputMethodDialog} color="secondary">
                                         Cancel
                                     </Button>
-                                    <Button onClick={handleSaveGrowthRate} color="primary">
+                                    <Button onClick={() => { handleSaveGrowthRate(tabKey, selectedRowId, startingValue, initialGrowthRate, growthRates) }} color="primary">
                                         Save
                                     </Button>
                                     <Button onClick={() => { setOpenGrowthRateDialog(false); }} color="primary">
@@ -1360,11 +1343,11 @@ const Temp = () => {
             }
             return null; // Return null if no product is found
         }).filter((id) => id !== null); // Filter out null values
- 
+
         const operatorSliced = operators.slice(1);
- 
+
         let res = {};
- 
+
         if (timePeriod === 'Monthly') {
             for (let i = 0; i < dayjs(toDate).diff(dayjs(fromDate), 'month') + 1; i++) {
                 const month = dayjs(fromDate).add(i, 'month').format('MMM-YYYY');
@@ -1373,15 +1356,15 @@ const Temp = () => {
                 }
             }
             const idd = selectedIds[0];
- 
+
             const val = tabKey === 'downside' ? values[idd] : tabKey === 'base' ? values2[idd] : values3[idd];
- 
+
             if (val !== undefined) {
                 Object.keys(val).forEach((key) => {
                     res[key] = val[key];
                 });
             }
- 
+
             for (let i = 1; i < selectedIds.length; i++) {
                 const id = selectedIds[i];
                 const tempval = tabKey === 'downside' ? values[id] : tabKey === 'base' ? values2[id] : values3[id];
@@ -1435,18 +1418,18 @@ const Temp = () => {
                     res[year] = "0";
                 }
             }
- 
+
             console.log("res::::::::", res);
             const idd = selectedIds[0];
- 
+
             const val = tabKey === 'downside' ? values[idd] : tabKey === 'base' ? values2[idd] : values3[idd];
- 
+
             if (val !== undefined) {
                 Object.keys(val).forEach((key) => {
                     res[key] = val[key];
                 });
             }
- 
+
             for (let i = 1; i < selectedIds.length; i++) {
                 const id = selectedIds[i];
                 const tempval = tabKey === 'downside' ? values[id] : tabKey === 'base' ? values2[id] : values3[id];
@@ -1601,10 +1584,7 @@ const Temp = () => {
     const handleCloseInputMethodDialog = () => {
         setOpenInputMethodDialog(false); // Close the "Select Data Input Method" dialog
     };
-    const handleSaveGrowthRate = () => {
-        calculateGrowthRateValues(); // Calculate and save the values
-        // Optionally, show a message or indication of successful save
-    };
+
 
     const handleCancelClick = () => {
         setEditedProductName("");
@@ -1612,7 +1592,7 @@ const Temp = () => {
     };
 
     const handleCloseAllDialogs = () => {
-        
+
         setOpenSelectDataInputDialog(false);
         setOpenGrowthRateDialog(false);
         setOpenStartEndDialog(false);
@@ -1916,20 +1896,115 @@ const Temp = () => {
         setUploadedFileToFill(null);
     };
 
+
     const handleAddGrowthRate = () => {
-        setGrowthRates([...growthRates, { startDate: dayjs(), growthRate: '' }]);
+        setGrowthRates([...growthRates, { startDate: dayjs(), growthRate: 0 }]);
     };
 
     const handleGrowthRateChange = (index, field, value) => {
         const updatedGrowthRates = [...growthRates];
-        updatedGrowthRates[index][field] = value;
+
+        // Handle date changes specifically for startDate
+        if (field === 'startDate') {
+            updatedGrowthRates[index][field] = dayjs(value); // Ensure it's a dayjs object
+        } else if (field === 'growthRate') {
+            updatedGrowthRates[index][field] = value; // Handle numeric growth rate input
+        }
+
         setGrowthRates(updatedGrowthRates);
     };
+
     const getMinDate = (index) => {
         if (index === 0) {
             return fromDate; // Initial starting date for the first entry
         }
         return growthRates[index - 1].startDate; // Last added date for subsequent entries
+    };
+
+
+    const handleSaveGrowthRate = (tabKey, selectedRowId, startingValue, initialGrowthRate, growthRates) => {
+        const distributedGrowthRates = calculateGrowthRateValues(startingValue, initialGrowthRate, growthRates);
+
+        // Loop through the distributed values and use handleValueChange to update each value
+        Object.keys(distributedGrowthRates).forEach((date) => {
+            handleValueChange(tabKey, selectedRowId, date, distributedGrowthRates[date]);
+        });
+        setOpenGrowthRateDialog(false);
+    };
+
+    const calculateGrowthRateValues = (startingValue, initialGrowthRate, growthRates) => {
+
+        const newValues = {};
+
+        const startDate = dayjs(fromDate); // Start date of the calculation period
+        const endDate = dayjs(toDate); // End date of the calculation period
+        const columnIndexEndDate = columns.indexOf(timePeriod === 'Monthly' ? endDate.format('MMM-YYYY') : endDate.format('YYYY')); // column index of the end date
+
+        const startValue = parseFloat(startingValue);
+        const initialGR = parseFloat(initialGrowthRate);
+        console.log(startValue, initialGR);
+
+        let currentValue = startValue;
+        newValues[columns[0]] = startValue;
+
+
+        // Calculate the values for the initial growth rate for the entire period (Month or Year)
+        for (let i = 1; i <= columnIndexEndDate; i++) {
+            console.log("i", i);
+
+            currentValue *= (1 + (initialGR / 100))
+            console.log(currentValue);
+
+
+
+            const dateKey = timePeriod === 'Monthly'
+                ? startDate.add(i, 'month').format('MMM-YYYY')
+                : startDate.add(i, 'year').format('YYYY');
+            console.log(dateKey)
+            // Set the calculated value for the specific period
+            newValues[dateKey] = currentValue.toFixed(2);
+            console.log(newValues);
+        }
+
+        // Sort the growth rates based on the date and apply them when needed
+        const sortedGrowthRates = [
+            { startDate: startDate, growthRate: initialGR }, // Include initial growth rate
+            ...growthRates.map((entry) => ({
+                startDate: dayjs(entry.startDate),
+                growthRate: parseFloat(entry.growthRate),
+            })),
+        ].sort((a, b) => a.startDate?.isBefore(b.startDate) ? -1 : 1); // Sort by startDate
+
+        // Now, reapply growth rates for each period (from sorted growth rates)
+        sortedGrowthRates.forEach((entry, index) => {
+            if (entry.startDate && !entry.startDate.isSame(startDate)) {
+                const currentGrowthRate = parseFloat(entry.growthRate); // Growth rate for the current period
+                const currentStartDate = dayjs(entry.startDate);
+                const columnIndexNextDate = columns.indexOf(timePeriod === 'Monthly' ? currentStartDate.format('MMM-YYYY') : currentStartDate.format('YYYY'));
+                currentValue = newValues[columns[columnIndexNextDate]];
+                // Apply growth rate for each year/month based on the sorted growth rates
+                for (let i = (columnIndexNextDate + 1); i <= columnIndexEndDate; i++) {
+                    const currentDate = timePeriod === 'Monthly'
+                        ? startDate.add(i, 'month')
+                        : startDate.add(i, 'year');
+
+                    // If the current date is after the current growth rate's start date
+                    if (currentDate.isAfter(currentStartDate, 'day')) {
+                        currentValue *= (1 + (currentGrowthRate / 100)); // Apply the new growth rate
+
+                    }
+
+                    // Set the updated value in the values object
+                    const dateKey = timePeriod === 'Monthly'
+                        ? currentDate.format('MMM-YYYY')
+                        : currentDate.format('YYYY');
+                    newValues[dateKey] = currentValue.toFixed(2);
+                    console.log(newValues);
+                }
+            }
+        });
+
+        return newValues;
     };
 
 
@@ -1973,45 +2048,35 @@ const Temp = () => {
         console.log("File prepared for upload"); // Placeholder for file upload functionality
         // Optionally, show a message or indication of successful file selection
     };
-    const calculateGrowthRateValues = () => {
-        const productId = products[0].id; // Assuming Product 1
-        const start = dayjs(fromDate).startOf('year');
-        const end = dayjs(toDate).endOf('year');
+    const handleReset = () => {
+        // Reset all the states to their initial values
+        setFormulaDetails({ tableKey: null, tabKey: null, productId: null });
+        setEditingProductId(null);
+        setEditedProductName('');
+        setOpenInputMethodDialog(false);
+        setOpenGrowthRateDialog(false);
+        setOpenStartEndDialog(false);
+        setStartValue('');
+        setEndValue('');
+        setselectedRowId(null);
+        setUploadedFileToFill(null);
+        setOpenUploadDialog(false);
+        setManualEntry(false);
+        setGrowthRates([]);
+        setStartingValue('');
+        setInitialGrowthRate('');
+        setOpenSelectDataInputDialog(false);
 
-        const startYear = start.year();
-        const endYear = end.year();
 
-        // Sort growthRates by year
-        const sortedGrowthRates = [
-            { startDate: start, growthRate: initialGrowthRate }, // Initial entry
-            ...growthRates.map((entry) => ({
-                startDate: entry.startDate.startOf('year'),
-                growthRate: parseFloat(entry.growthRate),
-            })),
-        ].sort((a, b) => a.startDate.year() - b.startDate.year());
+        // Reset dates
+        setTimePeriod('Monthly');
 
-        const newValues = {};
-        let currentValue = parseFloat(startingValue);
 
-        // Apply growth rate formula for each period defined by the sorted growth rates
-        sortedGrowthRates.forEach((entry, index) => {
-            const currentStartYear = entry.startDate.year();
-            const nextStartYear = sortedGrowthRates[index + 1]?.startDate.year() || endYear + 1; // next year or end year
+        //Reset values
+        setValues({});
+        setValues2({});
+        setValues3({});
 
-            newValues[currentStartYear] = currentValue.toFixed(2); // Starting value for the current segment
-
-            // Calculate values for each year in this segment
-            for (let year = currentStartYear + 1; year < nextStartYear; year++) {
-                currentValue = currentValue * (1 + entry.growthRate / 100); // Apply growth rate
-                newValues[year] = currentValue.toFixed(2); // format to 2 decimals
-            }
-        });
-
-        //Update the values state for Product 1
-        setValues((prevValues) => ({
-            ...prevValues,
-            [productId]: newValues,
-        }));
     };
 
 
@@ -2072,6 +2137,7 @@ const Temp = () => {
                                 format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
                                 slotProps={{ textField: { size: 'small' } }}
                                 sx={{ width: '160px' }}
+                                maxDate={toDate}
                             />
                             <DatePicker
                                 views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
@@ -2081,6 +2147,7 @@ const Temp = () => {
                                 format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
                                 slotProps={{ textField: { size: 'small' } }}
                                 sx={{ width: '160px' }}
+                                minDate={fromDate}
                             />
                         </LocalizationProvider>
                         <Button
@@ -2099,6 +2166,17 @@ const Temp = () => {
                             }}
                             sx={{ marginLeft: '18px', marginBottom: '2px' }}>
                             Proceed
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => {
+                                if (window.confirm("Are you sure you want to clear all data? This action cannot be undone.")) {
+                                    handleReset();
+                                }
+                            }}
+                            sx={{ marginLeft: '18px', marginBottom: '2px' }}>
+                            Clear All Data
                         </Button>
                     </Box>
                     <Box sx={{ width: '90%', margin: '0 auto' }}>
@@ -2182,4 +2260,4 @@ const Temp = () => {
         </>
     )
 }
-export default Temp;
+export default Patient_Forecast;

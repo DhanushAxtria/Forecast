@@ -5,7 +5,6 @@ import BlankPage from './Body/Blankpage'; // Component for Forecast Page (New Sc
 import HomePage from './Header/Homepage'; // Home Page
 import ScenarioComparsion from './Body/ScenarioComparsion'; // Component for Scenario Comparison
 import { SavedFilesProvider } from './Body/SavedFilesContext'; // Import the context provider
-import Page3 from './Body/Page3';
 import DataConsolidation from './Body/Data_Consolidation';
 //import Savedpage from './Body/Savedpage';
 import SavedScenario from './Body/Saved-Scenario';
@@ -19,6 +18,7 @@ import Savedpage from './Body/Newpage'
 import Admin from './Body/Forecastpage'
 import Patient_Forecast from './Body/Patient_Forecast'
 import Forecasted_Results from './Body/forecasted_results';
+import Dashboard from './Body/Dashboard'
 //import Navbar from './Body/Navbar'
 function App() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false); // Initialize the state
@@ -55,6 +55,8 @@ function App() {
           <Route path="/admin" element={<Admin />} />
           <Route path="/forecastdeepdive" element={<Patient_Forecast />} />
           <Route path="/admin/forecasted_results" element={<Forecasted_Results />} />
+          <Route path="/forecastdeepdive/dashboard" element={<Dashboard />} />
+
           {/* Add more routes as needed */}
         </Routes>
       </Router>
