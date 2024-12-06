@@ -15,6 +15,7 @@ const DataConsolidation = () => {
   const [selectedForecastStatus, setSelectedForecastStatus] = useState('');
   const [selectedForecastScenario, setSelectedForecastScenario] = useState('');
   const [hoveredRow, setHoveredRow] = useState(null);
+  const [greeting, setGreeting] = useState('');
 
   const getRandomDate = () => {
     const start = new Date(new Date().setFullYear(new Date().getFullYear() - 1));
@@ -98,12 +99,27 @@ const DataConsolidation = () => {
       setSelectedForecastScenario(scn);
   };
 
+  useEffect(() => {
+    const currentHour = new Date().getHours();
+
+    if (currentHour < 12) {
+      setGreeting('Good Morning');
+    } else if (currentHour < 18) {
+      setGreeting('Good Afternoon');
+    } else {
+      setGreeting('Good Evening');
+    }
+  }, []);
+
   return (
-    <div style={styles.container}>
+    <div style={{ backgroundColor: 'white', padding: '20px', marginTop: '-44px' }}>
+     
+       <h2 >{greeting}, Welcome to the Submission Tracker Page!</h2>
+
       <div style={styles.selectionContainer}>
 
         <section style={styles.section}>
-          <h2 style={styles.heading}>Forecast Status</h2>
+          <h2 style={{ ...styles.heading, color: 'black' }}>Forecast Status</h2>
           <div style={styles.content}>
             <div style={styles.labeledSelect}>
               <label style={styles.label}>Select Forecast Status</label>
@@ -124,7 +140,7 @@ const DataConsolidation = () => {
         </section>
 
         <section style={styles.section}>
-          <h2 style={styles.heading}>Therapeutic Area</h2>
+          <h2 style={{ ...styles.heading, color: 'black' }}>Therapeutic Area</h2>
           <div style={styles.content}>
             <div style={styles.labeledSelect}>
               <label style={styles.label}>Select Therapeutic Area</label>
@@ -145,7 +161,7 @@ const DataConsolidation = () => {
         </section>
 
         <section style={styles.section}>
-          <h2 style={styles.heading}>Country/Region</h2>
+          <h2 style={{ ...styles.heading, color: 'black' }}>Country/Region</h2>
           <div style={styles.content}>
             <div style={styles.labeledSelect}>
               <label style={styles.label}>Select Country/Region</label>
@@ -166,7 +182,7 @@ const DataConsolidation = () => {
         </section>
 
         <section style={styles.section}>
-          <h2 style={styles.heading}>Forecast Scenario</h2>
+          <h2 style={{ ...styles.heading, color: 'black' }}>Forecast Scenario</h2>
           <div style={styles.content}>
             <div style={styles.labeledSelect}>
               <label style={styles.label}>Select Forecast Scenario</label>
@@ -189,7 +205,7 @@ const DataConsolidation = () => {
       </div>
 
       <div style={styles.tableContainer}>
-        <h2 style={styles.tableHeading}>Country-TA wise Forecast Submission Status</h2>
+        <h2 style={{ ...styles.tableHeader,textAlign: 'center', padding: '10px', fontSize: '24px'}}>Country-TA wise Forecast Submission Status</h2>
         <table style={styles.table}>
           <thead>
             <tr>

@@ -2007,47 +2007,7 @@ const Patient_Forecast = () => {
         return newValues;
     };
 
-
-    const calculateValues = () => {
-        if (!startingValue || !initialGrowthRate) return;
-
-        const values = {};
-        let currentValue = parseFloat(startingValue);
-        const startYear = fromDate.year();
-
-        // Calculate the values for the initial growth rate
-        values[startYear] = currentValue;
-        for (let i = 1; i < columns.length; i++) {
-            currentValue *= 1 + parseFloat(initialGrowthRate) / 100;
-            values[startYear + i] = currentValue.toFixed(2);
-        }
-
-        // Apply additional growth rates if the user has added them
-        growthRates.forEach((entry) => {
-            const entryYear = entry.startDate.year();
-            let rate = parseFloat(entry.growthRate) / 100;
-
-            if (values[entryYear]) {
-                values[entryYear] = values[entryYear] * (1 + rate);
-            }
-
-            // Apply growth rate to subsequent years
-            for (let i = 1; i < columns.length; i++) {
-                const year = entryYear + i;
-                if (values[year]) {
-                    values[year] *= 1 + rate;
-                    values[year] = values[year].toFixed(2);
-                } else break;
-            }
-        });
-
-        setCalculatedValues(values);
-    };
-    const handleSaveUploadDialog = () => {
-        // Logic to handle file upload or preparation for upload
-        console.log("File prepared for upload"); // Placeholder for file upload functionality
-        // Optionally, show a message or indication of successful file selection
-    };
+    
     const handleReset = () => {
         // Reset all the states to their initial values
         setFormulaDetails({ tableKey: null, tabKey: null, productId: null });
@@ -2066,12 +2026,8 @@ const Patient_Forecast = () => {
         setStartingValue('');
         setInitialGrowthRate('');
         setOpenSelectDataInputDialog(false);
-
-
         // Reset dates
         setTimePeriod('Monthly');
-
-
         //Reset values
         setValues({});
         setValues2({});
@@ -2095,17 +2051,11 @@ const Patient_Forecast = () => {
         }
     }, []);
 
-
-
-    useEffect(() => {
-        calculateValues();
-    }, [startingValue, initialGrowthRate, growthRates, columns]);
-
     return (
         <>
             <div className="product-list-page" style={{ marginLeft: '10px' }}>
                 <div style={{ backgroundColor: 'white', padding: '0.5px', marginTop: '-25px', marginLeft: '10px' }}>
-                    <h2 style={{ textAlign: 'left' }}>{greeting}, Welcome to the Patient based forecasting page!</h2> </div>
+                    <h2 style={{ textAlign: 'left' }}>{greeting}, Welcome to the Patient Based Forecasting Page!</h2> </div>
                 <span style={{ marginLeft: '12px' }} gap="10px" sx={{ marginRight: '20px' }}>Select Time Period</span>
                 <Box
                     sx={{

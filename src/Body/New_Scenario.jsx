@@ -337,7 +337,7 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
   };
 
   return (
-    <div style={{ backgroundColor: 'white', padding: '20px' }}>
+    <div style={{ backgroundColor: 'white', padding: '20px', marginTop: '-25px' }}>
       <h2>{getGreetingMessage()}, Please provide details for New Scenario Configuration</h2>
       {/* Add the three buttons with background colors */}
       {/* Add the three buttons with background colors */}
@@ -404,10 +404,11 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
             </li>
           )}
           renderInput={(params) => (
-            <TextField {...params} label="Forecast Cycle" placeholder="Select forecast cycle(s)" />
+            <TextField {...params} size="small" label="Forecast Cycle" placeholder="Select forecast cycle(s)" />
           )}
-          sx={{ width: '300px' }}
+         sx={{ width: '300px' }}
         />
+        
 
 
         {/* Autocomplete with Checkboxes for Country */}
@@ -429,7 +430,7 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
             </li>
           )}
           renderInput={(params) => (
-            <TextField {...params} label="Country" placeholder="Select country(s)" />
+            <TextField {...params}  size="small" label="Country" placeholder="Select country(s)" />
           )}
           sx={{ width: '300px' }}
         />
@@ -453,7 +454,7 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
             </li>
           )}
           renderInput={(params) => (
-            <TextField {...params} label="Therapeutic Area" placeholder="Select therapeutic area(s)" />
+            <TextField {...params}  size="small" label="Therapeutic Area" placeholder="Select therapeutic area(s)" />
           )}
           sx={{ width: '300px' }}
         />

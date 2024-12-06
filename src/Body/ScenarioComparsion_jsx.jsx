@@ -27,9 +27,9 @@ const ForecastAndWorksheetSelectionsWithGreeting = () => {
   };
 
   return (
-    <div style={styles.container}>
+    <div style={{ backgroundColor: 'white', padding: '20px', marginTop: '-44px' }}>
       {/* Greeting section */}
-      <h1 style={styles.greeting}>{greeting}, Welcome to the Scenario-Comparison page!</h1>
+      <h2 >{greeting}, Welcome to the Scenario-Comparison Page!</h2>
 
       {/* Forecast and Worksheet Selections Container */}
       <div style={styles.selectionContainer}>
@@ -103,8 +103,8 @@ const ForecastAndWorksheetSelectionsWithGreeting = () => {
 
       {/* OK and Cancel Buttons */}
       <div style={styles.buttonContainer}>
-        <button style={styles.button} onClick={handleOkay}>OK</button>
-        <button style={styles.button} onClick={handleCancel}>Cancel</button>
+        <button style={{ ...styles.button, backgroundColor: '#1976d2', color: 'white' }} onClick={handleOkay}>OK</button>
+        <button style={{ ...styles.button, backgroundColor: '#1976d2', color: 'white' }} onClick={handleCancel}>Cancel</button>
       </div>
     </div>
   );

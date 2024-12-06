@@ -166,9 +166,9 @@ const DataConsolidation = () => {
   };
 
   return (
-    <div style={styles.container}>
+    <div style={{ backgroundColor: 'white', padding: '20px', marginTop: '-44px' }}>
       {/* Greeting section */}
-      <h1 style={styles.greeting}>{greeting}, Welcome to the Data Consolidation page!</h1>
+      <h2>{greeting}, Welcome to the Data Consolidation Page!</h2>
 
       {/* Forecast and Worksheet Selections Container */}
       <div style={styles.selectionContainer}>
@@ -243,7 +243,7 @@ const DataConsolidation = () => {
       {/* Data Table Section */}
       {areAllFiltersSelected() && ( // Conditional rendering of the table
         <div style={styles.tableContainer}>
-          <h2 style={styles.tableHeading}>Therapeutic Area, Country and Connected Data</h2>
+          <h2 style={{ ...styles.tableHeading, textAlign: 'center',padding: '10px' }}>Therapeutic Area, Country and Connected Data</h2>
           <table style={styles.table}>
             <thead>
               <tr>

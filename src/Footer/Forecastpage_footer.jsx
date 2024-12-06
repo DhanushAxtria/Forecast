@@ -106,46 +106,11 @@ const LinearRegression = ({ handleAddDrugClick }) => {
             alert("Please select all the dates properly");
         }
         else {
-
-            const formData = new FormData();
-            formData.append('file', selectedFile);
-            formData.append('selectedSheet', selectedSheet);
-            formData.append('historyFromDate', historyFromDate);
-            formData.append('historyToDate', historyToDate);
-            formData.append('selectedFromDate', selectedFromDate);
-            formData.append('selectedToDate', selectedToDate);
-            console.log("dataaa", selectedFile);
-            setLoading(true);
-            try {
-                const response = await axios.post('https://fast-api-forecast.onrender.com/upload', formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                });
-                setLoading(false);
-                setForecastValue(response.data.forecast);
-                setParsedData(response.data.dt);
-                console.log(response.data.metrices);
-                setMet(response.data.metrices);
-                console.log("dateee", response.data.historyFromDate);
-                console.log("dateee", response.data.historyToDate);
-                console.log("dateee", response.data.selectedFromDate);
-                console.log("dateee", response.data.selectedToDate);
-                if (selectedFile !== null && selectedSheet !== null) {
-                    navigate("/admin/forecasted_results");
-                }
-            } catch (error) {
-                setLoading(false);
-                alert("Please upload the correct data");
-                console.error('Error uploading file:', error);
-            }
-
+            navigate("/admin/forecasted_results");
         }
     };
 
-    const handleClose = () => {
-        console.log("Close button clicked");
-    };
+
 
     const handleSnackbarClose = () => {
         setSnackbarOpen(false);
@@ -171,13 +136,14 @@ const LinearRegression = ({ handleAddDrugClick }) => {
                         color="primary"
                         component="label"
                         sx={{
+
                             borderRadius: 1,
                             marginRight: '10px',
                             marginBottom: '5px'
                         }}
                         startIcon={<UploadIcon />}
                     >
-                        <Typography variant="caption">Upload file</Typography>
+                        <Typography variant="caption" sx={{ fontSize: '0.78rem' }}>Upload file</Typography>
                         <input
                             type="file"
                             accept=".csv"
@@ -245,6 +211,8 @@ const LinearRegression = ({ handleAddDrugClick }) => {
                                 views={["year", "month"]}
                                 minDate={HistoricalFrom !== null ? parseDate(HistoricalFrom) : null}
                                 maxDate={HistoricalTO !== null ? parseDate(HistoricalTO) : null}
+                                slotProps={{ textField: { size: 'small' } }}
+                                sx={{ width: '200px' }}
 
                             />
                             <DatePicker
@@ -255,6 +223,8 @@ const LinearRegression = ({ handleAddDrugClick }) => {
                                 views={["year", "month"]}
                                 minDate={HistoricalFrom !== null ? parseDate(HistoricalFrom) : null}
                                 maxDate={HistoricalTO !== null ? parseDate(HistoricalTO) : null}
+                                slotProps={{ textField: { size: 'small' } }}
+                                sx={{ width: '200px' }}
                             />
                         </Box>
                     </LocalizationProvider>
@@ -274,7 +244,8 @@ const LinearRegression = ({ handleAddDrugClick }) => {
                                 renderInput={(params) => <TextField {...params} size="small" sx={{ fontSize: '0.7rem' }} />}
                                 views={["year", "month"]}
                                 minDate={historyToDate !== null ? new Date(historyToDate.getFullYear(), historyToDate.getMonth() + 1, 1) : null}
-
+                                slotProps={{ textField: { size: 'small' } }}
+                                sx={{ width: '200px' }}
                             />
                             <DatePicker
                                 label="To"
@@ -283,14 +254,15 @@ const LinearRegression = ({ handleAddDrugClick }) => {
                                 renderInput={(params) => <TextField {...params} size="small" sx={{ fontSize: '0.7rem' }} />}
                                 views={["year", "month"]}
                                 minDate={selectedFromDate !== null ? new Date(selectedFromDate.getFullYear(), selectedFromDate.getMonth(), 1) : null}
-
+                                slotProps={{ textField: { size: 'small' } }}
+                                sx={{ width: '200px' }}
                             />
                         </Box>
                     </LocalizationProvider>
                 </Box>
 
                 {/* Button Container */}
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 2 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 2, marginTop: '20px' }}>
                     <Box sx={{ display: 'flex', gap: 2 }}>
                         <Button variant="contained" color="primary" onClick={handleSave} sx={{ fontSize: '0.8rem' }}>
                             Proceed
@@ -306,9 +278,7 @@ const LinearRegression = ({ handleAddDrugClick }) => {
                             sx={{ fontSize: '0.8rem' }}>
                             Clear All Data
                         </Button>
-                        <Button variant="outlined" color="secondary" onClick={handleClose} sx={{ fontSize: '0.8rem' }}>
-                            Close
-                        </Button>
+
 
                     </Box>
                 </Box>

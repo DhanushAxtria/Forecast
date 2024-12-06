@@ -128,7 +128,7 @@ const BlogGrid = () => {
             sx={{ width: 280, background: 'linear-gradient(135deg, #a1ffce, #faffd1)', color: 'black' }}
             className='featureCard'
           >
-            <CardActionArea sx={{ cursor: 'pointer'}} onClick={()=>{window.open("/scenario-comparsion",  '_blank')}}>
+            <CardActionArea sx={{ cursor: 'pointer'}} onClick={()=>navigate("/scenario-comparsion")}>
               <CompareArrows sx={{ fontSize: 50, color: 'black', margin: '20px' }} />
               <CardContent
                 sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}

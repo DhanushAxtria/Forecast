@@ -154,8 +154,8 @@ const ScenarioFilterPage = () => {
     }, [scenarios.scenario1, scenarios.scenario2, selectedSheet]);
 
     return (
-        <div style={{ padding: '20px', marginTop: '-44px' }}>
-            <h2>{getGreetingMessage()}, Welcome!</h2>
+        <div style={{backgroundColor: 'white', padding: '20px', marginTop: '-45px', marginLeft: '10px'}}>
+            <h2>{getGreetingMessage()}, Welcome to the Saved Scenario Page!</h2>
             <Typography variant="h7" gutterBottom sx={{ marginBottom: '50px' }}>Please select the below options: </Typography>
             <Box display="flex" gap={2} mb={4}>
                 {/* Multi-select for Forecast Cycles */}
@@ -163,7 +163,7 @@ const ScenarioFilterPage = () => {
                     multiple
                     options={['All', '2013-H1', '2013-H2', '2014-H1', '2014-H2']}
                     onChange={handleChange('forecastCycles')}
-                    renderInput={(params) => <TextField {...params} label="Forecast Cycle" />}
+                    renderInput={(params) => <TextField {...params} size="small" label="Forecast Cycle" />}
                     renderOption={(props, option, { selected }) => (
                         <li {...props}>
                             <Checkbox checked={selected} />
@@ -178,7 +178,7 @@ const ScenarioFilterPage = () => {
                     multiple
                     options={['All', 'USA', 'Canada', 'Germany', 'India']}
                     onChange={handleChange('countries')}
-                    renderInput={(params) => <TextField {...params} label="Country" />}
+                    renderInput={(params) => <TextField {...params}  size="small" label="Country" />}
                     renderOption={(props, option, { selected }) => (
                         <li {...props}>
                             <Checkbox checked={selected} />
@@ -193,7 +193,7 @@ const ScenarioFilterPage = () => {
                     multiple
                     options={['All', 'Cardiology', 'Oncology', 'Neurology', 'Diabetes']}
                     onChange={handleChange('therapeuticAreas')}
-                    renderInput={(params) => <TextField {...params} label="Therapeutic Area" />}
+                    renderInput={(params) => <TextField {...params}  size="small" label="Therapeutic Area" />}
                     renderOption={(props, option, { selected }) => (
                         <li {...props}>
                             <Checkbox checked={selected} />
@@ -209,20 +209,21 @@ const ScenarioFilterPage = () => {
                     options={scenarioOptions}
                     value={scenarios.scenario1}
                     onChange={handleScenarioChange('scenario1')}
-                    renderInput={(params) => <TextField {...params} label="Scenario 1" />}
+                    renderInput={(params) => <TextField {...params}  size="small" label="Scenario 1" />}
                     style={{ width: '250px' }}
                 />
                 <Autocomplete
                     options={scenarioOptions}
                     value={scenarios.scenario2}
                     onChange={handleScenarioChange('scenario2')}
-                    renderInput={(params) => <TextField {...params} label="Scenario 2" />}
+                    renderInput={(params) => <TextField {...params}  size="small" label="Scenario 2" />}
                     style={{ width: '250px' }}
                 />
-                <Button variant="contained" color="primary" onClick={handleConfirm} sx={{
+                <Button variant="contained" color="primary" onClick={handleConfirm} sx={{ 
                     marginTop: 'auto',
                     marginBottom: '36px',
-                    padding: '14px'
+                    fontSize: '0.9rem'
+                    
                 }}>
                     Compare
                 </Button>

@@ -3,6 +3,8 @@ import { MyContext } from "./context";
 import FormControl from "@mui/material/FormControl";
 import { MenuItem, InputLabel } from "@mui/material";
 import Select from "@mui/material/Select";
+import { styled } from '@mui/material/styles';
+import Switch, { SwitchProps } from '@mui/material/Switch';
 import {
     ResponsiveContainer,
     LineChart,
@@ -44,6 +46,45 @@ const generateYearlyColumns = (start, end) => {
     return years;
 };
 
+const Android12Switch = styled(Switch)(({ theme }) => ({
+    padding: 8,
+    "& .MuiSwitch-track": {
+        borderRadius: 22 / 2,
+        "&::before, &::after": {
+            content: '""',
+            position: "absolute",
+            top: "50%",
+            transform: "translateY(-50%)",
+            width: 16,
+            height: 16,
+        },
+        "&::before": {
+            // Dark green with a bar icon
+            backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 24 24"><rect fill="${encodeURIComponent(
+                "#006400", // Dark green hex color
+            )}" x="8" y="6" width="8" height="12"/></svg>')`,
+            left: 12,
+        },
+        "&::after": {
+            // Blue with a line icon
+            backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 24 24"><line fill="none" stroke="${encodeURIComponent(
+                theme.palette.getContrastText(theme.palette.primary.main),
+            )}" x1="5" y1="12" x2="19" y2="12" stroke-width="2"/></svg>')`,
+            right: 12,
+        },
+        backgroundColor: "#006400", // Dark green background color
+    },
+    "& .MuiSwitch-thumb": {
+        boxShadow: "none",
+        width: 16,
+        height: 16,
+        margin: 2,
+    },
+}));
+
+
+
+
 const Dashboard = () => {
     const { products } = useContext(MyContext);
     const { values, values2, values3, setDropdownGroups, dropdownGroups } = useContext(MyContext);
@@ -51,7 +92,7 @@ const Dashboard = () => {
     const { fromDate, toDate, timePeriod } = useContext(MyContext);
 
     const months = timePeriod === 'Monthly' ? generateMonthlyColumns(fromDate, toDate) : generateYearlyColumns(fromDate, toDate);
-
+    const colors = ["#A8E6CF",  "#FFBCB3",  "#E1C6E8", "#B3D9F7", "#FF9A8B", "#F6F4A7" ];
     // Map item.id to item.name
     const idToNameMap = {};
     Object.entries(products).forEach(([caseKey, cards]) => {
@@ -61,6 +102,9 @@ const Dashboard = () => {
             });
         });
     });
+
+
+
 
     // Format data for the Line Chart
     const chartData = months.map((month) => {
@@ -107,6 +151,7 @@ const Dashboard = () => {
     const toggleChartType = () => {
         setChartType((prevType) => (prevType === "line" ? "bar" : "line"));
     };
+
 
     return (
         <>
@@ -180,7 +225,7 @@ const Dashboard = () => {
                         </FormControl>
                     )}
 
-                    {index === dropdownGroups.length - 1 && isLastRowFilled && (
+                    {index === dropdownGroups.length - 1 && dropdownGroups.length < 6 && isLastRowFilled && (
                         <IconButton
                             title="Add new parameters"
                             aria-label="add"
@@ -204,10 +249,17 @@ const Dashboard = () => {
                 </Box>
             ))}
 
-            <Box sx={{ display: "flex", marginRight:'50px', justifyContent: "flex-end", mb: 2 }}>
-                <Button variant="contained" color="primary" onClick={toggleChartType}>
-                    Toggle Chart Type
-                </Button>
+            <Box
+                sx={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    alignItems: "center",
+                    mb: 2,
+                    marginRight: '50px'
+                }}
+            >
+                <Box sx={{ mr: 2 }}>Toggle Chart Type</Box>
+                <Android12Switch checked={chartType === "bar"} onChange={toggleChartType} />
             </Box>
             <ResponsiveContainer width={1300}
                 height={400}
@@ -218,7 +270,7 @@ const Dashboard = () => {
                         <XAxis dataKey="month" />
                         <YAxis />
                         <Tooltip />
-                        <Legend />
+                        <Legend wrapperStyle={{ fontWeight: 'bold' }} />
                         {dropdownGroups.map(({ Case, SelectedRow }, index) => {
                             const lineKey = `${Case}-${idToNameMap[SelectedRow]}`;
                             return (
@@ -227,7 +279,8 @@ const Dashboard = () => {
                                     type="monotone"
                                     dataKey={lineKey} // Combines Case and item.name
                                     name={lineKey}   // Displays Case-item.name in legend
-                                    stroke={`hsl(${(index * 50) % 360}, 70%, 50%)`}
+                                    stroke={colors[index]}
+                                    strokeWidth={3}
                                 />
                             );
                         })}
@@ -238,7 +291,7 @@ const Dashboard = () => {
                         <XAxis dataKey="month" />
                         <YAxis />
                         <Tooltip />
-                        <Legend />
+                        <Legend wrapperStyle={{ fontWeight: 'bold' }} />
                         {dropdownGroups.map(({ Case, SelectedRow }, index) => {
                             const barKey = `${Case}-${idToNameMap[SelectedRow]}`;
                             return (
@@ -247,7 +300,7 @@ const Dashboard = () => {
                                     dataKey={barKey}
                                     name={barKey} // Display Case-item.name in legend
                                     stackId="a"
-                                    fill={`hsl(${(index * 50) % 360}, 70%, 50%)`}
+                                    fill={colors[index]}
                                 />
                             );
                         })}
