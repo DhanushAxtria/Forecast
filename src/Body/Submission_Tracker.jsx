@@ -205,7 +205,7 @@ const DataConsolidation = () => {
       </div>
 
       <div style={styles.tableContainer}>
-        <h2 style={{ ...styles.tableHeader,textAlign: 'center', padding: '10px', fontSize: '24px'}}>Country-TA wise Forecast Submission Status</h2>
+        <h2 style={styles.tableHeading}> Country-TA wise Forecast Submission Status</h2>
         <table style={styles.table}>
           <thead>
             <tr>
@@ -303,10 +303,11 @@ const styles = {
     fontSize: '24px',
     fontWeight: 'bold',
     marginBottom: '10px',
-    color: '#eeeeee',
-    backgroundColor: '#A9A9A9',
+    backgroundColor: '#1976d2',
+    color: 'white',
     padding: '5px',
     borderRadius: '8px',
+    textAlign: 'center'
   },
   table: {
     width: '100%',

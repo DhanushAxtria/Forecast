@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaFilter } from 'react-icons/fa'; // Importing the filter icon
+import { generateDummyData } from './Generate_Dummy';
 
 // Unicode for Lock and Good to Go icons
 const lockIcon = '🔒';
@@ -7,7 +8,11 @@ const goodToGoIcon = '✅';
 
 // Sample data for Therapeutic Area, Country, Usernames, and Forecast Cycles
 const therapeuticAreas = ['Cardiology', 'Oncology', 'Neurology', 'Immunology', 'Dermatology'];
-const countries = ['USA', 'Canada', 'Germany', 'UK', 'Australia'];
+const regions = ['EU5', 'Nordic Region'];
+const countries = {
+  'EU5': ['UK', 'Germany', 'France', 'Italy', 'Spain'],
+  'Nordic Region': ['Denmark', 'Norway', 'Sweden', 'Finland', 'Iceland'],
+};
 const forecastCycles = ['2024-H1', '2024-H2', '2025-H1'];
 const forecastOptions = {
   '2024-H1': ['Forecast 1', 'Forecast 2'],
@@ -20,7 +25,7 @@ const DataConsolidation = () => {
   const [greeting, setGreeting] = useState('');
   const [rowsData, setRowsData] = useState([]);
   const [selectedTherapeuticArea, setSelectedTherapeuticArea] = useState(''); // State for selected Therapeutic Area
-  const [selectedCountry, setSelectedCountry] = useState(''); // State for selected Country
+  const [selectedRegion, setSelectedRegion] = useState(''); // State for selected Region
   const [selectedForecastCycle, setSelectedForecastCycle] = useState(''); // State for selected Forecast Cycle
 
   // Set the greeting based on the current time
@@ -36,102 +41,6 @@ const DataConsolidation = () => {
     }
   }, []);
 
-  // Dummy data creation
-  const generateDummyData = () => {
-    // Create 10 rows of data that match the forecast cycle and the available options
-    return [
-      {
-        therapeuticArea: 'Cardiology',
-        country: 'USA',
-        worksheet: 'Output Sheet',
-        forecast: 'Forecast 1',
-        forecastStatus: 'goodToGo',
-        forecastStarted: '2023-01-15',
-        username: 'john_doe',
-      },
-      {
-        therapeuticArea: 'Oncology',
-        country: 'Canada',
-        worksheet: 'Output Sheet',
-        forecast: 'Forecast 2',
-        forecastStatus: 'lock',
-        forecastStarted: '2023-05-10',
-        username: 'jane_smith',
-      },
-      {
-        therapeuticArea: 'Neurology',
-        country: 'Germany',
-        worksheet: 'Output Sheet',
-        forecast: 'Forecast 3',
-        forecastStatus: 'goodToGo',
-        forecastStarted: '2023-02-20',
-        username: 'michael_wang',
-      },
-      {
-        therapeuticArea: 'Immunology',
-        country: 'UK',
-        worksheet: 'Output Sheet',
-        forecast: 'Forecast 4',
-        forecastStatus: 'lock',
-        forecastStarted: '2023-06-15',
-        username: 'emma_clark',
-      },
-      {
-        therapeuticArea: 'Dermatology',
-        country: 'Australia',
-        worksheet: 'Output Sheet',
-        forecast: 'Forecast 5',
-        forecastStatus: 'goodToGo',
-        forecastStarted: '2023-09-05',
-        username: 'chris_jones',
-      },
-      {
-        therapeuticArea: 'Cardiology',
-        country: 'Canada',
-        worksheet: 'Output Sheet',
-        forecast: 'Forecast 2',
-        forecastStatus: 'goodToGo',
-        forecastStarted: '2023-03-01',
-        username: 'jane_smith',
-      },
-      {
-        therapeuticArea: 'Oncology',
-        country: 'USA',
-        worksheet: 'Output Sheet',
-        forecast: 'Forecast 1',
-        forecastStatus: 'lock',
-        forecastStarted: '2023-07-10',
-        username: 'john_doe',
-      },
-      {
-        therapeuticArea: 'Neurology',
-        country: 'UK',
-        worksheet: 'Output Sheet',
-        forecast: 'Forecast 3',
-        forecastStatus: 'goodToGo',
-        forecastStarted: '2023-04-11',
-        username: 'emma_clark',
-      },
-      {
-        therapeuticArea: 'Immunology',
-        country: 'Germany',
-        worksheet: 'Output Sheet',
-        forecast: 'Forecast 4',
-        forecastStatus: 'lock',
-        forecastStarted: '2023-08-22',
-        username: 'michael_wang',
-      },
-      {
-        therapeuticArea: 'Dermatology',
-        country: 'Australia',
-        worksheet: 'Output Sheet',
-        forecast: 'Forecast 6',
-        forecastStatus: 'goodToGo',
-        forecastStarted: '2023-10-01',
-        username: 'chris_jones',
-      },
-    ];
-  };
 
   // Initialize the table with the dummy data
   useEffect(() => {
@@ -139,17 +48,48 @@ const DataConsolidation = () => {
     setRowsData(rows);
   }, []);
 
-  // Function to filter rows based on selected Therapeutic Area, Country, and Forecast Cycle
+
+  // Function to filter rows based on selected Therapeutic Area, Region, and Forecast Cycle
   const getFilteredRows = () => {
-    return rowsData.filter((row) => {
+    // Filter rows based on selected filters
+    const filteredRows = rowsData.filter((row) => {
       const matchesTherapeuticArea =
         selectedTherapeuticArea === '' || row.therapeuticArea === selectedTherapeuticArea;
-      const matchesCountry = selectedCountry === '' || row.country === selectedCountry;
+      const matchesRegion = selectedRegion === '' || row.region === selectedRegion;
       const matchesForecastCycle =
         selectedForecastCycle === '' ||
         forecastOptions[selectedForecastCycle].includes(row.forecast);
-      return matchesTherapeuticArea && matchesCountry && matchesForecastCycle;
+      return matchesTherapeuticArea && matchesRegion && matchesForecastCycle;
     });
+  
+    // Get countries in the selected region
+    const countriesInRegion = countries[selectedRegion];
+  
+    // Create an array that includes all countries and their respective rows if any
+    const rowsWithCountries = countriesInRegion.map((country) => {
+      // Find rows for the current country
+      const countryRows = filteredRows.filter((row) => row.country === country);
+  
+      // If no data exists for the country, create a row with just the country and therapeutic area
+      if (countryRows.length === 0) {
+        return [
+          {
+            country: country,
+            therapeuticArea: selectedTherapeuticArea,
+            worksheet: "Output Sheet",
+            forecast: forecastOptions[selectedForecastCycle][0],
+            forecastStatus: "lock",
+            forecastStarted: "2024-01-01",
+            username: "john_doe",
+          },
+        ];
+      }
+  
+      return countryRows;
+    });
+  
+    // Flatten the result to get a list of rows
+    return rowsWithCountries.flat();
   };
 
   // Get the filtered forecast options based on the selected Forecast Cycle
@@ -162,7 +102,7 @@ const DataConsolidation = () => {
 
   // Check if all filters have been selected
   const areAllFiltersSelected = () => {
-    return selectedTherapeuticArea !== '' && selectedCountry !== '' && selectedForecastCycle !== '';
+    return selectedTherapeuticArea !== '' && selectedRegion !== '' && selectedForecastCycle !== '';
   };
 
   return (
@@ -172,7 +112,7 @@ const DataConsolidation = () => {
 
       {/* Forecast and Worksheet Selections Container */}
       <div style={styles.selectionContainer}>
-        
+
         {/* Forecast Cycle Filter */}
         <section style={styles.section}>
           <h2 style={styles.heading}>Forecast Cycle</h2>
@@ -217,21 +157,21 @@ const DataConsolidation = () => {
           </div>
         </section>
 
-        {/* Country/Region Filter */}
+        {/* Region Filter */}
         <section style={styles.section}>
-          <h2 style={styles.heading}>Country/Region</h2>
+          <h2 style={styles.heading}>Region</h2>
           <div style={styles.content}>
             <div style={styles.labeledSelect}>
-              <label style={styles.label}>Select Country/Region</label>
+              <label style={styles.label}>Select Region</label>
               <select
                 style={styles.select}
-                value={selectedCountry}
-                onChange={(e) => setSelectedCountry(e.target.value)}
+                value={selectedRegion}
+                onChange={(e) => setSelectedRegion(e.target.value)}
               >
                 <option value="">All</option>
-                {countries.map((country) => (
-                  <option key={country} value={country}>
-                    {country}
+                {regions.map((region) => (
+                  <option key={region} value={region}>
+                    {region}
                   </option>
                 ))}
               </select>
@@ -243,7 +183,7 @@ const DataConsolidation = () => {
       {/* Data Table Section */}
       {areAllFiltersSelected() && ( // Conditional rendering of the table
         <div style={styles.tableContainer}>
-          <h2 style={{ ...styles.tableHeading, textAlign: 'center',padding: '10px' }}>Therapeutic Area, Country and Connected Data</h2>
+          <h2 style={{ ...styles.tableHeading, textAlign: 'center', padding: '10px' }}>Therapeutic Area, Country and Connected Data</h2>
           <table style={styles.table}>
             <thead>
               <tr>
@@ -251,7 +191,7 @@ const DataConsolidation = () => {
                   Therapeutic Area <FaFilter style={styles.filterIcon} /> {/* Filter Icon for Therapeutic Area */}
                 </th>
                 <th>
-                  Country/Region <FaFilter style={styles.filterIcon} /> {/* Filter Icon for Country/Region */}
+                  Country <FaFilter style={styles.filterIcon} /> {/* Filter Icon for Country */}
                 </th>
                 <th>Select Worksheet</th>
                 <th>Scenario Details</th>
@@ -261,39 +201,28 @@ const DataConsolidation = () => {
             </thead>
             <tbody>
               {getFilteredRows().map((row, index) => (
-                <tr key={index}>
-                  {/* Therapeutic Area */}
+                <tr style={{ textAlign: 'center' }} key={index}>
                   <td>{row.therapeuticArea}</td>
-
-                  {/* Country/Region */}
                   <td>{row.country}</td>
-
-                  {/* Connected Worksheet Dropdown */}
                   <td>
-                    <select style={styles.select}>
+                    <select style={{ ...styles.select, textAlign: 'center' }}>
                       <option value="OutputSheet">Output Sheet</option>
                       <option value="Worksheet1">Worksheet 1</option>
                       <option value="Worksheet2">Worksheet 2</option>
                     </select>
                   </td>
-
-                  {/* Connected Forecast with Dynamic Icons */}
                   <td>
                     <select style={styles.select}>
                       {getFilteredForecastOptions().map((forecast, idx) => (
-                        <option key={idx} value={forecast}>
+                        <option style={{ textAlign: 'center' }} key={idx} value={forecast}>
                           {forecast} {row.forecastStatus === 'lock' ? lockIcon : goodToGoIcon}
                         </option>
                       ))}
                     </select>
                   </td>
-
-                  {/* Forecast Started (Random Date) */}
                   <td>
                     <input type="date" value={row.forecastStarted} style={styles.input} readOnly />
                   </td>
-
-                  {/* Username (Random Name) */}
                   <td>
                     <input type="text" value={row.username} style={styles.input} readOnly />
                   </td>
@@ -378,7 +307,8 @@ const styles = {
   td: {
     padding: '10px',
     border: '1px solid #ddd',
-    textAlign: 'center',
+    textAlign: 'center'
+
   },
   forecastCell: {
     display: 'flex',
@@ -396,6 +326,7 @@ const styles = {
     borderRadius: '4px',
     border: '1px solid #ccc',
     width: '100%',
+    textAlign: 'center',
   },
   filterIcon: {
     marginLeft: '5px',
@@ -405,3 +336,4 @@ const styles = {
 };
 
 export default DataConsolidation;
+
