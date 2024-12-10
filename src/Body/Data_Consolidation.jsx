@@ -124,7 +124,7 @@ const DataConsolidation = () => {
                 value={selectedForecastCycle}
                 onChange={(e) => setSelectedForecastCycle(e.target.value)}
               >
-                <option value="">All</option>
+                <option value="">Select</option>
                 {forecastCycles.map((cycle) => (
                   <option key={cycle} value={cycle}>
                     {cycle}
@@ -146,7 +146,7 @@ const DataConsolidation = () => {
                 value={selectedTherapeuticArea}
                 onChange={(e) => setSelectedTherapeuticArea(e.target.value)}
               >
-                <option value="">All</option>
+                <option value="">Select</option>
                 {therapeuticAreas.map((area) => (
                   <option key={area} value={area}>
                     {area}
@@ -168,7 +168,7 @@ const DataConsolidation = () => {
                 value={selectedRegion}
                 onChange={(e) => setSelectedRegion(e.target.value)}
               >
-                <option value="">All</option>
+                <option value="">Select</option>
                 {regions.map((region) => (
                   <option key={region} value={region}>
                     {region}
@@ -183,25 +183,25 @@ const DataConsolidation = () => {
       {/* Data Table Section */}
       {areAllFiltersSelected() && ( // Conditional rendering of the table
         <div style={styles.tableContainer}>
-          <h2 style={{ ...styles.tableHeading, textAlign: 'center', padding: '10px' }}>Therapeutic Area, Country and Connected Data</h2>
+          <h2 style={styles.tableHeading}>Therapeutic Area, Country and Connected Data</h2>
           <table style={styles.table}>
             <thead>
-              <tr>
-                <th>
+              <tr >
+                <th style={styles.tableHeader}>
                   Therapeutic Area <FaFilter style={styles.filterIcon} /> {/* Filter Icon for Therapeutic Area */}
                 </th>
-                <th>
+                <th style={styles.tableHeader}>
                   Country <FaFilter style={styles.filterIcon} /> {/* Filter Icon for Country */}
                 </th>
-                <th>Select Worksheet</th>
-                <th>Scenario Details</th>
-                <th>Forecast Started</th>
-                <th>Username</th>
+                <th style={styles.tableHeader}>Select Worksheet</th>
+                <th style={styles.tableHeader}>Scenario Details</th>
+                <th style={styles.tableHeader}>Forecast Started</th>
+                <th style={styles.tableHeader}>Username</th>
               </tr>
             </thead>
             <tbody>
               {getFilteredRows().map((row, index) => (
-                <tr style={{ textAlign: 'center' }} key={index}>
+                <tr style={{ textAlign: 'center', backgroundColor: index % 2 === 0 ? '#e5f1fb' : 'white' }} key={index}>
                   <td>{row.therapeuticArea}</td>
                   <td>{row.country}</td>
                   <td>
@@ -221,10 +221,10 @@ const DataConsolidation = () => {
                     </select>
                   </td>
                   <td>
-                    <input type="date" value={row.forecastStarted} style={styles.input} readOnly />
+                    {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(row.forecastStarted))}
                   </td>
                   <td>
-                    <input type="text" value={row.username} style={styles.input} readOnly />
+                   {row.username} 
                   </td>
                 </tr>
               ))}
@@ -293,22 +293,27 @@ const styles = {
     fontSize: '24px',
     fontWeight: 'bold',
     marginBottom: '10px',
+    backgroundColor: '#1976d2',
+    color: 'white',
+    padding: '5px',
+    borderRadius: '8px',
+    textAlign: 'center'
   },
   table: {
     width: '100%',
     borderCollapse: 'collapse',
     marginTop: '10px',
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
   },
-  th: {
-    padding: '10px',
-    backgroundColor: '#f2f2f2',
-    border: '1px solid #ddd',
-  },
-  td: {
-    padding: '10px',
-    border: '1px solid #ddd',
-    textAlign: 'center'
-
+  
+  tableHeader: {
+    backgroundColor: '#1976d2',
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: '16px',
+    textAlign: 'center',
+    padding: '8px',
+  
   },
   forecastCell: {
     display: 'flex',
@@ -317,6 +322,7 @@ const styles = {
   },
   icon: {
     marginLeft: '10px',
+    
   },
   iconGoodToGo: {
     marginLeft: '10px',
@@ -324,13 +330,13 @@ const styles = {
   input: {
     padding: '8px',
     borderRadius: '4px',
-    border: '1px solid #ccc',
+    
     width: '100%',
     textAlign: 'center',
   },
   filterIcon: {
     marginLeft: '5px',
-    color: '#888',
+    color: 'white',
     cursor: 'pointer',
   },
 };

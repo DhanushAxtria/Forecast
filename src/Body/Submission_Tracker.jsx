@@ -208,7 +208,7 @@ const DataConsolidation = () => {
         <h2 style={styles.tableHeading}> Country-TA wise Forecast Submission Status</h2>
         <table style={styles.table}>
           <thead>
-            <tr>
+            <tr >
               <th style={styles.tableHeader}>Therapeutic Area <FaFilter style={styles.filterIcon} /></th>
               <th style={styles.tableHeader}>Country/Region <FaFilter style={styles.filterIcon} /></th>
               <th style={styles.tableHeader}>Forecast Status <FaFilter style={styles.filterIcon} /></th>
@@ -223,7 +223,10 @@ const DataConsolidation = () => {
                 key={index}
                 onMouseEnter={() => setHoveredRow(index)}
                 onMouseLeave={() => setHoveredRow(null)}
-                style={hoveredRow === index ? styles.hoveredRow : {}}
+                style={{
+                  backgroundColor: index % 2 === 0 ? '#e5f1fb' : 'white',
+                  ...(hoveredRow === index && styles.hoveredRow)
+                }}
               >
                 <td style={{ ...styles.tableCell, cursor: 'pointer', color: '#086193', fontWeight: 'bold' }}
                   onClick={() => handleTherapeuticAreaClick(row.therapeuticArea)}>
@@ -316,7 +319,7 @@ const styles = {
     boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
   },
   hoveredRow: {
-    backgroundColor: '#d4e6f1',
+    backgroundColor: '#d3d3d3',
   },
   tableHeader: {
     backgroundColor: '#1976d2',

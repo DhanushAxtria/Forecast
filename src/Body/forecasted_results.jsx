@@ -9,7 +9,7 @@ import axios from 'axios';
 import CircularProgress from '@mui/material/CircularProgress';
 
 
-const SeekBar = ({ title, minval, maxval, steps, value, setValue }) => {
+const SeekBar = ({ title, minval, maxval, steps, value, setValue, setModelLegBehind }) => {
   const handleSliderChange = (event, newValue) => {
     setValue(newValue);
   };
@@ -29,12 +29,13 @@ const SeekBar = ({ title, minval, maxval, steps, value, setValue }) => {
         width: "80%",
         maxWidth: "300px", // Smaller width
         margin: "auto",
-        mt: 2, 
+        mt: 2,
         p: 1.5,
         mb: 2,
         bgcolor: "lightblue", // Light blue background
         borderRadius: 1.5, // Rounded corners
         boxShadow: 1, // Slight shadow for aesthetics
+        //border: "1px solid #032B44", // Dark blue border
       }}
     >
       <Typography variant="subtitle1" sx={{ mb: 1.5 }}>
@@ -44,7 +45,11 @@ const SeekBar = ({ title, minval, maxval, steps, value, setValue }) => {
         <Box>
           <Button
             variant="outlined"
-            onClick={handleMinusClick}
+            onClick={() => {
+              handleMinusClick();
+              setModelLegBehind(true);
+            }}
+            
             sx={{ minWidth: "32px", height: "32px" }} // Slightly smaller button
           >
             -
@@ -56,13 +61,20 @@ const SeekBar = ({ title, minval, maxval, steps, value, setValue }) => {
           min={minval}
           max={maxval}
           step={steps}
-          onChange={handleSliderChange}
+          onChange={(event, newValue) => {
+            handleSliderChange(event, newValue);
+            setModelLegBehind(true);
+          }} 
           sx={{ width: "180px" }} // Narrower slider
         />
         <Box>
           <Button
             variant="outlined"
-            onClick={handlePlusClick}
+            onClick={() => {
+              handlePlusClick();
+              setModelLegBehind(true);
+            }}
+            
             sx={{ minWidth: "32px", height: "32px" }} // Slightly smaller button
           >
             +
@@ -77,7 +89,7 @@ const SeekBar = ({ title, minval, maxval, steps, value, setValue }) => {
     </Box>
   );
 };
-const RidgeLasso = ({allocation, setAllocation}) => {
+const RidgeLasso = ({allocation, setAllocation, setModelLegBehind}) => {
   const handleAllocationChange = (event, newAllocation) => {
     if (newAllocation !== null) setAllocation(newAllocation);
   };
@@ -89,7 +101,10 @@ const RidgeLasso = ({allocation, setAllocation}) => {
       <ToggleButtonGroup
         value={allocation}
         exclusive
-        onChange={handleAllocationChange}
+        onChange={(event, newValue) => {
+          handleAllocationChange(event, newValue);
+          setModelLegBehind(true);
+        }}        
         sx={{ mb: 3 }}
       >
         <ToggleButton
@@ -156,6 +171,7 @@ export default function Forecasted_Results() {
   const [lassoAlpha, setlassoAlpha] = useState(0.1);
   const [ridgeAlpha, setridgeAlpha] = useState(0.1);
   const [maxiter, setmaxiter] = useState(500);
+  const [modelLegBehind, setModelLegBehind] = useState(false);
 
   useEffect(() => {
     if (ForecastedValue && ParsedData) {
@@ -223,6 +239,7 @@ export default function Forecasted_Results() {
       console.error('Error uploading file:', error);
     }
     setNotAllowed(true);
+    setModelLegBehind(false);
   };
 
 
@@ -360,8 +377,16 @@ export default function Forecasted_Results() {
               >
                 Show Results
               </Button>
+            
+            
+              
             </Box>
-
+            {modelLegBehind && 
+              <Typography variant="body2" sx={{  textAlign: 'right', fontSize: '0.8rem', color: 'secondary.main', mt: -1 }}>
+                You are some commits behind.
+              </Typography>
+            }
+            
             {selectedSheet === 'Linear Regression' && <Box
               sx={{
                 display: 'flex',
@@ -374,10 +399,10 @@ export default function Forecasted_Results() {
                 boxShadow: 2,
               }}
             >
-              <RidgeLasso allocation = {modelType} setAllocation = {setModelType} />
-              <SeekBar title="Select Ridge Alpha" minval={0.1} maxval={1} steps={0.1} value={ridgeAlpha} setValue={setridgeAlpha} />
-              <SeekBar title="Select Lasso Alpha" minval={0.1} maxval={1} steps={0.1} value={lassoAlpha} setValue={setlassoAlpha}/>
-              <SeekBar title="Select Max Iterations" minval={500} maxval={2000} steps={100} value={maxiter} setValue={setmaxiter} />
+              <RidgeLasso allocation = {modelType} setAllocation = {setModelType} setModelLegBehind = {setModelLegBehind} />
+              <SeekBar title="Select Ridge Alpha" minval={0.1} maxval={1} steps={0.1} value={ridgeAlpha} setValue={setridgeAlpha} setModelLegBehind = {setModelLegBehind} />
+              <SeekBar title="Select Lasso Alpha" minval={0.1} maxval={1} steps={0.1} value={lassoAlpha} setValue={setlassoAlpha} setModelLegBehind = {setModelLegBehind} />
+              <SeekBar title="Select Max Iterations" minval={500} maxval={2000} steps={100} value={maxiter} setValue={setmaxiter} setModelLegBehind = {setModelLegBehind} />
             </Box>}
           </Box>
         </Box>

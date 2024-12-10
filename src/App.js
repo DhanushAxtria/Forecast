@@ -45,8 +45,8 @@ function App() {
           <Route path="/data-consolidation" element={<DataConsolidation />} />
           /{/*<Route path="/Forecast" element={<HomePage />} />*/}
           <Route path="/new-scenario/scenario-details" element={<ScenarioDetails />} />
-          <Route path="/review-scenario" element={<ReviewScenario />} />
-          <Route path="/Summary-scenario" element={<SummaryScenario />} />
+          <Route path="/saved-scenario/review-scenario" element={<ReviewScenario />} />
+          <Route path="/saved-scenario/Summary-scenario" element={<SummaryScenario />} />
           <Route path="/submissions-tracker" element={<Submission_Tracker />} />
           <Route path="/" element={<ScenarioDetails hasUnsavedChanges={hasUnsavedChanges} setHasUnsavedChanges={setHasUnsavedChanges} />} />
           <Route path="new-scenario/scenario-details/Inputpage" element={<Inputpage />} />

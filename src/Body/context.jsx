@@ -60,6 +60,9 @@ const MyProvider = ({ children }) => {
   ]);
   const [showTabs, setShowTabs] = useState(false);
   const [timePeriod, setTimePeriod] = useState('Monthly');
+  const [countries, setCountries] = React.useState([]);
+  const [therapeuticAreas, setTherapeuticAreas] = React.useState([]);
+  const [forecastCycles, setForecastCycles] = React.useState([]);
 
 
 
@@ -88,7 +91,10 @@ const MyProvider = ({ children }) => {
       combinedProducts,
       dropdownGroups, setDropdownGroups,
       showTabs, setShowTabs,
-      timePeriod, setTimePeriod
+      timePeriod, setTimePeriod,
+      countries, setCountries,
+      therapeuticAreas, setTherapeuticAreas,
+      forecastCycles, setForecastCycles
     }}>
       {children}
     </MyContext.Provider>
