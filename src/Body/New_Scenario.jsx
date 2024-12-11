@@ -406,9 +406,9 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
           renderInput={(params) => (
             <TextField {...params} size="small" label="Forecast Cycle" placeholder="Select forecast cycle(s)" />
           )}
-         sx={{ width: '300px' }}
+          sx={{ width: '300px' }}
         />
-        
+
 
 
         {/* Autocomplete with Checkboxes for Country */}
@@ -430,7 +430,7 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
             </li>
           )}
           renderInput={(params) => (
-            <TextField {...params}  size="small" label="Country" placeholder="Select country(s)" />
+            <TextField {...params} size="small" label="Country" placeholder="Select country(s)" />
           )}
           sx={{ width: '300px' }}
         />
@@ -454,7 +454,7 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
             </li>
           )}
           renderInput={(params) => (
-            <TextField {...params}  size="small" label="Therapeutic Area" placeholder="Select therapeutic area(s)" />
+            <TextField {...params} size="small" label="Therapeutic Area" placeholder="Select therapeutic area(s)" />
           )}
           sx={{ width: '300px' }}
         />
@@ -529,7 +529,7 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
                 { scenario: 'Main Submission', cycle: '2024 H2', country: 'Finland', area: 'TA 1', modified: '29 Sep 2024', user: 'User 1' },
                 { scenario: 'Draft 1', cycle: '2024 H2', country: 'Finland', area: 'TA 1', modified: '28 Sep 2024', user: 'User 1' },
               ].map((row, index) => (
-                <TableRow key={index}>
+                <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? '#e5f1fb' : 'white' }}>
                   <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.scenario}</TableCell>
                   <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.cycle}</TableCell>
                   <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.country}</TableCell>
@@ -577,7 +577,7 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
             </TableHead>
             <TableBody>
               {filteredSavedScenarios.map((row, index) => (
-                <TableRow key={index}>
+                <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? '#e5f1fb' : 'white' }}>
                   <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.scenario}</TableCell>
                   <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.cycle}</TableCell>
                   <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.country}</TableCell>

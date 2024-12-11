@@ -74,9 +74,9 @@ const demo_data = [
 
 
 export default function Savedpage({ username = "User" }) {
-    const {countries, setCountries} = useContext(MyContext);
-    const {therapeuticAreas, setTherapeuticAreas} = useContext(MyContext);
-    const {forecastCycles, setForecastCycles} = useContext(MyContext);
+    const { countries, setCountries } = useContext(MyContext);
+    const { therapeuticAreas, setTherapeuticAreas } = useContext(MyContext);
+    const { forecastCycles, setForecastCycles } = useContext(MyContext);
     const countryOptions = ['All', 'USA', 'Canada', 'Germany', 'India', 'Norway', 'Finland'];
     const therapeuticAreaOptions = ['All', 'Cardiology', 'Oncology', 'Neurology', 'Diabetes', 'TA 1'];
     const forecastCycleOptions = ['All', '2024 H2', '2013-H1', '2013-H2', '2014-H1', '2014-H2'];
@@ -85,11 +85,11 @@ export default function Savedpage({ username = "User" }) {
     const handleReviewScenario = (scenario) => {
         // Navigate to the specific page, passing scenario data as state
         navigate('/saved-scenario/review-scenario', { state: { scenario } });
-      };
+    };
     const handleReviewScenarioSummary = (scenario) => {
         // Navigate to the specific page, passing scenario data as state
         navigate('/saved-scenario/summary-scenario', { state: { scenario } });
-      };
+    };
     const getGreetingMessage = () => {
         const hours = new Date().getHours();
         if (hours < 12) return `Good Morning`;
@@ -194,7 +194,7 @@ export default function Savedpage({ username = "User" }) {
                         </TableHead>
                         <TableBody>
                             {filteredData.map((row, index) => (
-                                <TableRow key={index}>
+                                <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? '#e5f1fb' : 'white' }}>
                                     <TableCell align="center">{row.scenario}</TableCell>
                                     <TableCell align="center">{row.cycle}</TableCell>
                                     <TableCell align="center">{row.country}</TableCell>
