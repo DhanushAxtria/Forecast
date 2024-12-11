@@ -7,7 +7,6 @@ import ScenarioComparsion from './Body/ScenarioComparsion'; // Component for Sce
 import { SavedFilesProvider } from './Body/SavedFilesContext'; // Import the context provider
 import DataConsolidation from './Body/Data_Consolidation';
 //import Savedpage from './Body/Savedpage';
-import SavedScenario from './Body/Saved-Scenario';
 import HelpPage from './Header/HelpPage';
 import ScenarioDetails from './Body/Scenario_details'
 import ReviewScenario from './Body/ReviewScenario'
@@ -17,7 +16,7 @@ import Inputpage from './Body/Inputpage'
 import Savedpage from './Body/Newpage'
 import Admin from './Body/Forecastpage'
 import Patient_Forecast from './Body/Patient_Forecast'
-import Forecasted_Results from './Body/forecasted_results';
+import Forecasted_Results from './Body/forecastedresults';
 import Dashboard from './Body/Dashboard'
 //import Navbar from './Body/Navbar'
 function App() {

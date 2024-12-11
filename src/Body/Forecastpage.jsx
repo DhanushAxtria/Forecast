@@ -1,77 +1,63 @@
 import React, { useState } from 'react';
-import { Drawer, Accordion, AccordionSummary, AccordionDetails, Typography, Box, FormControl, RadioGroup, Radio, FormControlLabel, Button, Checkbox, List, ListItem, IconButton } from '@mui/material';
+import {
+    Drawer,
+    Accordion,
+    AccordionSummary,
+    AccordionDetails,
+    Typography,
+    Box,
+    FormControl,
+    RadioGroup,
+    Radio,
+    FormControlLabel,
+} from '@mui/material';
 import { ExpandMore } from '@mui/icons-material';
-import CloseIcon from '@mui/icons-material/Close';
-import Footer from '../Footer/Forecastpage_footer';
 import { MyContext } from './context';
 import { useContext } from 'react';
+import Forecastpagehelper from './Forecastpagehelper';
 
 const Admin = () => {
-    const [selectedWorkbook, setSelectedWorkbook] = useState(null); // Track selected workbook
-    const {selectedSheet, setSelectedSheet} = useContext(MyContext);   // Track selected sheet
-    const [expandedAccordion, setExpandedAccordion] = useState(null); // Track which accordion is expanded
-    const [drugDrawerOpen, setDrugDrawerOpen] = useState(false); // State to open/close drug drawer
-    const [selectedDrugs, setSelectedDrugs] = useState([]); // Track selected drugs
-    const [selectAll, setSelectAll] = useState(false); // Track select all option for drugs
+    // Retrieve selectedSheet and setSelectedSheet from context for managing selected forecast method
+    const { selectedSheet, setSelectedSheet } = useContext(MyContext);
 
-    // Sample list of drugs
-    const drugs = ['Aspirin', 'Ibuprofen', 'Paracetamol', 'Metformin', 'Amoxicillin'];
+    // State to track which accordion is currently expanded
+    const [expandedAccordion, setExpandedAccordion] = useState(null);
 
+    // Methods for forecasting grouped into categories
     const workbooks = {
         "Automated Methods": ['Auto ARIMA', 'ETS', 'TBATS', 'STL-ETS', 'STL-Arima'],
         "Machine Learning Methods": ['Neural Networks', 'Bootstrap Aggregate Arima', 'Bootstrap Aggregate'],
-        "Manual Methods": ['Additive Trend-Additive Seasonality', 'Damped Additive Trend-Additive Seasonality', 'Additive Trend-Multiplicative Seasonality', 'Damped Additive Trend-Multiplicative Seasonality', 'Multiplicative Trend-Additive Seasonality', 'Damped Multiplicative Trend-Additive Seasonality', 'Multiplicative Trend-Multiplicative Seasonality'],
-        "Benchmark Methods": ['Linear Regression', 'Log Linear Regression', 'Naive', 'Seasonal Naive', 'Holt', 'Damped Holt', 'Average']
+        "Manual Methods": [
+            'Additive Trend-Additive Seasonality',
+            'Damped Additive Trend-Additive Seasonality',
+            'Additive Trend-Multiplicative Seasonality',
+            'Damped Additive Trend-Multiplicative Seasonality',
+            'Multiplicative Trend-Additive Seasonality',
+            'Damped Multiplicative Trend-Additive Seasonality',
+            'Multiplicative Trend-Multiplicative Seasonality',
+        ],
+        "Benchmark Methods": ['Linear Regression', 'Log Linear Regression', 'Naive', 'Seasonal Naive', 'Holt', 'Damped Holt', 'Average'],
     };
 
-    const handleWorkbookSelect = (event) => {
-        setSelectedWorkbook(event.target.value);
-        setSelectedSheet(null);
-    };
-
+    // Handle the selection of a forecast method
     const handleSheetSelect = (event) => {
         setSelectedSheet(event.target.value);
-        console.log(event.target.value);
-    };
-    const getColorForSheet = (index) => {
-        const colors = ['#FF5733', '#33A1FF', '#33FF57', '#FF33D1', '#FFC733'];
-        return colors[index % colors.length]; // Rotate colors for different sheets
     };
 
+    // Assign distinct colors to different forecast methods for visual distinction
+    const getColorForSheet = (index) => {
+        const colors = ['#FF5733', '#33A1FF', '#33FF57', '#FF33D1', '#FFC733'];
+        return colors[index % colors.length]; // Rotate through color palette
+    };
+
+    // Handle accordion toggle to expand/collapse sections
     const handleAccordionToggle = (workbook) => (event, isExpanded) => {
         setExpandedAccordion(isExpanded ? workbook : null);
     };
 
-    const handleAddDrugClick = () => {
-        setDrugDrawerOpen(true); // Open the drug drawer
-    };
-
-    const handleDrawerClose = () => {
-        setDrugDrawerOpen(false); // Close the drug drawer
-    };
-
-    const handleDrugToggle = (drug) => {
-        setSelectedDrugs((prevSelectedDrugs) => {
-            if (prevSelectedDrugs.includes(drug)) {
-                return prevSelectedDrugs.filter((d) => d !== drug); // Deselect the drug
-            } else {
-                return [...prevSelectedDrugs, drug]; // Select the drug
-            }
-        });
-    };
-
-    const handleSelectAllToggle = () => {
-        setSelectAll(!selectAll);
-        if (!selectAll) {
-            setSelectedDrugs(drugs); // Select all drugs
-        } else {
-            setSelectedDrugs([]); // Deselect all drugs
-        }
-    };
-
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'column'}}>
-            {/* Side Drawer */}
+        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+            {/* Sidebar Drawer for selecting forecasting methods */}
             <Drawer
                 variant="permanent"
                 anchor="left"
@@ -91,11 +77,12 @@ const Admin = () => {
                 }}
             >
                 <Box sx={{ padding: 2 }}>
+                    {/* Header for the drawer */}
                     <Typography variant="span" gutterBottom>
                         Select Forecast Projection Method
                     </Typography>
 
-                    {/* Accordion for workbooks without radio buttons */}
+                    {/* Accordion for grouping forecast methods */}
                     {Object.keys(workbooks).map((workbook) => (
                         <Accordion
                             key={workbook}
@@ -109,7 +96,7 @@ const Admin = () => {
                                 </Typography>
                             </AccordionSummary>
 
-                            {/* Show sheets as radio options with colors */}
+                            {/* Display forecast methods within each group as radio buttons */}
                             <AccordionDetails>
                                 <FormControl component="fieldset">
                                     <RadioGroup
@@ -122,7 +109,12 @@ const Admin = () => {
                                                 value={sheet}
                                                 control={<Radio />}
                                                 label={
-                                                    <Typography sx={{ fontSize: '0.8125rem', color: getColorForSheet(index) }}>
+                                                    <Typography
+                                                        sx={{
+                                                            fontSize: '0.8125rem',
+                                                            color: getColorForSheet(index),
+                                                        }}
+                                                    >
                                                         {sheet}
                                                     </Typography>
                                                 }
@@ -136,49 +128,10 @@ const Admin = () => {
                 </Box>
             </Drawer>
 
-            {/* Footer positioned below the Drawer */}
+            {/* Main content area displaying Forecastpagehelper */}
             <Box sx={{ ml: '309px', mt: 2 }}>
-                <Footer handleAddDrugClick={handleAddDrugClick} /> {/* Pass handleAddDrugClick to Footer */}
+                <Forecastpagehelper />
             </Box>
-
-
-            {/* Right Side Drug List Drawer */}
-            <Drawer anchor="right" open={drugDrawerOpen} onClose={handleDrawerClose}>
-                <Box sx={{ width: 300, padding: 2 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                        <Typography variant="h6">Select Drugs</Typography>
-                        <IconButton onClick={handleDrawerClose}>
-                            <CloseIcon />
-                        </IconButton>
-                    </Box>
-                    <List>
-                        <ListItem>
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        checked={selectAll}
-                                        onChange={handleSelectAllToggle}
-                                    />
-                                }
-                                label="Select All Drugs"
-                            />
-                        </ListItem>
-                        {drugs.map((drug) => (
-                            <ListItem key={drug}>
-                                <FormControlLabel
-                                    control={
-                                        <Checkbox
-                                            checked={selectedDrugs.includes(drug)}
-                                            onChange={() => handleDrugToggle(drug)}
-                                        />
-                                    }
-                                    label={drug}
-                                />
-                            </ListItem>
-                        ))}
-                    </List>
-                </Box>
-            </Drawer>
         </Box>
     );
 };

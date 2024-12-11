@@ -1,43 +1,33 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { Box, Typography, TextField, Button, Snackbar, IconButton } from '@mui/material';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useNavigate } from 'react-router-dom';
-import { MyContext } from '../Body/context';
+import { MyContext } from './context';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ClearIcon from '@mui/icons-material/Clear';
 import UploadIcon from '@mui/icons-material/Upload';
-import LinearProgress from '@mui/material/LinearProgress';
-import axios from 'axios';
-import CircularProgress from '@mui/material/CircularProgress';
 import Papa from 'papaparse';
 
 
-const LinearRegression = ({ handleAddDrugClick }) => {
-    const { historyFromDate, setHistoryFromDate } = useContext(MyContext);
-    const { historyToDate, setHistoryToDate } = useContext(MyContext);
-    const { selectedFromDate, setSelectedFromDate } = useContext(MyContext);
-    const { selectedToDate, setSelectedToDate } = useContext(MyContext);
-    const [FileName, setFileName] = useState("");
-    const { selectedFile, setSelectedFile } = useContext(MyContext);
-    const { selectedSheet, setSelectedSheet } = useContext(MyContext);
-    const { ForecastedValue, setForecastValue } = useContext(MyContext);
-    const { ParsedData, setParsedData } = useContext(MyContext);
-    const [HistoricalFrom, setHistoricalFrom] = useState(null);
-    const [HistoricalTO, setHistoricalTo] = useState(null);
-    const [Loading, setLoading] = useState(false);
-    const navigate = useNavigate();
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const [snackbarMessage, setSnackbarMessage] = useState('');
-    const [snackbarType, setSnackbarType] = useState('success'); // 'success' or 'error'
-    const { isCol, setIsCol } = useContext(MyContext);
-    const { met, setMet } = useContext(MyContext);
+const Forecastpagehelper = () => {
+    // Context variables from MyContext
+    const { historyFromDate, setHistoryFromDate } = useContext(MyContext); // Start date for historical data in datepicker
+    const { historyToDate, setHistoryToDate } = useContext(MyContext); // End date for historical data in datepicker
+    const { selectedFromDate, setSelectedFromDate } = useContext(MyContext); // Start date for selected data in datepicker
+    const { selectedToDate, setSelectedToDate } = useContext(MyContext); // End date for selected data in datepicker
+    const { selectedFile, setSelectedFile } = useContext(MyContext); // Selected data for forecasting
+    const { selectedSheet, setSelectedSheet } = useContext(MyContext); // Selected method in the file
+    const [HistoricalFrom, setHistoricalFrom] = useState(null); // Start date for historical data
+    const [HistoricalTO, setHistoricalTo] = useState(null); // End date for historical data
+    const navigate = useNavigate(); // Navigation function
+    const [snackbarOpen, setSnackbarOpen] = useState(false); // Whether the snackbar is open or not
+    const [snackbarMessage, setSnackbarMessage] = useState(''); // Message to display in the snackbar
+    const { setIsCol } = useContext(MyContext); // Whether the data is in column view or row view
 
 
-
-
+    // Reset button
     const handleResetAll = () => {
         setSelectedFile(null);
         setSelectedSheet(null);
@@ -47,6 +37,7 @@ const LinearRegression = ({ handleAddDrugClick }) => {
         setSelectedToDate(null);
     }
 
+    // parse the dates from the data in standard form
     const parseDate = (dateStr) => {
         const [monthStr, yearStr] = dateStr.split('-');
         const month = new Date(`${monthStr}-01-2000`).getMonth(); // Get month index
@@ -63,35 +54,30 @@ const LinearRegression = ({ handleAddDrugClick }) => {
             Papa.parse(file, {
                 complete: (result) => {
                     if (result.data && result.data.length > 0 && result.data[0].length > 2) {
-                        setIsCol(false);
-                        // Assuming the first row is the header
+                        setIsCol(false); // data is in row format
                         setHistoricalFrom(result.data[0][0]);
                         setHistoricalTo(result.data[0][result.data[0].length - 1]);
                     }
                     else {
-                        setIsCol(true);
+                        setIsCol(true); // data is in col format
                         setHistoricalFrom(result.data[0][0]);
                         setHistoricalTo(result.data[result.data.length - 1][0]);
                     }
                 },
                 skipEmptyLines: true,
             });
-
-            setFileName(file.name);
-
             // Show success Snackbar
             setSnackbarMessage(`File uploaded: ${file.name}`);
-            setSnackbarType('success');
             setSnackbarOpen(true);
         }
     };
 
-
+    // remove the selected data
     const handleRemoveFile = () => {
         setSelectedFile(null);
-        setFileName("");
     };
 
+    // value checks
     const handleSave = async () => {
         if (selectedFile === null && selectedSheet === null) {
             alert("Please upload the data and select the method");
@@ -106,7 +92,7 @@ const LinearRegression = ({ handleAddDrugClick }) => {
             alert("Please select all the dates properly");
         }
         else {
-            navigate("/admin/forecasted_results");
+            navigate("/admin/forecasted_results"); // if all the data is filled, proceed to the results page
         }
     };
 
@@ -129,8 +115,10 @@ const LinearRegression = ({ handleAddDrugClick }) => {
                 <Typography variant="subtitle2" sx={{ fontSize: '0.9rem', fontWeight: 'bold', marginTop: '20px' }}>
                     Upload historical data
                 </Typography>
+                {/* Box with upload button, file name display and clear button */}
                 <Box sx={{ display: 'flex', gap: 2, marginTop: '10px', alignItems: 'center' }}>
 
+                    {/* Upload button with hidden input field */}
                     <Button
                         variant="contained"
                         color="primary"
@@ -152,6 +140,7 @@ const LinearRegression = ({ handleAddDrugClick }) => {
                         />
                     </Button>
 
+                    {/* Display uploaded file name and clear button */}
                     {selectedFile && (
                         <Typography variant="body2" component="span" fontWeight="bold">
                             <span style={{ color: 'black' }}>Uploaded file: </span>
@@ -168,8 +157,15 @@ const LinearRegression = ({ handleAddDrugClick }) => {
 
                 <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, marginTop: '10px', alignItems: 'center' }}>
                     <Typography variant="subtitle2" sx={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
+                        {/* The uploaded file should be in either of the two formats: */
+                        /* 1. There are only two rows */
+                        /* first row for dates and second row for the values corresponds to the dates */
+                        /* 2. There are only two columns */
+                        /* first column for dates and the second column is for the values corresponds to the dates */}
                         Uploaded file should be in either of the two formats:
                     </Typography>
+
+                    {/* Type 1 format */}
                     <Typography variant="subtitle2" component="span" sx={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'blue', textDecoration: 'underline', '&:hover': { cursor: 'pointer' } }}
                         onClick={() => {
                             const link = document.createElement('a');
@@ -182,6 +178,8 @@ const LinearRegression = ({ handleAddDrugClick }) => {
                     >
                         Demo File 1
                     </Typography>
+
+                    {/* Type 2 format */}
                     <Typography variant="subtitle2" component="span" sx={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'blue', textDecoration: 'underline', '&:hover': { cursor: 'pointer' } }}
                         onClick={() => {
                             const link = document.createElement('a');
@@ -278,36 +276,11 @@ const LinearRegression = ({ handleAddDrugClick }) => {
                             sx={{ fontSize: '0.8rem' }}>
                             Clear All Data
                         </Button>
-
-
                     </Box>
                 </Box>
 
             </Box>
-
-            {Loading &&
-                <Box
-                    sx={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        width: '100vw',
-                        height: '100vh',
-                        backgroundColor: 'rgba(255,255,255,0.8)',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        zIndex: 1000
-                    }}
-                >
-                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                        <CircularProgress />
-                        <Typography variant="body2" sx={{ textAlign: 'center', fontSize: '1.1rem', fontWeight: 'bold', marginTop: 2 }}>
-                            Please wait while the model is working on your data.
-                        </Typography>
-                    </Box>
-                </Box>
-            }
+            
             {/* Snackbar for file upload */}
             <Snackbar
                 open={snackbarOpen}
@@ -323,5 +296,4 @@ const LinearRegression = ({ handleAddDrugClick }) => {
         </>
     );
 };
-
-export default LinearRegression;
+export default Forecastpagehelper;
