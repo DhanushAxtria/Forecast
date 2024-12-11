@@ -2,11 +2,13 @@ import { BorderAllOutlined } from '@mui/icons-material';
 import React, { useState, useEffect } from 'react';
 import { FaFilter } from 'react-icons/fa';
 
+// filter parameters and there respective values
 const therapeuticAreas = ['Cardiology', 'Oncology', 'Neurology', 'Immunology', 'Dermatology', 'HIV'];
 const countries = ['USA', 'Canada', 'Germany', 'UK', 'Australia', 'France', 'Italy', 'Austria', 'Spain', 'Poland'];
 const forecastScenarios = ['H1 - 2023', 'H2 - 2023', 'H1 - 2024', 'H2 - 2024'];
 const forecastStatus = ['Submitted', 'Pending', 'Ongoing'];
 const sampleUsernames = ['john_doe', 'jane_smith', 'michael_wang', 'emma_clark', 'chris_jones', 'Nicholas_Puran'];
+
 
 const DataConsolidation = () => {
   const [rowsData, setRowsData] = useState([]);
@@ -17,6 +19,8 @@ const DataConsolidation = () => {
   const [hoveredRow, setHoveredRow] = useState(null);
   const [greeting, setGreeting] = useState('');
 
+  
+  // Returns a random date between today and one year ago
   const getRandomDate = () => {
     const start = new Date(new Date().setFullYear(new Date().getFullYear() - 1));
     const end = new Date();
@@ -25,27 +29,33 @@ const DataConsolidation = () => {
       .split('T')[0];
   };
 
+  // Returns a random username from the sample usernames array
   const getRandomUsername = () => {
     return sampleUsernames[Math.floor(Math.random() * sampleUsernames.length)];
   };
 
+  // Returns a random therapeutic area from the therapeuticAreas array
   const getRandomTherapeuticArea = () => {
     return therapeuticAreas[Math.floor(Math.random() * therapeuticAreas.length)];
   };
 
+  // Returns a random country from the countries array
   const getRandomCountry = () => {
     return countries[Math.floor(Math.random() * countries.length)];
   };
 
+  // Returns a random forecast status from the forecastStatus array
   const getRandomForecastStatus = () => {
     return forecastStatus[Math.floor(Math.random() * forecastStatus.length)];
   };
 
+  // Returns a random forecast scenario from the forecastScenarios array
   const getRandomForecastScenario = () => {
     return forecastScenarios[Math.floor(Math.random() * forecastScenarios.length)];
   };
 
   useEffect(() => {
+    // Generate random data for the table. The data is generated once when the component mounts.
     const rows = Array.from({ length: 25 }, () => ({
       therapeuticArea: getRandomTherapeuticArea(),
       country: getRandomCountry(),
@@ -59,6 +69,11 @@ const DataConsolidation = () => {
     setRowsData(rows);
   }, []);
 
+  /*
+  Filters the rows of data based on the currently selected therapeutic area, country, forecast status, and forecast scenario.
+   If any of the selected values are empty strings, the corresponding column is not filtered.
+   returns The filtered array of rows.
+   */
   const getFilteredRows = () => {
     return rowsData.filter(row => {
       const matchesTherapeuticArea =
@@ -73,6 +88,8 @@ const DataConsolidation = () => {
     });
   };
 
+  /* Handles the click event for the therapeutic area selection. 
+  If the selected therapeutic area matches the one clicked, reset the selected therapeutic area to an empty string.*/
   const handleTherapeuticAreaClick = (ta) => {
     if (selectedTherapeuticArea === ta) {
       setSelectedTherapeuticArea('');
@@ -80,25 +97,38 @@ const DataConsolidation = () => {
       setSelectedTherapeuticArea(ta);
     }
   };
+
+  /*Handles the click event for the forecast status selection. 
+  If the selected forecast status matches the one clicked, reset the selected forecast status to an empty string.*/
   const handleCurrentStatusClick = (sts) => {
     if (selectedForecastStatus === sts) {
       setSelectedForecastStatus('');
-    } else
+    } else {
       setSelectedForecastStatus(sts);
+    }
   };
+
+  /* Handles the click event for the country selection. 
+  If the selected country matches the one clicked, reset the selected country to an empty string.*/
   const handleCountryClick = (cntry) => {
     if (selectedCountry === cntry) {
       setSelectedCountry('');
-    } else
+    } else {
       setSelectedCountry(cntry);
+    }
   };
+
+  /* Handles the click event for the forecast scenario selection. 
+  If the selected forecast scenario matches the one clicked, reset the selected forecast scenario to an empty string.*/
   const handleScenarioClick = (scn) => {
     if (selectedForecastScenario === scn) {
       setSelectedForecastScenario('');
-    } else
+    } else {
       setSelectedForecastScenario(scn);
+    }
   };
 
+  // Sets the greeting based on the current time of day. 
   useEffect(() => {
     const currentHour = new Date().getHours();
 
@@ -114,10 +144,12 @@ const DataConsolidation = () => {
   return (
     <div style={{ backgroundColor: 'white', padding: '20px', marginTop: '-44px' }}>
      
-       <h2 >{greeting}, Welcome to the Submission Tracker Page!</h2>
+      {/* Display greeting message with a welcome note */}
+      <h2>{greeting}, Welcome to the Submission Tracker Page!</h2>
 
       <div style={styles.selectionContainer}>
 
+        {/* Section for selecting Forecast Status */}
         <section style={styles.section}>
           <h2 style={{ ...styles.heading, color: 'black' }}>Forecast Status</h2>
           <div style={styles.content}>
@@ -128,7 +160,7 @@ const DataConsolidation = () => {
                 value={selectedForecastStatus}
                 onChange={(e) => setSelectedForecastStatus(e.target.value)}
               >
-                <option value="">All</option>
+                <option value="">All</option> {/* Default "All" option */}
                 {forecastStatus.map((currentForecastStatus) => (
                   <option key={currentForecastStatus} value={currentForecastStatus}>
                     {currentForecastStatus}
@@ -139,6 +171,7 @@ const DataConsolidation = () => {
           </div>
         </section>
 
+        {/* Section for selecting Therapeutic Area */}
         <section style={styles.section}>
           <h2 style={{ ...styles.heading, color: 'black' }}>Therapeutic Area</h2>
           <div style={styles.content}>
@@ -160,6 +193,7 @@ const DataConsolidation = () => {
           </div>
         </section>
 
+        {/* Section for selecting Country/Region */}
         <section style={styles.section}>
           <h2 style={{ ...styles.heading, color: 'black' }}>Country/Region</h2>
           <div style={styles.content}>
@@ -181,6 +215,7 @@ const DataConsolidation = () => {
           </div>
         </section>
 
+        {/* Section for selecting Forecast Scenario */}
         <section style={styles.section}>
           <h2 style={{ ...styles.heading, color: 'black' }}>Forecast Scenario</h2>
           <div style={styles.content}>
@@ -205,34 +240,49 @@ const DataConsolidation = () => {
       </div>
 
       <div style={styles.tableContainer}>
+        {/* Table for displaying country-TA wise forecast submission status */}
         <h2 style={styles.tableHeading}> Country-TA wise Forecast Submission Status</h2>
         <table style={styles.table}>
           <thead>
             <tr >
+              {/* Header for Therapeutic Area column with filter icon */}
               <th style={styles.tableHeader}>Therapeutic Area <FaFilter style={styles.filterIcon} /></th>
+              {/* Header for Country/Region column with filter icon */}
               <th style={styles.tableHeader}>Country/Region <FaFilter style={styles.filterIcon} /></th>
+              {/* Header for Forecast Status column with filter icon */}
               <th style={styles.tableHeader}>Forecast Status <FaFilter style={styles.filterIcon} /></th>
+              {/* Header for Forecast Scenario column with filter icon */}
               <th style={styles.tableHeader}>Forecast Scenario <FaFilter style={styles.filterIcon} /></th>
+              {/* Header for Last Forecast Update column */}
               <th style={styles.tableHeader}>Last Forecast Update</th>
+              {/* Header for Last Updated By column */}
               <th style={styles.tableHeader}> Last Updated By</th>
             </tr>
           </thead>
           <tbody>
+            {/* Map each row from the filtered rows array to a table row */}
             {getFilteredRows().map((row, index) => (
               <tr
                 key={index}
+                // Set the hovered row index on mouse enter
                 onMouseEnter={() => setHoveredRow(index)}
+                // Reset the hovered row index on mouse leave
                 onMouseLeave={() => setHoveredRow(null)}
+         
                 style={{
-                  backgroundColor: index % 2 === 0 ? '#e5f1fb' : 'white',
+                  backgroundColor: index % 2 === 0 ? '#e5f1fb' : 'white', // Alternate row colors
+                  // Apply the hover effect if the row is hovered
                   ...(hoveredRow === index && styles.hoveredRow)
                 }}
               >
+                {/* Therapeutic Area cell with cursor pointer and bold font */}
                 <td style={{ ...styles.tableCell, cursor: 'pointer', color: '#086193', fontWeight: 'bold' }}
                   onClick={() => handleTherapeuticAreaClick(row.therapeuticArea)}>
                   {row.therapeuticArea}
                 </td>
+                {/* Country cell with cursor pointer */}
                 <td style={styles.tableCell} onClick={() => handleCountryClick(row.country)}>{row.country}</td>
+                {/* Forecast Status cell with color based on status and cursor pointer */}
                 <td style={{
                   ...styles.tableCell,
                   color:
@@ -242,8 +292,11 @@ const DataConsolidation = () => {
                 }} onClick={() => handleCurrentStatusClick(row.currentForecastStatus)}>
                   {row.currentForecastStatus}
                 </td>
+                {/* Forecast Scenario cell with cursor pointer */}
                 <td style={styles.tableCell} onClick={() => handleScenarioClick(row.forecastScenario)}>{row.forecastScenario}</td>
+                {/* Last Forecast Update cell */}
                 <td style={styles.tableCell}>{row.forecastStarted}</td>
+                {/* Last Updated By {username} */}
                 <td style={styles.tableCell}>{row.username}</td>
               </tr>
             ))}
