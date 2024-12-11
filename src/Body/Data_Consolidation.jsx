@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { FaFilter } from 'react-icons/fa'; // Importing the filter icon
-import { generateDummyData } from './Generate_Dummy';
+import { generateDummyData } from './Generate_Dummy'; // importing dummy data
 
 // Unicode for Lock and Good to Go icons
 const lockIcon = '🔒';
 const goodToGoIcon = '✅';
 
-// Sample data for Therapeutic Area, Country, Usernames, and Forecast Cycles
+// Sample data for Therapeutic Area, Region,Country, Usernames, and Forecast Cycles
 const therapeuticAreas = ['Cardiology', 'Oncology', 'Neurology', 'Immunology', 'Dermatology'];
 const regions = ['EU5', 'Nordic Region'];
 const countries = {
@@ -22,8 +22,8 @@ const forecastOptions = {
 const sampleUsernames = ['john_doe', 'jane_smith', 'michael_wang', 'emma_clark', 'chris_jones'];
 
 const DataConsolidation = () => {
-  const [greeting, setGreeting] = useState('');
-  const [rowsData, setRowsData] = useState([]);
+  const [greeting, setGreeting] = useState(''); // State for greeting message
+  const [rowsData, setRowsData] = useState([]); // State for rows data
   const [selectedTherapeuticArea, setSelectedTherapeuticArea] = useState(''); // State for selected Therapeutic Area
   const [selectedRegion, setSelectedRegion] = useState(''); // State for selected Region
   const [selectedForecastCycle, setSelectedForecastCycle] = useState(''); // State for selected Forecast Cycle
@@ -70,7 +70,7 @@ const DataConsolidation = () => {
       // Find rows for the current country
       const countryRows = filteredRows.filter((row) => row.country === country);
   
-      // If no data exists for the country, create a row with just the country and therapeutic area
+      // If no dummy data exists for the country, give the following default values
       if (countryRows.length === 0) {
         return [
           {
@@ -124,7 +124,8 @@ const DataConsolidation = () => {
                 value={selectedForecastCycle}
                 onChange={(e) => setSelectedForecastCycle(e.target.value)}
               >
-                <option value="">Select</option>
+                <option value="">Select</option>{/* Default "Select" option */}
+                {/* Mapping through forecastCycles array and rendering each forecastCycle as an option */}
                 {forecastCycles.map((cycle) => (
                   <option key={cycle} value={cycle}>
                     {cycle}
@@ -139,6 +140,7 @@ const DataConsolidation = () => {
         <section style={styles.section}>
           <h2 style={styles.heading}>Therapeutic Area</h2>
           <div style={styles.content}>
+            {/* Dropdown for selecting therapeutic area */}
             <div style={styles.labeledSelect}>
               <label style={styles.label}>Select Therapeutic Area</label>
               <select
@@ -146,7 +148,8 @@ const DataConsolidation = () => {
                 value={selectedTherapeuticArea}
                 onChange={(e) => setSelectedTherapeuticArea(e.target.value)}
               >
-                <option value="">Select</option>
+                <option value="">Select</option> {/* Default "Select" option */}
+                {/* Mapping through therapeuticAreas array and rendering each area as an option */}
                 {therapeuticAreas.map((area) => (
                   <option key={area} value={area}>
                     {area}
@@ -168,7 +171,8 @@ const DataConsolidation = () => {
                 value={selectedRegion}
                 onChange={(e) => setSelectedRegion(e.target.value)}
               >
-                <option value="">Select</option>
+                <option value="">Select</option>{/* Default "Select" option */}
+                {/* Mapping through regions array and rendering each region as an option */}
                 {regions.map((region) => (
                   <option key={region} value={region}>
                     {region}
@@ -181,12 +185,13 @@ const DataConsolidation = () => {
       </div>
 
       {/* Data Table Section */}
-      {areAllFiltersSelected() && ( // Conditional rendering of the table
+      {areAllFiltersSelected() && ( // Conditionally rendering of the table
         <div style={styles.tableContainer}>
           <h2 style={styles.tableHeading}>Therapeutic Area, Country and Connected Data</h2>
           <table style={styles.table}>
             <thead>
               <tr >
+                 {/* Column headers with filter icons */}
                 <th style={styles.tableHeader}>
                   Therapeutic Area <FaFilter style={styles.filterIcon} /> {/* Filter Icon for Therapeutic Area */}
                 </th>
@@ -200,9 +205,10 @@ const DataConsolidation = () => {
               </tr>
             </thead>
             <tbody>
+              {/* Rendering each filtered row */}
               {getFilteredRows().map((row, index) => (
-                <tr style={{ textAlign: 'center', backgroundColor: index % 2 === 0 ? '#e5f1fb' : 'white' }} key={index}>
-                  <td>{row.therapeuticArea}</td>
+                <tr style={{ textAlign: 'center', backgroundColor: index % 2 === 0 ? '#e5f1fb' : 'white' }} key={index}> {/* Alternating row colors for readability*/}
+                  <td>{row.therapeuticArea}</td> 
                   <td>{row.country}</td>
                   <td>
                     <select style={{ ...styles.select, textAlign: 'center' }}>
@@ -221,9 +227,11 @@ const DataConsolidation = () => {
                     </select>
                   </td>
                   <td>
+                    {/* Format and display forecast start date */}
                     {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(row.forecastStarted))}
                   </td>
                   <td>
+                    {/* display username */}
                    {row.username} 
                   </td>
                 </tr>

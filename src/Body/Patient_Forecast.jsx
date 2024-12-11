@@ -49,7 +49,7 @@ const Patient_Forecast = () => {
     const [formulaDetails, setFormulaDetails] = useState({ tableKey: null, tabKey: null, productId: null });
     const [editingProductId, setEditingProductId] = useState(null);
     const [editedProductName, setEditedProductName] = useState('');
-    const [openGranularityDialog, setOpenGranularityDialog] = useState(false);
+    
     const [openInputMethodDialog, setOpenInputMethodDialog] = useState(false);
     const [openGrowthRateDialog, setOpenGrowthRateDialog] = useState(false);
 
@@ -66,32 +66,21 @@ const Patient_Forecast = () => {
     const [UploadedFileToFill, setUploadedFileToFill] = useState(null);
 
     const [openUploadDialog, setOpenUploadDialog] = useState(false); // Dialog for file upload
-    const [granularity, setGranularity] = useState('');
+    
     const { fromDate, setFromDate } = useContext(MyContext);
     const { toDate, setToDate } = useContext(MyContext);
     const [manualEntry, setManualEntry] = useState(false);
     const [growthRates, setGrowthRates] = useState([]);
     const [startingValue, setStartingValue] = useState('');
-    const [initialGrowthRate, setInitialGrowthRate] = useState('');
-
-    const [calculatedValues, setCalculatedValues] = useState({});
+    const [initialGrowthRate, setInitialGrowthRate] = useState('');   
 
     const [columns, setColumns] = useState([]);  // Column headers based on time period
-
-    const [inputMethodDialogOpen, setInputMethodDialogOpen] = useState(true);
-    const [openSelectDataInputDialog, setOpenSelectDataInputDialog] = useState(false);
     const [showCard, setShowCard] = useState(false);
-
-    const [selectedTab, setSelectedTab] = useState(null);
-    const [anchorElOpen, setAnchorElOpen] = useState(false);
-    const [anchorEl, setAnchorEl] = useState(null);
     const [openInfoMethodDialog, setOpenInfoMethodDialog] = useState(false);
     const [showFormula, setShowFormula] = useState(false);
-    const [selectedValue, setSelectedValue] = useState("");
     const [formulaProductId, setFormulaProductId] = useState(null);
     const [tab_value, setTabValue] = useState(null);
     const { showTabs, setShowTabs } = useContext(MyContext);
-
     const { products, setProducts } = useContext(MyContext);
 
 
@@ -127,8 +116,14 @@ const Patient_Forecast = () => {
     const [savedText, setSavedText] = useState({});
     const [savedText2, setSavedText2] = useState({});
 
+    const [tabTableVisibility, setTabTableVisibility] = useState({
+        downside: { table1: false, table2: false, table3: false },
+        base: { table1: false, table2: false, table3: false },
+        upside: { table1: false, table2: false, table3: false },
+    });
 
-
+    /*A component that renders a box with three buttons: one to show the preview of the tables,
+      one to close the preview and  "Show Dashboard" button to navigate to the dashboard. */
     const Preview = () => {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 2 }}>
@@ -192,7 +187,10 @@ const Patient_Forecast = () => {
                     }}
                 >
                     <Box sx={{ flexGrow: 1 }}>
+                        
                         {isCardEditing1 ? (
+                            // If editing mode is active, display a TextField for the title with value linked to cardTitle1
+    
                             <TextField
                                 value={cardTitle1}
                                 onChange={(e) => setCardTitle1(e.target.value)}
@@ -200,13 +198,15 @@ const Patient_Forecast = () => {
                                 fullWidth
                                 sx={{ marginBottom: 1 }}
                             />
-                        ) : (
+                        ) : (// If not in editing mode, display the card title
                             <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#0277bd' }}>
                                 {cardTitle1}
                             </Typography>
                         )}
-
+                        
                         {isCardEditing1 ? (
+                            // If editing mode is active, display a TextField for the body with value linked to cardBody1
+    
                             <TextField
                                 value={cardBody1}
                                 onChange={(e) => setCardBody1(e.target.value)}
@@ -214,7 +214,7 @@ const Patient_Forecast = () => {
                                 fullWidth
                                 sx={{ marginTop: 1 }}
                             />
-                        ) : (
+                        ) : (// If not in editing mode, display the card body
                             <Typography variant="body2" sx={{ color: '#01579b', marginTop: 1 }}>
                                 {tabTableVisibility[currentTabKey].table1 ? '' : cardBody1}
                             </Typography>
@@ -222,7 +222,7 @@ const Patient_Forecast = () => {
                     </Box>
                     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                         {isCardEditing1 ? (
-                            <>
+                            <> {/* If editing, show save and cancel buttons */}
                                 <IconButton onClick={handleSaveClick1} color="primary">
                                     <CheckIcon />
                                 </IconButton>
@@ -231,12 +231,13 @@ const Patient_Forecast = () => {
                                 </IconButton>
                             </>
                         ) : (
-                            <>
+                            <> {/* If not editing and table1 is not visible, show the edit button */}
                                 {!tabTableVisibility[currentTabKey].table1 && (
                                     <IconButton onClick={startEditingCard1} sx={{ color: '#0277bd' }}>
                                         <EditIcon />
                                     </IconButton>
                                 )}
+                                {/* Toggle the visibility of table1 when the button is clicked */}
                                 <IconButton
                                     aria-label='add'
                                     size="large"
@@ -251,7 +252,7 @@ const Patient_Forecast = () => {
                                         transform: tabTableVisibility[currentTabKey].table1 ? 'rotate(45deg)' : 'rotate(0deg)', // Optional: rotate when toggling
                                     }}
                                     onClick={() => toggleTableVisibility(currentTabKey, 'table1')}
-                                >
+                                >  {/* Display either Add or Remove icon depending on table1 visibility */}
                                     {tabTableVisibility[currentTabKey].table1 ? <RemoveIcon /> : <AddIcon />}
                                 </IconButton>
                             </>
@@ -263,6 +264,7 @@ const Patient_Forecast = () => {
         );
     };
 
+    //Same logic as Card1
     const Card2 = () => {
         return (
             <>
@@ -359,6 +361,7 @@ const Patient_Forecast = () => {
         );
     };
 
+    //Same logic as Card1
     const Card3 = () => {
         return (
             <>
@@ -459,6 +462,8 @@ const Patient_Forecast = () => {
 
 
 
+    /* Handles saving the user's input in the 'info' dialog which opens when infoIcon is clicked.
+     * Updates `savedText` and `savedText2` state with the new values and resets the editing state.*/
     const handleSave = (tabKey, tableKey) => {
         setSavedText((prev) => ({
             ...prev,
@@ -478,6 +483,7 @@ const Patient_Forecast = () => {
         setIsEditing(false);
     };
 
+//Cancels the current edit session of the 'info' dialog by reverting the input values to their saved state and closing the info dialog.
     const handleCancel = (tabKey, tableKey) => {
         setText((prev) => ({
             ...prev,
@@ -497,6 +503,9 @@ const Patient_Forecast = () => {
         setIsEditing(false);
     };
 
+/*Renders a table within a Box component, allowing for product information
+ * to be displayed and edited. Provides functionality for adding, editing,
+ * and deleting rows, as well as inserting formulas and handling various input methods. */
     const renderTable = (tabKey, tableKey) => {
         const tableProducts = products[tabKey][tableKey]; // Get the correct products for this table
 
@@ -528,6 +537,7 @@ const Patient_Forecast = () => {
                         </tr>
                     </thead>
                     <tbody>
+                        {/* Iterate over the products in this table and render each one as a row in the table. */}
                         {tableProducts.map((product, index) => (
                             <tr key={product.id}>
                                 <td >
@@ -538,6 +548,7 @@ const Patient_Forecast = () => {
                                         <Tooltip title="Source Info" placement="top" >
                                             <IconButton color="info" onClick={() => {
 
+                                                // Store the id of the selected row
                                                 setselectedRowId(product.id);
                                                 setOpenInfoMethodDialog(true);
                                             }}>
@@ -614,11 +625,21 @@ const Patient_Forecast = () => {
                                         )}
                                     </div>
                                 </td>
+                                {/* Render table cells for each date column, with a TextField for inputting values. 
+                                    The value is retrieved from the state based on the tabKey and productId. 
+                                    When the value changes, the handleValueChange function is called to update the state. 
+                                */}
                                 {columns.map((date) => (
                                     <td key={date}>
                                         <TextField
                                             type="number"
-                                            value={tabKey === 'downside' ? values[product.id]?.[date] || '' : tabKey === 'base' ? values2[product.id]?.[date] || '' : values3[product.id]?.[date] || ''}
+                                            value={
+                                                tabKey === 'downside'
+                                                    ? values[product.id]?.[date] || ''
+                                                    : tabKey === 'base'
+                                                        ? values2[product.id]?.[date] || ''
+                                                        : values3[product.id]?.[date] || ''
+                                            }
                                             onChange={(e) => {
                                                 console.log("is the tabkey");
                                                 handleValueChange(tabKey, product.id, date, e.target.value);
@@ -635,6 +656,7 @@ const Patient_Forecast = () => {
                         ))}
                     </tbody>
                 </table>
+                {/* This is the formula dialog  which is displayed when the insert formula icon is clicked*/}
                 {showFormula && (
                     <Dialog
                         open={showFormula}
@@ -743,14 +765,24 @@ const Patient_Forecast = () => {
                         </DialogActions>
                     </Dialog>
                 )}
+
+                {/* This dialog is used to input the data source information which is displayed when infoIcon is clicked */}
                 {openInfoMethodDialog && (
                     <Dialog
                         open={openInfoMethodDialog}
                         onClose={() => setOpenInfoMethodDialog(false)}
                         maxWidth="sm"
                         fullWidth
+                        BackdropProps={{
+                            style: {
+                                zIndex: 1400,
+                                backgroundColor: 'rgba(0,0,0,0.2)', // Make backdrop slightly dark and transparent
+                            },
+                        }}
+
                         PaperProps={{
                             sx: {
+                                zIndex: 1600,
                                 borderRadius: '12px',
                                 boxShadow: 4,
                                 overflow: 'hidden',
@@ -794,6 +826,7 @@ const Patient_Forecast = () => {
                                             marginLeft: '10px'
                                         }}
                                     >
+                                        {/* This is where the user inputs the source name */}
                                         <TextField
                                             fullWidth
                                             variant="outlined"
@@ -835,6 +868,8 @@ const Patient_Forecast = () => {
                                     }}
                                 >
                                     <ListItemText primary="Source Link/Upload" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
+                                    
+                                    {/* This is where the user inputs the source link or uploads a file */}
                                     <TextField
                                         variant="outlined"
                                         size="small"
@@ -896,6 +931,7 @@ const Patient_Forecast = () => {
                 )}
                 {
                     <>
+                        {/*This section of the code handles the "Select Data Input Method" dialog*/}
                         <Dialog
                             open={openInputMethodDialog}
                             onClose={() => {
@@ -903,8 +939,16 @@ const Patient_Forecast = () => {
                             }}
                             maxWidth="sm"
                             fullWidth
+                            BackdropProps={{
+                                style: {
+                                    zIndex: 1400,
+                                    backgroundColor: 'rgba(0,0,0,0.2)', // Make backdrop slightly dark and transparent
+                                },
+                            }}
+    
                             PaperProps={{
                                 sx: {
+                                    zIndex: 1600,
                                     borderRadius: '12px',
                                     boxShadow: 4,
                                     overflow: 'hidden',
@@ -1034,6 +1078,11 @@ const Patient_Forecast = () => {
                         <Dialog open={openStartEndDialog} onClose={() => { setOpenStartEndDialog(false); }} maxWidth="sm" fullWidth>
                             <DialogTitle>Specify Start and Target Values</DialogTitle>
                             <DialogContent sx={{ paddingTop: '15px' }}>
+                                {/* 
+                                    This box contains two text fields for the start and end values.
+                                    The start value is the initial value , and the end value is the target value.
+                                    The values are validated to only allow numbers.
+                                */}
                                 <Box marginTop='25px' display="flex" gap="16px" alignItems="center">
                                     <TextField
                                         label="Start Value"
@@ -1066,13 +1115,17 @@ const Patient_Forecast = () => {
                             </DialogActions>
                         </Dialog>
 
-                        {/* File Upload Dialog */}
+                        {/* File Upload Dialog */}        
                         <Dialog open={openUploadDialog} onClose={handleUploadDialogClose} maxWidth="sm" fullWidth>
 
                             <DialogTitle style={{ cursor: 'pointer' }}>
+                                {/* The title of the dialog. Clicking on the title will show a tooltip 
+                                    with a link to download a demo file */}
                                 Upload Data File
                                 <Typography variant="subtitle2" component="span" sx={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'blue', textDecoration: 'underline', display: 'block', marginTop: '10px' }}
                                     onClick={() => {
+                                        /* Create a link element and set the href attribute to the URL of the demo file. 
+                                           The demo file is either a monthly or yearly file, depending on the value of timePeriod. */
                                         const link = document.createElement('a');
                                         link.href = timePeriod === 'Monthly' ? '/demo_file_1.csv' : '/demo_file_1_year.csv';
                                         link.setAttribute('download', timePeriod === 'Monthly' ? 'demo_file_1.csv' : 'demo_file_1_year.csv');
@@ -1082,6 +1135,8 @@ const Patient_Forecast = () => {
                                     }}
                                     onMouseOver={(e) => e.target.style.cursor = 'pointer'}
                                 >
+                                    {/* The text of the link. The text is either "see the demo file (monthly)" or
+                                     "see the demo file (yearly)" depending on the value of timePeriod. */}
                                     see the demo file ({timePeriod === 'Monthly' ? 'monthly' : 'yearly'})
                                 </Typography>
                             </DialogTitle>
@@ -1095,6 +1150,7 @@ const Patient_Forecast = () => {
                                             fullWidth
                                             component="label"
                                         >
+                                            {/* The button to select a file from local storage */}
                                             Select File from Local Storage
                                             <input
                                                 type="file"
@@ -1107,9 +1163,11 @@ const Patient_Forecast = () => {
                                             align="center"
                                             sx={{ color: 'green' }}
                                         >
+                                            {/* The text to display when a file has been uploaded successfully */}
                                             {UploadedFileToFill !== null ? "file uploaded successfully" : ""}
                                         </Typography>
                                         <Button variant="outlined" color="primary" fullWidth>
+                                            {/* The button to select a file from AWS/Azure */}
                                             Select File from AWS/Azure
                                         </Button>
                                     </Box>
@@ -1119,7 +1177,7 @@ const Patient_Forecast = () => {
                                 <Button onClick={handleCancelAndOpenInputMethodDialog} color="secondary">
                                     Cancel
                                 </Button>
-                                <Button onClick={() => handlefilefillfromupload(selectedRowId, tabKey, tableKey)} color="primary">
+                                <Button onClick={() => handlefilefillfromupload(selectedRowId, tabKey)} color="primary">
                                     Save
                                 </Button>
                                 <Button onClick={handleUploadDialogClose} color="primary">
@@ -1134,6 +1192,7 @@ const Patient_Forecast = () => {
                                 <DialogTitle sx={{ paddingTop: '20px' }}>Set Initial Values and Growth Rate</DialogTitle>
                                 <DialogContent sx={{ paddingTop: '15px' }}>
                                     <Box display="flex" alignItems="center" gap="16px" mb={2} sx={{ paddingTop: '20px' }}>
+                                        {/* Start Month/Year picker. Disable editing, and limit the date range to the given period. */}
                                         <DatePicker
                                             views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
                                             label={timePeriod === 'Monthly' ? 'Start Month' : 'Start Year'}
@@ -1143,6 +1202,7 @@ const Patient_Forecast = () => {
                                             slotProps={{ textField: { size: 'small' } }}
                                             style={{ minWidth: '120px' }}
                                         />
+                                        {/* Starting Value input field. User can edit value. */}
                                         <TextField
                                             label="Starting Value"
                                             type="number"
@@ -1151,6 +1211,7 @@ const Patient_Forecast = () => {
                                             size="small"
                                             style={{ minWidth: '120px' }}
                                         />
+                                        {/* Initial Growth Rate input field. User can edit value. */}
                                         <TextField
                                             label="Initial Growth Rate (%)"
                                             type="number"
@@ -1159,12 +1220,15 @@ const Patient_Forecast = () => {
                                             size="small"
                                             style={{ minWidth: '120px' }}
                                         />
+                                        {/* Add button to add a new growth rate entry. */}
                                         <IconButton onClick={handleAddGrowthRate} color="primary">
                                             <AddIcon />
                                         </IconButton>
                                     </Box>
+                                    {/* Show all the growth rate entries. Each entry is a Box with a DatePicker, TextField, and Remove button. */}
                                     {growthRates.map((entry, index) => (
                                         <Box key={index} display="flex" alignItems="center" gap="16px" mb={2}>
+                                            {/* Next Month/Year picker. User can select a date within the given period. */}
                                             <DatePicker
                                                 views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
                                                 label={timePeriod === 'Monthly' ? 'Next Month' : 'Next Year'}
@@ -1176,6 +1240,7 @@ const Patient_Forecast = () => {
                                                 minDate={getMinDate(index)} //The user cannot select a Date that is before the Start Date
                                                 maxDate={toDate} //The user cannot select a Start Date that is after the End Date
                                             />
+                                            {/* Growth Rate input field. User can edit value. */}
                                             <TextField
                                                 label="Growth Rate (%)"
                                                 type="number"
@@ -1188,12 +1253,15 @@ const Patient_Forecast = () => {
                                     ))}
                                 </DialogContent>
                                 <DialogActions>
+                                    
                                     <Button onClick={handleCancelAndOpenInputMethodDialog} color="secondary">
                                         Cancel
                                     </Button>
+                                    
                                     <Button onClick={() => { handleSaveGrowthRate(tabKey, selectedRowId, startingValue, initialGrowthRate, growthRates) }} color="primary">
                                         Save
                                     </Button>
+                                   
                                     <Button onClick={() => { setOpenGrowthRateDialog(false); }} color="primary">
                                         Close
                                     </Button>
@@ -1205,14 +1273,6 @@ const Patient_Forecast = () => {
             </Box >
         );
     };
-
-    const [tabTableVisibility, setTabTableVisibility] = useState({
-        downside: { table1: false, table2: false, table3: false },
-        base: { table1: false, table2: false, table3: false },
-        upside: { table1: false, table2: false, table3: false },
-    });
-
-
 
 
     const handleTabChange = (event, newValue) => {
@@ -1226,6 +1286,7 @@ const Patient_Forecast = () => {
         }));
     };
 
+/*Toggle the visibility of a specific table in a tab. If the table is visible, hide it. If it is hidden, show it.*/
     const toggleTableVisibility = (tabKey, tableKey) => {
         setTabTableVisibility((prev) => ({
             ...prev,
@@ -1245,7 +1306,8 @@ const Patient_Forecast = () => {
         setIsCardEditing1(true);
     };
 
-
+    /* Handles the save action for card 1. Updates the edited card title and body with the current values 
+    and exits the editing state.*/
     const handleSaveClick1 = () => {
         setIsCardEditing1(false);
         setEditedCardTitle1(cardTitle1);
@@ -1267,7 +1329,8 @@ const Patient_Forecast = () => {
         setIsCardEditing2(true);
     };
 
-
+    /* Handles the save action for card 2. Updates the edited card title and body with the current values 
+    and exits the editing state.*/
     const handleSaveClick2 = () => {
         setIsCardEditing2(false);
         setEditedCardTitle2(cardTitle2);
@@ -1289,6 +1352,9 @@ const Patient_Forecast = () => {
     };
 
 
+
+ /* Handles the save action for card 3. Updates the edited card title and body with the current values 
+    and exits the editing state.*/
     const handleSaveClick3 = () => {
         setIsCardEditing3(false);
         setEditedCardTitle3(cardTitle3);
@@ -1344,44 +1410,58 @@ const Patient_Forecast = () => {
             return null; // Return null if no product is found
         }).filter((id) => id !== null); // Filter out null values
 
+        // Slice the operators array to exclude the first element (which is the default "+")
         const operatorSliced = operators.slice(1);
 
-        let res = {};
+        let res = {}; // Object to store the results of the forecast calculation
 
         if (timePeriod === 'Monthly') {
+            // Loop through the months in the time period and create a key for each in the results object
+            // if the key doesn't already exist
             for (let i = 0; i < dayjs(toDate).diff(dayjs(fromDate), 'month') + 1; i++) {
                 const month = dayjs(fromDate).add(i, 'month').format('MMM-YYYY');
                 if (!res[month]) {
                     res[month] = "0";
                 }
             }
+            // Get the first selected product's id
             const idd = selectedIds[0];
 
+            // Get the first selected product's values based on the current tabKey
             const val = tabKey === 'downside' ? values[idd] : tabKey === 'base' ? values2[idd] : values3[idd];
 
+            // If the product has values, loop through its values and add them to the results object
             if (val !== undefined) {
                 Object.keys(val).forEach((key) => {
                     res[key] = val[key];
                 });
             }
 
+            // Iterate over the selected product IDs starting from the second element
             for (let i = 1; i < selectedIds.length; i++) {
                 const id = selectedIds[i];
                 const tempval = tabKey === 'downside' ? values[id] : tabKey === 'base' ? values2[id] : values3[id];
+                
+                // If the product values exist, perform calculations based on the selected operator
                 if (tempval !== undefined) {
                     Object.keys(tempval).forEach((key) => {
-                        if (operatorSliced[i - 1] == '+') {
-                            res[key] = parseFloat(res[key], 10) + parseFloat(tempval[key], 10);
-                        } else if (operatorSliced[i - 1] == '-') {
-                            res[key] = parseFloat(res[key], 10) - parseFloat(tempval[key], 10);
-                        } else if (operatorSliced[i - 1] == '*') {
-                            res[key] = parseFloat(res[key], 10) * parseFloat(tempval[key], 10);
-                        } else if (operatorSliced[i - 1] == '/') {
-                            res[key] = parseFloat(res[key], 10) / parseFloat(tempval[key], 10);
+                        const currentOperator = operatorSliced[i - 1];
+                        const resValue = parseFloat(res[key], 10);
+                        const tempValue = parseFloat(tempval[key], 10);
+
+                        if (currentOperator == '+') {
+                            res[key] = resValue + tempValue;
+                        } else if (currentOperator == '-') {
+                            res[key] = resValue - tempValue;
+                        } else if (currentOperator == '*') {
+                            res[key] = resValue * tempValue;
+                        } else if (currentOperator == '/') {
+                            res[key] = resValue / tempValue;
                         }
                     });
                 }
             }
+             // Update values based on tabKey and calculated results
             if (tabKey === 'downside') {
                 setValues((prevValues) => ({
                     ...prevValues,
@@ -1411,7 +1491,7 @@ const Patient_Forecast = () => {
             }
             setShowFormula(false);
         }
-        else {
+        else { // Same logic as above but for yearly time period
             for (let i = 0; i < dayjs(toDate).diff(dayjs(fromDate), 'year') + 1; i++) {
                 const year = dayjs(fromDate).add(i, 'year').format('YYYY');
                 if (!res[year]) {
@@ -1478,6 +1558,10 @@ const Patient_Forecast = () => {
         }
     };
 
+
+ /* Handles clicking the edit button for a product. Finds the product by id in the
+ * table for the given tabKey and tableKey, and sets the editing state to true
+ * with the product's id and name. */
     const handleEditClick = (productId, tabKey, tableKey) => {
         // Find the product by id in the table for the given tabKey and tableKey
         const product = products[tabKey][tableKey].find((prod) => prod.id === productId);
@@ -1488,6 +1572,8 @@ const Patient_Forecast = () => {
         }
     };
 
+    
+    /* Handles saving a product name after editing. Updates the product's name and resets the editing state.*/
     const handleSaveClick = (productId, tabKey, tableKey) => {
         // Get the current list of products for the specific tab and table
         const tableProducts = products[tabKey][tableKey];
@@ -1581,24 +1667,21 @@ const Patient_Forecast = () => {
         }));
     };
 
-    const handleCloseInputMethodDialog = () => {
-        setOpenInputMethodDialog(false); // Close the "Select Data Input Method" dialog
-    };
 
 
+    
+    /*Resets the editing state by clearing the edited product name in the table row and
+     setting the editingProductId to null*/
     const handleCancelClick = () => {
         setEditedProductName("");
         setEditingProductId(null);
     };
 
-    const handleCloseAllDialogs = () => {
-
-        setOpenSelectDataInputDialog(false);
-        setOpenGrowthRateDialog(false);
-        setOpenStartEndDialog(false);
-        setOpenUploadDialog(false);
-        setInputMethodDialogOpen(true); // Go back to main page
-    };
+    
+    /*
+     Cancels the 'current data input method' dialog and reopens the 'data input method selection' dialog
+     to allow the user to choose a different input method.
+     */
     const handleCancelAndOpenInputMethodDialog = () => {
         setOpenGrowthRateDialog(false);
         setOpenStartEndDialog(false);
@@ -1607,6 +1690,16 @@ const Patient_Forecast = () => {
         setOpenInputMethodDialog(true); // Reopen the input method dialog
     };
 
+/*
+ * Generates an array of monthly column labels between two dates.
+ * 
+ * This function takes a start date and an end date, and generates a list of
+ * month labels in the format 'MMM-YYYY' for each month between the two dates inclusive.
+ * Parameters:
+ * {string|Date} start - The start date for the month generation.
+ * {string|Date} end - The end date for the month generation.
+ * Returns an array of strings, each representing a month in 'MMM-YYYY' format.
+ */
     const generateMonthlyColumns = (start, end) => {
         const months = [];
         let current = dayjs(start);
@@ -1616,7 +1709,7 @@ const Patient_Forecast = () => {
         }
         return months;
     };
-
+  //Same as generateMonthlyColumns but for yearly time period
     const generateYearlyColumns = (start, end) => {
         const years = [];
         let current = dayjs(start).startOf('year');
@@ -1627,28 +1720,21 @@ const Patient_Forecast = () => {
         return years;
     };
     useEffect(() => {
+        // Generate the columns based on the selected time period
+        // Columns are only regenerated when the time period, start date, or end date changes
         if (timePeriod === 'Monthly') {
             setColumns(generateMonthlyColumns(fromDate, toDate));
         } else if (timePeriod === 'Yearly') {
             setColumns(generateYearlyColumns(fromDate, toDate));
         }
     }, [timePeriod, fromDate, toDate]);
+    
 
-    const handleGranularitySelect = () => {
-        if (granularity === 'Monthly') {
-            setColumns(generateMonthlyColumns(fromDate, toDate));
-        } else if (granularity === 'Yearly') {
-            setColumns(generateYearlyColumns(fromDate, toDate));
-        }
-        setOpenGranularityDialog(false);
-        setOpenInputMethodDialog(true);
-    };
-
-    const handleGranularityChange = (event) => {
-        setGranularity(event.target.value);
-    };
-
-
+/*
+ * Handles updating the value of a specific product on a specific date in the state.
+ * The state is updated based on the tabKey, which can be 'downside', 'base', or 'upside'.
+ * The value is inserted into the state with the productId and date as keys.
+*/
     const handleValueChange = (tabKey, productId, date, value) => {
         if (tabKey === 'downside') {
             setValues((prevValues) => ({
@@ -1676,7 +1762,8 @@ const Patient_Forecast = () => {
             }));
         }
     };
-
+   
+    // Handles selecting an input method from the Data Input Method dialog.
     const handleInputMethodSelect = (method) => {
         setOpenInputMethodDialog(false);
         if (method === 'manual') {
@@ -1691,6 +1778,13 @@ const Patient_Forecast = () => {
     };
 
 
+/**
+ * Distributes values linearly between a start and end value over a specified time period.
+ * 
+ * This function calculates the values at each interval between the given start and end values,
+ * based on the specified time period (either monthly or yearly). It returns an object with date keys
+ * representing each interval and corresponding distributed values.
+ */
     const distributeValuesBetweenStartAndEnd = (startVal, endVal) => {
         let distributedValues = {};
 
@@ -1723,7 +1817,14 @@ const Patient_Forecast = () => {
         return distributedValues;
     };
 
-    // Handle saving Start and End Values
+    
+    /**
+     * Handles saving the calculated values based on start and end values into the specified tab and table row.
+     * Parameters:
+     * {string} tabKey - The key of the tab to fill (downside, base, or upside)
+     * {number} startValue - The start value
+     * {number} endValue - The end value
+     */
     const handleSaveStartEndValues = (tabKey, startValue, endValue) => {
 
         const distributed = distributeValuesBetweenStartAndEnd(startValue, endValue);
@@ -1735,16 +1836,33 @@ const Patient_Forecast = () => {
         setOpenStartEndDialog(false);
     };
 
-    const handlefilefillfromupload = (rowID, tabKey, tableKey) => {
+/*
+ * Handles filling values from an uploaded CSV file into the specified tab and row
+    Parameters:
+ * {string} rowID - The ID of the row to fill
+ * {string} tabKey - The key of the tab to fill (downside, base, or upside)
+
+ */
+    const handlefilefillfromupload = (rowID, tabKey) => {
         const file = UploadedFileToFill;
         if (file) {
             console.log(file);
             if (timePeriod === 'Monthly') {
+                // Create a new FileReader instance to read the file
                 const reader = new FileReader();
+                
+                // Define the onload event handler for the reader
                 reader.onload = (e) => {
+                    // Get the file content
                     const content = e.target.result;
+                    
+                    // Split the content by lines and filter out any empty lines
                     const rows = content.split('\n').filter((row) => row.trim() !== '');
+                    
+                    // Extract headers from the first line and trim whitespace
                     const headers = rows[0].split(',').map((header) => header.trim());
+                    
+                    // Extract values from the first data row and trim whitespace
                     const firstRow = rows[1].split(',').map((value) => value.trim());
                     const possibleFormats = [
                         'MMM-YY',          // e.g., Dec-23
@@ -1755,22 +1873,29 @@ const Patient_Forecast = () => {
                         'DD-MMM-YYYY',     // e.g., 15-Jan-2023
                         'YYYY/MM/DD',      // e.g., 2023/12/31
                     ];
+                    // Try to parse the date headers using the possible formats and strict parsing
+                    // If the date is invalid, set the header to 'Invalid Date'
                     const dateHeaders = headers.map(header => {
                         const parsedDate = dayjs(header, possibleFormats, true); // strict parsing
                         return parsedDate.isValid() ? parsedDate.format('MMM-YYYY') : 'Invalid Date';
                     });
 
                     if (tabKey === 'downside') {
+                        // Loop through the months between fromDate and toDate
                         for (let i = 0; i < dayjs(toDate).diff(dayjs(fromDate), 'month') + 1; i++) {
                             const month = dayjs(fromDate).add(i, 'month').format('MMM-YYYY');
+                            // Find the index of the month in the dateHeaders array
                             const monthIndex = dateHeaders.indexOf(month);
                             if (monthIndex !== -1) {
+                                // Get the value at the index from the first row of the CSV file
                                 const val = firstRow[monthIndex];
                                 console.log(val);
+                                // Update the values in the state
                                 setValues((prevValues) => ({
                                     ...prevValues,
                                     [rowID]: {
                                         ...prevValues[rowID],
+                                        // Use the month as the key and the value as the value
                                         [month]: val
                                     }
                                 }));
@@ -1778,7 +1903,7 @@ const Patient_Forecast = () => {
                             console.log(monthIndex);
                         }
                     }
-                    else if (tabKey === 'base') {
+                    else if (tabKey === 'base') { //doing the same for base tab as downside tab
                         for (let i = 0; i < dayjs(toDate).diff(dayjs(fromDate), 'month') + 1; i++) {
                             const month = dayjs(fromDate).add(i, 'month').format('MMM-YYYY');
                             const monthIndex = dateHeaders.indexOf(month);
@@ -1796,7 +1921,7 @@ const Patient_Forecast = () => {
                             console.log(monthIndex);
                         }
                     }
-                    else {
+                    else { //doing the same for upside tab as downside tab
                         for (let i = 0; i < dayjs(toDate).diff(dayjs(fromDate), 'month') + 1; i++) {
                             const month = dayjs(fromDate).add(i, 'month').format('MMM-YYYY');
                             const monthIndex = dateHeaders.indexOf(month);
@@ -1818,7 +1943,7 @@ const Patient_Forecast = () => {
                 };
                 reader.readAsText(file);
             }
-            else {
+            else { // doing the same procedure if time period is yearly
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const content = e.target.result;
@@ -1891,16 +2016,30 @@ const Patient_Forecast = () => {
     };
 
 
+
+    //Closes the upload dialog and resets the uploaded file state to null
     const handleUploadDialogClose = () => {
+        
         setOpenUploadDialog(false);
         setUploadedFileToFill(null);
     };
 
-
+    /*
+     This function adds a new growth rate to the list of growth rates
+     New growth rate has a start date of the current date and a growth rate of 0
+     */
     const handleAddGrowthRate = () => {
         setGrowthRates([...growthRates, { startDate: dayjs(), growthRate: 0 }]);
     };
 
+
+    /*
+     * Handles changes in the growth rates 
+     * Parameters:
+     * {number} index: Index of the growth rate in the table
+     * {string} field Field being changed (either 'startDate' or 'growthRate')
+     * {string|number} value New value for the field
+     */
     const handleGrowthRateChange = (index, field, value) => {
         const updatedGrowthRates = [...growthRates];
 
@@ -1914,6 +2053,11 @@ const Patient_Forecast = () => {
         setGrowthRates(updatedGrowthRates);
     };
 
+    /*
+     * Returns the minimum date for the startDate field based on the index in the growthRate table.
+     * If the index is 0, it returns the initial starting date, otherwise it returns the last
+     * added date for subsequent entries.
+     */
     const getMinDate = (index) => {
         if (index === 0) {
             return fromDate; // Initial starting date for the first entry
@@ -1921,7 +2065,7 @@ const Patient_Forecast = () => {
         return growthRates[index - 1].startDate; // Last added date for subsequent entries
     };
 
-
+    // function to calculated values based on growth rates in the table
     const handleSaveGrowthRate = (tabKey, selectedRowId, startingValue, initialGrowthRate, growthRates) => {
         const distributedGrowthRates = calculateGrowthRateValues(startingValue, initialGrowthRate, growthRates);
 
@@ -1932,6 +2076,13 @@ const Patient_Forecast = () => {
         setOpenGrowthRateDialog(false);
     };
 
+/**
+ * Calculates growth rate values over a specified time period:
+ * This function takes an initial value and growth rate, calculates the compounded values over a time
+ * period defined by global `fromDate` and `toDate` variables, and adjusts the growth rates based on 
+ * specified intervals. The time period can be monthly or yearly, and the results are stored in an 
+ * object with date keys.
+ */
     const calculateGrowthRateValues = (startingValue, initialGrowthRate, growthRates) => {
 
         const newValues = {};
@@ -2007,7 +2158,7 @@ const Patient_Forecast = () => {
         return newValues;
     };
 
-    
+    {/* Reset all the states to their initial values when clear all data button is clicked*/ }
     const handleReset = () => {
         // Reset all the states to their initial values
         setFormulaDetails({ tableKey: null, tabKey: null, productId: null });
@@ -2025,7 +2176,7 @@ const Patient_Forecast = () => {
         setGrowthRates([]);
         setStartingValue('');
         setInitialGrowthRate('');
-        setOpenSelectDataInputDialog(false);
+        
         // Reset dates
         setTimePeriod('Monthly');
         //Reset values
@@ -2053,9 +2204,14 @@ const Patient_Forecast = () => {
 
     return (
         <>
+            {/* Main wrapper div for the product list page */}
             <div className="product-list-page" style={{ marginLeft: '10px' }}>
+                
+                {/* Section displaying the greeting message */}
                 <div style={{ backgroundColor: 'white', padding: '0.5px', marginTop: '-25px', marginLeft: '10px' }}>
                     <h2 style={{ textAlign: 'left' }}>{greeting}, Welcome to the Patient Based Forecasting Page!</h2> </div>
+                 
+                 {/* Label for selecting the time period */}
                 <span style={{ marginLeft: '12px' }} gap="10px" sx={{ marginRight: '20px' }}>Select Time Period</span>
                 <Box
                     sx={{
@@ -2064,8 +2220,9 @@ const Patient_Forecast = () => {
                         marginBottom: '15px',
                         textAlign: 'left' // Align box contents to the left
                     }}
-                >
+                > 
                     <Box display="flex" alignItems="center" gap="15px" mb={2} marginLeft='12px' marginTop='15px'>
+                         {/* Dropdown for selecting time period (Monthly/Yearly) */}
                         <TextField
                             select
                             label="Time Period"
@@ -2078,45 +2235,54 @@ const Patient_Forecast = () => {
                             <MenuItem value="Monthly">Monthly</MenuItem>
                             <MenuItem value="Yearly">Yearly</MenuItem>
                         </TextField>
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                         {/* Date pickers for the start and end date based on selected time period */}
+                         <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        {/* Start Date Picker */}
                             <DatePicker
                                 views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
-                                label={timePeriod === 'Monthly' ? 'Start Month' : 'Start Year'}
+                                label={timePeriod === 'Monthly' ? 'Start Month' : 'Start Year'} //box label based on the time period
                                 value={fromDate}
                                 onChange={(newValue) => setFromDate(newValue)}
-                                format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
+                                format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'} // format of time period chosen conditionally
                                 slotProps={{ textField: { size: 'small' } }}
                                 sx={{ width: '160px' }}
-                                maxDate={toDate}
+                                maxDate={toDate} // Set maximum selectable date to the end date
                             />
+                            {/* End Date Picker */}
                             <DatePicker
                                 views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
-                                label={timePeriod === 'Monthly' ? 'End Month' : 'End Year'}
+                                label={timePeriod === 'Monthly' ? 'End Month' : 'End Year'} //box label based on the time period
                                 value={toDate}
                                 onChange={(newValue) => setToDate(newValue)}
-                                format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
+                                format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'} // format of time period chosen conditionally
                                 slotProps={{ textField: { size: 'small' } }}
                                 sx={{ width: '160px' }}
+                                // Validate that the end date is after the start date
                                 minDate={fromDate}
                             />
                         </LocalizationProvider>
+                        {/* Button to proceed with the calculation. This will show the tabs and cards. 
+                        First, it checks if the start date is before the end date. If it is, it sets showTabs to true. If not, it shows an alert and sets showTabs and showCard to false. */}
                         <Button
                             variant="contained"
                             color="primary"
                             onClick={() => {
                                 if (dayjs(fromDate).isBefore(toDate) || dayjs(fromDate).isSame(toDate, timePeriod === 'Monthly' ? 'month' : 'year')) {
+                                    // If the start date is before the end date, show the tabs and cards
                                     setShowTabs(true);
-
                                 } else {
+                                    // If the start date is not before the end date, show an alert and hide the tabs and cards
                                     setShowTabs(false);
                                     setShowCard(false);
                                     alert("Invalid date range: Start date must be before end date");
-
                                 }
                             }}
                             sx={{ marginLeft: '18px', marginBottom: '2px' }}>
                             Proceed
                         </Button>
+                        {/* Button to clear all data on the page. 
+                        This will reset all states to their initial values and remove all data from the tables. 
+                        This action cannot be undone. */}
                         <Button
                             variant="contained"
                             color="primary"
@@ -2130,6 +2296,7 @@ const Patient_Forecast = () => {
                         </Button>
                     </Box>
                     <Box sx={{ width: '90%', margin: '0 auto' }}>
+                        {/* Render tabs if 'showTabs' is true */}
                         {showTabs && <Tabs tab_value={tab_value} onChange={handleTabChange} aria-label="basic tabs example"
                             sx={{
                                 borderBottom: 2,
@@ -2171,6 +2338,7 @@ const Patient_Forecast = () => {
 
                         {tab_value !== null &&
                             <div>
+                                
                                 <Box
                                     sx={{
                                         display: 'flex',
@@ -2184,8 +2352,8 @@ const Patient_Forecast = () => {
                                         maxWidth: '100%',
                                         position: 'sticky',
                                     }}
-                                >
-
+                                > 
+                                  {/* Render Card1, Card2, and Card3 and render tables based on tabTableVisibility state */}  
                                     {Card1()}
                                     {tabTableVisibility[currentTabKey].table1 && renderTable(currentTabKey, 'table1')}
 
@@ -2201,7 +2369,7 @@ const Patient_Forecast = () => {
                                     {Card3()}
                                     {tabTableVisibility[currentTabKey].table3 && renderTable(currentTabKey, 'table3')}
                                 </Box>
-                                {Preview()}
+                                {Preview()} {/* Render Preview component inside each tab*/}
                             </div>
                         }
                     </Box>

@@ -58,6 +58,9 @@ const ForecastAndWorksheetSelectionsWithGreeting = () => {
  
     };
  
+/*Triggers the download of a text file simulating content based on selected worksheet and deck.
+ * The file is named using the format `${selectedWorksheet}_${selectedDeck}.txt`.
+ * Ensures that both selectedWorksheet and selectedDeck are defined before proceeding with the download.*/
     const downloadFile = () => {
         if (selectedWorksheet && selectedDeck) {
             // Simulate file content based on the selected worksheet and deck
@@ -72,6 +75,10 @@ const ForecastAndWorksheetSelectionsWithGreeting = () => {
         }
     };
  
+    /* Updates the table data with the variance value, based on whether the worksheet is Worksheet 1 or not.
+     * If Worksheet 1, the area value is set to the variance value. 
+     * Otherwise, the area value is incremented by the variance value.
+     */
     const updateTableDataWithVariance = () => {
         if (selectedWorksheet) {
             const updatedData = sheetContents[selectedWorksheet].map((row) => ({
@@ -84,7 +91,10 @@ const ForecastAndWorksheetSelectionsWithGreeting = () => {
         }
     };
  
+    // Updates the filter state based on user input in the select boxes
     const handleChange = (name) => (event, newValue) => {
+        // If "All" is selected, the filter is set to ['All']
+        // Otherwise, the selected values are used to update the filter
         setFilters((prev) => ({
             ...prev,
             [name]: newValue.includes('All') ? ['All'] : newValue,
@@ -92,7 +102,9 @@ const ForecastAndWorksheetSelectionsWithGreeting = () => {
     };
  
  
+    // Updates the scenario state based on user input in the select boxes
     const handleScenarioChange = (scenario) => (event, newValue) => {
+        // Updates the scenario state with the new selection
         setScenarios((prev) => ({
             ...prev,
             [scenario]: newValue,
@@ -125,17 +137,18 @@ const ForecastAndWorksheetSelectionsWithGreeting = () => {
             setTableData(filteredData);
         }
     };
+
+    //Returns a greeting message based on the current time of day
     const getGreetingMessage = () => {
         const hours = new Date().getHours();
         if (hours < 12) return `Good Morning`;
         if (hours < 18) return `Good Afternoon`;
         return `Good Evening`;
     };
-    const selectSheet = (sheet) => {
-        setSelectedWorksheet(sheet);
-        updateTableDataWithVariance();
-    };
+   
  
+/* Handles changes to the variance input field.
+ * Updates the variance state if the input is a valid number or empty */
     const handleVarianceChange = (event) => {
         const inputValue = event.target.value;
         if (inputValue === "" || /^[0-9]*\.?[0-9]*$/.test(inputValue)) {
@@ -143,10 +156,12 @@ const ForecastAndWorksheetSelectionsWithGreeting = () => {
         }
     };
  
+    /* Increment the variance by 0.1 */
     const incrementVariance = () => {
         setVariance((prev) => (parseFloat(prev || "0") + 0.1).toFixed(1));
     };
  
+    /* Decrement the variance by 0.1, but not below 0 */
     const decrementVariance = () => {
         setVariance((prev) => Math.max(0, parseFloat(prev || "0") - 0.1).toFixed(1));
     };
@@ -154,9 +169,11 @@ const ForecastAndWorksheetSelectionsWithGreeting = () => {
     useEffect(() => {
         const { countries, therapeuticAreas } = filters;
  
+        /* If all countries and all therapeutic areas are selected, set the scenario options to the default */
         if (countries.includes('All') && therapeuticAreas.includes('All')) {
             setScenarioOptions(defaultScenarios);
         } else if (countries.length && therapeuticAreas.length && !countries.includes('All') && !therapeuticAreas.includes('All')) {
+            /* If some countries and some therapeutic areas are selected, generate new options based on them */
             const newOptions = countries.flatMap((country) =>
                 therapeuticAreas.flatMap((area) =>
                     Array.from({ length: 5 }, (_, i) => `${country} - ${area} - Option ${i + 1}`)
@@ -164,6 +181,7 @@ const ForecastAndWorksheetSelectionsWithGreeting = () => {
             );
             setScenarioOptions(newOptions);
         } else {
+            /* If no countries or therapeutic areas are selected, set the scenario options to empty */
             setScenarioOptions([]);
         }
     }, [filters.countries, filters.therapeuticAreas]);
@@ -173,6 +191,7 @@ const ForecastAndWorksheetSelectionsWithGreeting = () => {
     }, [variance, selectedWorksheet]);
  
     useEffect(() => {
+        // If both scenarios are selected and a worksheet is selected, update the table data
         if (scenarios.scenario1 && scenarios.scenario2 && selectedWorksheet) {
             setTableData(sheetContents[selectedWorksheet]);
         }
@@ -229,7 +248,7 @@ const ForecastAndWorksheetSelectionsWithGreeting = () => {
                 />
             </Box>
             <Box display="flex" gap={2} mb={4}>
-                {/* Scenario selectors */}
+                {/* Scenario selectors for Option 1. When a scenario is selected, the data is displayed in the table. */}
                 <Autocomplete
                     options={scenarioOptions}
                     value={scenarios.scenario1}
@@ -247,6 +266,7 @@ const ForecastAndWorksheetSelectionsWithGreeting = () => {
  
             </Box>
             <Box display="flex" gap={2} mb={4}>
+                {/* Buttons to select between Option 1 and Option 2 */}
                 <Button variant="contained" color="primary" onClick={handleOption1} sx={{
                     marginTop: 'auto',
  
@@ -266,29 +286,37 @@ const ForecastAndWorksheetSelectionsWithGreeting = () => {
                     Option 2
                 </Button>
             </Box>
+
             {isOption2Clicked && (
-               
+                // Container for selecting worksheet and comparison deck. Displayed when Option 2 is clicked
                 <Box display="flex" flexDirection="column" gap={2} mt={2} mb={4}>
-                    <p> Select the worksheet you want to include in the report</p>
-                    <p> <b>Worksheet</b> </p>
+                    <p>Select the worksheet you want to include in the report</p>
+                    
+                    {/* Label for Worksheet selection */}
+                    <p><b>Worksheet</b></p>
+                    {/* Autocomplete for selecting a Worksheet */}
                     <Autocomplete
                         options={Object.keys(sheetContents)}
                         onChange={(e, newValue) => setSelectedWorksheet(newValue)}
-                        renderInput={(params) => <TextField {...params} size="small"  />}
+                        renderInput={(params) => <TextField {...params} size="small" />}
                         style={{ width: '300px' }}
                     />
-                    <p> <b>Comparison Deck</b> </p>
+                    
+                    {/* Label for Comparison Deck selection */}
+                    <p><b>Comparison Deck</b></p>
+                    {/* Autocomplete for selecting a Comparison Deck */}
                     <Autocomplete
                         options={['Deck 1', 'Deck 2', 'Deck 3']} // Replace with actual deck names
                         value={selectedDeck}
                         onChange={(e, newValue) => setSelectedDeck(newValue)}
-                        renderInput={(params) => <TextField {...params} size="small"  />}
+                        renderInput={(params) => <TextField {...params} size="small" />}
                         style={{ width: '300px' }}
                     />
                 </Box>
             )}
  
-            {/* Button to trigger file download */}
+            {/* Button to trigger file download. Displayed conditionally 
+            when Option 2 is selected and both selectedWorksheet and selectedDeck are defined */}
             {isOption2Clicked && selectedWorksheet && selectedDeck && (
                 <Button
                     variant="contained"
@@ -299,7 +327,8 @@ const ForecastAndWorksheetSelectionsWithGreeting = () => {
                     Download File
                 </Button>
             )}
-            {/* Left section for Select Excel Sheet and right section for the Table */}
+ 
+            {/* conditionally display Worksheet selection when Option 1 is selected */}
             {isOption1Clicked && (
                    
                             <Box display="flex" flexWrap="wrap" gap={4}>
@@ -324,7 +353,7 @@ const ForecastAndWorksheetSelectionsWithGreeting = () => {
  
  
  
-            {/* Table display next to the Select Excel Sheet box */}
+            {/* conditional Table display based on selection of Worksheet */}
             {tableData && isOption1Clicked && (
                 <Box flex="1">
                     <Typography variant="h6" sx={{ marginTop: '10px' }}>Variations in {selectedWorksheet}</Typography>
@@ -343,8 +372,10 @@ const ForecastAndWorksheetSelectionsWithGreeting = () => {
                                     onChange={handleVarianceChange}
                                     size="small"
                                     label="Variance Greater Than"
-                                    endAdornment={
+                                    
+                                    endAdornment={ 
                                         <InputAdornment position="end">
+                                            {/* Buttons to adjust variance value */}
                                             <IconButton onClick={incrementVariance} size="small">
                                                 <Add fontSize="small" />
                                             </IconButton>
@@ -357,6 +388,8 @@ const ForecastAndWorksheetSelectionsWithGreeting = () => {
                             </FormControl>
                         </Box>
                     )}
+ 
+                    {/* Table contents */}
                     <TableContainer component={Paper} sx={{ mt: 2 }}>
                         <Table aria-label="table data" size="small">
                             <TableHead>
