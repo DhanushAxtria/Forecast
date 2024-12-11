@@ -4,7 +4,10 @@ import FormControl from "@mui/material/FormControl";
 import { MenuItem, InputLabel } from "@mui/material";
 import Select from "@mui/material/Select";
 import { styled } from '@mui/material/styles';
-import Switch, { SwitchProps } from '@mui/material/Switch';
+import Switch from '@mui/material/Switch';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from "@mui/icons-material/Delete";
+import dayjs from 'dayjs';
 import {
     ResponsiveContainer,
     LineChart,
@@ -17,15 +20,20 @@ import {
     BarChart,
     Bar,
 } from "recharts";
-import dayjs from 'dayjs';
 import {
     IconButton,
     Box,
     Button,
 } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import DeleteIcon from "@mui/icons-material/Delete";
 
+
+/**
+ * Generates an array of strings representing the months from the given start date to the given end date, inclusive.
+ * The strings are formatted as 'MMM-YYYY', e.g. 'Jan-2022'.
+ * @param {string} start - The start date in 'YYYY-MM-DD' format.
+ * @param {string} end - The end date in 'YYYY-MM-DD' format.
+ * @returns {string[]} - An array of strings representing the months from start to end, inclusive.
+ */
 const generateMonthlyColumns = (start, end) => {
     const months = [];
     let current = dayjs(start);
@@ -36,6 +44,13 @@ const generateMonthlyColumns = (start, end) => {
     return months;
 };
 
+/**
+ * Generates an array of strings representing the years from the given start date to the given end date, inclusive.
+ * The strings are formatted as 'YYYY', e.g. '2022'.
+ * @param {string} start - The start date in 'YYYY-MM-DD' format.
+ * @param {string} end - The end date in 'YYYY-MM-DD' format.
+ * @returns {string[]} - An array of strings representing the years from start to end, inclusive.
+ */
 const generateYearlyColumns = (start, end) => {
     const years = [];
     let current = dayjs(start).startOf('year');
@@ -46,6 +61,7 @@ const generateYearlyColumns = (start, end) => {
     return years;
 };
 
+// chart toggle button component
 const Android12Switch = styled(Switch)(({ theme }) => ({
     padding: 8,
     "& .MuiSwitch-track": {
@@ -87,12 +103,13 @@ const Android12Switch = styled(Switch)(({ theme }) => ({
 
 const Dashboard = () => {
     const { products } = useContext(MyContext);
-    const { values, values2, values3, setDropdownGroups, dropdownGroups } = useContext(MyContext);
+    const { values, values2, values3, setDropdownGroups, dropdownGroups } = useContext(MyContext); // values, values2, values3 are table values.
     const { cardTitle1, cardTitle2, cardTitle3 } = useContext(MyContext);
     const { fromDate, toDate, timePeriod } = useContext(MyContext);
-
+    // Generate columns based on timePeriod
     const months = timePeriod === 'Monthly' ? generateMonthlyColumns(fromDate, toDate) : generateYearlyColumns(fromDate, toDate);
-    const colors = ["#A8E6CF",  "#FFBCB3",  "#E1C6E8", "#B3D9F7", "#FF9A8B", "#F6F4A7" ];
+    // Colors for the charts
+    const colors = ["#A8E6CF", "#FFBCB3", "#E1C6E8", "#B3D9F7", "#FF9A8B", "#F6F4A7"];
     // Map item.id to item.name
     const idToNameMap = {};
     Object.entries(products).forEach(([caseKey, cards]) => {
@@ -102,9 +119,6 @@ const Dashboard = () => {
             });
         });
     });
-
-
-
 
     // Format data for the Line Chart
     const chartData = months.map((month) => {
@@ -122,6 +136,8 @@ const Dashboard = () => {
         });
         return dataPoint;
     });
+
+
 
     const handleAddDropdownGroup = () => {
         setDropdownGroups([...dropdownGroups, { Case: "", SelectedCard: "", SelectedRow: "" }]);
@@ -264,6 +280,10 @@ const Dashboard = () => {
             <ResponsiveContainer width={1300}
                 height={400}
                 margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                {/* 
+                    if chartType is line, display line chart
+                    else display bar chart
+                */}
                 {chartType === "line" ? (
                     <LineChart data={chartData}>
                         <CartesianGrid strokeDasharray="3 3" />
@@ -271,6 +291,9 @@ const Dashboard = () => {
                         <YAxis />
                         <Tooltip />
                         <Legend wrapperStyle={{ fontWeight: 'bold' }} />
+                        {/* 
+                            loop through the dropdownGroups and create a line for each group
+                        */}
                         {dropdownGroups.map(({ Case, SelectedRow }, index) => {
                             const lineKey = `${Case}-${idToNameMap[SelectedRow]}`;
                             return (
@@ -292,6 +315,9 @@ const Dashboard = () => {
                         <YAxis />
                         <Tooltip />
                         <Legend wrapperStyle={{ fontWeight: 'bold' }} />
+                        {/* 
+                            loop through the dropdownGroups and create a bar for each group
+                        */}
                         {dropdownGroups.map(({ Case, SelectedRow }, index) => {
                             const barKey = `${Case}-${idToNameMap[SelectedRow]}`;
                             return (

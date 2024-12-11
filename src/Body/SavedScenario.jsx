@@ -1,17 +1,5 @@
 import * as React from 'react';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
-import Menu from '@mui/material/Menu';
-import CircularProgress from '@mui/material/CircularProgress';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -20,13 +8,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import IconButton from '@mui/material/IconButton';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import LockIcon from '@mui/icons-material/Lock';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import Typography from '@mui/material/Typography';
-import * as XLSX from 'xlsx'; // Importing xlsx for Excel saving
-import { useState, useContext } from 'react';
-import { SavedFilesContext } from './SavedFilesContext';
+import { useContext } from 'react';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import Box from '@mui/material/Box';
@@ -38,6 +20,7 @@ import { useNavigate } from 'react-router-dom';
 import { MyContext } from './context';
 
 
+// demo data for the table
 const demo_data = [
     { scenario: 'Main Submission', cycle: '2024 H2', country: 'Norway', area: 'TA 1', modified: '30 Sep 2024', user: 'User 1' },
     { scenario: 'Draft 1', cycle: '2024 H2', country: 'Norway', area: 'TA 1', modified: '29 Sep 2024', user: 'User 1' },
@@ -73,10 +56,11 @@ const demo_data = [
 
 
 
-export default function Savedpage({ username = "User" }) {
+export default function SavedScenario() {
     const { countries, setCountries } = useContext(MyContext);
     const { therapeuticAreas, setTherapeuticAreas } = useContext(MyContext);
     const { forecastCycles, setForecastCycles } = useContext(MyContext);
+    // dropdown values
     const countryOptions = ['All', 'USA', 'Canada', 'Germany', 'India', 'Norway', 'Finland'];
     const therapeuticAreaOptions = ['All', 'Cardiology', 'Oncology', 'Neurology', 'Diabetes', 'TA 1'];
     const forecastCycleOptions = ['All', '2024 H2', '2013-H1', '2013-H2', '2014-H1', '2014-H2'];
@@ -183,31 +167,47 @@ export default function Savedpage({ username = "User" }) {
                     <Table aria-label="submission scenarios table" size="small">
                         <TableHead>
                             <TableRow sx={{ backgroundColor: '#1976d2' }}>
+                                {/* Scenario Name */}
                                 <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Scenario</TableCell>
+                                {/* Forecast Cycle */}
                                 <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Forecast Cycle</TableCell>
+                                {/* Country */}
                                 <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Country</TableCell>
+                                {/* Therapeutic Area */}
                                 <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Therapeutic Area</TableCell>
+                                {/* Last Modified Date */}
                                 <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Last Modified</TableCell>
+                                {/* Submitted by */}
                                 <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Submitted by</TableCell>
+                                {/* Actions */}
                                 <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Actions</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             {filteredData.map((row, index) => (
                                 <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? '#e5f1fb' : 'white' }}>
+                                    {/* Scenario Name */}
                                     <TableCell align="center">{row.scenario}</TableCell>
+                                    {/* Forecast Cycle */}
                                     <TableCell align="center">{row.cycle}</TableCell>
+                                    {/* Country */}
                                     <TableCell align="center">{row.country}</TableCell>
+                                    {/* Therapeutic Area */}
                                     <TableCell align="center">{row.area}</TableCell>
+                                    {/* Last Modified Date */}
                                     <TableCell align="center">{row.modified}</TableCell>
+                                    {/* Submitted by */}
                                     <TableCell align="center">{row.user}</TableCell>
+                                    {/* Actions */}
                                     <TableCell sx={{ padding: '6px', textAlign: 'center' }}>
                                         <Box display="flex" justifyContent="center" alignItems="center" gap={1}>
+                                            {/* Icon for reviewing scenario summary */}
                                             <Tooltip title="Review Scenario Summary">
                                                 <IconButton onClick={() => handleReviewScenarioSummary(row)}>
                                                     <OpenInNewIcon color="success" />
                                                 </IconButton>
                                             </Tooltip>
+                                            {/* Icon for reviewing scenario details */}
                                             <Tooltip title="Review Scenario Details">
                                                 <IconButton onClick={() => handleReviewScenario(row)}>
                                                     <AssessmentIcon color="success" />
