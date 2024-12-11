@@ -13,7 +13,7 @@ import ReviewScenario from './Body/ReviewScenario'
 import SummaryScenario from './Body/SummaryScenario'
 import Submission_Tracker from './Body/Submission_Tracker'
 import Inputpage from './Body/Inputpage'
-import Savedpage from './Body/Newpage'
+import SavedScenario from './Body/SavedScenario'
 import Admin from './Body/Forecastpage'
 import Patient_Forecast from './Body/Patient_Forecast'
 import Forecasted_Results from './Body/forecastedresults';
@@ -49,7 +49,7 @@ function App() {
           <Route path="/submissions-tracker" element={<Submission_Tracker />} />
           <Route path="/" element={<ScenarioDetails hasUnsavedChanges={hasUnsavedChanges} setHasUnsavedChanges={setHasUnsavedChanges} />} />
           <Route path="new-scenario/scenario-details/Inputpage" element={<Inputpage />} />
-          <Route path="/saved-scenario" element={<Savedpage />} />
+          <Route path="/saved-scenario" element={<SavedScenario />} />
           {/* <Route path="/Inputpage" element={<Inputpage/>} /> */}
           <Route path="/admin" element={<Admin />} />
           <Route path="/forecastdeepdive" element={<Patient_Forecast />} />

@@ -4,39 +4,39 @@ import { Add, Remove, ExpandMore, Work } from '@mui/icons-material';
 import { Select, MenuItem } from '@mui/material';
 import { Folder, InsertDriveFile } from '@mui/icons-material';
 import './Newpage.scss';
- 
+
 const ForecastAndWorksheetSelectionsWithGreeting = () => {
     const [filters, setFilters] = useState({
         forecastCycles: [],
         countries: [],
         therapeuticAreas: [],
     });
- 
+
     const [scenarios, setScenarios] = useState({
         scenario1: null,
         scenario2: null,
     });
     const [variance, setVariance] = useState(0.0);
     const [scenarioOptions, setScenarioOptions] = useState([]);
-   
+
     const [tableData, setTableData] = useState(null);
     const [isVarianceVisible, setIsVarianceVisible] = useState(false);
- 
+
     const [selectedWorksheet, setSelectedWorksheet] = useState('');
     const [selectedDeck, setSelectedDeck] = useState('');
     const [isOption2Clicked, setIsOption2Clicked] = useState(false);
     const [isOption1Clicked, setIsOption1Clicked] = useState(false);
- 
- 
+
+
     const defaultScenarios = [
         'Scenario A - Option 1',
         'Scenario B - Option 2',
         'Scenario C - Option 3',
         'Scenario D - Option 4',
     ];
- 
+
     const Worksheets = ['Worksheet1', 'Worksheet2', 'Worksheet3', 'Worksheet4'];
- 
+
     const sheetContents = {
         'Worksheet 1': [
             { scenario: 'FN18', cycle: '55', country: '55.3', area: '0.2', modified: 'UNCHANGED', user: 'UNKNOWN' },
@@ -55,14 +55,14 @@ const ForecastAndWorksheetSelectionsWithGreeting = () => {
             { scenario: 'FW18', cycle: '75', country: '90', area: '0.6', modified: 'UNCHANGED', user: 'UNKNOWN' },
             { scenario: 'FT18', cycle: '05', country: '80', area: '0.2', modified: 'UNCHANGED', user: 'UNKNOWN' },
         ]
- 
+
     };
- 
+
     const downloadFile = () => {
         if (selectedWorksheet && selectedDeck) {
             // Simulate file content based on the selected worksheet and deck
             const content = `This is a file for ${selectedWorksheet} and ${selectedDeck}`;
- 
+
             // Create a Blob from the content and trigger download
             const blob = new Blob([content], { type: 'text/plain' });
             const link = document.createElement('a');
@@ -71,7 +71,7 @@ const ForecastAndWorksheetSelectionsWithGreeting = () => {
             link.click();
         }
     };
- 
+
     const updateTableDataWithVariance = () => {
         if (selectedWorksheet) {
             const updatedData = sheetContents[selectedWorksheet].map((row) => ({
@@ -83,22 +83,22 @@ const ForecastAndWorksheetSelectionsWithGreeting = () => {
             setTableData(updatedData);
         }
     };
- 
+
     const handleChange = (name) => (event, newValue) => {
         setFilters((prev) => ({
             ...prev,
             [name]: newValue.includes('All') ? ['All'] : newValue,
         }));
     };
- 
- 
+
+
     const handleScenarioChange = (scenario) => (event, newValue) => {
         setScenarios((prev) => ({
             ...prev,
             [scenario]: newValue,
         }));
     };
- 
+
     const handleOption1 = () => {
         // Set a default sheet and display data if no sheet has been selected
         if (!selectedWorksheet) {
@@ -111,14 +111,14 @@ const ForecastAndWorksheetSelectionsWithGreeting = () => {
         setIsOption1Clicked(true);
         setIsOption2Clicked(false);
     };
- 
+
     const handleOption2 = () => {
-       
+
         setIsOption2Clicked(true); // Show the dropdowns when Option 2 is clicked
         setIsOption1Clicked(false);
     };
- 
- 
+
+
     const applyVarianceFilter = () => {
         if (selectedWorksheet) {
             const filteredData = sheetContents[selectedWorksheet].filter(row => parseFloat(row.area) >= parseFloat(variance));
@@ -135,25 +135,25 @@ const ForecastAndWorksheetSelectionsWithGreeting = () => {
         setSelectedWorksheet(sheet);
         updateTableDataWithVariance();
     };
- 
+
     const handleVarianceChange = (event) => {
         const inputValue = event.target.value;
         if (inputValue === "" || /^[0-9]*\.?[0-9]*$/.test(inputValue)) {
             setVariance(inputValue);
         }
     };
- 
+
     const incrementVariance = () => {
         setVariance((prev) => (parseFloat(prev || "0") + 0.1).toFixed(1));
     };
- 
+
     const decrementVariance = () => {
         setVariance((prev) => Math.max(0, parseFloat(prev || "0") - 0.1).toFixed(1));
     };
- 
+
     useEffect(() => {
         const { countries, therapeuticAreas } = filters;
- 
+
         if (countries.includes('All') && therapeuticAreas.includes('All')) {
             setScenarioOptions(defaultScenarios);
         } else if (countries.length && therapeuticAreas.length && !countries.includes('All') && !therapeuticAreas.includes('All')) {
@@ -167,17 +167,17 @@ const ForecastAndWorksheetSelectionsWithGreeting = () => {
             setScenarioOptions([]);
         }
     }, [filters.countries, filters.therapeuticAreas]);
- 
+
     useEffect(() => {
         updateTableDataWithVariance();
     }, [variance, selectedWorksheet]);
- 
+
     useEffect(() => {
         if (scenarios.scenario1 && scenarios.scenario2 && selectedWorksheet) {
             setTableData(sheetContents[selectedWorksheet]);
         }
     }, [scenarios.scenario1, scenarios.scenario2, selectedWorksheet]);
- 
+
     return (
         <div style={{ backgroundColor: 'white', padding: '20px', marginTop: '-45px', marginLeft: '10px' }}>
             <h2>{getGreetingMessage()}, Welcome to the Scenario Comparison Page!</h2>
@@ -197,7 +197,7 @@ const ForecastAndWorksheetSelectionsWithGreeting = () => {
                     )}
                     style={{ width: '250px' }}
                 />
- 
+
                 {/* Multi-select for Country */}
                 <Autocomplete
                     multiple
@@ -212,7 +212,7 @@ const ForecastAndWorksheetSelectionsWithGreeting = () => {
                     )}
                     style={{ width: '250px' }}
                 />
- 
+
                 {/* Multi-select for Therapeutic Area */}
                 <Autocomplete
                     multiple
@@ -244,37 +244,37 @@ const ForecastAndWorksheetSelectionsWithGreeting = () => {
                     renderInput={(params) => <TextField {...params} size="small" label="Scenario 2" />}
                     style={{ width: '250px' }}
                 />
- 
+
             </Box>
             <Box display="flex" gap={2} mb={4}>
                 <Button variant="contained" color="primary" onClick={handleOption1} sx={{
                     marginTop: 'auto',
- 
+
                     marginBottom: 'auto',
                     fontSize: '0.9rem'
- 
+
                 }}>
                     Option 1
                 </Button>
- 
+
                 <Button variant="contained" color="primary" onClick={handleOption2} sx={{
                     marginTop: 'auto',
                     marginBottom: 'auto',
                     fontSize: '0.9rem'
- 
+
                 }}>
                     Option 2
                 </Button>
             </Box>
             {isOption2Clicked && (
-               
+
                 <Box display="flex" flexDirection="column" gap={2} mt={2} mb={4}>
                     <p> Select the worksheet you want to include in the report</p>
                     <p> <b>Worksheet</b> </p>
                     <Autocomplete
                         options={Object.keys(sheetContents)}
                         onChange={(e, newValue) => setSelectedWorksheet(newValue)}
-                        renderInput={(params) => <TextField {...params} size="small"  />}
+                        renderInput={(params) => <TextField {...params} size="small" />}
                         style={{ width: '300px' }}
                     />
                     <p> <b>Comparison Deck</b> </p>
@@ -282,12 +282,12 @@ const ForecastAndWorksheetSelectionsWithGreeting = () => {
                         options={['Deck 1', 'Deck 2', 'Deck 3']} // Replace with actual deck names
                         value={selectedDeck}
                         onChange={(e, newValue) => setSelectedDeck(newValue)}
-                        renderInput={(params) => <TextField {...params} size="small"  />}
+                        renderInput={(params) => <TextField {...params} size="small" />}
                         style={{ width: '300px' }}
                     />
                 </Box>
             )}
- 
+
             {/* Button to trigger file download */}
             {isOption2Clicked && selectedWorksheet && selectedDeck && (
                 <Button
@@ -301,29 +301,29 @@ const ForecastAndWorksheetSelectionsWithGreeting = () => {
             )}
             {/* Left section for Select Excel Sheet and right section for the Table */}
             {isOption1Clicked && (
-                   
-                            <Box display="flex" flexWrap="wrap" gap={4}>
-                                {/* Dropdown Select for Worksheet Names */}
-                                <FormControl >
-                                    <InputLabel>Select Worksheet</InputLabel>
-                                    <Select
-                                        value={selectedWorksheet}
-                                        onChange={(e) => setSelectedWorksheet(e.target.value)}
-                                        label="Select Worksheet"
-                                    >
-                                        {Object.keys(sheetContents).map((worksheet) => (
-                                            <MenuItem key={worksheet} value={worksheet}>
-                                                {worksheet}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                            </Box>
-                       
+
+                <Box display="flex" flexWrap="wrap" gap={4}>
+                    {/* Dropdown Select for Worksheet Names */}
+                    <FormControl >
+                        <InputLabel>Select Worksheet</InputLabel>
+                        <Select
+                            value={selectedWorksheet}
+                            onChange={(e) => setSelectedWorksheet(e.target.value)}
+                            label="Select Worksheet"
+                        >
+                            {Object.keys(sheetContents).map((worksheet) => (
+                                <MenuItem key={worksheet} value={worksheet}>
+                                    {worksheet}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                </Box>
+
             )}
- 
- 
- 
+
+
+
             {/* Table display next to the Select Excel Sheet box */}
             {tableData && isOption1Clicked && (
                 <Box flex="1">
@@ -371,7 +371,7 @@ const ForecastAndWorksheetSelectionsWithGreeting = () => {
                             </TableHead>
                             <TableBody>
                                 {tableData.map((row, index) => (
-                                    <TableRow key={index}>
+                                    <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? '#e5f1fb' : 'white' }}>
                                         <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.scenario}</TableCell>
                                         <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.cycle}</TableCell>
                                         <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.country}</TableCell>
@@ -388,5 +388,5 @@ const ForecastAndWorksheetSelectionsWithGreeting = () => {
         </div >
     );
 };
- 
+
 export default ForecastAndWorksheetSelectionsWithGreeting;
