@@ -24,7 +24,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import LockIcon from '@mui/icons-material/Lock';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import Typography from '@mui/material/Typography';
-import * as XLSX from 'xlsx'; // Importing xlsx for Excel saving
+import * as XLSX from 'xlsx';
 import { useState, useContext } from 'react';
 import { SavedFilesContext } from './SavedFilesContext';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
@@ -33,12 +33,10 @@ import BlueFolder from "../assets/blue3.png"
 import GreyFolder from "../assets/Grey-folder.png"
 import Box from '@mui/material/Box';
 import { useNavigate } from 'react-router-dom';
-//import { Autocomplete, TextField, Box } from '@mui/material';
 import Checkbox from '@mui/material/Checkbox';
 import ListItemText from '@mui/material/ListItemText';
 import Autocomplete from '@mui/material/Autocomplete';
 import Tooltip from '@mui/material/Tooltip';
-//import ScenarioDetails from './Scenario_details'
 
 export default function CountryAndTherapeuticSelect({ username = "User" }) {
   const { savedFiles, setSavedFiles } = useContext(SavedFilesContext);
@@ -54,7 +52,6 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
   const [loading, setLoading] = React.useState(false);
   const nextIdRef = React.useRef(1);
   const [fileStatuses, setFileStatuses] = React.useState({});
-  const [saveAnchorEl, setSaveAnchorEl] = React.useState(null);
   const [selectedAction, setSelectedAction] = useState('');
   const blueFolderIcon = BlueFolder;
 
@@ -64,15 +61,34 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
   const [extraFileName, setExtraFileName] = React.useState('');
   const [saveDialogOpen, setSaveDialogOpen] = React.useState(false);
   const [fileFormat, setFileFormat] = React.useState('csv'); // To track file format (CSV or Excel)
-  const fileInputRef = React.useRef(null);
   const [showFolders, setShowFolders] = useState(false);
+
+  const CopyScenarioData = [
+    { scenario: 'Draft 1', cycle: '2024 H2', country: 'USA', area: 'TA 1', modified: '30 Sep 2024', user: 'User 1' },
+    { scenario: 'Draft 2', cycle: '2024 H2', country: 'Norway', area: 'TA 1', modified: '29 Sep 2024', user: 'User 1' },
+    { scenario: 'Draft 3', cycle: '2024 H2', country: 'Norway', area: 'TA 1', modified: '30 Sep 2024', user: 'User 1' },
+    { scenario: 'Draft 4', cycle: '2024 H2', country: 'Finland', area: 'TA 1', modified: '29 Sep 2024', user: 'User 1' },
+    { scenario: 'Draft 5', cycle: '2024 H2', country: 'Finland', area: 'TA 1', modified: '28 Sep 2024', user: 'User 1' },
+  ];
+  const filteredCopyData = CopyScenarioData.filter(item =>
+    (forecastCycles.includes('All') || forecastCycles.includes(item.cycle)) &&
+    (countries.includes('All') || countries.includes(item.country)) &&
+    (therapeuticAreas.includes('All') || therapeuticAreas.includes(item.area))
+  );
+
   const savedScenarios = [
     { scenario: 'Draft 1', cycle: '2024 H1', country: 'USA', area: 'Cardiology', modified: '15 Oct 2023', user: 'User A', submitted: false },
     { scenario: 'Main Submission', cycle: '2024 H2', country: 'Canada', area: 'Oncology', modified: '01 Sep 2023', user: 'User B', submitted: true },
     { scenario: 'Draft 2', cycle: '2024 H1', country: 'USA', area: 'Oncology', modified: '10 Oct 2023', user: 'User A', submitted: false },
     { scenario: 'Main Submission', cycle: '2023 H2', country: 'Germany', area: 'Neurology', modified: '12 Jul 2023', user: 'User C', submitted: true },
   ];
-  const filteredSavedScenarios = savedScenarios.filter((scenario) => !scenario.submitted);
+  const filteredSavedData = savedScenarios.filter(item =>
+    (forecastCycles.includes('All') || forecastCycles.includes(item.cycle)) &&
+    (countries.includes('All') || countries.includes(item.country)) &&
+    (therapeuticAreas.includes('All') || therapeuticAreas.includes(item.area))
+  );
+
+
   // List of available folders
   const folders = [
     { name: 'Cardiology - Patient Projection Model v2', country: 'USA', area: 'Cardiology' },
@@ -85,68 +101,26 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
   const countryOptions = ['All', 'USA', 'Canada', 'Germany', 'India'];
   const therapeuticAreaOptions = ['All', 'Cardiology', 'Oncology', 'Neurology', 'Diabetes'];
   const forecastCycleOptions = ['All', '2013-H1', '2013-H2', '2014-H1', '2014-H2'];
-  const handleCountryChange = (event, newValue) => {
-    if (newValue.includes('All')) {
-      // If "All" is selected, select all countries
-      setCountries(countryOptions.slice(1)); // Slice to exclude "All"
-    } else {
-      setCountries(newValue);
-    }
-  };
+
   const handleSelectClick = (scenario) => {
     // Navigate to the specific page, passing scenario data as state
     navigate('/new-scenario/scenario-details', { state: { scenario } });
   };
   const handleReviewScenario = (scenario) => {
     // Navigate to the specific page, passing scenario data as state
-    navigate('/review-scenario', { state: { scenario } });
+    navigate('/new-scenario/review-scenario', { state: { scenario } });
   };
   const handleReviewScenarioSummary = (scenario) => {
     // Navigate to the specific page, passing scenario data as state
-    navigate('/summary-scenario', { state: { scenario } });
-  };
-  const handleTherapeuticChange = (event, newValue) => {
-    if (newValue.includes('All')) {
-      // If "All" is selected, select all therapeutic areas
-      setTherapeuticAreas(therapeuticAreaOptions.slice(1)); // Slice to exclude "All"
-    } else {
-      setTherapeuticAreas(newValue);
-    }
-  };
-  const handleForecastCycleChange = (event, newValue) => {
-    if (newValue.includes('All')) {
-      // If "All" is selected, select all forecast cycles
-      setForecastCycles(forecastCycleOptions.slice(1)); // Slice to exclude "All"
-    } else {
-      setForecastCycles(newValue);
-    }
+    navigate('/new-scenario/summary-scenario', { state: { scenario } });
   };
 
-  const handleCopyFromSubmissionScenarios = () => {
-    setShowTable(true); // Show the table when the button is clicked
-  };
-  /*const handleSaveClick = () => {
-    setExtraFileName('');
-    setSaveDialogOpen(true);
-  };*/
-  const handleUsingSavedTemplates = () => {
-    setShowFolders(true); // Show folders when the button is clicked
-  };
   const handleActionClick = (action) => {
     setSelectedAction(action); // Set the clicked action
     if (action === 'savedTemplates') {
       setShowFolders(true); // Show folders only when "Using Saved Templates" is clicked
     } else {
       setShowFolders(false); // Hide folders when other buttons are clicked
-    }
-  };
-  const handleFolderClick = (folder) => {
-    console.log("Folder clicked:", folder); // Check if click is detected
-    try {
-      navigate('/scenario-details', { state: { folder } });
-      console.log("Navigating to scenario-details"); // Confirms that navigation was called
-    } catch (error) {
-      console.error("Navigation error:", error); // Catch errors if navigation fails
     }
   };
   const handleConfirmSave = async () => {
@@ -277,57 +251,8 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
       },
     },
   };
-  /*const handleDownloadTemplate = () => {
-    setShowFolders(false); // Hide folders when downloading template
-    const headers = ['Forecast Cycle', 'Country', 'Therapeutic Area'];
-    const rowData = [[forecastCycle, country, therapeuticArea]];
-    const csvContent = [headers.join(','), rowData.join(',')].join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-  
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', 'template.csv');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };*/
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const content = e.target.result;
-        const rows = content.split('\n').filter((row) => row.trim() !== '');
-        const headers = rows[0].split(',').map((header) => header.trim());
-        const parsedRows = rows.slice(1).map((row, index) => {
-          const values = row.split(',').map((value) => value.trim());
-          return { id: index + 1, data: values };
-        });
 
-        // Save the file in 'FileData' (Simulating saving to folder)
-        const savedFile = {
-          fileName: file.name,
-          content: content,
-          headers: headers,
-          rows: parsedRows
-        };
 
-        // Assuming we have a 'FileData' context to store files
-        setSavedFiles((prevFiles) => [...prevFiles, savedFile]);
-
-        setImportedData({ headers, rows: parsedRows });
-      };
-      reader.readAsText(file);
-    }
-  };
-
-  /*const handleImportClick = () => {
-    setShowFolders(false); // Hide folders when importing CSV
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };*/
 
   const getGreetingMessage = () => {
     const hours = new Date().getHours();
@@ -337,11 +262,12 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
   };
 
   return (
+
     <div style={{ backgroundColor: 'white', padding: '20px', marginTop: '-25px' }}>
       <h2>{getGreetingMessage()}, Please provide details for New Scenario Configuration</h2>
       {/* Add the three buttons with background colors */}
-      {/* Add the three buttons with background colors */}
       <h4>Choose an option to build Scenario</h4>
+
       <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
         <Button
           variant="contained"
@@ -381,7 +307,6 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
         </Button>
       </div>
 
-
       <h4>Please select a Scenario to Continue</h4>
       <Box display="flex" gap={2} mb={6} sx={{ width: '100%' }}>
         {/* Autocomplete with Checkboxes for Forecast Cycle */}
@@ -408,8 +333,6 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
           )}
           sx={{ width: '300px' }}
         />
-
-
 
         {/* Autocomplete with Checkboxes for Country */}
         <Autocomplete
@@ -459,54 +382,8 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
           sx={{ width: '300px' }}
         />
       </Box>
-      {/* Buttons to interact with selected options */}
-      {/*<Button
-        variant="contained"
-        color="primary"
-        sx={{ m: 1 }}
-        //onClick={handleDownloadTemplate}
-        disabled={!country && !therapeuticArea && !forecastCycle}
-      >
-        Download Template
-      </Button>*/}
 
-      {/*<Button
-        variant="contained"
-        color="secondary"
-        sx={{ m: 1 }}
-        //onClick={handleImportClick}
-      >
-        Import Template
-      </Button>*/}
 
-      <input
-        type="file"
-        accept=".csv"
-        ref={fileInputRef}
-        style={{ display: 'none' }}
-        onChange={handleFileChange}
-      />
-
-      {/*<Button
-        variant="contained"
-        color="success"
-        sx={{
-          m: 1,
-          backgroundColor: '#43a047',
-          color: 'white',
-          padding: '10px 10px',
-          fontSize: '13px',
-          borderRadius: '2px',
-          display: 'flex',
-          boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-          '&:hover': {
-            backgroundColor: '#388e3c',
-          },
-        }}
-        onClick={handleSaveClick}
-      >
-        Save File
-      </Button>*/}
       {selectedAction === 'copySubmission' && (
         <TableContainer component={Paper} sx={{ mt: 3, maxWidth: '100%' }}>
           <Table aria-label="submission scenarios table" size="small">
@@ -522,14 +399,37 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
               </TableRow>
             </TableHead>
             <TableBody>
-              {[
-                { scenario: 'Main Submission', cycle: '2024 H2', country: 'Norway', area: 'TA 1', modified: '30 Sep 2024', user: 'User 1' },
-                { scenario: 'Draft 1', cycle: '2024 H2', country: 'Norway', area: 'TA 1', modified: '29 Sep 2024', user: 'User 1' },
-                { scenario: 'Draft 2', cycle: '2024 H2', country: 'Norway', area: 'TA 1', modified: '30 Sep 2024', user: 'User 1' },
-                { scenario: 'Main Submission', cycle: '2024 H2', country: 'Finland', area: 'TA 1', modified: '29 Sep 2024', user: 'User 1' },
-                { scenario: 'Draft 1', cycle: '2024 H2', country: 'Finland', area: 'TA 1', modified: '28 Sep 2024', user: 'User 1' },
-              ].map((row, index) => (
-                <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? '#e5f1fb' : 'white' }}>
+              <TableRow sx={{ backgroundColor: '#e5f1fb' }}>
+                <TableCell sx={{ padding: '6px', textAlign: 'center' }}>Patient Flow</TableCell>
+                <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{forecastCycles ? forecastCycles[0] : '-'}</TableCell>
+                <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{countries[0] ? countries[0] : '-'}</TableCell>
+                <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{therapeuticAreas[0] ? therapeuticAreas[0] : '-'}</TableCell>
+                <TableCell sx={{ padding: '6px', textAlign: 'center' }}>-</TableCell>
+                <TableCell sx={{ padding: '6px', textAlign: 'center' }}>-</TableCell>
+                <TableCell sx={{ padding: '6px', textAlign: 'center' }}>
+                  <Box display="flex" justifyContent="center" alignItems="center" gap={1}>
+                    <Tooltip title="Review Scenario Summary">
+                      <IconButton onClick={() => handleReviewScenarioSummary({ scenario: 'Paient Flow', cycle: forecastCycles[0], country: countries[0], area: therapeuticAreas[0], modified: '-', user: '-' }
+                      )}>
+                        <OpenInNewIcon color="success" />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Review Scenario Details">
+                      <IconButton onClick={() => handleReviewScenario({ scenario: 'Paient Flow', cycle: forecastCycles[0], country: countries[0], area: therapeuticAreas[0], modified: '-', user: '-' },
+                      )} >
+                        <AssessmentIcon color="success" />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Select Scenario">
+                      <Button variant="contained" color="primary" size="small" onClick={() => navigate("/new-scenario/forecastdeepdive")} >
+                        Select
+                      </Button>
+                    </Tooltip>
+                  </Box>
+                </TableCell>
+              </TableRow>
+              {filteredCopyData.map((row, index) => (
+                <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? 'white' : '#e5f1fb' }}>
                   <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.scenario}</TableCell>
                   <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.cycle}</TableCell>
                   <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.country}</TableCell>
@@ -576,8 +476,37 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredSavedScenarios.map((row, index) => (
-                <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? '#e5f1fb' : 'white' }}>
+              <TableRow sx={{ backgroundColor: '#e5f1fb' }}>
+                <TableCell sx={{ padding: '6px', textAlign: 'center' }}>Patient Flow</TableCell>
+                <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{forecastCycles ? forecastCycles[0] : '-'}</TableCell>
+                <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{countries[0] ? countries[0] : '-'}</TableCell>
+                <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{therapeuticAreas[0] ? therapeuticAreas[0] : '-'}</TableCell>
+                <TableCell sx={{ padding: '6px', textAlign: 'center' }}>-</TableCell>
+                <TableCell sx={{ padding: '6px', textAlign: 'center' }}>-</TableCell>
+                <TableCell sx={{ padding: '6px', textAlign: 'center' }}>
+                  <Box display="flex" justifyContent="center" alignItems="center" gap={1}>
+                    <Tooltip title="Review Scenario Summary">
+                      <IconButton onClick={() => handleReviewScenarioSummary({ scenario: 'Paient Flow', cycle: forecastCycles[0], country: countries[0], area: therapeuticAreas[0], modified: '-', user: '-' }
+                      )}>
+                        <OpenInNewIcon color="success" />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Review Scenario Details">
+                      <IconButton onClick={() => handleReviewScenario({ scenario: 'Paient Flow', cycle: forecastCycles[0], country: countries[0], area: therapeuticAreas[0], modified: '-', user: '-' },
+                      )} >
+                        <AssessmentIcon color="success" />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Select Scenario">
+                      <Button variant="contained" color="primary" size="small" onClick={() => navigate("/new-scenario/forecastdeepdive")} >
+                        Select
+                      </Button>
+                    </Tooltip>
+                  </Box>
+                </TableCell>
+              </TableRow>
+              {filteredSavedData.map((row, index) => (
+                <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? 'white' : '#e5f1fb' }}>
                   <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.scenario}</TableCell>
                   <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.cycle}</TableCell>
                   <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.country}</TableCell>
@@ -631,7 +560,7 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
                 }}
                 onClick={() => {
                   if (isHighlighted) { // Only navigate if the folder is highlighted (blue)
-                    navigate('/scenario-details', { state: { folder } });
+                    navigate('/new-scenario/scenario-details', { state: { folder } });
                   }
                 }}
               >
@@ -648,6 +577,7 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
           })}
         </div>
       )}
+
       {importedData.headers.length > 0 && (
         <TableContainer component={Paper} sx={{ mt: 3, maxHeight: 400, maxWidth: '100%', overflow: 'auto' }}>
           <Table stickyHeader aria-label="imported data table">

@@ -46,13 +46,15 @@ function App() {
           <Route path="/new-scenario/scenario-details" element={<ScenarioDetails />} />
           <Route path="/saved-scenario/review-scenario" element={<ReviewScenario />} />
           <Route path="/saved-scenario/Summary-scenario" element={<SummaryScenario />} />
+          <Route path="/new-scenario/review-scenario" element={<ReviewScenario />} />
+          <Route path="/new-scenario/Summary-scenario" element={<SummaryScenario />} />
           <Route path="/submissions-tracker" element={<Submission_Tracker />} />
           <Route path="/" element={<ScenarioDetails hasUnsavedChanges={hasUnsavedChanges} setHasUnsavedChanges={setHasUnsavedChanges} />} />
           <Route path="new-scenario/scenario-details/Inputpage" element={<Inputpage />} />
           <Route path="/saved-scenario" element={<SavedScenario />} />
           {/* <Route path="/Inputpage" element={<Inputpage/>} /> */}
           <Route path="/admin" element={<Admin />} />
-          <Route path="/forecastdeepdive" element={<Patient_Forecast />} />
+          <Route path="/new-scenario/forecastdeepdive" element={<Patient_Forecast />} />
           <Route path="/admin/forecasted_results" element={<Forecasted_Results />} />
           <Route path="/forecastdeepdive/dashboard" element={<Dashboard />} />
 

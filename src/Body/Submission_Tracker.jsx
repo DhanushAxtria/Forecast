@@ -1,4 +1,3 @@
-import { BorderAllOutlined } from '@mui/icons-material';
 import React, { useState, useEffect } from 'react';
 import { FaFilter } from 'react-icons/fa';
 
