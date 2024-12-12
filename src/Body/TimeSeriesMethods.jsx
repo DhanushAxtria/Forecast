@@ -16,7 +16,7 @@ import { MyContext } from './context';
 import { useContext } from 'react';
 import Forecastpagehelper from './Forecastpagehelper';
 
-const Admin = () => {
+const Forecastpage = () => {
     // Retrieve selectedSheet and setSelectedSheet from context for managing selected forecast method
     const { selectedSheet, setSelectedSheet } = useContext(MyContext);
 
@@ -136,4 +136,4 @@ const Admin = () => {
     );
 };
 
-export default Admin;
+export default Forecastpage;

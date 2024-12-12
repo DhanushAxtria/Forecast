@@ -154,19 +154,19 @@ const BlogGrid = () => {
             sx={{ width: 280, background: 'linear-gradient(135deg, #667eea, #764ba2)', color: 'white' }}
             className='featureCard'
           >
-            <CardActionArea sx={{ cursor: 'pointer' }} onClick={()=>navigate("/forecastdeepdive")}>
+            <CardActionArea sx={{ cursor: 'pointer' }} onClick={()=>navigate("/time-series-methods")}>
               <Insights sx={{ fontSize: 50, color: 'white', margin: '20px' }} />
               <CardContent
                 sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
               >
                 <Typography gutterBottom variant="h6" component="div">
-                  Forecast Deep-dive
+                  Time Series Methods
                 </Typography>
                 <Typography
                   variant="body2"
                   sx={{ color: 'text.secondary', textAlign: 'center', fontSize: '14px' }}  // Changed font size here
                 >
-                  Dive deeper into your forecast results to uncover key insights.
+                  Dive into the time series forecasting techniques to uncover key insights.
                 </Typography>
               </CardContent>
             </CardActionArea>

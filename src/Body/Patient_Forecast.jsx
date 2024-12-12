@@ -151,7 +151,7 @@ const Patient_Forecast = () => {
                     <Button
                         variant="contained"
                         onClick={() => {
-                            navigate("/forecastdeepdive/dashboard");
+                            navigate("/new-scenario/forecastdeepdive/dashboard");
                         }}
                         color="success"
                         sx={{ fontSize: '0.8rem' }}

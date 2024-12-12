@@ -78,7 +78,7 @@ const Forecastpagehelper = () => {
     };
 
     // value checks
-    const handleSave = async () => {
+    const handleProceed = async () => {
         if (selectedFile === null && selectedSheet === null) {
             alert("Please upload the data and select the method");
         }
@@ -92,7 +92,7 @@ const Forecastpagehelper = () => {
             alert("Please select all the dates properly");
         }
         else {
-            navigate("/admin/forecasted_results"); // if all the data is filled, proceed to the results page
+            navigate("/time-series-methods/forecasted_results"); // if all the data is filled, proceed to the results page
         }
     };
 
@@ -262,7 +262,7 @@ const Forecastpagehelper = () => {
                 {/* Button Container */}
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 2, marginTop: '20px' }}>
                     <Box sx={{ display: 'flex', gap: 2 }}>
-                        <Button variant="contained" color="primary" onClick={handleSave} sx={{ fontSize: '0.8rem' }}>
+                        <Button variant="contained" color="primary" onClick={handleProceed} sx={{ fontSize: '0.8rem' }}>
                             Proceed
                         </Button>
                         <Button

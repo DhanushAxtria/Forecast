@@ -77,7 +77,7 @@ const breadcrumbNameMap = {
   '/saved-scenario': 'Saved Scenario',
   '/data-consolidation': 'Data Consolidation',
   '/scenario-comparison': 'Scenario Comparison',
-  '/forecast-deep-dive': 'Forecast Deep-dive',
+  '/forecast-deep-dive': 'Time Series Methods',
   '/admin': 'Admin',
   '/generate-report': 'Generate Report',
   '/submission-tracking': 'Submissions Tracker',
