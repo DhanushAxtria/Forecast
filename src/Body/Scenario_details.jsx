@@ -28,7 +28,6 @@ import {
     DialogContent,
     DialogTitle,
 } from '@mui/material';
-import Header from '../Header/Header'
 const initialNodes = [
     { id: '1', data: { label: 'Product Level Treated Patients' }, position: { x: 250, y: 50 }, style: { width: 200 } },
     { id: '2', data: { label: 'Patients per product (based on trending)' }, position: { x: 250, y: 150 }, style: { width: 250 } },

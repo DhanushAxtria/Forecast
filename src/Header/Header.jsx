@@ -89,7 +89,6 @@ function DynamicBreadcrumbs() {
   const navigate = useNavigate();
 
   const pathnames = location.pathname.split('/').filter(Boolean);
-  const [breadcrumbs, setBreadCrumbs] = React.useState()
   if (location.pathname === '/') return null;
   //const isHomePage = location.pathname === '/';
 
@@ -113,9 +112,6 @@ function DynamicBreadcrumbs() {
       {pathnames.map((value, index) => {
         const to = `/${pathnames.slice(0, index + 1).join('/')}`;
         const isLast = index === pathnames.length - 1;
-
-        // Log each path for debugging
-        console.log(`Path: ${to}, Breadcrumb: ${breadcrumbNameMap[to] || value}`);
 
         return isLast ? (
           <Typography color="text.primary" key={to}>

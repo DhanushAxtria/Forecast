@@ -38,7 +38,7 @@ import ListItemText from '@mui/material/ListItemText';
 import Autocomplete from '@mui/material/Autocomplete';
 import Tooltip from '@mui/material/Tooltip';
 
-export default function CountryAndTherapeuticSelect({ username = "User" }) {
+export default function NewScenario({ username = "User" }) {
   const { savedFiles, setSavedFiles } = useContext(SavedFilesContext);
   const [showTable, setShowTable] = React.useState(false);
   const [countries, setCountries] = React.useState([]); // Multi-select for countries
@@ -64,17 +64,18 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
   const [showFolders, setShowFolders] = useState(false);
 
   const CopyScenarioData = [
-    { scenario: 'Draft 1', cycle: '2024 H2', country: 'USA', area: 'TA 1', modified: '30 Sep 2024', user: 'User 1' },
+    { scenario: 'Draft 1', cycle: '2024 H2', country: 'USA', area: 'Cardiology', modified: '30 Sep 2024', user: 'User 1' },
     { scenario: 'Draft 2', cycle: '2024 H2', country: 'Norway', area: 'TA 1', modified: '29 Sep 2024', user: 'User 1' },
-    { scenario: 'Draft 3', cycle: '2024 H2', country: 'Norway', area: 'TA 1', modified: '30 Sep 2024', user: 'User 1' },
-    { scenario: 'Draft 4', cycle: '2024 H2', country: 'Finland', area: 'TA 1', modified: '29 Sep 2024', user: 'User 1' },
-    { scenario: 'Draft 5', cycle: '2024 H2', country: 'Finland', area: 'TA 1', modified: '28 Sep 2024', user: 'User 1' },
+    { scenario: 'Draft 3', cycle: '2024 H2', country: 'Norway', area: 'Oncology', modified: '30 Sep 2024', user: 'User 1' },
+    { scenario: 'Draft 4', cycle: '2014 H2', country: 'Finland', area: 'TA 1', modified: '29 Sep 2024', user: 'User 1' },
+    { scenario: 'Draft 5', cycle: '2023 H2', country: 'Finland', area: 'TA 1', modified: '28 Sep 2024', user: 'User 1' },
   ];
   const filteredCopyData = CopyScenarioData.filter(item =>
-    (forecastCycles.includes('All') || forecastCycles.includes(item.cycle)) &&
-    (countries.includes('All') || countries.includes(item.country)) &&
-    (therapeuticAreas.includes('All') || therapeuticAreas.includes(item.area))
+    (forecastCycles.length === 0 || forecastCycles.includes('All') || forecastCycles.includes(item.cycle)) &&
+    (countries.length === 0 || countries.includes('All') || countries.includes(item.country)) &&
+    (therapeuticAreas.length === 0 || therapeuticAreas.includes('All') || therapeuticAreas.includes(item.area))
   );
+  
 
   const savedScenarios = [
     { scenario: 'Draft 1', cycle: '2024 H1', country: 'USA', area: 'Cardiology', modified: '15 Oct 2023', user: 'User A', submitted: false },
@@ -83,9 +84,9 @@ export default function CountryAndTherapeuticSelect({ username = "User" }) {
     { scenario: 'Main Submission', cycle: '2023 H2', country: 'Germany', area: 'Neurology', modified: '12 Jul 2023', user: 'User C', submitted: true },
   ];
   const filteredSavedData = savedScenarios.filter(item =>
-    (forecastCycles.includes('All') || forecastCycles.includes(item.cycle)) &&
-    (countries.includes('All') || countries.includes(item.country)) &&
-    (therapeuticAreas.includes('All') || therapeuticAreas.includes(item.area))
+    (forecastCycles.length === 0 || forecastCycles.includes('All') || forecastCycles.includes(item.cycle)) &&
+    (countries.length === 0 || countries.includes('All') || countries.includes(item.country)) &&
+    (therapeuticAreas.length === 0 || therapeuticAreas.includes('All') || therapeuticAreas.includes(item.area))
   );
 
 

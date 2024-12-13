@@ -39,6 +39,7 @@ const Forecastpagehelper = () => {
 
     // parse the dates from the data in standard form
     const parseDate = (dateStr) => {
+        console.log(dateStr);
         const [monthStr, yearStr] = dateStr.split('-');
         const month = new Date(`${monthStr}-01-2000`).getMonth(); // Get month index
         const year = 2000 + parseInt(yearStr); // Convert to full year

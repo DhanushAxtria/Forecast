@@ -4,16 +4,27 @@ import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import CardActionArea from '@mui/material/CardActionArea';
 import Box from '@mui/material/Box';
+// Import the useNavigate hook from react-router-dom to handle client-side routing
 import { useNavigate } from 'react-router-dom';
 import "./Body.scss";
  
 // Import new icons from Material UI
 import { Assessment, SaveAlt, FilePresent, CompareArrows, Insights, Security, QueryStats, Assignment } from '@mui/icons-material';
  
+
+
+/*
+ * BlogGrid component renders a grid layout with various interactive cards.
+ * Each card represents a specific action, such as creating a new scenario,
+ * accessing saved scenarios, or managing admin tasks. It uses Material UI
+ * components to display the cards with icons, titles, and descriptions.
+ * The component also handles navigation to different routes based on the card clicked by the user.
+ */
 const BlogGrid = () => {
+  // Use the useNavigate hook to get the navigate function, which is used to redirect the user to a different route when a card is clicked
   const navigate = useNavigate();
   return (
-    <div id="bodyDiv" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', marginTop: '-30px',paddingLeft:'80px' }}>
+    <div id="bodyDiv" style={{ display: 'flex',alignItems: 'center' }}>
       <div className="container topDiv">
         <div id="mainHeader">
           <div
@@ -25,50 +36,64 @@ const BlogGrid = () => {
             }}
           >
             <div className="greeting__welcome f3 mb-3">
-              <h3>Welcome User, Please Select an Action to Proceed</h3>
+              <h3 style={{textWrap: 'nowrap', textAlign: 'center', position: 'absolute', top: '50%', left: '52%', transform: 'translate(-50%, -50%)'}}>
+                Welcome User, Please Select an Action to Proceed</h3>
             </div>
           </div>
         </div>
       </div>
       <Box
         sx={{
-          display: 'inline-grid',
-          gridTemplateColumns: 'repeat(4, 1fr)', // 4 columns
-          //gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 4fr))',
-          gap: 2, // space between cards
+          // Display as a grid with 4 columns
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          // Add a gap of 2px between grid items
+          gap: 2,
+          // Add some padding around the grid container
           padding: 2,
-          justifyContent: 'center',
-          maxWidth:'1200px', // Aligns the cards to the left
-          alignItems:'center',
-          marginLeft: 'auto'
+          // Position the grid container absolutely
+          position: 'absolute',
+          // Set the left and top properties to center the grid container horizontally and vertically
+          left: '50%',
+          top: '70%',
+          // Set the transform property to translate the grid container -50% to the left and -50% to the top, effectively centering it
+          transform: 'translate(-50%, -50%)'
         }}
+        
       >
         {/* Card 1: New Scenario */}
+       
         <div className="hoverCard" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <Card
             sx={{ width: 280, background: 'linear-gradient(135deg, #00c6ff, #0072ff)', color: 'white' }}
             className='featureCard'
           >
-            <CardActionArea sx={{ cursor: 'pointer' }} onClick={()=>navigate("/new-scenario")}>
+            <CardActionArea sx={{ cursor: 'pointer' }} onClick={() => navigate("/new-scenario")}>
+              {/* Icon for New Scenario */}
               <Assessment sx={{ fontSize: 50, color: 'white', margin: '20px' }} />
               <CardContent
                 sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
               >
+                {/* Title for New Scenario */}
                 <Typography gutterBottom variant="h6" component="div">
                   New Scenario
                 </Typography>
+                {/* Description for New Scenario */}
                 <Typography
                   variant="body2"
                   sx={{ color: 'text.secondary', textAlign: 'center', fontSize: '14px' }}  // Changed font size here
                 >
                   Create a new forecast scenario
-                   based on market data and trends.
+                  based on market data and trends.
                 </Typography>
               </CardContent>
             </CardActionArea>
           </Card>
+          {/* additional information displayed when we hover over the card */}
           <div className="tooltipAbove">Create a new forecast scenario based on market data and trends.</div>
         </div>
+
+        {/* Created card with similar styling with different title and description */}
  
         {/* Card 2: Saved Scenarios */}
         <div className="hoverCard" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
