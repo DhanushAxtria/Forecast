@@ -83,16 +83,10 @@ export default function SavedScenario() {
 
     // Filtered data based on the dropdown selections
     const filteredData = demo_data.filter(item =>
-        (forecastCycles.includes('All') || forecastCycles.includes(item.cycle)) &&
-        (countries.includes('All') || countries.includes(item.country)) &&
-        (therapeuticAreas.includes('All') || therapeuticAreas.includes(item.area))
-    );
-
-    const allFiltersSelected =
-        forecastCycles.length > 0 &&
-        countries.length > 0 &&
-        therapeuticAreas.length > 0;
-
+        (forecastCycles.length === 0 || forecastCycles.includes('All') || forecastCycles.includes(item.cycle)) &&
+        (countries.length === 0 || countries.includes('All') || countries.includes(item.country)) &&
+        (therapeuticAreas.length === 0 || therapeuticAreas.includes('All') || therapeuticAreas.includes(item.area))
+      );
     return (
         <div style={{ backgroundColor: 'white', padding: '20px', marginTop: '-25px' }}>
             <h2>{getGreetingMessage()}, Welcome to the Saved Scenario Page!</h2>
@@ -162,7 +156,7 @@ export default function SavedScenario() {
                 />
             </Box>
 
-            {allFiltersSelected && (
+            {(
                 <TableContainer component={Paper} sx={{ mt: 3, maxWidth: '100%' }}>
                     <Table aria-label="submission scenarios table" size="small">
                         <TableHead>
