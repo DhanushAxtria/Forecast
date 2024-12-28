@@ -15,6 +15,7 @@ import Inputpage from './Body/Inputpage'
 import SavedScenario from './Body/SavedScenario'
 import Forecastpage from './Body/TimeSeriesMethods'
 import Patient_Forecast from './Body/Patient_Forecast'
+import Patient_Forecast_Input from './Body/Patient_Forecast_Input';
 import Forecasted_Results from './Body/forecastedresults';
 import Dashboard from './Body/Dashboard'
 function App() {
@@ -49,7 +50,7 @@ function App() {
           <Route path="new-scenario/scenario-details/Inputpage" element={<Inputpage />} />
           <Route path="/saved-scenario" element={<SavedScenario />} />
           {/* <Route path="/Inputpage" element={<Inputpage/>} /> */}
-          <Route path="/admin" />
+          <Route path="/admin" element={<Patient_Forecast_Input />} />
           <Route path="/new-scenario/forecastdeepdive" element={<Patient_Forecast />} />
           <Route path="/time-series-methods" element={<Forecastpage />} />
           <Route path="/time-series-methods/forecasted_results" element={<Forecasted_Results />} />

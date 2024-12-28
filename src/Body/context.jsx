@@ -1,5 +1,6 @@
 import React, { createContext, useState } from 'react';
 import dayjs from 'dayjs';
+import { set } from 'date-fns';
 
 // Create a context with a default value
 const MyContext = createContext();
@@ -33,6 +34,9 @@ const initialProducts = {
 };
 
 
+
+
+
 const MyProvider = ({ children }) => {
   const combinedProducts = [...initialProducts1, ...initialProducts2, ...initialProducts3];
   const [selectedSheet, setSelectedSheet] = useState(null);
@@ -49,6 +53,7 @@ const MyProvider = ({ children }) => {
   const [toDate, setToDate] = useState(dayjs());
 
   const [products, setProducts] = useState(initialProducts);
+  
   const [values, setValues] = useState({});
   const [values2, setValues2] = useState({});
   const [values3, setValues3] = useState({});
@@ -89,6 +94,7 @@ const MyProvider = ({ children }) => {
       cardTitle2, setCardTitle2,
       cardTitle3, setCardTitle3,
       combinedProducts,
+     
       dropdownGroups, setDropdownGroups,
       showTabs, setShowTabs,
       timePeriod, setTimePeriod,
