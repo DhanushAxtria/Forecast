@@ -3,6 +3,7 @@ import CalculateIcon from '@mui/icons-material/Calculate';
 import FormControl from '@mui/material/FormControl';
 import UploadIcon from '@mui/icons-material/Upload';
 import { useNavigate } from 'react-router-dom';
+import produce from "immer";
 import Select from '@mui/material/Select';
 import {
     TextField,
@@ -49,10 +50,9 @@ const Patient_Forecast = () => {
     const [formulaDetails, setFormulaDetails] = useState({ tableKey: null, tabKey: null, productId: null });
     const [editingProductId, setEditingProductId] = useState(null);
     const [editedProductName, setEditedProductName] = useState('');
-
+    const { Formulas, setFormulas } = useContext(MyContext);
     const [openInputMethodDialog, setOpenInputMethodDialog] = useState(false);
     const [openGrowthRateDialog, setOpenGrowthRateDialog] = useState(false);
-
     const [openStartEndDialog, setOpenStartEndDialog] = useState(false); // Dialog for Start and End values
     const [startValue, setStartValue] = useState(''); // Start value for Specify Start and Target Values
     const [endValue, setEndValue] = useState(''); // End value for Specify Start and Target Values
@@ -62,18 +62,14 @@ const Patient_Forecast = () => {
     const { values, setValues } = useContext(MyContext);
     const { values2, setValues2 } = useContext(MyContext);
     const { values3, setValues3 } = useContext(MyContext);
-
     const [UploadedFileToFill, setUploadedFileToFill] = useState(null);
-
     const [openUploadDialog, setOpenUploadDialog] = useState(false); // Dialog for file upload
-
     const { fromDate, setFromDate } = useContext(MyContext);
     const { toDate, setToDate } = useContext(MyContext);
     const [manualEntry, setManualEntry] = useState(false);
     const [growthRates, setGrowthRates] = useState([]);
     const [startingValue, setStartingValue] = useState('');
     const [initialGrowthRate, setInitialGrowthRate] = useState('');
-
     const [columns, setColumns] = useState([]);  // Column headers based on time period
     const [showCard, setShowCard] = useState(false);
     const [openInfoMethodDialog, setOpenInfoMethodDialog] = useState(false);
@@ -82,46 +78,35 @@ const Patient_Forecast = () => {
     const [tab_value, setTabValue] = useState(null);
     const { showTabs, setShowTabs } = useContext(MyContext);
     const { products, setProducts } = useContext(MyContext);
-
-
     const combinedProducts = useContext(MyContext);
     const [selectedValues, setSelectedValues] = useState([combinedProducts[0]?.name]); // Start with one dropdown, default to first product
     const [operators, setOperators] = useState(['+']); // State to store selected operators for each dropdown
-
-
-    // State for editing each card
     const [isCardEditing1, setIsCardEditing1] = useState(false);
     const [isCardEditing2, setIsCardEditing2] = useState(false);
     const [isCardEditing3, setIsCardEditing3] = useState(false);
-
-    // States for card title and body (editable content)
     const { cardTitle1, setCardTitle1 } = useContext(MyContext);
-
     const [cardBody1, setCardBody1] = useState('Understand the spread of diseases and their impact.');
     const { cardTitle2, setCardTitle2 } = useContext(MyContext);
     const [cardBody2, setCardBody2] = useState('Overview of total patients diagnosed with GH.');
     const { cardTitle3, setCardTitle3 } = useContext(MyContext);
     const [cardBody3, setCardBody3] = useState('Adjust conversion factors for accurate data representation.');
-
     let [EditedCardTitle1, setEditedCardTitle1] = useState('Epidemiology');
     const [EditedCardBody1, setEditedCardBody1] = useState('Understand the spread of diseases and their impact.');
     const [EditedCardTitle2, setEditedCardTitle2] = useState('Total GH Patients');
     const [EditedCardBody2, setEditedCardBody2] = useState('Overview of total patients diagnosed with GH.');
     const [EditedCardTitle3, setEditedCardTitle3] = useState('Conversion Parameter');
     const [EditedCardBody3, setEditedCardBody3] = useState('Adjust conversion factors for accurate data representation.');
-
     const [text, setText] = useState({});
     const [text2, setText2] = useState({});
     const [isEditing, setIsEditing] = useState(false);
     const [savedText, setSavedText] = useState({});
     const [savedText2, setSavedText2] = useState({});
-
+    const { editingFormula, setEditingFormula } = useContext(MyContext);
     const [tabTableVisibility, setTabTableVisibility] = useState({
         downside: { table1: false, table2: false, table3: false },
         base: { table1: false, table2: false, table3: false },
         upside: { table1: false, table2: false, table3: false },
     });
-
     /*A component that renders a box with three buttons: one to show the preview of the tables,
       one to close the preview and  "Show Dashboard" button to navigate to the dashboard. */
     const Preview = () => {
@@ -157,6 +142,16 @@ const Patient_Forecast = () => {
                         sx={{ fontSize: '0.8rem' }}
                     >
                         Show Dashboard
+                    </Button>
+                    <Button
+                        variant="contained"
+                        onClick={() => {
+                            navigate("/new-scenario/forecastdeepdive/kpi-analysis");
+                        }}
+                        color="success"
+                        sx={{ fontSize: '0.8rem' }}
+                    >
+                        KPI Analysis
                     </Button>
                 </Box>
             </Box>
@@ -507,6 +502,9 @@ const Patient_Forecast = () => {
      * to be displayed and edited. Provides functionality for adding, editing,
      * and deleting rows, as well as inserting formulas and handling various input methods. */
     const renderTable = (tabKey, tableKey) => {
+        console.log(tabKey);
+        console.log(tableKey);
+
         const tableProducts = products[tabKey][tableKey]; // Get the correct products for this table
 
         return (
@@ -609,7 +607,7 @@ const Patient_Forecast = () => {
                                                 )}
                                                 <Tooltip title="Insert Formula" placement="top" >
                                                     <IconButton onClick={() => {
-                                                        setFormulaDetails({ tableKey, tabKey, productId: product.id }); setFormulaProductId(product.id); setShowFormula(true);
+                                                        setFormulaDetails({ tableKey, tabKey, productId: product.id }); 
                                                     }} style={{ marginLeft: '4px' }}>
                                                         <CalculateIcon fontSize="small" />
                                                     </IconButton>
@@ -697,17 +695,18 @@ const Patient_Forecast = () => {
                             <br></br>
                             <br></br>
                             {/* Render each dropdown dynamically based on selectedValues and operators */}
-                            {selectedValues.map((selectedValue, index) => (
+                            {editingFormula[tabKey][tableKey][formulaDetails.productId].emptyArray.map((selectedValue, index) => (
                                 <div key={index} style={{ width: 400, display: 'flex', alignItems: 'center', marginBottom: 16 }}>
                                     {/* Operator Dropdown on the left */}
+
                                     {index > 0 && (
                                         <FormControl style={{ width: 100, marginRight: 8 }}>
                                             <InputLabel id={`operator-label-${index}`}>Operator</InputLabel>
                                             <Select
                                                 labelId={`operator-label-${index}`}
                                                 id={`operator-${index}`}
-                                                value={operators[index]}
-                                                onChange={(e) => handleSelectChange(index, 'operator', e)}
+                                                value={editingFormula[tabKey][tableKey][formulaDetails.productId].plusArray[index]}
+                                                onChange={(e) => handleSelectChange(formulaDetails.productId, tabKey, tableKey, index, 'operator', e)}
                                                 label="Operator"
                                             >
                                                 <MenuItem value="+">+</MenuItem>
@@ -724,8 +723,8 @@ const Patient_Forecast = () => {
                                         <Select
                                             labelId={`select-label-${index}`}
                                             id={`select-${index}`}
-                                            value={selectedValue}
-                                            onChange={(e) => handleSelectChange(index, 'formula', e)}
+                                            value={editingFormula[tabKey][tableKey][formulaDetails.productId].emptyArray[index]}
+                                            onChange={(e) => handleSelectChange(formulaDetails.productId, tabKey, tableKey, index, 'formula', e)}
                                             label={`Select Formula ${index + 1}`}
                                         >
                                             {Object.keys(products[tabKey]).map((tableKey) => (
@@ -739,27 +738,27 @@ const Patient_Forecast = () => {
                                     </FormControl>
 
                                     {/* Delete Button */}
-                                    <IconButton
-                                        onClick={() => handleDeleteDropdown(index)}
+                                    {<IconButton
+                                        onClick={() => handleDeleteDropdown(tabKey, tableKey, formulaDetails.productId, index)}
                                         color="secondary"
                                         style={{ marginLeft: 8 }}
                                     >
                                         <DeleteIcon />
-                                    </IconButton>
+                                    </IconButton>}
                                 </div>
                             ))}
 
                             {/* Button to add a new dropdown */}
-                            <Button onClick={handleAddDropdown} color="primary" fullWidth>
+                            <Button onClick={() => handleAddDropdown(tabKey, tableKey, formulaDetails.productId)} color="primary" fullWidth>
                                 Add New Dropdown
                             </Button>
                         </DialogContent>
 
                         <DialogActions >
-                            <Button onClick={() => { setShowFormula(false); }} color="secondary" variant="contained" sx={{ fontWeight: 'bold', borderRadius: '8px' }}>
+                            <Button onClick={() => handleCancelFormula(tabKey, tableKey, formulaDetails.productId)} color="secondary" variant="contained" sx={{ fontWeight: 'bold', borderRadius: '8px' }}>
                                 Cancel
                             </Button>
-                            <Button color="secondary" variant="contained" sx={{ fontWeight: 'bold', borderRadius: '8px' }} onClick={() => handleApply(formulaDetails.tabKey, formulaDetails.productId)}>
+                            <Button color="secondary" variant="contained" sx={{ fontWeight: 'bold', borderRadius: '8px' }} onClick={() => handleApply(tabKey, tableKey, formulaDetails.productId)}>
                                 Apply
                             </Button>
                         </DialogActions>
@@ -932,7 +931,7 @@ const Patient_Forecast = () => {
                 {
                     <>
                         {/*This section of the code handles the "Select Data Input Method" dialog*/}
-                        <Dialog
+                        {<Dialog
                             open={openInputMethodDialog}
                             onClose={() => {
                                 setOpenInputMethodDialog(false); // Close the "Select Data Input Method" dialog
@@ -1072,7 +1071,7 @@ const Patient_Forecast = () => {
                                     Close
                                 </Button>
                             </DialogActions>
-                        </Dialog>
+                        </Dialog>}
 
                         {/* Specify Start and End Values Dialog */}
                         <Dialog open={openStartEndDialog} onClose={() => { setOpenStartEndDialog(false); }} maxWidth="sm" fullWidth>
@@ -1373,35 +1372,64 @@ const Patient_Forecast = () => {
 
 
     // Handle changes for any dropdown (formula or operator)
-    const handleSelectChange = (index, type, event) => {
-        if (type === 'operator') {
-            const newOperators = [...operators];
-            newOperators[index] = event.target.value;
-            setOperators(newOperators);
-        } else {
-            const newSelectedValues = [...selectedValues];
-            newSelectedValues[index] = event.target.value;
-            setSelectedValues(newSelectedValues);
-        }
+    const handleSelectChange = (row_id, tabKey, tableKey, index, type, event) => {
+        const newValue = event.target.value;
+        setEditingFormula((prevDict) =>
+            produce(prevDict, (draft) => {
+                const row = draft[tabKey]?.[tableKey]?.[row_id];
+                if (row) {
+                    if (type === "operator") {
+                        row.plusArray[index] = newValue;
+                    } else {
+                        row.emptyArray[index] = newValue;
+                    }
+                }
+            })
+        );
     };
 
     // Handle adding a new dropdown
-    const handleAddDropdown = () => {
-        setSelectedValues([...selectedValues, combinedProducts[0]?.name]); // Add a new dropdown with the default value
-        setOperators([...operators, '+']); // Add a new operator dropdown with default "+"
+    const handleAddDropdown = (tabKey, tableKey, row_id) => {
+        setEditingFormula((prevDict) => ({
+            ...prevDict,
+            [tabKey]: {
+                ...prevDict[tabKey],
+                [tableKey]: {
+                    ...prevDict[tabKey][tableKey],
+                    [row_id]: {
+                        emptyArray: [...prevDict[tabKey][tableKey][row_id].emptyArray, ''],
+                        plusArray: [...prevDict[tabKey][tableKey][row_id].plusArray, '+'],
+                    },
+                },
+            },
+        }));
     };
 
     // Handle deleting a dropdown
-    const handleDeleteDropdown = (index) => {
-        const newSelectedValues = selectedValues.filter((_, i) => i !== index);
-        const newOperators = operators.filter((_, i) => i !== index);
-        setSelectedValues(newSelectedValues);
-        setOperators(newOperators);
+    const handleDeleteDropdown = (tabKey, tableKey, row_id, index) => {
+        setEditingFormula((prevDict) => ({
+            ...prevDict,
+            [tabKey]: {
+                ...prevDict[tabKey],
+                [tableKey]: {
+                    ...prevDict[tabKey][tableKey],
+                    [row_id]: {
+                        emptyArray: prevDict[tabKey][tableKey][row_id].emptyArray.filter((_, i) => i !== index),
+                        plusArray: prevDict[tabKey][tableKey][row_id].plusArray.filter((_, i) => i !== index),
+                    },
+                },
+            },
+        }));
     };
 
     // Handle applying the selected formula(s)
-    const handleApply = (tabKey, row_id) => {
-        const selectedIds = selectedValues.map((selectedValue) => {
+    const handleApply = (tabKey, tableKey, row_id) => {
+        const rowsList = Formulas[tabKey][tableKey][row_id].emptyArray
+        const operatorsList = Formulas[tabKey][tableKey][row_id].plusArray
+        // Slice the operators array to exclude the first element (which is the default "+")
+        const operatorSliced = operatorsList.slice(1);
+        // find all the ids
+        const selectedIds = rowsList.map((selectedValue) => {
             // Iterate through all tableKeys under the current tabKey
             for (const tableKey in products[tabKey]) {
                 // Find the product that matches the selected value
@@ -1413,11 +1441,8 @@ const Patient_Forecast = () => {
             return null; // Return null if no product is found
         }).filter((id) => id !== null); // Filter out null values
 
-        // Slice the operators array to exclude the first element (which is the default "+")
-        const operatorSliced = operators.slice(1);
 
         let res = {}; // Object to store the results of the forecast calculation
-
         if (timePeriod === 'Monthly') {
             // Loop through the months in the time period and create a key for each in the results object
             // if the key doesn't already exist
@@ -1427,140 +1452,90 @@ const Patient_Forecast = () => {
                     res[month] = "0";
                 }
             }
-            // Get the first selected product's id
-            const idd = selectedIds[0];
-
-            // Get the first selected product's values based on the current tabKey
-            const val = tabKey === 'downside' ? values[idd] : tabKey === 'base' ? values2[idd] : values3[idd];
-
-            // If the product has values, loop through its values and add them to the results object
-            if (val !== undefined) {
-                Object.keys(val).forEach((key) => {
-                    res[key] = val[key];
-                });
-            }
-
-            // Iterate over the selected product IDs starting from the second element
-            for (let i = 1; i < selectedIds.length; i++) {
-                const id = selectedIds[i];
-                const tempval = tabKey === 'downside' ? values[id] : tabKey === 'base' ? values2[id] : values3[id];
-
-                // If the product values exist, perform calculations based on the selected operator
-                if (tempval !== undefined) {
-                    Object.keys(tempval).forEach((key) => {
-                        const currentOperator = operatorSliced[i - 1];
-                        const resValue = parseFloat(res[key], 10);
-                        const tempValue = parseFloat(tempval[key], 10);
-
-                        if (currentOperator == '+') {
-                            res[key] = resValue + tempValue;
-                        } else if (currentOperator == '-') {
-                            res[key] = resValue - tempValue;
-                        } else if (currentOperator == '*') {
-                            res[key] = resValue * tempValue;
-                        } else if (currentOperator == '/') {
-                            res[key] = resValue / tempValue;
-                        }
-                    });
-                }
-            }
-            // Update values based on tabKey and calculated results
-            if (tabKey === 'downside') {
-                setValues((prevValues) => ({
-                    ...prevValues,
-                    [row_id]: Object.keys(res).reduce((acc, date) => {
-                        acc[date] = !res[date] || res[date] === 0 ? '0' : res[date];
-                        return acc;
-                    }, {})
-                }));
-            }
-            else if (tabKey === 'base') {
-                setValues2((prevValues) => ({
-                    ...prevValues,
-                    [row_id]: Object.keys(res).reduce((acc, date) => {
-                        acc[date] = !res[date] || res[date] === 0 ? '0' : res[date];
-                        return acc;
-                    }, {})
-                }));
-            }
-            else {
-                setValues3((prevValues) => ({
-                    ...prevValues,
-                    [row_id]: Object.keys(res).reduce((acc, date) => {
-                        acc[date] = !res[date] || res[date] === 0 ? '0' : res[date];
-                        return acc;
-                    }, {})
-                }));
-            }
-            setShowFormula(false);
         }
-        else { // Same logic as above but for yearly time period
+        else {
             for (let i = 0; i < dayjs(toDate).diff(dayjs(fromDate), 'year') + 1; i++) {
                 const year = dayjs(fromDate).add(i, 'year').format('YYYY');
                 if (!res[year]) {
                     res[year] = "0";
                 }
             }
+        }
+        // Get the first selected product's id
+        const idd = selectedIds[0];
 
-            console.log("res::::::::", res);
-            const idd = selectedIds[0];
+        // Get the first selected product's values based on the current tabKey
+        const val = tabKey === 'downside' ? values[idd] : tabKey === 'base' ? values2[idd] : values3[idd];
 
-            const val = tabKey === 'downside' ? values[idd] : tabKey === 'base' ? values2[idd] : values3[idd];
+        // If the product has values, loop through its values and add them to the results object
+        if (val !== undefined) {
+            Object.keys(val).forEach((key) => {
+                res[key] = val[key];
+            });
+        }
 
-            if (val !== undefined) {
-                Object.keys(val).forEach((key) => {
-                    res[key] = val[key];
+        // Iterate over the selected product IDs starting from the second element
+        for (let i = 1; i < selectedIds.length; i++) {
+            const id = selectedIds[i];
+            const tempval = tabKey === 'downside' ? values[id] : tabKey === 'base' ? values2[id] : values3[id];
+
+            // If the product values exist, perform calculations based on the selected operator
+            if (tempval !== undefined) {
+                Object.keys(tempval).forEach((key) => {
+                    const currentOperator = operatorSliced[i - 1];
+                    const resValue = parseFloat(res[key], 10);
+                    const tempValue = parseFloat(tempval[key], 10);
+
+                    if (currentOperator == '+') {
+                        res[key] = resValue + tempValue;
+                    } else if (currentOperator == '-') {
+                        res[key] = resValue - tempValue;
+                    } else if (currentOperator == '*') {
+                        res[key] = resValue * tempValue;
+                    } else if (currentOperator == '/') {
+                        res[key] = resValue / tempValue;
+                    }
                 });
             }
-
-            for (let i = 1; i < selectedIds.length; i++) {
-                const id = selectedIds[i];
-                const tempval = tabKey === 'downside' ? values[id] : tabKey === 'base' ? values2[id] : values3[id];
-                if (tempval !== undefined) {
-                    Object.keys(tempval).forEach((key) => {
-                        if (operatorSliced[i - 1] == '+') {
-                            res[key] = parseFloat(res[key], 10) + parseFloat(tempval[key], 10);
-                        } else if (operatorSliced[i - 1] == '-') {
-                            res[key] = parseFloat(res[key], 10) - parseFloat(tempval[key], 10);
-                        } else if (operatorSliced[i - 1] == '*') {
-                            res[key] = parseFloat(res[key], 10) * parseFloat(tempval[key], 10);
-                        } else if (operatorSliced[i - 1] == '/') {
-                            res[key] = parseFloat(res[key], 10) / parseFloat(tempval[key], 10);
-                        }
-                    });
-                }
-            }
-            if (tabKey === 'downside') {
-                setValues((prevValues) => ({
-                    ...prevValues,
-                    [row_id]: Object.keys(res).reduce((acc, date) => {
-                        acc[date] = !res[date] || res[date] === 0 ? '0' : res[date];
-                        return acc;
-                    }, {})
-                }));
-            }
-            else if (tabKey === 'base') {
-                setValues2((prevValues) => ({
-                    ...prevValues,
-                    [row_id]: Object.keys(res).reduce((acc, date) => {
-                        acc[date] = !res[date] || res[date] === 0 ? '0' : res[date];
-                        return acc;
-                    }, {})
-                }));
-            }
-            else {
-                setValues3((prevValues) => ({
-                    ...prevValues,
-                    [row_id]: Object.keys(res).reduce((acc, date) => {
-                        acc[date] = !res[date] || res[date] === 0 ? '0' : res[date];
-                        return acc;
-                    }, {})
-                }));
-            }
-            setShowFormula(false);
         }
+        // Update values based on tabKey and calculated results
+        if (tabKey === 'downside') {
+            setValues((prevValues) => ({
+                ...prevValues,
+                [row_id]: Object.keys(res).reduce((acc, date) => {
+                    acc[date] = !res[date] || res[date] === 0 ? '0' : res[date];
+                    return acc;
+                }, {})
+            }));
+        }
+        else if (tabKey === 'base') {
+            setValues2((prevValues) => ({
+                ...prevValues,
+                [row_id]: Object.keys(res).reduce((acc, date) => {
+                    acc[date] = !res[date] || res[date] === 0 ? '0' : res[date];
+                    return acc;
+                }, {})
+            }));
+        }
+        else {
+            setValues3((prevValues) => ({
+                ...prevValues,
+                [row_id]: Object.keys(res).reduce((acc, date) => {
+                    acc[date] = !res[date] || res[date] === 0 ? '0' : res[date];
+                    return acc;
+                }, {})
+            }));
+        }
+        setFormulas(editingFormula);
+        setShowFormula(false);
     };
 
+
+
+    const handleCancelFormula = (tabKey, tableKey, row_id) => {
+        setEditingFormula(Formulas);
+        setShowFormula(false);
+    }
 
     /* Handles clicking the edit button for a product. Finds the product by id in the
     * table for the given tabKey and tableKey, and sets the editing state to true
@@ -1574,8 +1549,6 @@ const Patient_Forecast = () => {
             setEditedProductName(product.name);
         }
     };
-
-
     /* Handles saving a product name after editing. Updates the product's name and resets the editing state.*/
     const handleSaveClick = (productId, tabKey, tableKey) => {
         // Get the current list of products for the specific tab and table
@@ -1601,58 +1574,36 @@ const Patient_Forecast = () => {
     };
 
     const handleAddRow = (tabKey, tableKey, productId) => {
-        const tableProducts = products[tabKey][tableKey];  // Get the correct list of products for this table
+        const tableProducts = products[tabKey]?.[tableKey] || []; // Safeguard access
 
-        // Find the index of the clicked product (if it's a valid productId)
         const index = tableProducts.findIndex((product) => product.id === productId);
+        const generateUniqueId = () => `${tableKey}-${Date.now()}`;
 
-        // Generate a unique ID using timestamp to avoid duplicates
-        const generateUniqueId = () => {
-            return `${tableKey}-${Date.now()}`;
-        };
-
-        // If no valid index is found (productId doesn't match), add the new row at the end
-        if (index === -1) {
-            const newProduct = {
-                id: generateUniqueId(),  // Generate unique ID
-                name: `New Product ${tableProducts.length + 1}`,
-            };
-
-            // Add the new product at the end of the array
-            const updatedProducts = [...tableProducts, newProduct];
-
-            setProducts((prevProducts) => ({
-                ...prevProducts,
-                [tabKey]: {
-                    ...prevProducts[tabKey],
-                    [tableKey]: updatedProducts,  // Update the table with the new product
-                },
-            }));
-            return;
-        }
-
-        // Create a new product object with a unique ID and name for insertion
         const newProduct = {
-            id: generateUniqueId(),  // Generate unique ID for the new row
-            name: `New Product ${tableProducts.length + 1}`,
+            id: generateUniqueId(),
+            name: `New Product ${Date.now()}`,
         };
 
-        // Insert the new row just below the clicked product
-        const updatedProducts = [
-            ...tableProducts.slice(0, index + 1),  // Get products before the clicked row
-            newProduct,                            // Insert new product below the clicked row
-            ...tableProducts.slice(index + 1),     // Get products after the clicked row
-        ];
+        const updatedProducts =
+            index === -1
+                ? [...tableProducts, newProduct] // Add to end if no valid index
+                : [
+                    ...tableProducts.slice(0, index + 1), // Insert below the clicked product
+                    newProduct,
+                    ...tableProducts.slice(index + 1),
+                ];
 
-        // Update the state with the new list of products
-        setProducts((prevProducts) => ({
-            ...prevProducts,
-            [tabKey]: {
-                ...prevProducts[tabKey],
-                [tableKey]: updatedProducts, // Update the table in the state
-            },
-        }));
+        // Ensure products object is extensible
+        setProducts((prevProducts) => {
+            const newProducts = { ...prevProducts };
+            newProducts[tabKey] = {
+                ...newProducts[tabKey],
+                [tableKey]: updatedProducts,
+            };
+            return newProducts;
+        });
     };
+
 
     const handleDeleteRow = (productId, tabKey, tableKey) => {
         const tableProducts = products[tabKey][tableKey];  // Get the current list of products

@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 import dayjs from 'dayjs';
 import { set } from 'date-fns';
 
@@ -35,8 +35,6 @@ const initialProducts = {
 
 
 
-
-
 const MyProvider = ({ children }) => {
   const combinedProducts = [...initialProducts1, ...initialProducts2, ...initialProducts3];
   const [selectedSheet, setSelectedSheet] = useState(null);
@@ -53,7 +51,7 @@ const MyProvider = ({ children }) => {
   const [toDate, setToDate] = useState(dayjs());
 
   const [products, setProducts] = useState(initialProducts);
-  
+
   const [values, setValues] = useState({});
   const [values2, setValues2] = useState({});
   const [values3, setValues3] = useState({});
@@ -69,6 +67,76 @@ const MyProvider = ({ children }) => {
   const [therapeuticAreas, setTherapeuticAreas] = React.useState([]);
   const [forecastCycles, setForecastCycles] = React.useState([]);
 
+  const [Formulas, setFormulas] = useState(() => {
+    const formulas = {};
+    Object.keys(products).forEach((tabKey) => {
+      formulas[tabKey] = Object.keys(products[tabKey]).reduce((acc, tableKey) => {
+        acc[tableKey] = products[tabKey][tableKey].reduce((acc2, row) => {
+          acc2[row.id] = { emptyArray: [""], plusArray: ["+"] };
+          return acc2;
+        }, {});
+        return acc;
+      }, {});
+    });
+    return formulas;
+  });
+  const [editingFormula, setEditingFormula] = useState({...Formulas});
+
+  useEffect(() => {
+    console.log(Formulas);
+  }, [Formulas])
+  
+  
+
+  // Update detailedProducts when new rows are added to products
+  useEffect(() => {
+    const addNewRowsToDetailedProducts = () => {
+      setFormulas((prevDetailedProducts) => {
+        const updatedDetailedProducts = { ...prevDetailedProducts };
+
+        for (const scenario in products) {
+          if (!updatedDetailedProducts[scenario]) {
+            updatedDetailedProducts[scenario] = {};
+          }
+
+          for (const table in products[scenario]) {
+            products[scenario][table].forEach((row) => {
+              if (!updatedDetailedProducts[scenario][table][row.id]) {
+                updatedDetailedProducts[scenario][table][row.id] = {
+                  emptyArray: [""],
+                  plusArray: ["+"],
+                };
+              }
+            });
+          }
+        }
+
+        return updatedDetailedProducts;
+      });
+      setEditingFormula((prevDetailedProducts) => {
+        const updatedDetailedProducts = { ...prevDetailedProducts };
+
+        for (const scenario in products) {
+          if (!updatedDetailedProducts[scenario]) {
+            updatedDetailedProducts[scenario] = {};
+          }
+
+          for (const table in products[scenario]) {
+            products[scenario][table].forEach((row) => {
+              if (!updatedDetailedProducts[scenario][table][row.id]) {
+                updatedDetailedProducts[scenario][table][row.id] = {
+                  emptyArray: [""],
+                  plusArray: ["+"],
+                };
+              }
+            });
+          }
+        }
+        return updatedDetailedProducts;
+      });
+    };
+    addNewRowsToDetailedProducts();
+  }, [products]);
 
 
 
@@ -94,13 +162,14 @@ const MyProvider = ({ children }) => {
       cardTitle2, setCardTitle2,
       cardTitle3, setCardTitle3,
       combinedProducts,
-     
       dropdownGroups, setDropdownGroups,
       showTabs, setShowTabs,
       timePeriod, setTimePeriod,
       countries, setCountries,
       therapeuticAreas, setTherapeuticAreas,
-      forecastCycles, setForecastCycles
+      forecastCycles, setForecastCycles,
+      Formulas, setFormulas,
+      editingFormula, setEditingFormula,
     }}>
       {children}
     </MyContext.Provider>

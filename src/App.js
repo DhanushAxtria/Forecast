@@ -18,6 +18,7 @@ import Patient_Forecast from './Body/Patient_Forecast'
 import Patient_Forecast_Input from './Body/Patient_Forecast_Input';
 import Forecasted_Results from './Body/forecastedresults';
 import Dashboard from './Body/Dashboard'
+import KPI from './Body/KPI'
 function App() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false); // Initialize the state
   return (
@@ -55,6 +56,8 @@ function App() {
           <Route path="/time-series-methods" element={<Forecastpage />} />
           <Route path="/time-series-methods/forecasted_results" element={<Forecasted_Results />} />
           <Route path="/new-scenario/forecastdeepdive/dashboard" element={<Dashboard />} />
+          <Route path="/new-scenario/forecastdeepdive/kpi-analysis" element={<KPI />} />
+
           {/* Add more routes as needed */}
         </Routes>
       </Router>
