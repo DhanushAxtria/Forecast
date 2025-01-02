@@ -7,17 +7,19 @@ const lockIcon = '🔒';
 const goodToGoIcon = '✅';
 
 // Sample data for Therapeutic Area, Region,Country, Usernames, and Forecast Cycles
-const therapeuticAreas = ['Cardiology', 'Oncology', 'Neurology', 'Immunology', 'Dermatology'];
+const therapeuticAreas = ['Cardiology', 'Oncology', 'Neurology', 'Immunology', 'Dermatology', 'HIV'];
 const regions = ['EU5', 'Nordic Region'];
 const countries = {
   'EU5': ['UK', 'Germany', 'France', 'Italy', 'Spain'],
   'Nordic Region': ['Denmark', 'Norway', 'Sweden', 'Finland', 'Iceland'],
 };
-const forecastCycles = ['2024-H1', '2024-H2', '2025-H1'];
+const forecastCycles = ['H1 - 2023', 'H2 - 2023', 'H1 - 2024', 'H2 - 2024'];
 const forecastOptions = {
-  '2024-H1': ['Forecast 1', 'Forecast 2'],
-  '2024-H2': ['Forecast 3', 'Forecast 4'],
-  '2025-H1': ['Forecast 5', 'Forecast 6'],
+  'H1 - 2023': ['Forecast 1', 'Forecast 2'],
+  'H2 - 2023': ['Forecast 3', 'Forecast 4'],
+  'H1 - 2024': ['Forecast 5', 'Forecast 6'],
+  'H2 - 2024': ['Forecast 7', 'Forecast 8'],
+
 };
 const sampleUsernames = ['john_doe', 'jane_smith', 'michael_wang', 'emma_clark', 'chris_jones'];
 

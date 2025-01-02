@@ -1,16 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { FaFilter } from 'react-icons/fa';
+import { MyContext } from './context';
 
 // filter parameters and there respective values
 const therapeuticAreas = ['Cardiology', 'Oncology', 'Neurology', 'Immunology', 'Dermatology', 'HIV'];
-const countries = ['USA', 'Canada', 'Germany', 'UK', 'Australia', 'France', 'Italy', 'Austria', 'Spain', 'Poland'];
+const countries = ['Iceland', 'Germany', 'UK', 'Finland', 'France', 'Italy', 'Spain', 'Denmark', 'Norway', 'Sweden'];
 const forecastScenarios = ['H1 - 2023', 'H2 - 2023', 'H1 - 2024', 'H2 - 2024'];
 const forecastStatus = ['Submitted', 'Pending', 'Ongoing'];
-const sampleUsernames = ['john_doe', 'jane_smith', 'michael_wang', 'emma_clark', 'chris_jones', 'Nicholas_Puran'];
+const sampleUsernames = ['john_doe', 'michael_wang', 'chris_jones'];
 
 
 const DataConsolidation = () => {
-  const [rowsData, setRowsData] = useState([]);
+  const {rowsData, setRowsData} = useContext(MyContext);
   const [selectedTherapeuticArea, setSelectedTherapeuticArea] = useState('');
   const [selectedCountry, setSelectedCountry] = useState('');
   const [selectedForecastStatus, setSelectedForecastStatus] = useState('');
@@ -18,55 +19,8 @@ const DataConsolidation = () => {
   const [hoveredRow, setHoveredRow] = useState(null);
   const [greeting, setGreeting] = useState('');
 
-  
-  // Returns a random date between today and one year ago
-  const getRandomDate = () => {
-    const start = new Date(new Date().setFullYear(new Date().getFullYear() - 1));
-    const end = new Date();
-    return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()))
-      .toISOString()
-      .split('T')[0];
-  };
 
-  // Returns a random username from the sample usernames array
-  const getRandomUsername = () => {
-    return sampleUsernames[Math.floor(Math.random() * sampleUsernames.length)];
-  };
 
-  // Returns a random therapeutic area from the therapeuticAreas array
-  const getRandomTherapeuticArea = () => {
-    return therapeuticAreas[Math.floor(Math.random() * therapeuticAreas.length)];
-  };
-
-  // Returns a random country from the countries array
-  const getRandomCountry = () => {
-    return countries[Math.floor(Math.random() * countries.length)];
-  };
-
-  // Returns a random forecast status from the forecastStatus array
-  const getRandomForecastStatus = () => {
-    return forecastStatus[Math.floor(Math.random() * forecastStatus.length)];
-  };
-
-  // Returns a random forecast scenario from the forecastScenarios array
-  const getRandomForecastScenario = () => {
-    return forecastScenarios[Math.floor(Math.random() * forecastScenarios.length)];
-  };
-
-  useEffect(() => {
-    // Generate random data for the table. The data is generated once when the component mounts.
-    const rows = Array.from({ length: 25 }, () => ({
-      therapeuticArea: getRandomTherapeuticArea(),
-      country: getRandomCountry(),
-      worksheet: 'Output Sheet',
-      forecast: 'Forecast 1',
-      currentForecastStatus: getRandomForecastStatus(),
-      forecastScenario: getRandomForecastScenario(),
-      forecastStarted: getRandomDate(),
-      username: getRandomUsername(),
-    }));
-    setRowsData(rows);
-  }, []);
 
   /*
   Filters the rows of data based on the currently selected therapeutic area, country, forecast status, and forecast scenario.

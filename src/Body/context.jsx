@@ -36,6 +36,7 @@ const initialProducts = {
 
 
 const MyProvider = ({ children }) => {
+  const [storeValues, setStoreValues] = useState({});
   const combinedProducts = [...initialProducts1, ...initialProducts2, ...initialProducts3];
   const [selectedSheet, setSelectedSheet] = useState(null);
   const [ForecastedValue, setForecastValue] = useState(null);
@@ -49,9 +50,7 @@ const MyProvider = ({ children }) => {
   const [selectedToDate, setSelectedToDate] = useState(null);
   const [fromDate, setFromDate] = useState(dayjs());
   const [toDate, setToDate] = useState(dayjs());
-
   const [products, setProducts] = useState(initialProducts);
-
   const [values, setValues] = useState({});
   const [values2, setValues2] = useState({});
   const [values3, setValues3] = useState({});
@@ -66,6 +65,40 @@ const MyProvider = ({ children }) => {
   const [countries, setCountries] = React.useState([]);
   const [therapeuticAreas, setTherapeuticAreas] = React.useState([]);
   const [forecastCycles, setForecastCycles] = React.useState([]);
+  
+  const [rowsData, setRowsData] = useState([
+    {
+      country: "Sweden",
+      currentForecastStatus: "Ongoing",
+      forecast: "Forecast 1",
+      forecastScenario: "H2 - 2023",
+      forecastStarted: "2024-11-10",
+      therapeuticArea: "Cardiology",
+      username: "michael_wang",
+      worksheet: "Output Sheet",
+    },
+    {
+      country: "Spain",
+      currentForecastStatus: "Pending",
+      forecast: "Forecast 1",
+      forecastScenario: "H1 - 2023",
+      forecastStarted: "2024-04-25",
+      therapeuticArea: "HIV",
+      username: "john_doe",
+      worksheet: "Output Sheet",
+    },
+    {
+      country: "Finland",
+      currentForecastStatus: "Submitted",
+      forecast: "Forecast 1",
+      forecastScenario: "H2 - 2024",
+      forecastStarted: "2024-09-08",
+      therapeuticArea: "Cardiology",
+      username: "john_wick",
+      worksheet: "Output Sheet",
+    },
+  ]);
+
 
   const [Formulas, setFormulas] = useState(() => {
     const formulas = {};
@@ -80,63 +113,12 @@ const MyProvider = ({ children }) => {
     });
     return formulas;
   });
-  const [editingFormula, setEditingFormula] = useState({...Formulas});
+  const [editingFormula, setEditingFormula] = useState({ ...Formulas });
 
   useEffect(() => {
     console.log(Formulas);
   }, [Formulas])
-  
-  
 
-  // Update detailedProducts when new rows are added to products
-  useEffect(() => {
-    const addNewRowsToDetailedProducts = () => {
-      setFormulas((prevDetailedProducts) => {
-        const updatedDetailedProducts = { ...prevDetailedProducts };
-
-        for (const scenario in products) {
-          if (!updatedDetailedProducts[scenario]) {
-            updatedDetailedProducts[scenario] = {};
-          }
-
-          for (const table in products[scenario]) {
-            products[scenario][table].forEach((row) => {
-              if (!updatedDetailedProducts[scenario][table][row.id]) {
-                updatedDetailedProducts[scenario][table][row.id] = {
-                  emptyArray: [""],
-                  plusArray: ["+"],
-                };
-              }
-            });
-          }
-        }
-
-        return updatedDetailedProducts;
-      });
-      setEditingFormula((prevDetailedProducts) => {
-        const updatedDetailedProducts = { ...prevDetailedProducts };
-
-        for (const scenario in products) {
-          if (!updatedDetailedProducts[scenario]) {
-            updatedDetailedProducts[scenario] = {};
-          }
-
-          for (const table in products[scenario]) {
-            products[scenario][table].forEach((row) => {
-              if (!updatedDetailedProducts[scenario][table][row.id]) {
-                updatedDetailedProducts[scenario][table][row.id] = {
-                  emptyArray: [""],
-                  plusArray: ["+"],
-                };
-              }
-            });
-          }
-        }
-        return updatedDetailedProducts;
-      });
-    };
-    addNewRowsToDetailedProducts();
-  }, [products]);
 
 
 
@@ -170,6 +152,8 @@ const MyProvider = ({ children }) => {
       forecastCycles, setForecastCycles,
       Formulas, setFormulas,
       editingFormula, setEditingFormula,
+      rowsData, setRowsData,
+      storeValues, setStoreValues,
     }}>
       {children}
     </MyContext.Provider>

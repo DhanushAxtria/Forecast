@@ -37,13 +37,14 @@ import Checkbox from '@mui/material/Checkbox';
 import ListItemText from '@mui/material/ListItemText';
 import Autocomplete from '@mui/material/Autocomplete';
 import Tooltip from '@mui/material/Tooltip';
+import { MyContext } from './context';
 
 export default function NewScenario({ username = "User" }) {
   const { savedFiles, setSavedFiles } = useContext(SavedFilesContext);
   const [showTable, setShowTable] = React.useState(false);
-  const [countries, setCountries] = React.useState([]); // Multi-select for countries
-  const [therapeuticAreas, setTherapeuticAreas] = React.useState([]); // Multi-select for therapeutic areas
-  const [forecastCycles, setForecastCycles] = React.useState([]); // Multi-select for forecast cycles
+  const { countries, setCountries } = useContext(MyContext); // Multi-select for countries
+  const { therapeuticAreas, setTherapeuticAreas } = useContext(MyContext); // Multi-select for therapeutic areas
+  const { forecastCycles, setForecastCycles } = useContext(MyContext); // Multi-select for forecast cycles
   const [importedData, setImportedData] = React.useState({ headers: [], rows: [] });
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [selectedFile, setSelectedFile] = React.useState(null);
@@ -53,6 +54,7 @@ export default function NewScenario({ username = "User" }) {
   const nextIdRef = React.useRef(1);
   const [fileStatuses, setFileStatuses] = React.useState({});
   const [selectedAction, setSelectedAction] = useState('');
+  const { rowsData, setRowsData } = useContext(MyContext);
   const blueFolderIcon = BlueFolder;
 
   const navigate = useNavigate();
@@ -62,31 +64,18 @@ export default function NewScenario({ username = "User" }) {
   const [saveDialogOpen, setSaveDialogOpen] = React.useState(false);
   const [fileFormat, setFileFormat] = React.useState('csv'); // To track file format (CSV or Excel)
   const [showFolders, setShowFolders] = useState(false);
-
-  const CopyScenarioData = [
-    { scenario: 'Draft 1', cycle: '2024 H2', country: 'USA', area: 'Cardiology', modified: '30 Sep 2024', user: 'User 1' },
-    { scenario: 'Draft 2', cycle: '2024 H2', country: 'Norway', area: 'TA 1', modified: '29 Sep 2024', user: 'User 1' },
-    { scenario: 'Draft 3', cycle: '2024 H2', country: 'Norway', area: 'Oncology', modified: '30 Sep 2024', user: 'User 1' },
-    { scenario: 'Draft 4', cycle: '2014 H2', country: 'Finland', area: 'TA 1', modified: '29 Sep 2024', user: 'User 1' },
-    { scenario: 'Draft 5', cycle: '2023 H2', country: 'Finland', area: 'TA 1', modified: '28 Sep 2024', user: 'User 1' },
-  ];
+  const savedScenarios = rowsData.filter(item => ['Pending', 'Ongoing'].includes(item.currentForecastStatus));
+  const CopyScenarioData = rowsData.filter(item => item.currentForecastStatus === "Submitted");
   const filteredCopyData = CopyScenarioData.filter(item =>
-    (forecastCycles.length === 0 || forecastCycles.includes('All') || forecastCycles.includes(item.cycle)) &&
+    (forecastCycles.length === 0 || forecastCycles.includes('All') || forecastCycles.includes(item.forecastScenario)) &&
     (countries.length === 0 || countries.includes('All') || countries.includes(item.country)) &&
-    (therapeuticAreas.length === 0 || therapeuticAreas.includes('All') || therapeuticAreas.includes(item.area))
+    (therapeuticAreas.length === 0 || therapeuticAreas.includes('All') || therapeuticAreas.includes(item.therapeuticArea))
   );
-  
 
-  const savedScenarios = [
-    { scenario: 'Draft 1', cycle: '2024 H1', country: 'USA', area: 'Cardiology', modified: '15 Oct 2023', user: 'User A', submitted: false },
-    { scenario: 'Main Submission', cycle: '2024 H2', country: 'Canada', area: 'Oncology', modified: '01 Sep 2023', user: 'User B', submitted: true },
-    { scenario: 'Draft 2', cycle: '2024 H1', country: 'USA', area: 'Oncology', modified: '10 Oct 2023', user: 'User A', submitted: false },
-    { scenario: 'Main Submission', cycle: '2023 H2', country: 'Germany', area: 'Neurology', modified: '12 Jul 2023', user: 'User C', submitted: true },
-  ];
   const filteredSavedData = savedScenarios.filter(item =>
-    (forecastCycles.length === 0 || forecastCycles.includes('All') || forecastCycles.includes(item.cycle)) &&
+    (forecastCycles.length === 0 || forecastCycles.includes('All') || forecastCycles.includes(item.forecastScenario)) &&
     (countries.length === 0 || countries.includes('All') || countries.includes(item.country)) &&
-    (therapeuticAreas.length === 0 || therapeuticAreas.includes('All') || therapeuticAreas.includes(item.area))
+    (therapeuticAreas.length === 0 || therapeuticAreas.includes('All') || therapeuticAreas.includes(item.therapeuticArea))
   );
 
 
@@ -99,9 +88,9 @@ export default function NewScenario({ username = "User" }) {
     { name: 'Cardiology - Patient Projection Model v1', country: 'Canada', area: 'Cardiology' },
     { name: 'Cardiology - Patient Switch Model v1', country: 'Canada', area: 'Cardiology' },
   ];
-  const countryOptions = ['All', 'USA', 'Canada', 'Germany', 'India'];
-  const therapeuticAreaOptions = ['All', 'Cardiology', 'Oncology', 'Neurology', 'Diabetes'];
-  const forecastCycleOptions = ['All', '2013-H1', '2013-H2', '2014-H1', '2014-H2'];
+  const therapeuticAreaOptions = ['Cardiology', 'Oncology', 'Neurology', 'Immunology', 'Dermatology', 'HIV'];
+  const countryOptions = ['Iceland', 'Germany', 'UK', 'Finland', 'France', 'Italy', 'Spain', 'Denmark', 'Norway', 'Sweden'];
+  const forecastCycleOptions = ['H1 - 2023', 'H2 - 2023', 'H1 - 2024', 'H2 - 2024'];
 
   const handleSelectClick = (scenario) => {
     // Navigate to the specific page, passing scenario data as state
@@ -422,8 +411,14 @@ export default function NewScenario({ username = "User" }) {
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Select Scenario">
-                      <Button variant="contained" color="primary" size="small" onClick={() => navigate("/new-scenario/forecastdeepdive")} >
-                        Select
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        size="small"
+                        onClick={() => navigate("/new-scenario/forecastdeepdive")}
+                        disabled={!(forecastCycles.length > 0 && countries.length > 0 && therapeuticAreas.length > 0)}
+                      >
+                        Create
                       </Button>
                     </Tooltip>
                   </Box>
@@ -431,12 +426,12 @@ export default function NewScenario({ username = "User" }) {
               </TableRow>
               {filteredCopyData.map((row, index) => (
                 <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? 'white' : '#e5f1fb' }}>
-                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.scenario}</TableCell>
-                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.cycle}</TableCell>
+                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>Scenario {index + 1}</TableCell>
+                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.forecastScenario}</TableCell>
                   <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.country}</TableCell>
-                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.area}</TableCell>
-                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.modified}</TableCell>
-                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.user}</TableCell>
+                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.therapeuticArea}</TableCell>
+                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.forecastStarted}</TableCell>
+                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.username}</TableCell>
                   <TableCell sx={{ padding: '6px', textAlign: 'center' }}>
                     <Box display="flex" justifyContent="center" alignItems="center" gap={1}>
                       <Tooltip title="Review Scenario Summary">
@@ -472,7 +467,7 @@ export default function NewScenario({ username = "User" }) {
                 <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Country</TableCell>
                 <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Therapeutic Area</TableCell>
                 <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Last Modified</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Submitted by</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Last Updated By</TableCell>
                 <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Actions</TableCell>
               </TableRow>
             </TableHead>
@@ -499,8 +494,14 @@ export default function NewScenario({ username = "User" }) {
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Select Scenario">
-                      <Button variant="contained" color="primary" size="small" onClick={() => navigate("/new-scenario/forecastdeepdive")} >
-                        Select
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        size="small"
+                        onClick={() => navigate("/new-scenario/forecastdeepdive")}
+                        disabled={!(forecastCycles.length > 0 && countries.length > 0 && therapeuticAreas.length > 0)}
+                      >
+                        Create
                       </Button>
                     </Tooltip>
                   </Box>
@@ -508,12 +509,12 @@ export default function NewScenario({ username = "User" }) {
               </TableRow>
               {filteredSavedData.map((row, index) => (
                 <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? 'white' : '#e5f1fb' }}>
-                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.scenario}</TableCell>
-                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.cycle}</TableCell>
+                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>Draft {index + 1}</TableCell>
+                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.forecastScenario}</TableCell>
                   <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.country}</TableCell>
-                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.area}</TableCell>
-                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.modified}</TableCell>
-                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.user}</TableCell>
+                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.therapeuticArea}</TableCell>
+                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.forecastStarted}</TableCell>
+                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.username}</TableCell>
                   <TableCell sx={{ padding: '6px', textAlign: 'center' }}>
                     <Box display="flex" justifyContent="center" alignItems="center" gap={1}>
                       <Tooltip title="Review Scenario Summary">

@@ -47,6 +47,9 @@ import { tab } from '@testing-library/user-event/dist/tab';
 import { MyContext } from './context';
 
 const Patient_Forecast = () => {
+    const { countries, setCountries, storeValues, setStoreValues, } = useContext(MyContext); // Multi-select for countries
+    const { therapeuticAreas, setTherapeuticAreas } = useContext(MyContext); // Multi-select for therapeutic areas
+    const { forecastCycles, setForecastCycles } = useContext(MyContext); // Multi-select for forecast cycles
     const [formulaDetails, setFormulaDetails] = useState({ tableKey: null, tabKey: null, productId: null });
     const [editingProductId, setEditingProductId] = useState(null);
     const [editedProductName, setEditedProductName] = useState('');
@@ -69,6 +72,7 @@ const Patient_Forecast = () => {
     const [manualEntry, setManualEntry] = useState(false);
     const [growthRates, setGrowthRates] = useState([]);
     const [startingValue, setStartingValue] = useState('');
+    const [selectedTab, setSelectedTab] = useState(null);
     const [initialGrowthRate, setInitialGrowthRate] = useState('');
     const [columns, setColumns] = useState([]);  // Column headers based on time period
     const [showCard, setShowCard] = useState(false);
@@ -101,12 +105,18 @@ const Patient_Forecast = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [savedText, setSavedText] = useState({});
     const [savedText2, setSavedText2] = useState({});
-    const { editingFormula, setEditingFormula } = useContext(MyContext);
+    const { editingFormula, setEditingFormula, rowsData, setRowsData } = useContext(MyContext);
     const [tabTableVisibility, setTabTableVisibility] = useState({
         downside: { table1: false, table2: false, table3: false },
         base: { table1: false, table2: false, table3: false },
         upside: { table1: false, table2: false, table3: false },
     });
+    useEffect(() => {
+        console.log('storeValues:', storeValues);
+        console.log('selectedRowId:', selectedRowId);
+        console.log('selectedTab:', selectedTab);
+    }, [storeValues, selectedRowId, selectedTab]);
+
     /*A component that renders a box with three buttons: one to show the preview of the tables,
       one to close the preview and  "Show Dashboard" button to navigate to the dashboard. */
     const Preview = () => {
@@ -502,9 +512,6 @@ const Patient_Forecast = () => {
      * to be displayed and edited. Provides functionality for adding, editing,
      * and deleting rows, as well as inserting formulas and handling various input methods. */
     const renderTable = (tabKey, tableKey) => {
-        console.log(tabKey);
-        console.log(tableKey);
-
         const tableProducts = products[tabKey][tableKey]; // Get the correct products for this table
 
         return (
@@ -555,8 +562,9 @@ const Patient_Forecast = () => {
                                         </Tooltip>
                                         <Tooltip title="Data Input" placement="top">
                                             <IconButton color="primary" onClick={() => {
+                                                setSelectedTab(tabKey);
                                                 setselectedRowId(product.id);
-                                                setOpenInputMethodDialog(true)
+                                                setOpenInputMethodDialog(true);
                                             }}>
                                                 <CloudUploadIcon fontSize="small" />
                                             </IconButton>
@@ -607,7 +615,7 @@ const Patient_Forecast = () => {
                                                 )}
                                                 <Tooltip title="Insert Formula" placement="top" >
                                                     <IconButton onClick={() => {
-                                                        setFormulaDetails({ tableKey, tabKey, productId: product.id }); 
+                                                        setFormulaDetails({ tableKey, tabKey, productId: product.id }); setFormulaProductId(product.id); setShowFormula(true);
                                                     }} style={{ marginLeft: '4px' }}>
                                                         <CalculateIcon fontSize="small" />
                                                     </IconButton>
@@ -695,7 +703,8 @@ const Patient_Forecast = () => {
                             <br></br>
                             <br></br>
                             {/* Render each dropdown dynamically based on selectedValues and operators */}
-                            {editingFormula[tabKey][tableKey][formulaDetails.productId].emptyArray.map((selectedValue, index) => (
+                            {console.log(editingFormula[formulaDetails.tabKey][formulaDetails.tableKey][formulaDetails.productId].emptyArray)}
+                            {editingFormula[formulaDetails.tabKey]?.[formulaDetails.tableKey]?.[formulaDetails.productId]?.emptyArray?.map((selectedValue, index) => (
                                 <div key={index} style={{ width: 400, display: 'flex', alignItems: 'center', marginBottom: 16 }}>
                                     {/* Operator Dropdown on the left */}
 
@@ -705,7 +714,7 @@ const Patient_Forecast = () => {
                                             <Select
                                                 labelId={`operator-label-${index}`}
                                                 id={`operator-${index}`}
-                                                value={editingFormula[tabKey][tableKey][formulaDetails.productId].plusArray[index]}
+                                                value={editingFormula[formulaDetails.tabKey][formulaDetails.tableKey][formulaDetails.productId].plusArray[index]}
                                                 onChange={(e) => handleSelectChange(formulaDetails.productId, tabKey, tableKey, index, 'operator', e)}
                                                 label="Operator"
                                             >
@@ -723,13 +732,13 @@ const Patient_Forecast = () => {
                                         <Select
                                             labelId={`select-label-${index}`}
                                             id={`select-${index}`}
-                                            value={editingFormula[tabKey][tableKey][formulaDetails.productId].emptyArray[index]}
-                                            onChange={(e) => handleSelectChange(formulaDetails.productId, tabKey, tableKey, index, 'formula', e)}
+                                            value={editingFormula[formulaDetails.tabKey][formulaDetails.tableKey][formulaDetails.productId].emptyArray[index]}
+                                            onChange={(e) => handleSelectChange(formulaDetails.productId, formulaDetails.tabKey, formulaDetails.tableKey, index, 'formula', e)}
                                             label={`Select Formula ${index + 1}`}
                                         >
-                                            {Object.keys(products[tabKey]).map((tableKey) => (
-                                                products[tabKey][tableKey].map((product) => (
-                                                    <MenuItem key={product.id} value={product.name}>
+                                            {Object.keys(products[formulaDetails.tabKey]).map((tableKey) => (
+                                                products[formulaDetails.tabKey][tableKey].map((product) => (
+                                                    <MenuItem key={product.id} value={product.id}>
                                                         {product.name}
                                                     </MenuItem>
                                                 ))
@@ -739,7 +748,7 @@ const Patient_Forecast = () => {
 
                                     {/* Delete Button */}
                                     {<IconButton
-                                        onClick={() => handleDeleteDropdown(tabKey, tableKey, formulaDetails.productId, index)}
+                                        onClick={() => handleDeleteDropdown(formulaDetails.tabKey, formulaDetails.tableKey, formulaDetails.productId, index)}
                                         color="secondary"
                                         style={{ marginLeft: 8 }}
                                     >
@@ -749,16 +758,16 @@ const Patient_Forecast = () => {
                             ))}
 
                             {/* Button to add a new dropdown */}
-                            <Button onClick={() => handleAddDropdown(tabKey, tableKey, formulaDetails.productId)} color="primary" fullWidth>
+                            <Button onClick={() => handleAddDropdown(formulaDetails.tabKey, formulaDetails.tableKey, formulaDetails.productId)} color="primary" fullWidth>
                                 Add New Dropdown
                             </Button>
                         </DialogContent>
 
                         <DialogActions >
-                            <Button onClick={() => handleCancelFormula(tabKey, tableKey, formulaDetails.productId)} color="secondary" variant="contained" sx={{ fontWeight: 'bold', borderRadius: '8px' }}>
+                            <Button onClick={() => handleCancelFormula(formulaDetails.tabKey, formulaDetails.tableKey, formulaDetails.productId)} color="secondary" variant="contained" sx={{ fontWeight: 'bold', borderRadius: '8px' }}>
                                 Cancel
                             </Button>
-                            <Button color="secondary" variant="contained" sx={{ fontWeight: 'bold', borderRadius: '8px' }} onClick={() => handleApply(tabKey, tableKey, formulaDetails.productId)}>
+                            <Button color="secondary" variant="contained" sx={{ fontWeight: 'bold', borderRadius: '8px' }} onClick={() => handleApply(formulaDetails.tabKey, formulaDetails.tableKey, formulaDetails.productId)}>
                                 Apply
                             </Button>
                         </DialogActions>
@@ -1048,6 +1057,7 @@ const Patient_Forecast = () => {
                                         onClick={() => handleInputMethodSelect('startEndValues')}
                                         sx={{
                                             padding: '18px',
+                                            borderBottom: '1px solid #e0e0e0',
                                             borderRadius: '8px',
                                             marginBottom: '12px',
                                             cursor: 'pointer', // Adds hand cursor on hover
@@ -1063,6 +1073,27 @@ const Patient_Forecast = () => {
                                         </Typography>
                                         <AdjustIcon color="primary" sx={{ marginRight: '12px' }} />
                                         <ListItemText primary="Specify Starting and Target Values" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
+                                    </ListItem>
+                                    <ListItem
+                                        button
+                                        onClick={handleCopyFromInputPage}
+                                        sx={{
+                                            padding: '18px',
+                                            borderRadius: '8px',
+                                            marginBottom: '12px',
+                                            cursor: 'pointer', // Adds hand cursor on hover
+                                            '&:hover': {
+                                                backgroundColor: '#e3f2fd',
+                                                transform: 'scale(1.02)',
+                                                transition: 'transform 0.2s',
+                                            },
+                                        }}
+                                    >
+                                        <Typography variant="h6" color="primary" sx={{ marginRight: '12px', fontWeight: 'bold' }}>
+                                            5.
+                                        </Typography>
+                                        <AdjustIcon color="primary" sx={{ marginRight: '12px' }} />
+                                        <ListItemText primary="Copy from Input Page" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
                                     </ListItem>
                                 </List>
                             </DialogContent>
@@ -1424,22 +1455,10 @@ const Patient_Forecast = () => {
 
     // Handle applying the selected formula(s)
     const handleApply = (tabKey, tableKey, row_id) => {
-        const rowsList = Formulas[tabKey][tableKey][row_id].emptyArray
-        const operatorsList = Formulas[tabKey][tableKey][row_id].plusArray
+        const selectedIds = editingFormula[tabKey][tableKey][row_id].emptyArray
+        const operatorsList = editingFormula[tabKey][tableKey][row_id].plusArray
         // Slice the operators array to exclude the first element (which is the default "+")
         const operatorSliced = operatorsList.slice(1);
-        // find all the ids
-        const selectedIds = rowsList.map((selectedValue) => {
-            // Iterate through all tableKeys under the current tabKey
-            for (const tableKey in products[tabKey]) {
-                // Find the product that matches the selected value
-                const product = products[tabKey][tableKey].find((prod) => prod.name === selectedValue);
-                if (product) {
-                    return product.id; // Return the id if a product is found
-                }
-            }
-            return null; // Return null if no product is found
-        }).filter((id) => id !== null); // Filter out null values
 
 
         let res = {}; // Object to store the results of the forecast calculation
@@ -1463,10 +1482,10 @@ const Patient_Forecast = () => {
         }
         // Get the first selected product's id
         const idd = selectedIds[0];
-
+        console.log("id", idd);
         // Get the first selected product's values based on the current tabKey
         const val = tabKey === 'downside' ? values[idd] : tabKey === 'base' ? values2[idd] : values3[idd];
-
+        console.log("val", val);
         // If the product has values, loop through its values and add them to the results object
         if (val !== undefined) {
             Object.keys(val).forEach((key) => {
@@ -1528,6 +1547,8 @@ const Patient_Forecast = () => {
         }
         setFormulas(editingFormula);
         setShowFormula(false);
+        console.log(Formulas);
+        console.log(res);
     };
 
 
@@ -1602,9 +1623,28 @@ const Patient_Forecast = () => {
             };
             return newProducts;
         });
+        // Update the formulas and editing formulas with the new row
+        setFormulas((prevFormulas) => ({
+            ...prevFormulas,
+            [tabKey]: {
+                ...prevFormulas[tabKey],
+                [tableKey]: {
+                    ...prevFormulas[tabKey][tableKey],
+                    [newProduct.id]: { emptyArray: [""], plusArray: ["+"] }
+                }
+            }
+        }));
+        setEditingFormula((prevEditingFormulas) => ({
+            ...prevEditingFormulas,
+            [tabKey]: {
+                ...prevEditingFormulas[tabKey],
+                [tableKey]: {
+                    ...prevEditingFormulas[tabKey][tableKey],
+                    [newProduct.id]: { emptyArray: [""], plusArray: ["+"] }
+                }
+            }
+        }));
     };
-
-
     const handleDeleteRow = (productId, tabKey, tableKey) => {
         const tableProducts = products[tabKey][tableKey];  // Get the current list of products
 
@@ -2109,6 +2149,24 @@ const Patient_Forecast = () => {
 
         return newValues;
     };
+    const rowKey = `${selectedRowId}.${selectedTab}`;
+    const handleCopyFromInputPage = () => {
+        console.log('rowKey:', rowKey);
+        console.log('storeValues[rowKey]:', storeValues[rowKey]);
+
+        if (storeValues[rowKey] && typeof storeValues[rowKey] === 'object') {
+            Object.keys(storeValues[rowKey]).forEach((date) => {
+                console.log('storeValues[rowKey][date]:', storeValues[rowKey][date]);
+                handleValueChange(selectedTab, selectedRowId, date, storeValues[rowKey][date]);
+            });
+        } else if (storeValues[rowKey] === null || storeValues[rowKey] === undefined) {
+            alert('No data found');
+        } else {
+            console.warn('storeValues[rowKey] is not a valid object:', storeValues[rowKey]);
+        }
+
+        setOpenInputMethodDialog(false);
+    };
 
     {/* Reset all the states to their initial values when clear all data button is clicked*/ }
     const handleReset = () => {
@@ -2161,7 +2219,51 @@ const Patient_Forecast = () => {
 
                 {/* Section displaying the greeting message */}
                 <div style={{ backgroundColor: 'white', padding: '0.5px', marginTop: '-25px', marginLeft: '10px' }}>
-                    <h2 style={{ textAlign: 'left' }}>{greeting}, Welcome to the Patient Based Forecasting Page!</h2> </div>
+
+                    <h2 style={{ textAlign: 'left' }}>{greeting}, Welcome to the Patient Based Forecasting Page!</h2>
+                    {/* <Button
+                        variant="contained"
+                        color="secondary"
+                        onClick={() => {
+                            setRowsData((prevRowsData) => {
+                                const newRow = {
+                                    country: countries[0],
+                                    currentForecastStatus: "Submitted",
+                                    forecast: "Forecast 1",
+                                    forecastScenario: forecastCycles[0],
+                                    forecastStarted: new Date().toISOString().split('T')[0],
+                                    therapeuticArea: therapeuticAreas[0],
+                                    username: "John Doe",
+                                    worksheet: "Worksheet 1",
+                                };
+                                return [...prevRowsData, newRow];
+                            });
+                            alert("It Is Submitted");
+                        }}
+                        sx={{ marginLeft: '3px', marginBottom: '10px', marginRight: '10px' }}>
+                        Submit Scenario
+                    </Button>
+                    <Button
+                        variant="contained"
+                        color="success"
+                        onClick={() => {
+                            setRowsData([...rowsData, {
+                                country: countries[0],
+                                currentForecastStatus: "Ongoing",
+                                forecast: "Forecast 1",
+                                forecastScenario: forecastCycles[0],
+                                forecastStarted: new Date().toISOString().split('T')[0],
+                                therapeuticArea: therapeuticAreas[0],
+                                username: "John Doe",
+                                worksheet: "Worksheet 1",
+                            }]);
+                            alert("It Is Saved");
+                        }}
+                        sx={{ marginLeft: '3px', marginBottom: '10px' }}>
+                        Save Scenario
+                    </Button> */}
+
+                </div>
 
                 {/* Label for selecting the time period */}
                 <span style={{ marginLeft: '12px' }} gap="10px" sx={{ marginRight: '20px' }}>Select Time Period</span>
@@ -2229,7 +2331,7 @@ const Patient_Forecast = () => {
                                     alert("Invalid date range: Start date must be before end date");
                                 }
                             }}
-                            sx={{ marginLeft: '18px', marginBottom: '2px' }}>
+                            sx={{ marginLeft: '10px', marginBottom: '2px' }}>
                             Proceed
                         </Button>
                         {/* Button to clear all data on the page. 
@@ -2243,9 +2345,19 @@ const Patient_Forecast = () => {
                                     handleReset();
                                 }
                             }}
-                            sx={{ marginLeft: '18px', marginBottom: '2px' }}>
+                            sx={{ marginLeft: '10px', marginBottom: '2px' }}>
                             Clear All Data
                         </Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => navigate('/new-scenario/forecastdeepdive/patientinput')}
+                            sx={{ marginLeft: '10px', marginBottom: '2px' }}>
+                            Go To Input page
+                        </Button>
+
+
+
                     </Box>
                     <Box sx={{ width: '90%', margin: '0 auto' }}>
                         {/* Render tabs if 'showTabs' is true */}
