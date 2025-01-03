@@ -144,7 +144,7 @@ const Patient_Forecast = () => {
                     <Button
                         variant="contained"
                         onClick={() => {
-                            navigate("/new-scenario/forecastdeepdive/dashboard");
+                            navigate("/new-scenario/scenario-details/forecastdeepdive/dashboard");
                         }}
                         color="success"
                         sx={{ fontSize: '0.8rem' }}
@@ -154,7 +154,7 @@ const Patient_Forecast = () => {
                     <Button
                         variant="contained"
                         onClick={() => {
-                            navigate("/new-scenario/forecastdeepdive/kpi-analysis");
+                            navigate("/new-scenario/scenario-details/forecastdeepdive/kpi-analysis");
                         }}
                         color="success"
                         sx={{ fontSize: '0.8rem' }}
@@ -1013,6 +1013,30 @@ const Patient_Forecast = () => {
                                         <ListItemText primary="Input Values Manually" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
                                     </ListItem>
 
+                                    {/* Copy from Input Page */}
+                                    <ListItem
+                                        button
+                                        onClick={handleCopyFromInputPage}
+                                        sx={{
+                                            padding: '18px',
+                                            borderBottom: '1px solid #e0e0e0',
+                                            borderRadius: '8px',
+                                            marginBottom: '12px',
+                                            cursor: 'pointer', // Adds hand cursor on hover
+                                            '&:hover': {
+                                                backgroundColor: '#e3f2fd',
+                                                transform: 'scale(1.02)',
+                                                transition: 'transform 0.2s',
+                                            },
+                                        }}
+                                    >
+                                        <Typography variant="h6" color="primary" sx={{ marginRight: '12px', fontWeight: 'bold' }}>
+                                            2.
+                                        </Typography>
+                                        <AdjustIcon color="primary" sx={{ marginRight: '12px' }} />
+                                        <ListItemText primary="Copy from Input Page" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
+                                    </ListItem>
+
                                     {/* File Upload */}
                                     <Tooltip title="Only .csv or .xlsx formats allowed" arrow>
                                         <ListItem
@@ -1032,7 +1056,7 @@ const Patient_Forecast = () => {
                                             }}
                                         >
                                             <Typography variant="h6" color="primary" sx={{ marginRight: '12px', fontWeight: 'bold' }}>
-                                                2.
+                                                3.
                                             </Typography>
                                             <UploadFileIcon color="primary" sx={{ marginRight: '12px' }} />
                                             <ListItemText primary="Upload Data File" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
@@ -1057,7 +1081,7 @@ const Patient_Forecast = () => {
                                         }}
                                     >
                                         <Typography variant="h6" color="primary" sx={{ marginRight: '12px', fontWeight: 'bold' }}>
-                                            3.
+                                            4.
                                         </Typography>
                                         <TrendingUpIcon color="primary" sx={{ marginRight: '12px' }} />
                                         <ListItemText primary="Set Initial Values with Growth Rate" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
@@ -1080,7 +1104,7 @@ const Patient_Forecast = () => {
                                         }}
                                     >
                                         <Typography variant="h6" color="primary" sx={{ marginRight: '12px', fontWeight: 'bold' }}>
-                                            4.
+                                            5.
                                         </Typography>
                                         <AdjustIcon color="primary" sx={{ marginRight: '12px' }} />
                                         <ListItemText primary="Specify Starting and Target Values" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
@@ -1088,27 +1112,7 @@ const Patient_Forecast = () => {
 
 
                                     {/*Copy from Input Page*/}
-                                    <ListItem
-                                        button
-                                        onClick={handleCopyFromInputPage}
-                                        sx={{
-                                            padding: '18px',
-                                            borderRadius: '8px',
-                                            marginBottom: '12px',
-                                            cursor: 'pointer', // Adds hand cursor on hover
-                                            '&:hover': {
-                                                backgroundColor: '#e3f2fd',
-                                                transform: 'scale(1.02)',
-                                                transition: 'transform 0.2s',
-                                            },
-                                        }}
-                                    >
-                                        <Typography variant="h6" color="primary" sx={{ marginRight: '12px', fontWeight: 'bold' }}>
-                                            5.
-                                        </Typography>
-                                        <AdjustIcon color="primary" sx={{ marginRight: '12px' }} />
-                                        <ListItemText primary="Copy from Input Page" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
-                                    </ListItem>
+                                    
                                 </List>
                             </DialogContent>
                             <DialogActions sx={{ padding: '16px', backgroundColor: '#f0f4fa' }}>
@@ -2241,92 +2245,7 @@ const Patient_Forecast = () => {
                 {/* Section displaying the greeting message */}
                 <div style={{ backgroundColor: 'white', padding: '0.5px', marginTop: '-25px', marginLeft: '10px' }}>
                     <h2 style={{ textAlign: 'left' }}>{greeting}, Welcome to the Patient Based Forecasting Page!</h2> </div>
-
-                {/* Label for selecting the time period */}
-                <span style={{ marginLeft: '12px' }} gap="10px" sx={{ marginRight: '20px' }}>Select Time Period</span>
-                <Box
-                    sx={{
-                        maxWidth: '100%',   // Set width to contain horizontal scroll
-                        overflowY: 'auto',  // Enable vertical scrolling
-                        marginBottom: '15px',
-                        textAlign: 'left' // Align box contents to the left
-                    }}
-                >
-                    <Box display="flex" alignItems="center" gap="15px" mb={2} marginLeft='12px' marginTop='15px'>
-                        {/* Dropdown for selecting time period (Monthly/Yearly) */}
-                        <TextField
-                            select
-                            label="Time Period"
-                            value={timePeriod}
-                            onChange={(e) => setTimePeriod(e.target.value)}
-                            size="small"
-                            variant="outlined"
-                            sx={{ width: '160px' }}
-                        >
-                            <MenuItem value="Monthly">Monthly</MenuItem>
-                            <MenuItem value="Yearly">Yearly</MenuItem>
-                        </TextField>
-                        {/* Date pickers for the start and end date based on selected time period */}
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            {/* Start Date Picker */}
-                            <DatePicker
-                                views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
-                                label={timePeriod === 'Monthly' ? ' Historical Start Month' : 'Historical Start Year'}
-                                value={fromHistoricalDate}
-                                onChange={(newValue) => setFromHistoricalDate(newValue)}
-                                format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
-                                slotProps={{ textField: { size: 'small' } }}
-                                sx={{ width: '160px' }}
-                                maxDate={toForecastDate}
-                            />
-                            <DatePicker
-                                views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
-                                label={timePeriod === 'Monthly' ? 'Forecast Start Month' : 'Forecast Start Year'}
-                                value={fromForecastDate}
-                                onChange={(newValue) => setFromForecastDate(newValue)}
-                                format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
-                                slotProps={{ textField: { size: 'small' } }}
-                                sx={{ width: '160px' }}
-                                minDate={fromHistoricalDate}
-
-                            />
-                            <DatePicker
-                                views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
-                                label={timePeriod === 'Monthly' ? 'Forecast End Month' : 'Forecast End Year'}
-                                value={toForecastDate}
-                                onChange={(newValue) => setToForecastDate(newValue)}
-                                format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
-                                slotProps={{ textField: { size: 'small' } }}
-                                sx={{ width: '160px' }}
-                                minDate={fromForecastDate}
-                            />
-                        </LocalizationProvider>
-                        {/* Button to proceed with the calculation. This will show the tabs and cards. 
-                        First, it checks if the start date is before the end date. If it is, it sets showTabs to true. If not, it shows an alert and sets showTabs and showCard to false. */}
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => {
-                                if (dayjs(fromHistoricalDate).isBefore(fromForecastDate) &&
-                                    dayjs(fromForecastDate).isBefore(toForecastDate) ||
-                                    dayjs(fromHistoricalDate).isSame(fromForecastDate, timePeriod === 'Monthly' ? 'month' : 'year') ||
-                                    dayjs(fromHistoricalDate).isSame(toForecastDate, timePeriod === 'Monthly' ? 'month' : 'year')) {
-                                    // If the start date is before the end date, show the tabs and cards
-                                    setShowTabs(true);
-                                } else {
-                                    // If the start date is not before the end date, show an alert and hide the tabs and cards
-                                    setShowTabs(false);
-                                    setShowCard(false);
-                                    alert("Invalid date range: Start date must be before end date");
-                                }
-                            }}
-                            sx={{ marginLeft: '18px', marginBottom: '2px' }}>
-                            Proceed
-                        </Button>
-                        {/* Button to clear all data on the page. 
-                        This will reset all states to their initial values and remove all data from the tables. 
-                        This action cannot be undone. */}
-                        <Button
+                    <Button
                             variant="contained"
                             color="primary"
                             onClick={() => {
@@ -2337,10 +2256,19 @@ const Patient_Forecast = () => {
                             sx={{ marginLeft: '18px', marginBottom: '2px' }}>
                             Clear All Data
                         </Button>
-                    </Box>
+                
+                <Box
+                    sx={{
+                        maxWidth: '100%',   // Set width to contain horizontal scroll
+                        overflowY: 'auto',  // Enable vertical scrolling
+                        marginBottom: '15px',
+                        textAlign: 'left' // Align box contents to the left
+                    }}
+                >
+                    
                     <Box sx={{ width: '90%', margin: '0 auto' }}>
-                        {/* Render tabs if 'showTabs' is true */}
-                        {showTabs && <Tabs tab_value={tab_value} onChange={handleTabChange} aria-label="basic tabs example"
+                       
+                        <Tabs tab_value={tab_value} onChange={handleTabChange} aria-label="basic tabs example"
                             sx={{
                                 borderBottom: 2,
                                 borderColor: 'divider',
@@ -2377,7 +2305,7 @@ const Patient_Forecast = () => {
                                     fontSize: '20px', // Increase font size of selected tab
                                 }
                             }} />
-                        </Tabs>}
+                        </Tabs>
 
                         {tab_value !== null &&
                             <div>

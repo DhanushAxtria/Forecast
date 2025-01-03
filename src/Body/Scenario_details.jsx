@@ -41,6 +41,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import Patient_Forecast_Input from './Patient_Forecast_Input';
 import Header from '../Header/Header'
+import { set } from 'date-fns';
 
 const initialNodes = [
     { id: '1', data: { label: 'Product Level Treated Patients' }, position: { x: 250, y: 50 }, style: { width: 200 } },
@@ -81,7 +82,7 @@ const ForecastAndFlowDiagram = (props) => {
     const { hasUnsavedChanges, setHasUnsavedChanges } = props;
     console.log('prop:', props)
 
-    const [isProductListVisible, setIsProductListVisible] = useState(true);
+    const [isProductListVisible, setIsProductListVisible] = useState(false);
     const toggleProductListVisibility = () => {
         setIsProductListVisible((prev) => !prev);
     };
@@ -144,11 +145,27 @@ const ForecastAndFlowDiagram = (props) => {
     }, []);
 
     const [scenarioName, setScenarioName] = useState('Scenario 1');
-    
-    const handleScenarioChange = (event) => {
-        setScenarioName(event.target.value);
-    };
+    const [isEditingScenarioName, setIsEditingScenarioName] = useState(false);
+    const [editedScenarioName, setEditedScenarioName] = useState('');
 
+
+    // Save the edited scenario name
+   // Save the edited scenario name
+const handleSaveScenarioName = () => {
+    setScenarioName(editedScenarioName);
+    setIsEditingScenarioName(false);
+};
+
+// Cancel editing and revert any changes
+const handleCancelScenarioName = () => {
+    setEditedScenarioName(scenarioName); // Revert changes to the original scenario name
+    setIsEditingScenarioName(false);
+};
+
+// Handle changes to the edited scenario name
+const handleEditedScenarioNameChange = (event) => {
+    setEditedScenarioName(event.target.value);
+};
     const handleForecastCycleChange = (event) => {
         setForecastCycle(event.target.value);
     };
@@ -160,6 +177,8 @@ const ForecastAndFlowDiagram = (props) => {
     const handleTherapeuticAreaChange = (event) => {
         setTherapeuticArea(event.target.value);
     };
+
+
 
     const handleRemoveProduct = (id) => {
         setProducts((prevProducts) => prevProducts.filter((product) => product.id !== id));
@@ -392,7 +411,7 @@ const ForecastAndFlowDiagram = (props) => {
     };
     const navigate = useNavigate();
     const handleSaveAndContinue = () => {
-        navigate('/new-scenario/forecastdeepdive'); // Navigate to the patient forecast page
+        navigate('/new-scenario/scenario-details/forecastdeepdive'); // Navigate to the patient forecast page
     };
     const [nodes, setNodes] = useState(initialNodes);
     const [edges, setEdges] = useState(initialEdges);
@@ -419,337 +438,369 @@ const ForecastAndFlowDiagram = (props) => {
 
     return (
 
-        <div className="container">
+        <div className="content">
             {activeTab === 'controlSheet' && (
-                <div className='fixedApplyDiv'>
-                    <Button
-                        variant="contained"
-                        className="fixed-apply-button" // Apply the custom CSS class
-                        startIcon={<ApplyIcon />}
-                        onClick={handleSaveAndContinue}
-                    >
-                        Save & Continue
-                    </Button>
-                </div>
+                <Box sx={{ display: 'flex', padding: '20px', flexDirection: 'column', marginTop: '-35px' }} >
+                    <h1 className="greeting">{greeting}, Welcome to the Forecast & Worksheet Selections</h1>
 
-            )}
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                        <Button
+                            variant="contained"
+                            className="fixed-apply-button" // Apply the custom CSS class
+                            startIcon={<ApplyIcon />}
+                            onClick={handleSaveAndContinue}
+                        >
+                            Save & Continue
+                        </Button>
+                    </Box>
 
-            <div className="content">
-                {activeTab === 'controlSheet' && (
-                    <>
-                        <h1 className="greeting">{greeting}, Welcome to the Forecast & Worksheet Selections</h1>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                            <h2>General Information</h2>
+                            {/* Align Forecast Cycle, Country, and Therapeutic Area side by side */}
+                            <Grid container spacing={2}>
+                                <Box display="flex" alignItems="center" gap="15px" ml={2} p={2}>
+                                    <TextField
+                                        size="small"
+                                       
+                                        label="Scenario Name"
+                                        value={isEditingScenarioName ? editedScenarioName : scenarioName}
+                                        onChange={handleEditedScenarioNameChange} // Update value during editing
+                                        variant="outlined"
+                                        margin="normal"
+                                        InputProps={{
+                                            endAdornment: isEditingScenarioName ? (
+                                                <InputAdornment position="end">
+                                                    <IconButton
+                                                        aria-label="Save Scenario Name"
+                                                        onClick={handleSaveScenarioName}
+                                                        color="primary"
+                                                    >
+                                                        <CheckIcon />
+                                                    </IconButton>
+                                                    <IconButton
+                                                        aria-label="Cancel Edit Scenario Name"
+                                                        onClick={handleCancelScenarioName}
+                                                        color="secondary"
+                                                    >
+                                                        <CloseIcon />
+                                                    </IconButton>
+                                                </InputAdornment>
+                                            ) : (
+                                                <InputAdornment position="end">
+                                                    <IconButton
+                                                        aria-label="Edit Scenario Name"
+                                                        onClick={() => {
+                                                            setIsEditingScenarioName(true);
+                                                            setEditedScenarioName(scenarioName); // Initialize with the current value
+                                                        }}
+                                                    >
+                                                        <EditIcon />
+                                                    </IconButton>
+                                                </InputAdornment>
+                                            ),
+                                            readOnly: !isEditingScenarioName, // Set input as read-only unless editing
+                                        }}
+                                    />
+                                    <TextField
+                                        select
+                                        size="small"
+                                        sx={{ width: '200px' }}
+                                        label="Forecast Cycle"
+                                        value={forecastCycle}
+                                        onChange={handleForecastCycleChange}
+                                        variant="outlined"
+                                        margin="normal"
+                                    >
+                                        {forecastCycleOptions.map((cycle) => (
+                                            <MenuItem key={cycle} value={cycle}>
+                                                {cycle}
+                                            </MenuItem>
+                                        ))}
+                                    </TextField>
 
-                        <Grid container spacing={2}>
-                            <Grid item xs={12}>
-                                <h2>General Information</h2>
+
+                                    <TextField
+                                        select
+                                        size="small"
+                                        sx={{ width: '200px' }}
+                                        label="Country"
+                                        value={country}
+                                        onChange={handleCountryChange}
+                                        variant="outlined"
+                                        margin="normal"
+                                    >
+                                        {countryOptions.map((countryName) => (
+                                            <MenuItem key={countryName} value={countryName}>
+                                                {countryName}
+                                            </MenuItem>
+                                        ))}
+                                    </TextField>
 
 
-                                {/* Align Forecast Cycle, Country, and Therapeutic Area side by side */}
-                                <Grid container spacing={2}>
-                                    <Box display="flex" alignItems="center" gap="15px" ml={2} p={2}>
-                                        <TextField
-                                            size="small"
-                                            sx={{ width: '200px' }}
-                                            label="Scenario Name"
-                                            value={scenarioName}
-                                            onChange={handleScenarioChange}
-                                            variant="outlined"
-                                            margin="normal"
-                                        >
-                                        </TextField>
-                                        <TextField
-                                            select
-                                            size="small"
-                                            sx={{ width: '200px' }}
-                                            label="Forecast Cycle"
-                                            value={forecastCycle}
-                                            onChange={handleForecastCycleChange}
-                                            variant="outlined"
-                                            margin="normal"
-                                        >
-                                            {forecastCycleOptions.map((cycle) => (
-                                                <MenuItem key={cycle} value={cycle}>
-                                                    {cycle}
-                                                </MenuItem>
-                                            ))}
-                                        </TextField>
-
-
-                                        <TextField
-                                            select
-                                            size="small"
-                                            sx={{ width: '200px' }}
-                                            label="Country"
-                                            value={country}
-                                            onChange={handleCountryChange}
-                                            variant="outlined"
-                                            margin="normal"
-                                        >
-                                            {countryOptions.map((countryName) => (
-                                                <MenuItem key={countryName} value={countryName}>
-                                                    {countryName}
-                                                </MenuItem>
-                                            ))}
-                                        </TextField>
-
-
-                                        <TextField
-                                            select
-                                            size="small"
-                                            sx={{ width: '200px' }}
-                                            label="Therapeutic Area"
-                                            value={therapeuticArea}
-                                            onChange={handleTherapeuticAreaChange}
-                                            variant="outlined"
-                                            margin="normal"
-                                        >
-                                            {therapeuticAreaOptions.map((area) => (
-                                                <MenuItem key={area} value={area}>
-                                                    {area}
-                                                </MenuItem>
-                                            ))}
-                                        </TextField>
-                                    </Box>
-                                </Grid>
+                                    <TextField
+                                        select
+                                        size="small"
+                                        sx={{ width: '200px' }}
+                                        label="Therapeutic Area"
+                                        value={therapeuticArea}
+                                        onChange={handleTherapeuticAreaChange}
+                                        variant="outlined"
+                                        margin="normal"
+                                    >
+                                        {therapeuticAreaOptions.map((area) => (
+                                            <MenuItem key={area} value={area}>
+                                                {area}
+                                            </MenuItem>
+                                        ))}
+                                    </TextField>
+                                </Box>
                             </Grid>
                         </Grid>
-                        {/* Scenario Parameters Section */}
-                        <Grid container spacing={2} >
-                            <Grid item xs={12}>
-                                <h2>Scenario Parameters</h2>
-                            </Grid>
-                            <Box display="flex" alignItems="center" gap="15px" ml={2} p={2} >
-                                <TextField
-                                    select
-                                    size="small"
-                                    sx={{ width: '200px' }}
-                                    value={forecastMetric}
-                                    onChange={(e) => setForecastMetric(e.target.value)}
-                                    label="Forecast Metric"
-                                    variant="outlined"
-                                >
-                                    <MenuItem value="Patients">Patients</MenuItem>
-                                    <MenuItem value="Units">Units</MenuItem>
-                                </TextField>
-
-
-                                <TextField
-                                    select
-                                    size="small"
-                                    sx={{ width: '200px' }}
-                                    value={currency}
-                                    onChange={(e) => setCurrency(e.target.value)}
-                                    label="Local Currency"
-                                    variant="outlined"
-                                >
-                                    <MenuItem value="EUR">EUR</MenuItem>
-                                    <MenuItem value="USD">USD</MenuItem>
-                                    <MenuItem value="GBP">GBP</MenuItem>
-                                </TextField>
-                            </Box>
+                    </Grid>
+                    {/* Scenario Parameters Section */}
+                    <Grid container spacing={2} >
+                        <Grid item xs={12}>
+                            <h2>Scenario Parameters</h2>
                         </Grid>
-                        <Grid container spacing={2} >
-                            <Grid item xs={12}>
-                                <h2>Time Period</h2>
-                            </Grid>
+                        <Box display="flex" alignItems="center" gap="15px" ml={2} p={2} >
+                            <TextField
+                                select
+                                size="small"
+                                sx={{ width: '200px' }}
+                                value={forecastMetric}
+                                onChange={(e) => setForecastMetric(e.target.value)}
+                                label="Forecast Metric"
+                                variant="outlined"
+                            >
+                                <MenuItem value="Patients">Patients</MenuItem>
+                                <MenuItem value="Units">Units</MenuItem>
+                            </TextField>
 
-                            <Box display="flex" alignItems="center" gap="15px" ml={2} p={2} >
-                                <TextField
-                                    select
-                                    label="Time Period"
-                                    value={timePeriod}
-                                    onChange={(e) => setTimePeriod(e.target.value)}
-                                    size="small"
-                                    variant="outlined"
+
+                            <TextField
+                                select
+                                size="small"
+                                sx={{ width: '200px' }}
+                                value={currency}
+                                onChange={(e) => setCurrency(e.target.value)}
+                                label="Local Currency"
+                                variant="outlined"
+                            >
+                                <MenuItem value="EUR">EUR</MenuItem>
+                                <MenuItem value="USD">USD</MenuItem>
+                                <MenuItem value="GBP">GBP</MenuItem>
+                            </TextField>
+                        </Box>
+                    </Grid>
+                    <Grid container spacing={2} >
+                        <Grid item xs={12}>
+                            <h2>Time Period</h2>
+                        </Grid>
+
+                        <Box display="flex" alignItems="center" gap="15px" ml={2} p={2} >
+                            <TextField
+                                select
+                                label="Time Period"
+                                value={timePeriod}
+                                onChange={(e) => setTimePeriod(e.target.value)}
+                                size="small"
+                                variant="outlined"
+                                sx={{ width: '200px' }}
+                            >
+                                <MenuItem value="Monthly">Monthly</MenuItem>
+                                <MenuItem value="Yearly">Yearly</MenuItem>
+                            </TextField>
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DatePicker
+                                    views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
+                                    label={timePeriod === 'Monthly' ? ' Historical Start Month' : 'Historical Start Year'}
+                                    value={fromHistoricalDate}
+                                    onChange={(newValue) => setFromHistoricalDate(newValue)}
+                                    format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
+                                    slotProps={{ textField: { size: 'small' } }}
                                     sx={{ width: '200px' }}
-                                >
-                                    <MenuItem value="Monthly">Monthly</MenuItem>
-                                    <MenuItem value="Yearly">Yearly</MenuItem>
-                                </TextField>
-                                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                    <DatePicker
-                                        views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
-                                        label={timePeriod === 'Monthly' ? ' Historical Start Month' : 'Historical Start Year'}
-                                        value={fromHistoricalDate}
-                                        onChange={(newValue) => setFromHistoricalDate(newValue)}
-                                        format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
-                                        slotProps={{ textField: { size: 'small' } }}
-                                        sx={{ width: '200px' }}
-                                        maxDate={toForecastDate}
-                                    />
-                                    <DatePicker
-                                        views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
-                                        label={timePeriod === 'Monthly' ? 'Forecast Start Month' : 'Forecast Start Year'}
-                                        value={fromForecastDate}
-                                        onChange={(newValue) => setFromForecastDate(newValue)}
-                                        format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
-                                        slotProps={{ textField: { size: 'small' } }}
-                                        sx={{ width: '200px' }}
-                                        minDate={fromHistoricalDate}
+                                    maxDate={toForecastDate}
+                                />
+                                <DatePicker
+                                    views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
+                                    label={timePeriod === 'Monthly' ? 'Forecast Start Month' : 'Forecast Start Year'}
+                                    value={fromForecastDate}
+                                    onChange={(newValue) => setFromForecastDate(newValue)}
+                                    format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
+                                    slotProps={{ textField: { size: 'small' } }}
+                                    sx={{ width: '200px' }}
+                                    minDate={fromHistoricalDate}
 
-                                    />
-                                    <DatePicker
-                                        views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
-                                        label={timePeriod === 'Monthly' ? 'Forecast End Month' : 'Forecast End Year'}
-                                        value={toForecastDate}
-                                        onChange={(newValue) => setToForecastDate(newValue)}
-                                        format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
-                                        slotProps={{ textField: { size: 'small' } }}
-                                        sx={{ width: '200px' }}
-                                        minDate={fromForecastDate}
-                                    />
-                                </LocalizationProvider>
-                            </Box>
+                                />
+                                <DatePicker
+                                    views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
+                                    label={timePeriod === 'Monthly' ? 'Forecast End Month' : 'Forecast End Year'}
+                                    value={toForecastDate}
+                                    onChange={(newValue) => setToForecastDate(newValue)}
+                                    format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
+                                    slotProps={{ textField: { size: 'small' } }}
+                                    sx={{ width: '200px' }}
+                                    minDate={fromForecastDate}
+                                />
+                            </LocalizationProvider>
+                        </Box>
+                    </Grid>
+                    <Box>
+                        <Grid item xs={12}>
+                            <h2>Input Table</h2>
                         </Grid>
                         <Box>
-                            <Grid item xs={12}>
-                                <h2>Input Table</h2>
-                            </Grid>
-                            <Box>
-                                <Patient_Forecast_Input />
+                            <Patient_Forecast_Input />
+                        </Box>
+                    </Box>
 
-                            </Box>
+                    <div className="section">
+                        <h2>Product List</h2>
+                        <Box display="flex" justifyContent={'flex-end'} >
+                            <Button
+                                variant="outlined"
+                                size='small'
+                                startIcon={isProductListVisible ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                                onClick={toggleProductListVisibility}
+                            >
+                                {isProductListVisible ? 'Collapse' : 'Expand'}
+                            </Button>
                         </Box>
 
-                        <div className="section">
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <h2>Product List</h2>
+
+                        {isProductListVisible && (
+                            <>
                                 <Button
-                                    variant="outlined"
-                                    startIcon={isProductListVisible ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                                    onClick={toggleProductListVisibility}
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={handleAddProduct}
+                                    style={{ marginRight: '10px' }}
                                 >
-                                    {isProductListVisible ? 'Collapse' : 'Expand'}
+                                    + Add Product
                                 </Button>
-                            </div>
-                            {isProductListVisible && (
-                                <>
-                                    <Button
-                                        variant="contained"
-                                        color="primary"
-                                        onClick={handleAddProduct}
-                                        style={{ marginRight: '10px' }}
-                                    >
-                                        + Add Product
-                                    </Button>
-                                    <Button
-                                        variant="contained"
-                                        color="primary"
-                                        onClick={handleAddIndication}
-                                    >
-                                        + Add Indication
-                                    </Button>
-                                    <div style={{ maxHeight: '400px', overflowX: 'auto', overflowY: 'auto', marginTop: '10px' }}>
-                                        <table className="product-table" style={{ minWidth: indicationColumns.length > 2 ? '150%' : '100%' }}>
-                                            <thead>
-                                                <tr>
-                                                    <th>S No.</th>
-                                                    <th>Product</th>
-                                                    <th>Include?</th>
-                                                    <th>XYZ Product?</th>
-                                                    <th>Launch Date</th>
-                                                    {indicationColumns.map((indication, index) => (
-                                                        <th key={index}>
-                                                            <TextField
-                                                                value={indication}
-                                                                onChange={(e) => handleIndicationColumnChange(index, e.target.value)}
-                                                                variant="outlined"
-                                                                InputProps={{
-                                                                    endAdornment: (
-                                                                        <InputAdornment position="end">
-                                                                            <IconButton
-                                                                                onClick={() => handleRemoveIndication(index)}
-                                                                                size="small"
-                                                                                color="error"
-                                                                            >
-                                                                                <CloseIcon fontSize="small" />
-                                                                            </IconButton>
-                                                                        </InputAdornment>
-                                                                    ),
-                                                                }}
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={handleAddIndication}
+                                >
+                                    + Add Indication
+                                </Button>
+                                <div style={{ maxHeight: '400px', overflowX: 'auto', overflowY: 'auto', marginTop: '10px' }}>
+                                    <table className="product-table" style={{ minWidth: indicationColumns.length > 2 ? '150%' : '100%' }}>
+                                        <thead>
+                                            <tr>
+                                                <th>S No.</th>
+                                                <th>Product</th>
+                                                <th>Include?</th>
+                                                <th>XYZ Product?</th>
+                                                <th>Launch Date</th>
+                                                {indicationColumns.map((indication, index) => (
+                                                    <th key={index}>
+                                                        <TextField
+                                                            value={indication}
+                                                            onChange={(e) => handleIndicationColumnChange(index, e.target.value)}
+                                                            variant="outlined"
+                                                            size="small"
+                                                            sx={{ width: '200px' }}
+                                                            InputProps={{
+                                                                endAdornment: (
+                                                                    <InputAdornment position="end">
+                                                                        <IconButton
+                                                                            onClick={() => handleRemoveIndication(index)}
+                                                                            size="small"
+                                                                            color="error"
+                                                                        >
+                                                                            <CloseIcon fontSize="small" />
+                                                                        </IconButton>
+                                                                    </InputAdornment>
+                                                                ),
+                                                            }}
+                                                        />
+                                                    </th>
+                                                ))}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {products.map((product, productIndex) => (
+                                                <tr key={product.id}>
+                                                    <td>{productIndex + 1}</td>
+                                                    <td>
+                                                        <TextField
+                                                            value={product.name}
+                                                            onChange={(e) => handleProductNameChange(product.id, e.target.value)}
+                                                            variant="outlined"
+                                                            size="small"
+                                                            sx={{ width: '200px' }}
+                                                            InputProps={{
+                                                                endAdornment: (
+                                                                    <InputAdornment position="end">
+                                                                        <IconButton
+                                                                            onClick={() => handleRemoveProduct(product.id)}
+                                                                            size="small"
+                                                                            color="error"
+                                                                        >
+                                                                            <DeleteIcon fontSize="small" />
+                                                                        </IconButton>
+                                                                    </InputAdornment>
+                                                                ),
+                                                            }}
+                                                        />
+                                                    </td>
+                                                    <td>
+                                                        <Button
+                                                            variant="outlined"
+                                                            className={`toggle-btn ${product.include ? 'yes' : 'no'}`}
+                                                            onClick={() => handleIncludeChange(product.id)}
+                                                        >
+                                                            {product.include ? 'Yes' : 'No'}
+                                                        </Button>
+                                                    </td>
+                                                    <td>
+                                                        <Button
+                                                            variant="outlined"
+                                                            className={`toggle-btn ${product.xyzProduct ? 'yes' : 'no'}`}
+                                                            onClick={() => handleXYZProductChange(product.id)}
+                                                        >
+                                                            {product.xyzProduct ? 'Yes' : 'No'}
+                                                        </Button>
+                                                    </td>
+                                                    <td>
+                                                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                            <DatePicker
+                                                                maxDate={currentYear}
+                                                                openTo="year"
+                                                                views={['year', 'month']}
+                                                                value={product.launchDate}
+                                                                onChange={(newDate) => handleLaunchDateChange(product.id, newDate)}
+                                                                slotProps={{ textField: { size: 'small' } }}
+                                                                sx={{ width: '200px' }}
                                                             />
-                                                        </th>
+                                                        </LocalizationProvider>
+                                                    </td>
+                                                    {indicationColumns.map((indication, index) => (
+                                                        <td key={index}>
+                                                            <Button
+                                                                variant="outlined"
+                                                                className={`toggle-btn ${product.indications[indication] === 'Yes' ? 'yes' : 'no'}`}
+                                                                onClick={() => handleToggleIndication(product.id, indication)}
+                                                            >
+                                                                {product.indications[indication]}
+                                                            </Button>
+                                                        </td>
                                                     ))}
                                                 </tr>
-                                            </thead>
-                                            <tbody>
-                                                {products.map((product, productIndex) => (
-                                                    <tr key={product.id}>
-                                                        <td>{productIndex + 1}</td>
-                                                        <td>
-                                                            <TextField
-                                                                value={product.name}
-                                                                onChange={(e) => handleProductNameChange(product.id, e.target.value)}
-                                                                variant="outlined"
-                                                                fullWidth
-                                                                InputProps={{
-                                                                    endAdornment: (
-                                                                        <InputAdornment position="end">
-                                                                            <IconButton
-                                                                                onClick={() => handleRemoveProduct(product.id)}
-                                                                                size="small"
-                                                                                color="error"
-                                                                            >
-                                                                                <DeleteIcon fontSize="small" />
-                                                                            </IconButton>
-                                                                        </InputAdornment>
-                                                                    ),
-                                                                }}
-                                                            />
-                                                        </td>
-                                                        <td>
-                                                            <Button
-                                                                variant="outlined"
-                                                                className={`toggle-btn ${product.include ? 'yes' : 'no'}`}
-                                                                onClick={() => handleIncludeChange(product.id)}
-                                                            >
-                                                                {product.include ? 'Yes' : 'No'}
-                                                            </Button>
-                                                        </td>
-                                                        <td>
-                                                            <Button
-                                                                variant="outlined"
-                                                                className={`toggle-btn ${product.xyzProduct ? 'yes' : 'no'}`}
-                                                                onClick={() => handleXYZProductChange(product.id)}
-                                                            >
-                                                                {product.xyzProduct ? 'Yes' : 'No'}
-                                                            </Button>
-                                                        </td>
-                                                        <td>
-                                                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                                                <DatePicker
-                                                                    maxDate={currentYear}
-                                                                    openTo="year"
-                                                                    views={['year', 'month']}
-                                                                    value={product.launchDate}
-                                                                    onChange={(newDate) => handleLaunchDateChange(product.id, newDate)}
-                                                                    sx={{ minWidth: 250 }}
-                                                                />
-                                                            </LocalizationProvider>
-                                                        </td>
-                                                        {indicationColumns.map((indication, index) => (
-                                                            <td key={index}>
-                                                                <Button
-                                                                    variant="outlined"
-                                                                    className={`toggle-btn ${product.indications[indication] === 'Yes' ? 'yes' : 'no'}`}
-                                                                    onClick={() => handleToggleIndication(product.id, indication)}
-                                                                >
-                                                                    {product.indications[indication]}
-                                                                </Button>
-                                                            </td>
-                                                        ))}
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </>
-                            )}
-                        </div>
-                    </>
-                )}
-            </div>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </Box>
+            )}
         </div>
+
     )
 }
 export default ForecastAndFlowDiagram;

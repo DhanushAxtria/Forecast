@@ -209,7 +209,7 @@ const Patient_Forecast_Input = () => {
         setIsEditing(false);
     };
 
-   
+
     const renderTable = () => {
         return (
             <Box
@@ -227,15 +227,15 @@ const Patient_Forecast_Input = () => {
                             <th>Name</th>
                             <th style={{ minWidth: '150px' }}>Case Type</th>
                             {columns.map((column) => (
-                                <th                                                                
-                                style={{
-                                    minWidth: '150px',
-                                    backgroundColor:                                        
-                                        timePeriod === 'Year'
-                                            ? dayjs(column).isBefore(dayjs(fromForecastDate), 'year')
-                                            : dayjs(column).isBefore(dayjs(fromForecastDate), 'month')
-                                            ? '#C6F4D6' // Light green for columns between fromHistorical and fromForecast
-                                            : '#FFFFE0', // Light yellow for all other columns
+                                <th
+                                    style={{
+                                        minWidth: '150px',
+                                        backgroundColor:
+                                            timePeriod === 'Year'
+                                                ? dayjs(column).isBefore(dayjs(fromForecastDate), 'year')
+                                                : dayjs(column).isBefore(dayjs(fromForecastDate), 'month')
+                                                    ? '#C6F4D6' // Light green for columns between fromHistorical and fromForecast
+                                                    : '#FFFFE0', // Light yellow for all other columns
                                     }}
                                 >
                                     {column}
@@ -249,112 +249,117 @@ const Patient_Forecast_Input = () => {
                             const rowKey = `${product.id}.${product.caseType}`;
 
                             // Add spacing row before a new parameter's rows (every 3 rows)
-                        const isFirstRowOfGroup = index % 3 === 0;
+                            const isFirstRowOfGroup = index % 3 === 0;
 
+                            const groupColors = ['#f0f8ff', '#e6e6fa', '#ffe4e1', '#fafad2', '#d3f9d8']; // Light blue, lavender, misty rose, light goldenrod yellow, light green
+                            const groupNumber = Math.floor(index / 3); // Determine the group number
+                            const groupBackgroundColor = groupColors[groupNumber % groupColors.length]; // Cycle through colors
                             return (
                                 <React.Fragment key={rowKey}>
-                                {isFirstRowOfGroup && index !== 0 && (
-                                    <tr>
-                                        <td colSpan={columns.length + 2} style={{ height: '30px' }}></td>
-                                    </tr>
-                                )}
-                                <tr>
-                                    <td>
-                                        <div
-                                            style={{
-                                                display: 'grid',
-                                                gridTemplateColumns: '0.1fr 0.1fr 1fr 0.1fr 0.1fr',
-                                                justifyContent: 'center',
-                                                alignItems: 'center',
-                                                width: '720px',
-                                            }}
-                                        >
-                                            <Tooltip title="Source Info" placement="top">
-                                                <IconButton
-                                                    color="info"
-                                                    onClick={() => {
-                                                        setSelectedRowId(rowKey);
-                                                        setOpenInfoMethodDialog(true);
-                                                    }}
-                                                >
-                                                    <InfoIcon fontSize="small" />
-                                                </IconButton>
-                                            </Tooltip>
-                                            <Tooltip title="Data Input" placement="top">
-                                                <IconButton
-                                                    color="primary"
-                                                    onClick={() => {
-                                                        setSelectedRowId(rowKey);
-                                                        setOpenInputMethodDialog(true);
-                                                    }}
-                                                >
-                                                    <CloudUploadIcon fontSize="small" />
-                                                </IconButton>
-                                            </Tooltip>
-                                            {editingProductId === product.id ? (
-                                                <>
-                                                    <TextField
-                                                        value={editedProductName}
-                                                        onChange={(e) => setEditedProductName(e.target.value)}
-                                                        variant="outlined"
-                                                        size="small"
-                                                    />
-                                                    <IconButton onClick={() => handleSaveClick(product.id)} color="primary">
-                                                        <CheckIcon />
-                                                    </IconButton>
-                                                    <IconButton onClick={handleCancelClick} color="secondary">
-                                                        <CloseIcon />
-                                                    </IconButton>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <span
-                                                        style={{
-                                                            marginLeft: '8px',
-                                                            overflow: 'auto',
-                                                            whiteSpace: 'nowrap',
+                                    {isFirstRowOfGroup && index !== 0 && (
+                                        <tr>
+                                            <td colSpan={columns.length + 2} style={{ height: '30px' }}></td>
+                                        </tr>
+                                    )}
+                                    <tr style={{
+                                        backgroundColor: groupBackgroundColor,
+                                    }}>
+                                        <td>
+                                            <div
+                                                style={{
+                                                    display: 'grid',
+                                                    gridTemplateColumns: '0.1fr 0.1fr 1fr 0.1fr 0.1fr',
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                    width: '720px',
+                                                }}
+                                            >
+                                                <Tooltip title="Source Info" placement="top">
+                                                    <IconButton
+                                                        color="info"
+                                                        onClick={() => {
+                                                            setSelectedRowId(rowKey);
+                                                            setOpenInfoMethodDialog(true);
                                                         }}
                                                     >
-                                                        {product.name}
-                                                    </span>
-                                                    <Tooltip title="Edit Row Name" placement="top">
-                                                        <IconButton
-                                                            onClick={() => handleEditClick(product.id)}
-                                                            style={{ marginLeft: '8px' }}
-                                                        >
-                                                            <EditIcon fontSize="small" />
+                                                        <InfoIcon fontSize="small" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                                <Tooltip title="Data Input" placement="top">
+                                                    <IconButton
+                                                        color="primary"
+                                                        onClick={() => {
+                                                            setSelectedRowId(rowKey);
+                                                            setOpenInputMethodDialog(true);
+                                                        }}
+                                                    >
+                                                        <CloudUploadIcon fontSize="small" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                                {editingProductId === product.id ? (
+                                                    <>
+                                                        <TextField
+                                                            value={editedProductName}
+                                                            onChange={(e) => setEditedProductName(e.target.value)}
+                                                            variant="outlined"
+                                                            size="small"
+                                                        />
+                                                        <IconButton onClick={() => handleSaveClick(product.id)} color="primary">
+                                                            <CheckIcon />
                                                         </IconButton>
-                                                    </Tooltip>
-                                                    <Tooltip title="Delete Parameter" placement="top">
-                                                        <IconButton
-                                                            onClick={() => handleDeleteParameter(product.id)}
-                                                            style={{ marginLeft: '8px' }}
-                                                        >
-                                                            <DeleteIcon fontSize="small" />
+                                                        <IconButton onClick={handleCancelClick} color="secondary">
+                                                            <CloseIcon />
                                                         </IconButton>
-                                                    </Tooltip>
-                                                </>
-                                            )}
-                                        </div>
-                                    </td>
-                                    <td>{product.caseType}</td>
-                                    {columns.map((date) => (
-                                        <td key={date}>
-                                            <TextField
-                                                type="number"
-                                                value={storeValues[rowKey]?.[date] || ''}
-                                                onChange={(e) =>
-                                                    handleValueChange(rowKey, date, e.target.value)
-                                                }
-                                                variant="outlined"
-                                                size="small"
-                                                placeholder="Enter value"
-                                                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-                                            />
-
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <span
+                                                            style={{
+                                                                marginLeft: '8px',
+                                                                overflow: 'auto',
+                                                                whiteSpace: 'nowrap',
+                                                            }}
+                                                        >
+                                                            {product.name}
+                                                        </span>
+                                                        <Tooltip title="Edit Row Name" placement="top">
+                                                            <IconButton
+                                                                onClick={() => handleEditClick(product.id)}
+                                                                style={{ marginLeft: '8px' }}
+                                                            >
+                                                                <EditIcon fontSize="small" />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                        <Tooltip title="Delete Parameter" placement="top">
+                                                            <IconButton
+                                                                onClick={() => handleDeleteParameter(product.id)}
+                                                                style={{ marginLeft: '8px' }}
+                                                            >
+                                                                <DeleteIcon fontSize="small" />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                    </>
+                                                )}
+                                            </div>
                                         </td>
-                                    ))}
-                                </tr>
+                                        <td>{product.caseType}</td>
+                                        {columns.map((date) => (
+                                            <td key={date}>
+                                                <TextField
+                                                    type="number"
+                                                    value={storeValues[rowKey]?.[date] || ''}
+                                                    onChange={(e) =>
+                                                        handleValueChange(rowKey, date, e.target.value)
+                                                    }
+                                                    variant="outlined"
+                                                    size="small"
+                                                    placeholder="Enter value"
+                                                    inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                                                />
+
+                                            </td>
+                                        ))}
+                                    </tr>
                                 </React.Fragment>
                             );
                         })}
@@ -1243,7 +1248,7 @@ const Patient_Forecast_Input = () => {
         fromForecastDate &&
         toForecastDate &&
         dayjs(fromHistoricalDate).isBefore(fromForecastDate) &&
-        dayjs(fromForecastDate).isBefore(toForecastDate)||
+        dayjs(fromForecastDate).isBefore(toForecastDate) ||
         dayjs(fromHistoricalDate).isSame(fromForecastDate, timePeriod === 'Monthly' ? 'month' : 'year') ||
         dayjs(fromHistoricalDate).isSame(toForecastDate, timePeriod === 'Monthly' ? 'month' : 'year');
 
