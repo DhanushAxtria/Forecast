@@ -45,11 +45,9 @@ import AdjustIcon from '@mui/icons-material/Adjust';
 import './ProductListpage.scss';
 import { tab } from '@testing-library/user-event/dist/tab';
 import { MyContext } from './context';
+import { el } from 'date-fns/locale';
 
 const Patient_Forecast = () => {
-    const { countries, setCountries, storeValues, setStoreValues, } = useContext(MyContext); // Multi-select for countries
-    const { therapeuticAreas, setTherapeuticAreas } = useContext(MyContext); // Multi-select for therapeutic areas
-    const { forecastCycles, setForecastCycles } = useContext(MyContext); // Multi-select for forecast cycles
     const [formulaDetails, setFormulaDetails] = useState({ tableKey: null, tabKey: null, productId: null });
     const [editingProductId, setEditingProductId] = useState(null);
     const [editedProductName, setEditedProductName] = useState('');
@@ -60,19 +58,23 @@ const Patient_Forecast = () => {
     const [startValue, setStartValue] = useState(''); // Start value for Specify Start and Target Values
     const [endValue, setEndValue] = useState(''); // End value for Specify Start and Target Values
     const [selectedRowId, setselectedRowId] = useState(null);
+
+    const [selectedTab, setSelectedTab] = useState(null);
     const { timePeriod, setTimePeriod } = useContext(MyContext);
     const navigate = useNavigate();
+    const { storeValues, setStoreValues } = useContext(MyContext);
     const { values, setValues } = useContext(MyContext);
     const { values2, setValues2 } = useContext(MyContext);
     const { values3, setValues3 } = useContext(MyContext);
     const [UploadedFileToFill, setUploadedFileToFill] = useState(null);
     const [openUploadDialog, setOpenUploadDialog] = useState(false); // Dialog for file upload
-    const { fromDate, setFromDate } = useContext(MyContext);
-    const { toDate, setToDate } = useContext(MyContext);
+    const { fromHistoricalDate, setFromHistoricalDate } = useContext(MyContext);
+    const { fromForecastDate, setFromForecastDate } = useContext(MyContext);
+    const { toForecastDate, setToForecastDate } = useContext(MyContext);
     const [manualEntry, setManualEntry] = useState(false);
+
     const [growthRates, setGrowthRates] = useState([]);
     const [startingValue, setStartingValue] = useState('');
-    const [selectedTab, setSelectedTab] = useState(null);
     const [initialGrowthRate, setInitialGrowthRate] = useState('');
     const [columns, setColumns] = useState([]);  // Column headers based on time period
     const [showCard, setShowCard] = useState(false);
@@ -105,17 +107,13 @@ const Patient_Forecast = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [savedText, setSavedText] = useState({});
     const [savedText2, setSavedText2] = useState({});
-    const { editingFormula, setEditingFormula, rowsData, setRowsData } = useContext(MyContext);
+    const { editingFormula, setEditingFormula } = useContext(MyContext);
     const [tabTableVisibility, setTabTableVisibility] = useState({
         downside: { table1: false, table2: false, table3: false },
         base: { table1: false, table2: false, table3: false },
         upside: { table1: false, table2: false, table3: false },
     });
-    useEffect(() => {
-        console.log('storeValues:', storeValues);
-        console.log('selectedRowId:', selectedRowId);
-        console.log('selectedTab:', selectedTab);
-    }, [storeValues, selectedRowId, selectedTab]);
+
 
     /*A component that renders a box with three buttons: one to show the preview of the tables,
       one to close the preview and  "Show Dashboard" button to navigate to the dashboard. */
@@ -512,6 +510,9 @@ const Patient_Forecast = () => {
      * to be displayed and edited. Provides functionality for adding, editing,
      * and deleting rows, as well as inserting formulas and handling various input methods. */
     const renderTable = (tabKey, tableKey) => {
+        console.log(tabKey);
+        console.log(tableKey);
+
         const tableProducts = products[tabKey][tableKey]; // Get the correct products for this table
 
         return (
@@ -532,12 +533,24 @@ const Patient_Forecast = () => {
                                 style={{
                                     //position: 'sticky',
                                     left: 0,
-                                    backgroundColor: 'red',
+                                    
                                     zIndex: 2,
                                     width: '600px'
                                 }}></th>
-                            {columns.map((column, index) => (
-                                <th key={index} style={{ minWidth: '150px' }}>{column}</th>
+                            {columns.map((column) => (
+                                <th                                   
+                                    style={{
+                                        minWidth: '150px',
+                                        backgroundColor:
+                                            timePeriod === 'Year'
+                                                ? dayjs(column).isBefore(dayjs(fromForecastDate), 'year')
+                                                : dayjs(column).isBefore(dayjs(fromForecastDate), 'month')
+                                                    ? '#C6F4D6' // Light green for columns between fromHistorical and fromForecast
+                                                    : '#FFFFE0', // Light yellow for all other columns
+                                    }}
+                                >
+                                    {column}
+                                </th>
                             ))}
                         </tr>
                     </thead>
@@ -562,9 +575,9 @@ const Patient_Forecast = () => {
                                         </Tooltip>
                                         <Tooltip title="Data Input" placement="top">
                                             <IconButton color="primary" onClick={() => {
-                                                setSelectedTab(tabKey);
                                                 setselectedRowId(product.id);
-                                                setOpenInputMethodDialog(true);
+                                                setSelectedTab(tabKey);
+                                                setOpenInputMethodDialog(true)
                                             }}>
                                                 <CloudUploadIcon fontSize="small" />
                                             </IconButton>
@@ -615,7 +628,7 @@ const Patient_Forecast = () => {
                                                 )}
                                                 <Tooltip title="Insert Formula" placement="top" >
                                                     <IconButton onClick={() => {
-                                                        setFormulaDetails({ tableKey, tabKey, productId: product.id }); setFormulaProductId(product.id); setShowFormula(true);
+                                                        setFormulaDetails({ tableKey, tabKey, productId: product.id });
                                                     }} style={{ marginLeft: '4px' }}>
                                                         <CalculateIcon fontSize="small" />
                                                     </IconButton>
@@ -703,8 +716,7 @@ const Patient_Forecast = () => {
                             <br></br>
                             <br></br>
                             {/* Render each dropdown dynamically based on selectedValues and operators */}
-                            {console.log(editingFormula[formulaDetails.tabKey][formulaDetails.tableKey][formulaDetails.productId].emptyArray)}
-                            {editingFormula[formulaDetails.tabKey]?.[formulaDetails.tableKey]?.[formulaDetails.productId]?.emptyArray?.map((selectedValue, index) => (
+                            {editingFormula[tabKey][tableKey][formulaDetails.productId].emptyArray.map((selectedValue, index) => (
                                 <div key={index} style={{ width: 400, display: 'flex', alignItems: 'center', marginBottom: 16 }}>
                                     {/* Operator Dropdown on the left */}
 
@@ -714,7 +726,7 @@ const Patient_Forecast = () => {
                                             <Select
                                                 labelId={`operator-label-${index}`}
                                                 id={`operator-${index}`}
-                                                value={editingFormula[formulaDetails.tabKey][formulaDetails.tableKey][formulaDetails.productId].plusArray[index]}
+                                                value={editingFormula[tabKey][tableKey][formulaDetails.productId].plusArray[index]}
                                                 onChange={(e) => handleSelectChange(formulaDetails.productId, tabKey, tableKey, index, 'operator', e)}
                                                 label="Operator"
                                             >
@@ -732,13 +744,13 @@ const Patient_Forecast = () => {
                                         <Select
                                             labelId={`select-label-${index}`}
                                             id={`select-${index}`}
-                                            value={editingFormula[formulaDetails.tabKey][formulaDetails.tableKey][formulaDetails.productId].emptyArray[index]}
-                                            onChange={(e) => handleSelectChange(formulaDetails.productId, formulaDetails.tabKey, formulaDetails.tableKey, index, 'formula', e)}
+                                            value={editingFormula[tabKey][tableKey][formulaDetails.productId].emptyArray[index]}
+                                            onChange={(e) => handleSelectChange(formulaDetails.productId, tabKey, tableKey, index, 'formula', e)}
                                             label={`Select Formula ${index + 1}`}
                                         >
-                                            {Object.keys(products[formulaDetails.tabKey]).map((tableKey) => (
-                                                products[formulaDetails.tabKey][tableKey].map((product) => (
-                                                    <MenuItem key={product.id} value={product.id}>
+                                            {Object.keys(products[tabKey]).map((tableKey) => (
+                                                products[tabKey][tableKey].map((product) => (
+                                                    <MenuItem key={product.id} value={product.name}>
                                                         {product.name}
                                                     </MenuItem>
                                                 ))
@@ -748,7 +760,7 @@ const Patient_Forecast = () => {
 
                                     {/* Delete Button */}
                                     {<IconButton
-                                        onClick={() => handleDeleteDropdown(formulaDetails.tabKey, formulaDetails.tableKey, formulaDetails.productId, index)}
+                                        onClick={() => handleDeleteDropdown(tabKey, tableKey, formulaDetails.productId, index)}
                                         color="secondary"
                                         style={{ marginLeft: 8 }}
                                     >
@@ -758,16 +770,16 @@ const Patient_Forecast = () => {
                             ))}
 
                             {/* Button to add a new dropdown */}
-                            <Button onClick={() => handleAddDropdown(formulaDetails.tabKey, formulaDetails.tableKey, formulaDetails.productId)} color="primary" fullWidth>
+                            <Button onClick={() => handleAddDropdown(tabKey, tableKey, formulaDetails.productId)} color="primary" fullWidth>
                                 Add New Dropdown
                             </Button>
                         </DialogContent>
 
                         <DialogActions >
-                            <Button onClick={() => handleCancelFormula(formulaDetails.tabKey, formulaDetails.tableKey, formulaDetails.productId)} color="secondary" variant="contained" sx={{ fontWeight: 'bold', borderRadius: '8px' }}>
+                            <Button onClick={() => handleCancelFormula(tabKey, tableKey, formulaDetails.productId)} color="secondary" variant="contained" sx={{ fontWeight: 'bold', borderRadius: '8px' }}>
                                 Cancel
                             </Button>
-                            <Button color="secondary" variant="contained" sx={{ fontWeight: 'bold', borderRadius: '8px' }} onClick={() => handleApply(formulaDetails.tabKey, formulaDetails.tableKey, formulaDetails.productId)}>
+                            <Button color="secondary" variant="contained" sx={{ fontWeight: 'bold', borderRadius: '8px' }} onClick={() => handleApply(tabKey, tableKey, formulaDetails.productId)}>
                                 Apply
                             </Button>
                         </DialogActions>
@@ -1057,7 +1069,6 @@ const Patient_Forecast = () => {
                                         onClick={() => handleInputMethodSelect('startEndValues')}
                                         sx={{
                                             padding: '18px',
-                                            borderBottom: '1px solid #e0e0e0',
                                             borderRadius: '8px',
                                             marginBottom: '12px',
                                             cursor: 'pointer', // Adds hand cursor on hover
@@ -1074,6 +1085,9 @@ const Patient_Forecast = () => {
                                         <AdjustIcon color="primary" sx={{ marginRight: '12px' }} />
                                         <ListItemText primary="Specify Starting and Target Values" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
                                     </ListItem>
+
+
+                                    {/*Copy from Input Page*/}
                                     <ListItem
                                         button
                                         onClick={handleCopyFromInputPage}
@@ -1226,7 +1240,7 @@ const Patient_Forecast = () => {
                                         <DatePicker
                                             views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
                                             label={timePeriod === 'Monthly' ? 'Start Month' : 'Start Year'}
-                                            value={fromDate} // Auto-populated
+                                            value={fromHistoricalDate} // Auto-populated
                                             disabled
                                             format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
                                             slotProps={{ textField: { size: 'small' } }}
@@ -1268,7 +1282,7 @@ const Patient_Forecast = () => {
                                                 slotProps={{ textField: { size: 'small' } }}
                                                 style={{ minWidth: '120px' }}
                                                 minDate={getMinDate(index)} //The user cannot select a Date that is before the Start Date
-                                                maxDate={toDate} //The user cannot select a Start Date that is after the End Date
+                                                maxDate={toForecastDate} //The user cannot select a Start Date that is after the End Date
                                             />
                                             {/* Growth Rate input field. User can edit value. */}
                                             <TextField
@@ -1301,11 +1315,16 @@ const Patient_Forecast = () => {
                                 </DialogActions>
                             </Dialog>
                         </LocalizationProvider>
+
+
                     </>
                 }
             </Box >
         );
     };
+
+
+
 
 
     const handleTabChange = (event, newValue) => {
@@ -1455,26 +1474,38 @@ const Patient_Forecast = () => {
 
     // Handle applying the selected formula(s)
     const handleApply = (tabKey, tableKey, row_id) => {
-        const selectedIds = editingFormula[tabKey][tableKey][row_id].emptyArray
-        const operatorsList = editingFormula[tabKey][tableKey][row_id].plusArray
+        const rowsList = Formulas[tabKey][tableKey][row_id].emptyArray
+        const operatorsList = Formulas[tabKey][tableKey][row_id].plusArray
         // Slice the operators array to exclude the first element (which is the default "+")
         const operatorSliced = operatorsList.slice(1);
+        // find all the ids
+        const selectedIds = rowsList.map((selectedValue) => {
+            // Iterate through all tableKeys under the current tabKey
+            for (const tableKey in products[tabKey]) {
+                // Find the product that matches the selected value
+                const product = products[tabKey][tableKey].find((prod) => prod.name === selectedValue);
+                if (product) {
+                    return product.id; // Return the id if a product is found
+                }
+            }
+            return null; // Return null if no product is found
+        }).filter((id) => id !== null); // Filter out null values
 
 
         let res = {}; // Object to store the results of the forecast calculation
         if (timePeriod === 'Monthly') {
             // Loop through the months in the time period and create a key for each in the results object
             // if the key doesn't already exist
-            for (let i = 0; i < dayjs(toDate).diff(dayjs(fromDate), 'month') + 1; i++) {
-                const month = dayjs(fromDate).add(i, 'month').format('MMM-YYYY');
+            for (let i = 0; i < dayjs(toForecastDate).diff(dayjs(fromHistoricalDate), 'month') + 1; i++) {
+                const month = dayjs(fromHistoricalDate).add(i, 'month').format('MMM-YYYY');
                 if (!res[month]) {
                     res[month] = "0";
                 }
             }
         }
         else {
-            for (let i = 0; i < dayjs(toDate).diff(dayjs(fromDate), 'year') + 1; i++) {
-                const year = dayjs(fromDate).add(i, 'year').format('YYYY');
+            for (let i = 0; i < dayjs(toForecastDate).diff(dayjs(fromHistoricalDate), 'year') + 1; i++) {
+                const year = dayjs(fromHistoricalDate).add(i, 'year').format('YYYY');
                 if (!res[year]) {
                     res[year] = "0";
                 }
@@ -1482,10 +1513,10 @@ const Patient_Forecast = () => {
         }
         // Get the first selected product's id
         const idd = selectedIds[0];
-        console.log("id", idd);
+
         // Get the first selected product's values based on the current tabKey
         const val = tabKey === 'downside' ? values[idd] : tabKey === 'base' ? values2[idd] : values3[idd];
-        console.log("val", val);
+
         // If the product has values, loop through its values and add them to the results object
         if (val !== undefined) {
             Object.keys(val).forEach((key) => {
@@ -1547,8 +1578,6 @@ const Patient_Forecast = () => {
         }
         setFormulas(editingFormula);
         setShowFormula(false);
-        console.log(Formulas);
-        console.log(res);
     };
 
 
@@ -1623,28 +1652,9 @@ const Patient_Forecast = () => {
             };
             return newProducts;
         });
-        // Update the formulas and editing formulas with the new row
-        setFormulas((prevFormulas) => ({
-            ...prevFormulas,
-            [tabKey]: {
-                ...prevFormulas[tabKey],
-                [tableKey]: {
-                    ...prevFormulas[tabKey][tableKey],
-                    [newProduct.id]: { emptyArray: [""], plusArray: ["+"] }
-                }
-            }
-        }));
-        setEditingFormula((prevEditingFormulas) => ({
-            ...prevEditingFormulas,
-            [tabKey]: {
-                ...prevEditingFormulas[tabKey],
-                [tableKey]: {
-                    ...prevEditingFormulas[tabKey][tableKey],
-                    [newProduct.id]: { emptyArray: [""], plusArray: ["+"] }
-                }
-            }
-        }));
     };
+
+
     const handleDeleteRow = (productId, tabKey, tableKey) => {
         const tableProducts = products[tabKey][tableKey];  // Get the current list of products
 
@@ -1710,11 +1720,11 @@ const Patient_Forecast = () => {
         // Generate the columns based on the selected time period
         // Columns are only regenerated when the time period, start date, or end date changes
         if (timePeriod === 'Monthly') {
-            setColumns(generateMonthlyColumns(fromDate, toDate));
+            setColumns(generateMonthlyColumns(fromHistoricalDate, toForecastDate));
         } else if (timePeriod === 'Yearly') {
-            setColumns(generateYearlyColumns(fromDate, toDate));
+            setColumns(generateYearlyColumns(fromHistoricalDate, toForecastDate));
         }
-    }, [timePeriod, fromDate, toDate]);
+    }, [timePeriod, fromHistoricalDate, toForecastDate]);
 
 
     /*
@@ -1764,6 +1774,33 @@ const Patient_Forecast = () => {
         }
     };
 
+    const rowKey = `${selectedRowId}.${selectedTab}`;
+    const handleCopyFromInputPage = () => {
+        console.log('rowKey:', rowKey);
+        console.log('storeValues[rowKey]:', storeValues[rowKey]);
+
+        if (storeValues[rowKey] && typeof storeValues[rowKey] === 'object') {
+            Object.keys(storeValues[rowKey]).forEach((date) => {
+                console.log('storeValues[rowKey][date]:', storeValues[rowKey][date]);
+                handleValueChange(selectedTab, selectedRowId, date, storeValues[rowKey][date]);
+            });
+        } else if (storeValues[rowKey] === null || storeValues[rowKey] === undefined) {
+            alert('No data found');
+        } else {
+            console.warn('storeValues[rowKey] is not a valid object:', storeValues[rowKey]);
+        }
+
+        setOpenInputMethodDialog(false);
+    };
+
+
+
+    useEffect(() => {
+        console.log('storeValues:', storeValues);
+        console.log('selectedRowId:', selectedRowId);
+        console.log('selectedTab:', selectedTab);
+
+    }, [storeValues, selectedRowId, selectedTab]);
 
     /**
      * Distributes values linearly between a start and end value over a specified time period.
@@ -1775,8 +1812,8 @@ const Patient_Forecast = () => {
     const distributeValuesBetweenStartAndEnd = (startVal, endVal) => {
         let distributedValues = {};
 
-        const startDate = dayjs(fromDate);
-        const endDate = dayjs(toDate);
+        const startDate = dayjs(fromHistoricalDate);
+        const endDate = dayjs(toForecastDate);
 
         // Calculate the number of intervals based on the selected time period
         const intervals = timePeriod === 'Monthly'
@@ -1802,6 +1839,7 @@ const Patient_Forecast = () => {
         }
 
         return distributedValues;
+
     };
 
 
@@ -1815,6 +1853,7 @@ const Patient_Forecast = () => {
     const handleSaveStartEndValues = (tabKey, startValue, endValue) => {
 
         const distributed = distributeValuesBetweenStartAndEnd(startValue, endValue);
+        console.log(distributed);
 
         // Loop through the distributed values and use handleValueChange to update each value
         Object.keys(distributed).forEach((date) => {
@@ -1868,9 +1907,9 @@ const Patient_Forecast = () => {
                     });
 
                     if (tabKey === 'downside') {
-                        // Loop through the months between fromDate and toDate
-                        for (let i = 0; i < dayjs(toDate).diff(dayjs(fromDate), 'month') + 1; i++) {
-                            const month = dayjs(fromDate).add(i, 'month').format('MMM-YYYY');
+                        // Loop through the months between fromHistoricalDate and toForecastDate
+                        for (let i = 0; i < dayjs(toForecastDate).diff(dayjs(fromHistoricalDate), 'month') + 1; i++) {
+                            const month = dayjs(fromHistoricalDate).add(i, 'month').format('MMM-YYYY');
                             // Find the index of the month in the dateHeaders array
                             const monthIndex = dateHeaders.indexOf(month);
                             if (monthIndex !== -1) {
@@ -1891,8 +1930,8 @@ const Patient_Forecast = () => {
                         }
                     }
                     else if (tabKey === 'base') { //doing the same for base tab as downside tab
-                        for (let i = 0; i < dayjs(toDate).diff(dayjs(fromDate), 'month') + 1; i++) {
-                            const month = dayjs(fromDate).add(i, 'month').format('MMM-YYYY');
+                        for (let i = 0; i < dayjs(toForecastDate).diff(dayjs(fromHistoricalDate), 'month') + 1; i++) {
+                            const month = dayjs(fromHistoricalDate).add(i, 'month').format('MMM-YYYY');
                             const monthIndex = dateHeaders.indexOf(month);
                             if (monthIndex !== -1) {
                                 const val = firstRow[monthIndex];
@@ -1909,8 +1948,8 @@ const Patient_Forecast = () => {
                         }
                     }
                     else { //doing the same for upside tab as downside tab
-                        for (let i = 0; i < dayjs(toDate).diff(dayjs(fromDate), 'month') + 1; i++) {
-                            const month = dayjs(fromDate).add(i, 'month').format('MMM-YYYY');
+                        for (let i = 0; i < dayjs(toForecastDate).diff(dayjs(fromHistoricalDate), 'month') + 1; i++) {
+                            const month = dayjs(fromHistoricalDate).add(i, 'month').format('MMM-YYYY');
                             const monthIndex = dateHeaders.indexOf(month);
                             if (monthIndex !== -1) {
                                 const val = firstRow[monthIndex];
@@ -1943,8 +1982,8 @@ const Patient_Forecast = () => {
                     });
                     console.log(dateHeaders);
                     if (tabKey === 'downside') {
-                        for (let i = 0; i < dayjs(toDate).diff(dayjs(fromDate), 'year') + 1; i++) {
-                            const month = dayjs(fromDate).add(i, 'year').format('YYYY');
+                        for (let i = 0; i < dayjs(toForecastDate).diff(dayjs(fromHistoricalDate), 'year') + 1; i++) {
+                            const month = dayjs(fromHistoricalDate).add(i, 'year').format('YYYY');
                             console.log(month);
                             const monthIndex = dateHeaders.indexOf(month);
                             if (monthIndex !== -1) {
@@ -1961,8 +2000,8 @@ const Patient_Forecast = () => {
                         }
                     }
                     else if (tabKey === 'base') {
-                        for (let i = 0; i < dayjs(toDate).diff(dayjs(fromDate), 'year') + 1; i++) {
-                            const month = dayjs(fromDate).add(i, 'year').format('YYYY');
+                        for (let i = 0; i < dayjs(toForecastDate).diff(dayjs(fromHistoricalDate), 'year') + 1; i++) {
+                            const month = dayjs(fromHistoricalDate).add(i, 'year').format('YYYY');
                             const monthIndex = dateHeaders.indexOf(month);
                             if (monthIndex !== -1) {
                                 const val = firstRow[monthIndex];
@@ -1977,8 +2016,8 @@ const Patient_Forecast = () => {
                         }
                     }
                     else {
-                        for (let i = 0; i < dayjs(toDate).diff(dayjs(fromDate), 'year') + 1; i++) {
-                            const month = dayjs(fromDate).add(i, 'year').format('YYYY');
+                        for (let i = 0; i < dayjs(toForecastDate).diff(dayjs(fromHistoricalDate), 'year') + 1; i++) {
+                            const month = dayjs(fromHistoricalDate).add(i, 'year').format('YYYY');
                             const monthIndex = dateHeaders.indexOf(month);
                             if (monthIndex !== -1) {
                                 const val = firstRow[monthIndex];
@@ -2052,7 +2091,7 @@ const Patient_Forecast = () => {
      */
     const getMinDate = (index) => {
         if (index === 0) {
-            return fromDate; // Initial starting date for the first entry
+            return fromHistoricalDate; // Initial starting date for the first entry
         }
         return growthRates[index - 1].startDate; // Last added date for subsequent entries
     };
@@ -2071,7 +2110,7 @@ const Patient_Forecast = () => {
     /**
      * Calculates growth rate values over a specified time period:
      * This function takes an initial value and growth rate, calculates the compounded values over a time
-     * period defined by global `fromDate` and `toDate` variables, and adjusts the growth rates based on 
+     * period defined by global `fromHistoricalDate` and `toForecastDate` variables, and adjusts the growth rates based on 
      * specified intervals. The time period can be monthly or yearly, and the results are stored in an 
      * object with date keys.
      */
@@ -2079,8 +2118,8 @@ const Patient_Forecast = () => {
 
         const newValues = {};
 
-        const startDate = dayjs(fromDate); // Start date of the calculation period
-        const endDate = dayjs(toDate); // End date of the calculation period
+        const startDate = dayjs(fromHistoricalDate); // Start date of the calculation period
+        const endDate = dayjs(toForecastDate); // End date of the calculation period
         const columnIndexEndDate = columns.indexOf(timePeriod === 'Monthly' ? endDate.format('MMM-YYYY') : endDate.format('YYYY')); // column index of the end date
 
         const startValue = parseFloat(startingValue);
@@ -2149,24 +2188,6 @@ const Patient_Forecast = () => {
 
         return newValues;
     };
-    const rowKey = `${selectedRowId}.${selectedTab}`;
-    const handleCopyFromInputPage = () => {
-        console.log('rowKey:', rowKey);
-        console.log('storeValues[rowKey]:', storeValues[rowKey]);
-
-        if (storeValues[rowKey] && typeof storeValues[rowKey] === 'object') {
-            Object.keys(storeValues[rowKey]).forEach((date) => {
-                console.log('storeValues[rowKey][date]:', storeValues[rowKey][date]);
-                handleValueChange(selectedTab, selectedRowId, date, storeValues[rowKey][date]);
-            });
-        } else if (storeValues[rowKey] === null || storeValues[rowKey] === undefined) {
-            alert('No data found');
-        } else {
-            console.warn('storeValues[rowKey] is not a valid object:', storeValues[rowKey]);
-        }
-
-        setOpenInputMethodDialog(false);
-    };
 
     {/* Reset all the states to their initial values when clear all data button is clicked*/ }
     const handleReset = () => {
@@ -2219,51 +2240,7 @@ const Patient_Forecast = () => {
 
                 {/* Section displaying the greeting message */}
                 <div style={{ backgroundColor: 'white', padding: '0.5px', marginTop: '-25px', marginLeft: '10px' }}>
-
-                    <h2 style={{ textAlign: 'left' }}>{greeting}, Welcome to the Patient Based Forecasting Page!</h2>
-                    {/* <Button
-                        variant="contained"
-                        color="secondary"
-                        onClick={() => {
-                            setRowsData((prevRowsData) => {
-                                const newRow = {
-                                    country: countries[0],
-                                    currentForecastStatus: "Submitted",
-                                    forecast: "Forecast 1",
-                                    forecastScenario: forecastCycles[0],
-                                    forecastStarted: new Date().toISOString().split('T')[0],
-                                    therapeuticArea: therapeuticAreas[0],
-                                    username: "John Doe",
-                                    worksheet: "Worksheet 1",
-                                };
-                                return [...prevRowsData, newRow];
-                            });
-                            alert("It Is Submitted");
-                        }}
-                        sx={{ marginLeft: '3px', marginBottom: '10px', marginRight: '10px' }}>
-                        Submit Scenario
-                    </Button>
-                    <Button
-                        variant="contained"
-                        color="success"
-                        onClick={() => {
-                            setRowsData([...rowsData, {
-                                country: countries[0],
-                                currentForecastStatus: "Ongoing",
-                                forecast: "Forecast 1",
-                                forecastScenario: forecastCycles[0],
-                                forecastStarted: new Date().toISOString().split('T')[0],
-                                therapeuticArea: therapeuticAreas[0],
-                                username: "John Doe",
-                                worksheet: "Worksheet 1",
-                            }]);
-                            alert("It Is Saved");
-                        }}
-                        sx={{ marginLeft: '3px', marginBottom: '10px' }}>
-                        Save Scenario
-                    </Button> */}
-
-                </div>
+                    <h2 style={{ textAlign: 'left' }}>{greeting}, Welcome to the Patient Based Forecasting Page!</h2> </div>
 
                 {/* Label for selecting the time period */}
                 <span style={{ marginLeft: '12px' }} gap="10px" sx={{ marginRight: '20px' }}>Select Time Period</span>
@@ -2294,25 +2271,34 @@ const Patient_Forecast = () => {
                             {/* Start Date Picker */}
                             <DatePicker
                                 views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
-                                label={timePeriod === 'Monthly' ? 'Start Month' : 'Start Year'} //box label based on the time period
-                                value={fromDate}
-                                onChange={(newValue) => setFromDate(newValue)}
-                                format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'} // format of time period chosen conditionally
+                                label={timePeriod === 'Monthly' ? ' Historical Start Month' : 'Historical Start Year'}
+                                value={fromHistoricalDate}
+                                onChange={(newValue) => setFromHistoricalDate(newValue)}
+                                format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
                                 slotProps={{ textField: { size: 'small' } }}
                                 sx={{ width: '160px' }}
-                                maxDate={toDate} // Set maximum selectable date to the end date
+                                maxDate={toForecastDate}
                             />
-                            {/* End Date Picker */}
                             <DatePicker
                                 views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
-                                label={timePeriod === 'Monthly' ? 'End Month' : 'End Year'} //box label based on the time period
-                                value={toDate}
-                                onChange={(newValue) => setToDate(newValue)}
-                                format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'} // format of time period chosen conditionally
+                                label={timePeriod === 'Monthly' ? 'Forecast Start Month' : 'Forecast Start Year'}
+                                value={fromForecastDate}
+                                onChange={(newValue) => setFromForecastDate(newValue)}
+                                format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
                                 slotProps={{ textField: { size: 'small' } }}
                                 sx={{ width: '160px' }}
-                                // Validate that the end date is after the start date
-                                minDate={fromDate}
+                                minDate={fromHistoricalDate}
+
+                            />
+                            <DatePicker
+                                views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
+                                label={timePeriod === 'Monthly' ? 'Forecast End Month' : 'Forecast End Year'}
+                                value={toForecastDate}
+                                onChange={(newValue) => setToForecastDate(newValue)}
+                                format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
+                                slotProps={{ textField: { size: 'small' } }}
+                                sx={{ width: '160px' }}
+                                minDate={fromForecastDate}
                             />
                         </LocalizationProvider>
                         {/* Button to proceed with the calculation. This will show the tabs and cards. 
@@ -2321,7 +2307,10 @@ const Patient_Forecast = () => {
                             variant="contained"
                             color="primary"
                             onClick={() => {
-                                if (dayjs(fromDate).isBefore(toDate) || dayjs(fromDate).isSame(toDate, timePeriod === 'Monthly' ? 'month' : 'year')) {
+                                if (dayjs(fromHistoricalDate).isBefore(fromForecastDate) &&
+                                    dayjs(fromForecastDate).isBefore(toForecastDate) ||
+                                    dayjs(fromHistoricalDate).isSame(fromForecastDate, timePeriod === 'Monthly' ? 'month' : 'year') ||
+                                    dayjs(fromHistoricalDate).isSame(toForecastDate, timePeriod === 'Monthly' ? 'month' : 'year')) {
                                     // If the start date is before the end date, show the tabs and cards
                                     setShowTabs(true);
                                 } else {
@@ -2331,7 +2320,7 @@ const Patient_Forecast = () => {
                                     alert("Invalid date range: Start date must be before end date");
                                 }
                             }}
-                            sx={{ marginLeft: '10px', marginBottom: '2px' }}>
+                            sx={{ marginLeft: '18px', marginBottom: '2px' }}>
                             Proceed
                         </Button>
                         {/* Button to clear all data on the page. 
@@ -2345,19 +2334,9 @@ const Patient_Forecast = () => {
                                     handleReset();
                                 }
                             }}
-                            sx={{ marginLeft: '10px', marginBottom: '2px' }}>
+                            sx={{ marginLeft: '18px', marginBottom: '2px' }}>
                             Clear All Data
                         </Button>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => navigate('/new-scenario/forecastdeepdive/patientinput')}
-                            sx={{ marginLeft: '10px', marginBottom: '2px' }}>
-                            Go To Input page
-                        </Button>
-
-
-
                     </Box>
                     <Box sx={{ width: '90%', margin: '0 auto' }}>
                         {/* Render tabs if 'showTabs' is true */}
@@ -2434,6 +2413,8 @@ const Patient_Forecast = () => {
                                     {tabTableVisibility[currentTabKey].table3 && renderTable(currentTabKey, 'table3')}
                                 </Box>
                                 {Preview()} {/* Render Preview component inside each tab*/}
+
+
                             </div>
                         }
                     </Box>

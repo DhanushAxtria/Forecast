@@ -42,7 +42,7 @@ function App() {
           {/* Data Consolidation  Page Route */}
           <Route path="/data-consolidation" element={<DataConsolidation />} />
           /{/*<Route path="/Forecast" element={<HomePage />} />*/}
-          <Route path="/new-scenario/scenario-details" element={<ScenarioDetails />} />
+          <Route path="/new-scenario/scenario-details" element={<ScenarioDetails  />} />
           <Route path="/saved-scenario/review-scenario" element={<ReviewScenario />} />
           <Route path="/saved-scenario/Summary-scenario" element={<SummaryScenario />} />
           <Route path="/new-scenario/review-scenario" element={<ReviewScenario />} />

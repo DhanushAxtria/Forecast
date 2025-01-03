@@ -93,8 +93,10 @@ export default function NewScenario({ username = "User" }) {
   const forecastCycleOptions = ['H1 - 2023', 'H2 - 2023', 'H1 - 2024', 'H2 - 2024'];
 
   const handleSelectClick = (scenario) => {
+    console.log('scenario:', scenario)
     // Navigate to the specific page, passing scenario data as state
     navigate('/new-scenario/scenario-details', { state: { scenario } });
+    
   };
   const handleReviewScenario = (scenario) => {
     // Navigate to the specific page, passing scenario data as state
