@@ -21,6 +21,7 @@ import Dashboard from './Body/Dashboard'
 import KPI from './Body/KPI'
 import Admin from './Body/Admin'
 import GenerateReport from './Body/GenerateReport';
+import Model1 from './Body/Model1'
 function App() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false); // Initialize the state
   return (
@@ -60,6 +61,8 @@ function App() {
           <Route path="/new-scenario/forecastdeepdive/kpi-analysis" element={<KPI />} />
           <Route path="/new-scenario/forecastdeepdive/patientinput" element={<Patient_Forecast_Input />} />
           <Route path="/generate-report" element={<GenerateReport />} />
+          <Route path="/new-scenario/model1" element={<Model1 />} />
+
           {/* Add more routes as needed */}
         </Routes>
       </Router>

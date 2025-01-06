@@ -562,7 +562,7 @@ export default function NewScenario({ username = "User" }) {
                 }}
                 onClick={() => {
                   if (isHighlighted) { // Only navigate if the folder is highlighted (blue)
-                    navigate('/new-scenario/scenario-details', { state: { folder } });
+                    navigate('/new-scenario/model1', { state: { folder } });
                   }
                 }}
               >
