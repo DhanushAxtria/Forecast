@@ -19,6 +19,8 @@ import Patient_Forecast_Input from './Body/Patient_Forecast_Input';
 import Forecasted_Results from './Body/forecastedresults';
 import Dashboard from './Body/Dashboard'
 import KPI from './Body/KPI'
+import Admin from './Body/Admin'
+import GenerateReport from './Body/GenerateReport';
 function App() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false); // Initialize the state
   return (
@@ -50,14 +52,14 @@ function App() {
           <Route path="/submissions-tracker" element={<Submission_Tracker />} />
           <Route path="new-scenario/scenario-details/Inputpage" element={<Inputpage />} />
           <Route path="/saved-scenario" element={<SavedScenario />} />
-          {/* <Route path="/Inputpage" element={<Inputpage/>} /> */}
+          <Route path="/admin" element={<Admin/>} />
           <Route path="/new-scenario/forecastdeepdive" element={<Patient_Forecast />} />
           <Route path="/time-series-methods" element={<Forecastpage />} />
           <Route path="/time-series-methods/forecasted_results" element={<Forecasted_Results />} />
           <Route path="/new-scenario/forecastdeepdive/dashboard" element={<Dashboard />} />
           <Route path="/new-scenario/forecastdeepdive/kpi-analysis" element={<KPI />} />
           <Route path="/new-scenario/forecastdeepdive/patientinput" element={<Patient_Forecast_Input />} />
-
+          <Route path="/generate-report" element={<GenerateReport />} />
           {/* Add more routes as needed */}
         </Routes>
       </Router>
