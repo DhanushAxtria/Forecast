@@ -415,7 +415,7 @@ export default function NewScenario({ username = "User" }) {
                         variant="contained"
                         color="primary"
                         size="small"
-                        onClick={() => navigate("/new-scenario/forecastdeepdive")}
+                        onClick={() => navigate("/new-scenario/scenario-details")}
                         disabled={!(forecastCycles.length > 0 && countries.length > 0 && therapeuticAreas.length > 0)}
                       >
                         Create

@@ -46,7 +46,7 @@ import './ProductListpage.scss';
 import { tab } from '@testing-library/user-event/dist/tab';
 import { MyContext } from './context';
 
-const Patient_Forecast = () => {
+const Model1 = () => {
     const { countries, setCountries, storeValues, setStoreValues, } = useContext(MyContext); // Multi-select for countries
     const { therapeuticAreas, setTherapeuticAreas } = useContext(MyContext); // Multi-select for therapeutic areas
     const { forecastCycles, setForecastCycles } = useContext(MyContext); // Multi-select for forecast cycles
@@ -67,8 +67,9 @@ const Patient_Forecast = () => {
     const { values3, setValues3 } = useContext(MyContext);
     const [UploadedFileToFill, setUploadedFileToFill] = useState(null);
     const [openUploadDialog, setOpenUploadDialog] = useState(false); // Dialog for file upload
-    const { fromHistoricalDate, setFromHistoricalDate, fromForecastDate, setFromForecastDate } = useContext(MyContext);
-    const { toForecastDate, setToForecastDate, } = useContext(MyContext);
+    const { fromHistoricalDate, setFromHistoricalDate } = useContext(MyContext);
+    const { fromForecastDate, setFromForecastDate } = useContext(MyContext);
+    const { toForecastDate, setToForecastDate } = useContext(MyContext);
     const [manualEntry, setManualEntry] = useState(false);
     const [growthRates, setGrowthRates] = useState([]);
     const [startingValue, setStartingValue] = useState('');
@@ -142,7 +143,7 @@ const Patient_Forecast = () => {
                     <Button
                         variant="contained"
                         onClick={() => {
-                            navigate("/new-scenario/scenario-details/forecastdeepdive/dashboard");
+                            navigate("/new-scenario/forecastdeepdive/dashboard");
                         }}
                         color="success"
                         sx={{ fontSize: '0.8rem' }}
@@ -152,7 +153,7 @@ const Patient_Forecast = () => {
                     <Button
                         variant="contained"
                         onClick={() => {
-                            navigate("/new-scenario/scenario-details/forecastdeepdive/kpi-analysis");
+                            navigate("/new-scenario/forecastdeepdive/kpi-analysis");
                         }}
                         color="success"
                         sx={{ fontSize: '0.8rem' }}
@@ -532,20 +533,8 @@ const Patient_Forecast = () => {
                                     zIndex: 2,
                                     width: '600px'
                                 }}></th>
-                            {columns.map((column) => (
-                                <th
-                                    style={{
-                                        minWidth: '150px',
-                                        backgroundColor:
-                                            timePeriod === 'Year'
-                                                ? dayjs(column).isBefore(dayjs(fromForecastDate), 'year')
-                                                : dayjs(column).isBefore(dayjs(fromForecastDate), 'month')
-                                                    ? '#C6F4D6' // Light green for columns between fromHistorical and fromForecast
-                                                    : '#FFFFE0', // Light yellow for all other columns
-                                    }}
-                                >
-                                    {column}
-                                </th>
+                            {columns.map((column, index) => (
+                                <th key={index} style={{ minWidth: '150px' }}>{column}</th>
                             ))}
                         </tr>
                     </thead>
@@ -606,13 +595,13 @@ const Patient_Forecast = () => {
                                                 </span>
 
                                                 <Tooltip title="Edit Row Name" placement="top" >
-                                                    <IconButton onClick={() => handleEditClick(product.id, tabKey, tableKey)} style={{ marginLeft: '8px' }}>
+                                                    <IconButton onClick={() => handleEditClick(product.id, tabKey, tableKey)} style={{ marginLeft: '8px' }} disabled>
                                                         <EditIcon fontSize="small" />
                                                     </IconButton>
                                                 </Tooltip>
                                                 {index !== tableProducts.length - 1 ? (
                                                     <Tooltip title="Add Row" placement="top" >
-                                                        <IconButton onClick={() => handleAddRow(tabKey, tableKey, product.id)} style={{ marginLeft: '8px' }}>
+                                                        <IconButton onClick={() => handleAddRow(tabKey, tableKey, product.id)} style={{ marginLeft: '8px' }} disabled>
                                                             <AddIcon fontSize="small" />
                                                         </IconButton>
                                                     </Tooltip>
@@ -630,7 +619,7 @@ const Patient_Forecast = () => {
                                                 </Tooltip>
 
                                                 <Tooltip title="Delete Row" placement="top" >
-                                                    <IconButton onClick={() => handleDeleteRow(product.id, tabKey, tableKey)} style={{ marginLeft: '8px' }}>
+                                                    <IconButton onClick={() => handleDeleteRow(product.id, tabKey, tableKey)} style={{ marginLeft: '8px' }} disabled>
                                                         <DeleteIcon fontSize="small" />
                                                     </IconButton>
                                                 </Tooltip>
@@ -1009,30 +998,6 @@ const Patient_Forecast = () => {
                                         <ListItemText primary="Input Values Manually" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
                                     </ListItem>
 
-                                    {/* Copy from Input Page */}
-                                    <ListItem
-                                        button
-                                        onClick={handleCopyFromInputPage}
-                                        sx={{
-                                            padding: '18px',
-                                            borderBottom: '1px solid #e0e0e0',
-                                            borderRadius: '8px',
-                                            marginBottom: '12px',
-                                            cursor: 'pointer', // Adds hand cursor on hover
-                                            '&:hover': {
-                                                backgroundColor: '#e3f2fd',
-                                                transform: 'scale(1.02)',
-                                                transition: 'transform 0.2s',
-                                            },
-                                        }}
-                                    >
-                                        <Typography variant="h6" color="primary" sx={{ marginRight: '12px', fontWeight: 'bold' }}>
-                                            2.
-                                        </Typography>
-                                        <AdjustIcon color="primary" sx={{ marginRight: '12px' }} />
-                                        <ListItemText primary="Copy from Input Page" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
-                                    </ListItem>
-
                                     {/* File Upload */}
                                     <Tooltip title="Only .csv or .xlsx formats allowed" arrow>
                                         <ListItem
@@ -1052,7 +1017,7 @@ const Patient_Forecast = () => {
                                             }}
                                         >
                                             <Typography variant="h6" color="primary" sx={{ marginRight: '12px', fontWeight: 'bold' }}>
-                                                3.
+                                                2.
                                             </Typography>
                                             <UploadFileIcon color="primary" sx={{ marginRight: '12px' }} />
                                             <ListItemText primary="Upload Data File" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
@@ -1077,7 +1042,7 @@ const Patient_Forecast = () => {
                                         }}
                                     >
                                         <Typography variant="h6" color="primary" sx={{ marginRight: '12px', fontWeight: 'bold' }}>
-                                            4.
+                                            3.
                                         </Typography>
                                         <TrendingUpIcon color="primary" sx={{ marginRight: '12px' }} />
                                         <ListItemText primary="Set Initial Values with Growth Rate" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
@@ -1087,6 +1052,28 @@ const Patient_Forecast = () => {
                                     <ListItem
                                         button
                                         onClick={() => handleInputMethodSelect('startEndValues')}
+                                        sx={{
+                                            padding: '18px',
+                                            borderBottom: '1px solid #e0e0e0',
+                                            borderRadius: '8px',
+                                            marginBottom: '12px',
+                                            cursor: 'pointer', // Adds hand cursor on hover
+                                            '&:hover': {
+                                                backgroundColor: '#e3f2fd',
+                                                transform: 'scale(1.02)',
+                                                transition: 'transform 0.2s',
+                                            },
+                                        }}
+                                    >
+                                        <Typography variant="h6" color="primary" sx={{ marginRight: '12px', fontWeight: 'bold' }}>
+                                            4.
+                                        </Typography>
+                                        <AdjustIcon color="primary" sx={{ marginRight: '12px' }} />
+                                        <ListItemText primary="Specify Starting and Target Values" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
+                                    </ListItem>
+                                    <ListItem
+                                        button
+                                        onClick={handleCopyFromInputPage}
                                         sx={{
                                             padding: '18px',
                                             borderRadius: '8px',
@@ -1103,12 +1090,8 @@ const Patient_Forecast = () => {
                                             5.
                                         </Typography>
                                         <AdjustIcon color="primary" sx={{ marginRight: '12px' }} />
-                                        <ListItemText primary="Specify Starting and Target Values" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
+                                        <ListItemText primary="Copy from Input Page" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
                                     </ListItem>
-
-
-                                    {/*Copy from Input Page*/}
-
                                 </List>
                             </DialogContent>
                             <DialogActions sx={{ padding: '16px', backgroundColor: '#f0f4fa' }}>
@@ -2340,4 +2323,4 @@ const Patient_Forecast = () => {
         </>
     )
 }
-export default Patient_Forecast;
+export default Model1;
