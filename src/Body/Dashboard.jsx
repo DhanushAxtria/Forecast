@@ -105,9 +105,12 @@ const Dashboard = () => {
     const { products } = useContext(MyContext);
     const { values, values2, values3, setDropdownGroups, dropdownGroups } = useContext(MyContext); // values, values2, values3 are table values.
     const { cardTitle1, cardTitle2, cardTitle3 } = useContext(MyContext);
-    const { fromDate, toDate, timePeriod } = useContext(MyContext);
+    const {  timePeriod } = useContext(MyContext);
+    const { fromHistoricalDate, setFromHistoricalDate } = useContext(MyContext);
+    const { fromForecastDate, setFromForecastDate } = useContext(MyContext);
+    const { toForecastDate, setToForecastDate } = useContext(MyContext);
     // Generate columns based on timePeriod
-    const months = timePeriod === 'Monthly' ? generateMonthlyColumns(fromDate, toDate) : generateYearlyColumns(fromDate, toDate);
+    const months = timePeriod === 'Monthly' ? generateMonthlyColumns(fromHistoricalDate, toForecastDate) : generateYearlyColumns(fromHistoricalDate, toForecastDate);
     // Colors for the charts
     const colors = ["#A8E6CF", "#FFBCB3", "#E1C6E8", "#B3D9F7", "#FF9A8B", "#F6F4A7"];
     // Map item.id to item.name
@@ -140,7 +143,15 @@ const Dashboard = () => {
 
 
     const handleAddDropdownGroup = () => {
-        setDropdownGroups([...dropdownGroups, { Case: "", SelectedCard: "", SelectedRow: "" }]);
+        const lastGroup = dropdownGroups[dropdownGroups.length - 1];
+        setDropdownGroups([
+            ...dropdownGroups,
+            {
+                Case: lastGroup?.Case || "",
+                SelectedCard: lastGroup?.SelectedCard || "",
+                SelectedRow: lastGroup?.SelectedRow || "",
+            },
+        ]);
     };
 
     const handleDeleteDropdownGroup = (index) => {
@@ -181,6 +192,7 @@ const Dashboard = () => {
                         mb: 2,
                     }}
                 >
+                    {/* Case Dropdown */}
                     <FormControl sx={{ m: 1, width: "15ch", fontSize: "0.8rem" }}>
                         <InputLabel id={`case-select-label-${index}`}>Case</InputLabel>
                         <Select
@@ -197,51 +209,44 @@ const Dashboard = () => {
                         </Select>
                     </FormControl>
 
-                    {group.Case && (
-                        <FormControl sx={{ m: 1, width: "15ch" }}>
-                            <InputLabel id={`card-select-label-${index}`}>Card Name</InputLabel>
-                            <Select
-                                labelId={`card-select-label-${index}`}
-                                id={`card-select-${index}`}
-                                value={group.SelectedCard}
-                                label="Card Name"
-                                onChange={(e) =>
-                                    handleDropdownChange(index, "SelectedCard", e.target.value)
-                                }
-                                sx={{ fontSize: "0.9rem" }}
-                            >
-                                <MenuItem value="table1">{cardTitle1}</MenuItem>
-                                <MenuItem value="table2">{cardTitle2}</MenuItem>
-                                <MenuItem value="table3">{cardTitle3}</MenuItem>
-                            </Select>
-                        </FormControl>
-                    )}
+                    {/* Card Dropdown */}
+                    <FormControl sx={{ m: 1, width: "15ch" }}>
+                        <InputLabel id={`card-select-label-${index}`}>Card Name</InputLabel>
+                        <Select
+                            labelId={`card-select-label-${index}`}
+                            id={`card-select-${index}`}
+                            value={group.SelectedCard}
+                            label="Card Name"
+                            onChange={(e) => handleDropdownChange(index, "SelectedCard", e.target.value)}
+                            sx={{ fontSize: "0.9rem" }}
+                        >
+                            <MenuItem value="table1">{cardTitle1}</MenuItem>
+                            <MenuItem value="table2">{cardTitle2}</MenuItem>
+                            <MenuItem value="table3">{cardTitle3}</MenuItem>
+                        </Select>
+                    </FormControl>
 
-                    {group.SelectedCard && (
-                        <FormControl sx={{ m: 1, width: "15ch" }}>
-                            <InputLabel id={`parameter-select-label-${index}`}>
-                                Parameter Name
-                            </InputLabel>
-                            <Select
-                                labelId={`parameter-select-label-${index}`}
-                                id={`parameter-select-${index}`}
-                                value={group.SelectedRow}
-                                label="Parameter Name"
-                                onChange={(e) =>
-                                    handleDropdownChange(index, "SelectedRow", e.target.value)
-                                }
-                                sx={{ fontSize: "0.9rem" }}
-                            >
-                                {products[group.Case]?.[group.SelectedCard]?.map((item) => (
-                                    <MenuItem key={item.name} value={item.id}>
-                                        {item.name}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    )}
+                    {/* Parameter Dropdown */}
+                    <FormControl sx={{ m: 1, width: "15ch" }}>
+                        <InputLabel id={`parameter-select-label-${index}`}>Parameter Name</InputLabel>
+                        <Select
+                            labelId={`parameter-select-label-${index}`}
+                            id={`parameter-select-${index}`}
+                            value={group.SelectedRow}
+                            label="Parameter Name"
+                            onChange={(e) => handleDropdownChange(index, "SelectedRow", e.target.value)}
+                            sx={{ fontSize: "0.9rem" }}
+                        >
+                            {products[group.Case]?.[group.SelectedCard]?.map((item) => (
+                                <MenuItem key={item.name} value={item.id}>
+                                    {item.name}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
 
-                    {index === dropdownGroups.length - 1 && dropdownGroups.length < 6 && isLastRowFilled && (
+                    {/* Add and Delete Buttons */}
+                    {index === dropdownGroups.length - 1 && dropdownGroups.length < 6 && (
                         <IconButton
                             title="Add new parameters"
                             aria-label="add"

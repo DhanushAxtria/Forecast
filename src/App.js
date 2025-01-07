@@ -54,11 +54,11 @@ function App() {
           <Route path="new-scenario/scenario-details/Inputpage" element={<Inputpage />} />
           <Route path="/saved-scenario" element={<SavedScenario />} />
           <Route path="/admin" element={<Admin/>} />
-          <Route path="/new-scenario/forecastdeepdive" element={<Patient_Forecast />} />
+          <Route path="/new-scenario/scenario-details/forecastdeepdive" element={<Patient_Forecast />} />
           <Route path="/time-series-methods" element={<Forecastpage />} />
           <Route path="/time-series-methods/forecasted_results" element={<Forecasted_Results />} />
-          <Route path="/new-scenario/forecastdeepdive/dashboard" element={<Dashboard />} />
-          <Route path="/new-scenario/forecastdeepdive/kpi-analysis" element={<KPI />} />
+          <Route path="/new-scenario/scenario-details/forecastdeepdive/dashboard" element={<Dashboard />} />
+          <Route path="/new-scenario/scenario-details/forecastdeepdive/kpi-analysis" element={<KPI />} />
           <Route path="/new-scenario/forecastdeepdive/patientinput" element={<Patient_Forecast_Input />} />
           <Route path="/generate-report" element={<GenerateReport />} />
           <Route path="/new-scenario/model1" element={<Model1 />} />

@@ -67,8 +67,8 @@ const Patient_Forecast = () => {
     const { values3, setValues3 } = useContext(MyContext);
     const [UploadedFileToFill, setUploadedFileToFill] = useState(null);
     const [openUploadDialog, setOpenUploadDialog] = useState(false); // Dialog for file upload
-    const { fromDate, setFromDate } = useContext(MyContext);
-    const { toDate, setToDate } = useContext(MyContext);
+    const { fromHistoricalDate, setFromHistoricalDate, fromForecastDate, setFromForecastDate } = useContext(MyContext);
+    const { toForecastDate, setToForecastDate, } = useContext(MyContext);
     const [manualEntry, setManualEntry] = useState(false);
     const [growthRates, setGrowthRates] = useState([]);
     const [startingValue, setStartingValue] = useState('');
@@ -111,11 +111,7 @@ const Patient_Forecast = () => {
         base: { table1: false, table2: false, table3: false },
         upside: { table1: false, table2: false, table3: false },
     });
-    useEffect(() => {
-        console.log('storeValues:', storeValues);
-        console.log('selectedRowId:', selectedRowId);
-        console.log('selectedTab:', selectedTab);
-    }, [storeValues, selectedRowId, selectedTab]);
+
 
     /*A component that renders a box with three buttons: one to show the preview of the tables,
       one to close the preview and  "Show Dashboard" button to navigate to the dashboard. */
@@ -146,7 +142,7 @@ const Patient_Forecast = () => {
                     <Button
                         variant="contained"
                         onClick={() => {
-                            navigate("/new-scenario/forecastdeepdive/dashboard");
+                            navigate("/new-scenario/scenario-details/forecastdeepdive/dashboard");
                         }}
                         color="success"
                         sx={{ fontSize: '0.8rem' }}
@@ -156,7 +152,7 @@ const Patient_Forecast = () => {
                     <Button
                         variant="contained"
                         onClick={() => {
-                            navigate("/new-scenario/forecastdeepdive/kpi-analysis");
+                            navigate("/new-scenario/scenario-details/forecastdeepdive/kpi-analysis");
                         }}
                         color="success"
                         sx={{ fontSize: '0.8rem' }}
@@ -536,8 +532,20 @@ const Patient_Forecast = () => {
                                     zIndex: 2,
                                     width: '600px'
                                 }}></th>
-                            {columns.map((column, index) => (
-                                <th key={index} style={{ minWidth: '150px' }}>{column}</th>
+                            {columns.map((column) => (
+                                <th
+                                    style={{
+                                        minWidth: '150px',
+                                        backgroundColor:
+                                            timePeriod === 'Year'
+                                                ? dayjs(column).isBefore(dayjs(fromForecastDate), 'year')
+                                                : dayjs(column).isBefore(dayjs(fromForecastDate), 'month')
+                                                    ? '#C6F4D6' // Light green for columns between fromHistorical and fromForecast
+                                                    : '#FFFFE0', // Light yellow for all other columns
+                                    }}
+                                >
+                                    {column}
+                                </th>
                             ))}
                         </tr>
                     </thead>
@@ -1001,6 +1009,30 @@ const Patient_Forecast = () => {
                                         <ListItemText primary="Input Values Manually" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
                                     </ListItem>
 
+                                    {/* Copy from Input Page */}
+                                    <ListItem
+                                        button
+                                        onClick={handleCopyFromInputPage}
+                                        sx={{
+                                            padding: '18px',
+                                            borderBottom: '1px solid #e0e0e0',
+                                            borderRadius: '8px',
+                                            marginBottom: '12px',
+                                            cursor: 'pointer', // Adds hand cursor on hover
+                                            '&:hover': {
+                                                backgroundColor: '#e3f2fd',
+                                                transform: 'scale(1.02)',
+                                                transition: 'transform 0.2s',
+                                            },
+                                        }}
+                                    >
+                                        <Typography variant="h6" color="primary" sx={{ marginRight: '12px', fontWeight: 'bold' }}>
+                                            2.
+                                        </Typography>
+                                        <AdjustIcon color="primary" sx={{ marginRight: '12px' }} />
+                                        <ListItemText primary="Copy from Input Page" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
+                                    </ListItem>
+
                                     {/* File Upload */}
                                     <Tooltip title="Only .csv or .xlsx formats allowed" arrow>
                                         <ListItem
@@ -1020,7 +1052,7 @@ const Patient_Forecast = () => {
                                             }}
                                         >
                                             <Typography variant="h6" color="primary" sx={{ marginRight: '12px', fontWeight: 'bold' }}>
-                                                2.
+                                                3.
                                             </Typography>
                                             <UploadFileIcon color="primary" sx={{ marginRight: '12px' }} />
                                             <ListItemText primary="Upload Data File" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
@@ -1045,7 +1077,7 @@ const Patient_Forecast = () => {
                                         }}
                                     >
                                         <Typography variant="h6" color="primary" sx={{ marginRight: '12px', fontWeight: 'bold' }}>
-                                            3.
+                                            4.
                                         </Typography>
                                         <TrendingUpIcon color="primary" sx={{ marginRight: '12px' }} />
                                         <ListItemText primary="Set Initial Values with Growth Rate" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
@@ -1055,28 +1087,6 @@ const Patient_Forecast = () => {
                                     <ListItem
                                         button
                                         onClick={() => handleInputMethodSelect('startEndValues')}
-                                        sx={{
-                                            padding: '18px',
-                                            borderBottom: '1px solid #e0e0e0',
-                                            borderRadius: '8px',
-                                            marginBottom: '12px',
-                                            cursor: 'pointer', // Adds hand cursor on hover
-                                            '&:hover': {
-                                                backgroundColor: '#e3f2fd',
-                                                transform: 'scale(1.02)',
-                                                transition: 'transform 0.2s',
-                                            },
-                                        }}
-                                    >
-                                        <Typography variant="h6" color="primary" sx={{ marginRight: '12px', fontWeight: 'bold' }}>
-                                            4.
-                                        </Typography>
-                                        <AdjustIcon color="primary" sx={{ marginRight: '12px' }} />
-                                        <ListItemText primary="Specify Starting and Target Values" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
-                                    </ListItem>
-                                    <ListItem
-                                        button
-                                        onClick={handleCopyFromInputPage}
                                         sx={{
                                             padding: '18px',
                                             borderRadius: '8px',
@@ -1093,8 +1103,12 @@ const Patient_Forecast = () => {
                                             5.
                                         </Typography>
                                         <AdjustIcon color="primary" sx={{ marginRight: '12px' }} />
-                                        <ListItemText primary="Copy from Input Page" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
+                                        <ListItemText primary="Specify Starting and Target Values" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
                                     </ListItem>
+
+
+                                    {/*Copy from Input Page*/}
+
                                 </List>
                             </DialogContent>
                             <DialogActions sx={{ padding: '16px', backgroundColor: '#f0f4fa' }}>
@@ -1226,7 +1240,7 @@ const Patient_Forecast = () => {
                                         <DatePicker
                                             views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
                                             label={timePeriod === 'Monthly' ? 'Start Month' : 'Start Year'}
-                                            value={fromDate} // Auto-populated
+                                            value={fromHistoricalDate} // Auto-populated
                                             disabled
                                             format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
                                             slotProps={{ textField: { size: 'small' } }}
@@ -1268,7 +1282,7 @@ const Patient_Forecast = () => {
                                                 slotProps={{ textField: { size: 'small' } }}
                                                 style={{ minWidth: '120px' }}
                                                 minDate={getMinDate(index)} //The user cannot select a Date that is before the Start Date
-                                                maxDate={toDate} //The user cannot select a Start Date that is after the End Date
+                                                maxDate={toForecastDate} //The user cannot select a Start Date that is after the End Date
                                             />
                                             {/* Growth Rate input field. User can edit value. */}
                                             <TextField
@@ -1465,16 +1479,16 @@ const Patient_Forecast = () => {
         if (timePeriod === 'Monthly') {
             // Loop through the months in the time period and create a key for each in the results object
             // if the key doesn't already exist
-            for (let i = 0; i < dayjs(toDate).diff(dayjs(fromDate), 'month') + 1; i++) {
-                const month = dayjs(fromDate).add(i, 'month').format('MMM-YYYY');
+            for (let i = 0; i < dayjs(toForecastDate).diff(dayjs(fromHistoricalDate), 'month') + 1; i++) {
+                const month = dayjs(fromHistoricalDate).add(i, 'month').format('MMM-YYYY');
                 if (!res[month]) {
                     res[month] = "0";
                 }
             }
         }
         else {
-            for (let i = 0; i < dayjs(toDate).diff(dayjs(fromDate), 'year') + 1; i++) {
-                const year = dayjs(fromDate).add(i, 'year').format('YYYY');
+            for (let i = 0; i < dayjs(toForecastDate).diff(dayjs(fromHistoricalDate), 'year') + 1; i++) {
+                const year = dayjs(fromHistoricalDate).add(i, 'year').format('YYYY');
                 if (!res[year]) {
                     res[year] = "0";
                 }
@@ -1710,11 +1724,11 @@ const Patient_Forecast = () => {
         // Generate the columns based on the selected time period
         // Columns are only regenerated when the time period, start date, or end date changes
         if (timePeriod === 'Monthly') {
-            setColumns(generateMonthlyColumns(fromDate, toDate));
+            setColumns(generateMonthlyColumns(fromHistoricalDate, toForecastDate));
         } else if (timePeriod === 'Yearly') {
-            setColumns(generateYearlyColumns(fromDate, toDate));
+            setColumns(generateYearlyColumns(fromHistoricalDate, toForecastDate));
         }
-    }, [timePeriod, fromDate, toDate]);
+    }, [timePeriod, fromHistoricalDate, toForecastDate]);
 
 
     /*
@@ -1775,8 +1789,8 @@ const Patient_Forecast = () => {
     const distributeValuesBetweenStartAndEnd = (startVal, endVal) => {
         let distributedValues = {};
 
-        const startDate = dayjs(fromDate);
-        const endDate = dayjs(toDate);
+        const startDate = dayjs(fromHistoricalDate);
+        const endDate = dayjs(toForecastDate);
 
         // Calculate the number of intervals based on the selected time period
         const intervals = timePeriod === 'Monthly'
@@ -1868,9 +1882,9 @@ const Patient_Forecast = () => {
                     });
 
                     if (tabKey === 'downside') {
-                        // Loop through the months between fromDate and toDate
-                        for (let i = 0; i < dayjs(toDate).diff(dayjs(fromDate), 'month') + 1; i++) {
-                            const month = dayjs(fromDate).add(i, 'month').format('MMM-YYYY');
+                        // Loop through the months between fromHistoricalDate and toForecastDate
+                        for (let i = 0; i < dayjs(toForecastDate).diff(dayjs(fromHistoricalDate), 'month') + 1; i++) {
+                            const month = dayjs(fromHistoricalDate).add(i, 'month').format('MMM-YYYY');
                             // Find the index of the month in the dateHeaders array
                             const monthIndex = dateHeaders.indexOf(month);
                             if (monthIndex !== -1) {
@@ -1891,8 +1905,8 @@ const Patient_Forecast = () => {
                         }
                     }
                     else if (tabKey === 'base') { //doing the same for base tab as downside tab
-                        for (let i = 0; i < dayjs(toDate).diff(dayjs(fromDate), 'month') + 1; i++) {
-                            const month = dayjs(fromDate).add(i, 'month').format('MMM-YYYY');
+                        for (let i = 0; i < dayjs(toForecastDate).diff(dayjs(fromHistoricalDate), 'month') + 1; i++) {
+                            const month = dayjs(fromHistoricalDate).add(i, 'month').format('MMM-YYYY');
                             const monthIndex = dateHeaders.indexOf(month);
                             if (monthIndex !== -1) {
                                 const val = firstRow[monthIndex];
@@ -1909,8 +1923,8 @@ const Patient_Forecast = () => {
                         }
                     }
                     else { //doing the same for upside tab as downside tab
-                        for (let i = 0; i < dayjs(toDate).diff(dayjs(fromDate), 'month') + 1; i++) {
-                            const month = dayjs(fromDate).add(i, 'month').format('MMM-YYYY');
+                        for (let i = 0; i < dayjs(toForecastDate).diff(dayjs(fromHistoricalDate), 'month') + 1; i++) {
+                            const month = dayjs(fromHistoricalDate).add(i, 'month').format('MMM-YYYY');
                             const monthIndex = dateHeaders.indexOf(month);
                             if (monthIndex !== -1) {
                                 const val = firstRow[monthIndex];
@@ -1943,8 +1957,8 @@ const Patient_Forecast = () => {
                     });
                     console.log(dateHeaders);
                     if (tabKey === 'downside') {
-                        for (let i = 0; i < dayjs(toDate).diff(dayjs(fromDate), 'year') + 1; i++) {
-                            const month = dayjs(fromDate).add(i, 'year').format('YYYY');
+                        for (let i = 0; i < dayjs(toForecastDate).diff(dayjs(fromHistoricalDate), 'year') + 1; i++) {
+                            const month = dayjs(fromHistoricalDate).add(i, 'year').format('YYYY');
                             console.log(month);
                             const monthIndex = dateHeaders.indexOf(month);
                             if (monthIndex !== -1) {
@@ -1961,8 +1975,8 @@ const Patient_Forecast = () => {
                         }
                     }
                     else if (tabKey === 'base') {
-                        for (let i = 0; i < dayjs(toDate).diff(dayjs(fromDate), 'year') + 1; i++) {
-                            const month = dayjs(fromDate).add(i, 'year').format('YYYY');
+                        for (let i = 0; i < dayjs(toForecastDate).diff(dayjs(fromHistoricalDate), 'year') + 1; i++) {
+                            const month = dayjs(fromHistoricalDate).add(i, 'year').format('YYYY');
                             const monthIndex = dateHeaders.indexOf(month);
                             if (monthIndex !== -1) {
                                 const val = firstRow[monthIndex];
@@ -1977,8 +1991,8 @@ const Patient_Forecast = () => {
                         }
                     }
                     else {
-                        for (let i = 0; i < dayjs(toDate).diff(dayjs(fromDate), 'year') + 1; i++) {
-                            const month = dayjs(fromDate).add(i, 'year').format('YYYY');
+                        for (let i = 0; i < dayjs(toForecastDate).diff(dayjs(fromHistoricalDate), 'year') + 1; i++) {
+                            const month = dayjs(fromHistoricalDate).add(i, 'year').format('YYYY');
                             const monthIndex = dateHeaders.indexOf(month);
                             if (monthIndex !== -1) {
                                 const val = firstRow[monthIndex];
@@ -2052,7 +2066,7 @@ const Patient_Forecast = () => {
      */
     const getMinDate = (index) => {
         if (index === 0) {
-            return fromDate; // Initial starting date for the first entry
+            return fromHistoricalDate; // Initial starting date for the first entry
         }
         return growthRates[index - 1].startDate; // Last added date for subsequent entries
     };
@@ -2071,7 +2085,7 @@ const Patient_Forecast = () => {
     /**
      * Calculates growth rate values over a specified time period:
      * This function takes an initial value and growth rate, calculates the compounded values over a time
-     * period defined by global `fromDate` and `toDate` variables, and adjusts the growth rates based on 
+     * period defined by global `fromHistoricalDate` and `toForecastDate` variables, and adjusts the growth rates based on 
      * specified intervals. The time period can be monthly or yearly, and the results are stored in an 
      * object with date keys.
      */
@@ -2079,8 +2093,8 @@ const Patient_Forecast = () => {
 
         const newValues = {};
 
-        const startDate = dayjs(fromDate); // Start date of the calculation period
-        const endDate = dayjs(toDate); // End date of the calculation period
+        const startDate = dayjs(fromHistoricalDate); // Start date of the calculation period
+        const endDate = dayjs(toForecastDate); // End date of the calculation period
         const columnIndexEndDate = columns.indexOf(timePeriod === 'Monthly' ? endDate.format('MMM-YYYY') : endDate.format('YYYY')); // column index of the end date
 
         const startValue = parseFloat(startingValue);
@@ -2219,54 +2233,19 @@ const Patient_Forecast = () => {
 
                 {/* Section displaying the greeting message */}
                 <div style={{ backgroundColor: 'white', padding: '0.5px', marginTop: '-25px', marginLeft: '10px' }}>
+                    <h2 style={{ textAlign: 'left' }}>{greeting}, Welcome to the Patient Based Forecasting Page!</h2> </div>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => {
+                        if (window.confirm("Are you sure you want to clear all data? This action cannot be undone.")) {
+                            handleReset();
+                        }
+                    }}
+                    sx={{ marginLeft: '18px', marginBottom: '2px' }}>
+                    Clear All Data
+                </Button>
 
-                    <h2 style={{ textAlign: 'left' }}>{greeting}, Welcome to the Patient Based Forecasting Page!</h2>
-                    {/* <Button
-                        variant="contained"
-                        color="secondary"
-                        onClick={() => {
-                            setRowsData((prevRowsData) => {
-                                const newRow = {
-                                    country: countries[0],
-                                    currentForecastStatus: "Submitted",
-                                    forecast: "Forecast 1",
-                                    forecastScenario: forecastCycles[0],
-                                    forecastStarted: new Date().toISOString().split('T')[0],
-                                    therapeuticArea: therapeuticAreas[0],
-                                    username: "John Doe",
-                                    worksheet: "Worksheet 1",
-                                };
-                                return [...prevRowsData, newRow];
-                            });
-                            alert("It Is Submitted");
-                        }}
-                        sx={{ marginLeft: '3px', marginBottom: '10px', marginRight: '10px' }}>
-                        Submit Scenario
-                    </Button>
-                    <Button
-                        variant="contained"
-                        color="success"
-                        onClick={() => {
-                            setRowsData([...rowsData, {
-                                country: countries[0],
-                                currentForecastStatus: "Ongoing",
-                                forecast: "Forecast 1",
-                                forecastScenario: forecastCycles[0],
-                                forecastStarted: new Date().toISOString().split('T')[0],
-                                therapeuticArea: therapeuticAreas[0],
-                                username: "John Doe",
-                                worksheet: "Worksheet 1",
-                            }]);
-                            alert("It Is Saved");
-                        }}
-                        sx={{ marginLeft: '3px', marginBottom: '10px' }}>
-                        Save Scenario
-                    </Button> */}
-
-                </div>
-
-                {/* Label for selecting the time period */}
-                <span style={{ marginLeft: '12px' }} gap="10px" sx={{ marginRight: '20px' }}>Select Time Period</span>
                 <Box
                     sx={{
                         maxWidth: '100%',   // Set width to contain horizontal scroll
@@ -2275,93 +2254,10 @@ const Patient_Forecast = () => {
                         textAlign: 'left' // Align box contents to the left
                     }}
                 >
-                    <Box display="flex" alignItems="center" gap="15px" mb={2} marginLeft='12px' marginTop='15px'>
-                        {/* Dropdown for selecting time period (Monthly/Yearly) */}
-                        <TextField
-                            select
-                            label="Time Period"
-                            value={timePeriod}
-                            onChange={(e) => setTimePeriod(e.target.value)}
-                            size="small"
-                            variant="outlined"
-                            sx={{ width: '160px' }}
-                        >
-                            <MenuItem value="Monthly">Monthly</MenuItem>
-                            <MenuItem value="Yearly">Yearly</MenuItem>
-                        </TextField>
-                        {/* Date pickers for the start and end date based on selected time period */}
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            {/* Start Date Picker */}
-                            <DatePicker
-                                views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
-                                label={timePeriod === 'Monthly' ? 'Start Month' : 'Start Year'} //box label based on the time period
-                                value={fromDate}
-                                onChange={(newValue) => setFromDate(newValue)}
-                                format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'} // format of time period chosen conditionally
-                                slotProps={{ textField: { size: 'small' } }}
-                                sx={{ width: '160px' }}
-                                maxDate={toDate} // Set maximum selectable date to the end date
-                            />
-                            {/* End Date Picker */}
-                            <DatePicker
-                                views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
-                                label={timePeriod === 'Monthly' ? 'End Month' : 'End Year'} //box label based on the time period
-                                value={toDate}
-                                onChange={(newValue) => setToDate(newValue)}
-                                format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'} // format of time period chosen conditionally
-                                slotProps={{ textField: { size: 'small' } }}
-                                sx={{ width: '160px' }}
-                                // Validate that the end date is after the start date
-                                minDate={fromDate}
-                            />
-                        </LocalizationProvider>
-                        {/* Button to proceed with the calculation. This will show the tabs and cards. 
-                        First, it checks if the start date is before the end date. If it is, it sets showTabs to true. If not, it shows an alert and sets showTabs and showCard to false. */}
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => {
-                                if (dayjs(fromDate).isBefore(toDate) || dayjs(fromDate).isSame(toDate, timePeriod === 'Monthly' ? 'month' : 'year')) {
-                                    // If the start date is before the end date, show the tabs and cards
-                                    setShowTabs(true);
-                                } else {
-                                    // If the start date is not before the end date, show an alert and hide the tabs and cards
-                                    setShowTabs(false);
-                                    setShowCard(false);
-                                    alert("Invalid date range: Start date must be before end date");
-                                }
-                            }}
-                            sx={{ marginLeft: '10px', marginBottom: '2px' }}>
-                            Proceed
-                        </Button>
-                        {/* Button to clear all data on the page. 
-                        This will reset all states to their initial values and remove all data from the tables. 
-                        This action cannot be undone. */}
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => {
-                                if (window.confirm("Are you sure you want to clear all data? This action cannot be undone.")) {
-                                    handleReset();
-                                }
-                            }}
-                            sx={{ marginLeft: '10px', marginBottom: '2px' }}>
-                            Clear All Data
-                        </Button>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => navigate('/new-scenario/forecastdeepdive/patientinput')}
-                            sx={{ marginLeft: '10px', marginBottom: '2px' }}>
-                            Go To Input page
-                        </Button>
 
-
-
-                    </Box>
                     <Box sx={{ width: '90%', margin: '0 auto' }}>
-                        {/* Render tabs if 'showTabs' is true */}
-                        {showTabs && <Tabs tab_value={tab_value} onChange={handleTabChange} aria-label="basic tabs example"
+
+                        <Tabs tab_value={tab_value} onChange={handleTabChange} aria-label="basic tabs example"
                             sx={{
                                 borderBottom: 2,
                                 borderColor: 'divider',
@@ -2398,7 +2294,7 @@ const Patient_Forecast = () => {
                                     fontSize: '20px', // Increase font size of selected tab
                                 }
                             }} />
-                        </Tabs>}
+                        </Tabs>
 
                         {tab_value !== null &&
                             <div>
@@ -2434,6 +2330,8 @@ const Patient_Forecast = () => {
                                     {tabTableVisibility[currentTabKey].table3 && renderTable(currentTabKey, 'table3')}
                                 </Box>
                                 {Preview()} {/* Render Preview component inside each tab*/}
+
+
                             </div>
                         }
                     </Box>
