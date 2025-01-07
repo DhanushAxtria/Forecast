@@ -48,9 +48,8 @@ const MyProvider = ({ children }) => {
   const [historyToDate, setHistoryToDate] = useState(null);
   const [selectedFromDate, setSelectedFromDate] = useState(null);
   const [selectedToDate, setSelectedToDate] = useState(null);
-  const [fromHistoricalDate, setFromHistoricalDate] = useState(dayjs());
-  const [fromForecastDate, setFromForecastDate] = useState(dayjs());
-  const [toForecastDate, setToForecastDate] = useState(dayjs());
+  const [fromDate, setFromDate] = useState(dayjs());
+  const [toDate, setToDate] = useState(dayjs());
   const [products, setProducts] = useState(initialProducts);
   const [values, setValues] = useState({});
   const [values2, setValues2] = useState({});
@@ -135,9 +134,8 @@ const MyProvider = ({ children }) => {
       historyToDate, setHistoryToDate,
       selectedFromDate, setSelectedFromDate,
       selectedToDate, setSelectedToDate,
-      fromHistoricalDate, setFromHistoricalDate,
-      fromForecastDate, setFromForecastDate,
-      toForecastDate, setToForecastDate,
+      fromDate, setFromDate,
+      toDate, setToDate,
       products, setProducts,
       values, setValues,
       values2, setValues2,

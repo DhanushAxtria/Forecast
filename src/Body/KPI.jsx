@@ -24,11 +24,7 @@ import {
     Box,
     Tabs,
     Tab,
-    InputLabel,
-    TableRow,
-    Paper,
-    TableCell,
-    TableContainer
+    InputLabel
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -39,25 +35,10 @@ import './ProductListpage.scss';
 import { MyContext } from './context';
 import dayjs from 'dayjs';
 import Grid from '@mui/material/Grid';
-import { Table, TableHead, TableBody } from '@mui/material';
-import DatePicker from 'react-datepicker';
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { Bar } from 'react-chartjs-2';
-import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Title,
-    Legend,
-} from "chart.js";
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Legend);
+
+
 const KPI = () => {
-    const [applyClicked, setApplyClicked] = useState(false);
-    const [resUpload, setResUpload] = useState({});
-    const { products, timePeriod, Formulas, fromHistoricalDate, toForecastDate, values, values2, values3 } = useContext(MyContext);
-    const [Res, setRes] = useState({});
+    const { products, timePeriod, Formulas, fromDate, toDate, values, values2, values3 } = useContext(MyContext);
     const [Index, setIndex] = useState("");
     const [buttonType, setButtonType] = useState("");
     const [editingHighFileToFill, setEditingHighFileToFill] = useState({});
@@ -80,89 +61,9 @@ const KPI = () => {
     const [dropdownGroups, setDropdownGroups] = useState([
         { Case: "", OutputMetric: "", Field: "" },
     ]);
-    const [openGrowthRateDialog, setOpenGrowthRateDialog] = useState(false);
-    const [highGrowthRates, setHighGrowthRates] = useState({});
-    const [highStartingValue, setHighStartingValue] = useState({});
-    const [highInitialGrowthRate, setHighInitialGrowthRate] = useState({});
-    const [editingHighGrowthRates, setEditingHighGrowthRates] = useState({});
-    const [editingHighStartingValue, setEditingHighStartingValue] = useState({});
-    const [editingHighInitialGrowthRate, setEditingHighInitialGrowthRate] = useState({});
-    const [lowGrowthRates, setLowGrowthRates] = useState({});
-    const [lowStartingValue, setLowStartingValue] = useState({});
-    const [lowInitialGrowthRate, setLowInitialGrowthRate] = useState({});
-    const [editingLowGrowthRates, setEditingLowGrowthRates] = useState({});
-    const [editingLowStartingValue, setEditingLowStartingValue] = useState({});
-    const [editingLowInitialGrowthRate, setEditingLowInitialGrowthRate] = useState({});
-    const [openCopyFromDialog, setOpenCopyFromDialog] = useState(false);
-    const [highSelectedCaseOption, setHighSelectedCaseOption] = useState({});
-    const [lowSelectedCaseOption, setLowSelectedCaseOption] = useState({});
-    const [editingHighSelectedCaseOption, setEditingHighSelectedCaseOption] = useState({});
-    const [editingLowSelectedCaseOption, setEditingLowSelectedCaseOption] = useState({});
-    const [currentCase, setCurrentCase] = useState({});
-    const [lowCaseData, setLowCaseData] = useState([]);
-    const [highCaseData, setHighCaseData] = useState([]);
-    const data = {
-        labels: dropdownGroups
-            .map((group) => {
-                if (group?.Field && products[group?.Case]) {
-                    return Object.keys(products[group.Case]).map((tableKey) => {
-                        const productList = products[group.Case][tableKey];
-                        if (productList) {
-                            const product = productList.find((product) => product?.id === group.Field);
-                            return product ? product.name : null;
-                        }
-                        return null;
-                    })
-                        .filter((label) => label !== null);
-                }
-                return [];
-            })
-            .flat(),
-        datasets: [
-            {
-                label: 'Low Case',
-                data: lowCaseData,
-                backgroundColor: '#e57373',
-            },
-            {
-                label: 'High Case',
-                data: highCaseData,
-                backgroundColor: '#81c784',
-            },
-        ],
-    };
-    // Chart Options
-    const options = {
-        indexAxis: 'y', // Horizontal bar
-        scales: {
-            x: {
-                beginAtZero: true,
-                grid: {
-                    display: true,
-                },
-                ticks: {
-                    callback: (value) => `$${value}M`,
-                },
-            },
-            y: {
-                grid: {
-                    display: false,
-                },
-            },
-        },
-        plugins: {
-            legend: {
-                position: 'top',
-            },
-            tooltip: {
-                callbacks: {
-                    label: (tooltipItem) => `$${tooltipItem.raw}M`,
-                },
-            },
-        },
-    };
-    const handleAddDropdownGroup = (index) => {
-        setDropdownGroups([...dropdownGroups, { Case: dropdownGroups[index].Case, OutputMetric: dropdownGroups[index].OutputMetric, Field: "" }]);
+
+    const handleAddDropdownGroup = () => {
+        setDropdownGroups([...dropdownGroups, { Case: "", OutputMetric: "", Field: "" }]);
         console.log(dropdownGroups);
     };
 
@@ -182,7 +83,7 @@ const KPI = () => {
 
         });
     };
-    const handledelete = (index) => {
+    const handleStartEndvaluesfordelete = (index) => {
         updateStatesOnDelete(index, [
             setEditingHighStartValue,
             setEditingHighEndValue,
@@ -198,46 +99,27 @@ const KPI = () => {
             setEditingLowFileToFill,
             setHighMethodForRow,
             setLowMethodForRow,
-            setEditingHighGrowthRates,
-            setEditingLowGrowthRates,
-            setEditingHighStartingValue,
-            setEditingLowStartingValue,
-            setEditingHighInitialGrowthRate,
-            setEditingLowInitialGrowthRate,
-            setHighGrowthRates,
-            setLowGrowthRates,
-            setHighInitialGrowthRate,
-            setLowInitialGrowthRate,
-            setHighStartingValue,
-            setLowStartingValue,
-            setCurrentCase,
-            setEditingHighSelectedCaseOption,
-            setEditingLowSelectedCaseOption,
-            setHighSelectedCaseOption,
-            setLowSelectedCaseOption,
         ]);
     };
     const handleDeleteDropdownGroup = (index) => {
+        console.log(index);
         const updatedGroups = dropdownGroups.filter((_, i) => i !== index);
         setDropdownGroups(updatedGroups);
-        handledelete(index);
+        handleStartEndvaluesfordelete(index);
     };
+
     const handleDropdownChange = (index, field, value) => {
-        if (field === 'Case') {
-            setCurrentCase(prev => ({
-                ...prev,
-                [index]: value
-            }));
-        }
         const updatedGroups = [...dropdownGroups];
         updatedGroups[index][field] = value;
         setDropdownGroups(updatedGroups);
     };
+
     const isLastRowFilled =
         dropdownGroups.length > 0 &&
         dropdownGroups[dropdownGroups.length - 1].Case &&
         dropdownGroups[dropdownGroups.length - 1].OutputMetric &&
         dropdownGroups[dropdownGroups.length - 1].Field;
+
     const handleSaveStartEndValues = () => {
         if (buttonType === "High") {
             setHighMethodForRow(prev => ({ ...prev, [Index]: "StartEnd" }));
@@ -250,6 +132,7 @@ const KPI = () => {
         }
         setOpenStartEndDialog(false);
     };
+
     const handleCancelStartAndEnd = () => {
         if (buttonType === "High") {
             setEditingHighStartValue(highStartValue);
@@ -261,6 +144,7 @@ const KPI = () => {
         setOpenStartEndDialog(false);
         setOpenInputMethodDialog(true);
     };
+
     const handleInputMethodSelect = (method) => {
         setOpenInputMethodDialog(false);
         if (method === 'startEndValues') {
@@ -269,13 +153,8 @@ const KPI = () => {
         else if (method === 'file') {
             setOpenUploadDialog(true);
         }
-        else if (method === 'growthRate') {
-            setOpenGrowthRateDialog(true);
-        }
-        else if (method === 'copy') {
-            setOpenCopyFromDialog(true);
-        }
     };
+
     const handlefilefillfromupload = () => {
         if (buttonType === 'High') {
             setHighMethodForRow(prev => ({ ...prev, [Index]: "file" }));
@@ -299,14 +178,23 @@ const KPI = () => {
         setOpenUploadDialog(false);
         setOpenInputMethodDialog(true);
     };
+
     const findVal = (method, buttontype, index) => {
-        const res = {};
-        const unit = timePeriod === 'Monthly' ? 'month' : 'year';
-        const format = timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY';
-        for (let i = 0; i < dayjs(toForecastDate).diff(dayjs(fromHistoricalDate), unit) + 1; i++) {
-            const dateKey = dayjs(fromHistoricalDate).add(i, unit).format(format);
-            if (!res[dateKey]) {
-                res[dateKey] = "0";
+        let res = {};
+        if (timePeriod === 'Monthly') {
+            for (let i = 0; i < dayjs(toDate).diff(dayjs(fromDate), 'month') + 1; i++) {
+                const month = dayjs(fromDate).add(i, 'month').format('MMM-YYYY');
+                if (!res[month]) {
+                    res[month] = "0";
+                }
+            }
+        }
+        else {
+            for (let i = 0; i < dayjs(toDate).diff(dayjs(fromDate), 'year') + 1; i++) {
+                const year = dayjs(fromDate).add(i, 'year').format('YYYY');
+                if (!res[year]) {
+                    res[year] = "0";
+                }
             }
         }
         if (method === 'StartEnd') {
@@ -322,118 +210,97 @@ const KPI = () => {
             return res;
         }
         else if (method === 'file') {
-            const file = buttontype === "High" ? highFileToFill[index] : lowFileToFill[index];
-            if (file) {
-                console.log(file);
-                if (timePeriod === 'Monthly') {
-                    // Create a new FileReader instance to read the file
-                    const reader = new FileReader();
+            if (timePeriod === 'Monthly') {
+                // Create a new FileReader instance to read the file
+                const reader = new FileReader();
+                // Define the onload event handler for the reader
+                reader.onload = (e) => {
+                    // Get the file content
+                    const content = e.target.result;
 
-                    // Define the onload event handler for the reader
-                    reader.onload = (e) => {
-                        // Get the file content
-                        const content = e.target.result;
+                    // Split the content by lines and filter out any empty lines
+                    const rows = content.split('\n').filter((row) => row.trim() !== '');
 
-                        // Split the content by lines and filter out any empty lines
-                        const rows = content.split('\n').filter((row) => row.trim() !== '');
+                    // Extract headers from the first line and trim whitespace
+                    const headers = rows[0].split(',').map((header) => header.trim());
 
-                        // Extract headers from the first line and trim whitespace
-                        const headers = rows[0].split(',').map((header) => header.trim());
-
-                        // Extract values from the first data row and trim whitespace
-                        const firstRow = rows[1].split(',').map((value) => value.trim());
-                        const possibleFormats = [
-                            'MMM-YY',          // e.g., Dec-23
-                            'YY-MMM',          // e.g., 23-Dec
-                            'YYYY-MM',         // e.g., 2023-12
-                            'MMMM YYYY',       // e.g., December 2023
-                            'MM/YY',           // e.g., 12/23
-                            'DD-MMM-YYYY',     // e.g., 15-Jan-2023
-                            'YYYY/MM/DD',      // e.g., 2023/12/31
-                        ];
-                        // Try to parse the date headers using the possible formats and strict parsing
-                        // If the date is invalid, set the header to 'Invalid Date'
-                        const dateHeaders = headers.map(header => {
-                            const parsedDate = dayjs(header, possibleFormats, true); // strict parsing
-                            return parsedDate.isValid() ? parsedDate.format('MMM-YYYY') : 'Invalid Date';
-                        });
-                        const temp = {}
-                        // Loop through the months between fromHistoricalDate and toForecastDate
-                        for (let i = 0; i < dayjs(toForecastDate).diff(dayjs(fromHistoricalDate), 'month') + 1; i++) {
-                            const month = dayjs(fromHistoricalDate).add(i, 'month').format('MMM-YYYY');
-                            // Find the index of the month in the dateHeaders array
-                            const monthIndex = dateHeaders.indexOf(month);
-                            if (monthIndex !== -1) {
-                                // Get the value at the index from the first row of the CSV file
-                                const val = firstRow[monthIndex];
-                                // Update the values in the state
-                                temp[month] = val;
-                            }
+                    // Extract values from the first data row and trim whitespace
+                    const firstRow = rows[1].split(',').map((value) => value.trim());
+                    const possibleFormats = [
+                        'MMM-YY',          // e.g., Dec-23
+                        'YY-MMM',          // e.g., 23-Dec
+                        'YYYY-MM',         // e.g., 2023-12
+                        'MMMM YYYY',       // e.g., December 2023
+                        'MM/YY',           // e.g., 12/23
+                        'DD-MMM-YYYY',     // e.g., 15-Jan-2023
+                        'YYYY/MM/DD',      // e.g., 2023/12/31
+                    ];
+                    // Try to parse the date headers using the possible formats and strict parsing
+                    // If the date is invalid, set the header to 'Invalid Date'
+                    const dateHeaders = headers.map(header => {
+                        const parsedDate = dayjs(header, possibleFormats, true); // strict parsing
+                        return parsedDate.isValid() ? parsedDate.format('MMM-YYYY') : 'Invalid Date';
+                    });
+                    // Loop through the months between fromDate and toDate
+                    for (let i = 0; i < dayjs(toDate).diff(dayjs(fromDate), 'month') + 1; i++) {
+                        const month = dayjs(fromDate).add(i, 'month').format('MMM-YYYY');
+                        // Find the index of the month in the dateHeaders array
+                        const monthIndex = dateHeaders.indexOf(month);
+                        if (monthIndex !== -1) {
+                            // Get the value at the index from the first row of the CSV file
+                            const val = firstRow[monthIndex];
+                            // Update the values in the state
+                            res[month] = val;
                         }
-                        setRes(temp);
-                    };
-                    reader.readAsText(file);
-                }
-                else { // doing the same procedure if time period is yearly
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const content = e.target.result;
-                        const rows = content.split('\n').filter((row) => row.trim() !== '');
-                        const headers = rows[0].split(',').map((header) => header.trim());
-                        const firstRow = rows[1].split(',').map((value) => value.trim());
-                        const dateHeaders = headers.map(header => {
-                            const parsedDate = dayjs(header, ["YY", "YYYY"], true); // strict parsing
-                            return parsedDate.isValid() ? parsedDate.format('YYYY') : 'Invalid Date';
-                        });
-                        const temp = {}
-                        for (let i = 0; i < dayjs(toForecastDate).diff(dayjs(fromHistoricalDate), 'year') + 1; i++) {
-                            const month = dayjs(fromHistoricalDate).add(i, 'year').format('YYYY');
-                            const monthIndex = dateHeaders.indexOf(month);
-                            if (monthIndex !== -1) {
-                                const val = firstRow[monthIndex];
-                                temp[month] = val;
-                            }
+                    }
+                };
+                reader.readAsText(buttonType === 'High' ? highFileToFill[index] : lowFileToFill[index]);
+            }
+            else { // doing the same procedure if time period is yearly
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const content = e.target.result;
+                    const rows = content.split('\n').filter((row) => row.trim() !== '');
+                    const headers = rows[0].split(',').map((header) => header.trim());
+                    const firstRow = rows[1].split(',').map((value) => value.trim());
+                    const dateHeaders = headers.map(header => {
+                        const parsedDate = dayjs(header, ["YY", "YYYY"], true); // strict parsing
+                        return parsedDate.isValid() ? parsedDate.format('YYYY') : 'Invalid Date';
+                    });
+                    console.log(dateHeaders);
+
+                    for (let i = 0; i < dayjs(toDate).diff(dayjs(fromDate), 'year') + 1; i++) {
+                        const month = dayjs(fromDate).add(i, 'year').format('YYYY');
+                        console.log(month);
+                        const monthIndex = dateHeaders.indexOf(month);
+                        if (monthIndex !== -1) {
+                            const val = firstRow[monthIndex];
+                            res[month] = val;
                         }
-                        setRes(temp);
-                    };
-                    reader.readAsText(file);
-                }
+                    }
+                };
+                reader.readAsText(buttonType === 'High' ? highFileToFill[index] : lowFileToFill[index]);
             }
-            return Res;
-        }
-        else if (method === 'growthRate') {
-            const startingVal = buttontype === 'High' ? highStartingValue[index] : lowStartingValue[index];
-            const initialGrowth = buttontype === 'High' ? highInitialGrowthRate[index] : lowInitialGrowthRate[index];
-            const growthRates = buttontype === 'High' ? highGrowthRates[index] : lowGrowthRates[index]
-        }
-        else if (method === 'copy') {
-            const tempCase = buttontype === 'High' ? highSelectedCaseOption[index] : lowSelectedCaseOption[index];
-            if (tempCase === 'downside') {
-                
-            }
+            return res;
         }
         return {}
     }
-    useEffect(() => {
-        console.log("lowcasedata", lowCaseData);
-    }, [lowCaseData])
-    
     const handleApplyFormula = (selectedIds, tabKey, operators, row_id, method, buttontype, index) => {
 
         let res = {}; // Object to store the results of the forecast calculation
         if (timePeriod === 'Monthly') {
             // Loop through the months in the time period and create a key for each in the results object
             // if the key doesn't already exist
-            for (let i = 0; i < dayjs(toForecastDate).diff(dayjs(fromHistoricalDate), 'month') + 1; i++) {
-                const month = dayjs(fromHistoricalDate).add(i, 'month').format('MMM-YYYY');
+            for (let i = 0; i < dayjs(toDate).diff(dayjs(fromDate), 'month') + 1; i++) {
+                const month = dayjs(fromDate).add(i, 'month').format('MMM-YYYY');
                 if (!res[month]) {
                     res[month] = "0";
                 }
             }
         }
         else {
-            for (let i = 0; i < dayjs(toForecastDate).diff(dayjs(fromHistoricalDate), 'year') + 1; i++) {
-                const year = dayjs(fromHistoricalDate).add(i, 'year').format('YYYY');
+            for (let i = 0; i < dayjs(toDate).diff(dayjs(fromDate), 'year') + 1; i++) {
+                const year = dayjs(fromDate).add(i, 'year').format('YYYY');
                 if (!res[year]) {
                     res[year] = "0";
                 }
@@ -491,148 +358,34 @@ const KPI = () => {
         return res;
     };
     const KPIAnalysis = () => {
-        // Use local arrays to manage the data
-        const newLowCaseData = [];
-        const newHighCaseData = [];
         dropdownGroups.forEach((row, index) => {
             const formulaCase = Formulas[row.Case];
             let formula = null;
             let operators = null;
-    
-            if (formulaCase) {
-                Object.keys(formulaCase).forEach((key) => {
-                    if (formulaCase[key][row.OutputMetric]) {
-                        formula = formulaCase[key][row.OutputMetric].emptyArray;
-                        operators = formulaCase[key][row.OutputMetric].plusArray;
-                        operators = operators.slice(1);
-                    }
-                });
-            }
-    
+            Object.keys(formulaCase).forEach((key) => {
+                if (formulaCase[key][row.OutputMetric]) {
+                    formula = formulaCase[key][row.OutputMetric].emptyArray;
+                    operators = formulaCase[key][row.OutputMetric].plusArray;
+                    operators = operators.slice(1);
+                }
+            });
             const row_id = row.Field;
             const highmethod = highMethodForRow[index];
             const lowmethod = lowMethodForRow[index];
+            const presentval = row.Case === 'downside' ? values[row.OutputMetric] : row.Case === 'base' ? values2[row.OutputMetric] : values3[row.OutputMetric];
             const Highres = handleApplyFormula(formula, row.Case, operators, row_id, highmethod, "High", index);
             const Lowres = handleApplyFormula(formula, row.Case, operators, row_id, lowmethod, "Low", index);
-            const presentval = row.Case === 'downside' ? values[row.OutputMetric] : row.Case === 'base' ? values2[row.OutputMetric] : values3[row.OutputMetric];
+            console.log(presentval);
+            console.log(Highres);
+            console.log(Lowres);
             const presentSum = Object.keys(presentval).reduce((prev, curr) => prev + parseFloat(presentval[curr], 10), 0).toFixed(2);
             const HighresSum = Object.keys(Highres).reduce((prev, curr) => prev + parseFloat(Highres[curr], 10), 0).toFixed(2);
             const LowresSum = Object.keys(Lowres).reduce((prev, curr) => prev + parseFloat(Lowres[curr], 10), 0).toFixed(2);
-            const highdiff = HighresSum - presentSum;
-            const lowdiff = LowresSum - presentSum;
-            newLowCaseData.push(lowdiff !== undefined ? lowdiff : 0);
-            newHighCaseData.push(highdiff !== undefined ? highdiff : 0);
-        });    
-        setLowCaseData(newLowCaseData);
-        setHighCaseData(newHighCaseData);
-        setApplyClicked(true);
-    };
-    
-    const handleAddGrowthRate = () => {
-        if (buttonType === "High") {
-            setEditingHighGrowthRates((prev) => ({
-                ...prev,
-                [Index]: [
-                    ...(prev[Index] || []), // Initialize as an empty array if undefined
-                    { startDate: dayjs(), growthRate: 0 },
-                ],
-            }));
-        } else if (buttonType === "Low") {
-            setEditingLowGrowthRates((prev) => ({
-                ...prev,
-                [Index]: [
-                    ...(prev[Index] || []), // Initialize as an empty array if undefined
-                    { startDate: dayjs(), growthRate: 0 },
-                ],
-            }));
-        }
-    };
-    const handleRemoveGrowthRate = (index) => {
-        if (buttonType === "High") {
-            setEditingHighGrowthRates((prev) => ({
-                ...prev,
-                [Index]: prev[Index].filter((_, i) => i !== index)
-            }));
-        } else if (buttonType === "Low") {
-            setEditingLowGrowthRates((prev) => ({
-                ...prev,
-                [Index]: prev[Index].filter((_, i) => i !== index)
-            }));
-        }
+            console.log(HighresSum, presentSum, LowresSum);
+
+        });
     }
-    const handleGrowthRateChange = (index, field, value) => {
-        if (buttonType === "High") {
-            setEditingHighGrowthRates((prev) => ({
-                ...prev,
-                [Index]: prev[Index].map((item, i) =>
-                    i === index ? { ...item, [field]: field === 'startDate' ? dayjs(value) : value } : item
-                ),
-            }));
-        } else if (buttonType === "Low") {
-            setEditingLowGrowthRates((prev) => ({
-                ...prev,
-                [Index]: prev[Index].map((item, i) =>
-                    i === index ? { ...item, [field]: field === 'startDate' ? dayjs(value) : value } : item
-                ),
-            }));
-        }
-    };
-    const getMinDate = (index, buttonType) => {
-        if (index === 0) {
-            return fromHistoricalDate; // Initial starting date for the first entry
-        }
-        if (buttonType === "High") {
-            return editingHighGrowthRates[Index][index - 1].startDate; // Last added date for high entries
-        } else if (buttonType === "Low") {
-            return editingLowGrowthRates[Index][index - 1].startDate; // Last added date for low entries
-        }
-    };
-    const handleSaveGrowthRate = () => {
-        if (buttonType === "High") {
-            setHighMethodForRow(prev => ({ ...prev, [Index]: "growthRate" }));
-            setHighGrowthRates(editingHighGrowthRates);
-            setHighInitialGrowthRate(editingHighInitialGrowthRate);
-            setHighStartingValue(editingLowStartingValue);
-        } else if (buttonType === "Low") {
-            setLowMethodForRow(prev => ({ ...prev, [Index]: "growthRate" }));
-            setLowGrowthRates(editingLowGrowthRates);
-            setLowInitialGrowthRate(editingLowInitialGrowthRate);
-            setLowStartingValue(editingLowStartingValue);
-        }
-        setOpenGrowthRateDialog(false);
-    };
-    const handleCancelGrowthRate = () => {
-        if (buttonType === "High") {
-            setEditingHighGrowthRates(highGrowthRates);
-            setEditingHighInitialGrowthRate(highInitialGrowthRate);
-            setEditingHighStartingValue(highStartingValue);
-        } else if (buttonType === "Low") {
-            setEditingLowGrowthRates(lowGrowthRates);
-            setEditingLowInitialGrowthRate(lowInitialGrowthRate);
-            setEditingLowStartingValue(lowStartingValue);
-        }
-        setOpenGrowthRateDialog(false);
-        setOpenInputMethodDialog(true);
-    }
-    const handleSaveCopy = () => {
-        if (buttonType === "High") {
-            setHighMethodForRow(prev => ({ ...prev, [Index]: "copy" }));
-            setHighSelectedCaseOption(editingHighSelectedCaseOption);
-        } else if (buttonType === "Low") {
-            setLowMethodForRow(prev => ({ ...prev, [Index]: "copy" }));
-            setLowSelectedCaseOption(editingLowSelectedCaseOption);
-        }
-        setOpenCopyFromDialog(false);
-    }
-    const handleCancelCopy = () => {
-        if (buttonType === "High") {
-            setEditingHighSelectedCaseOption(highSelectedCaseOption);
-        } else if (buttonType === "Low") {
-            setEditingLowSelectedCaseOption(lowSelectedCaseOption);
-        }
-        setOpenCopyFromDialog(false);
-        setOpenInputMethodDialog(true);
-    }
+
     return (
         <>
             <Box
@@ -640,7 +393,6 @@ const KPI = () => {
                     display: "flex",
                     justifyContent: "flex-start",
                     mb: 2,
-                    ml: 1,
                 }}
             >
                 <Button
@@ -651,186 +403,166 @@ const KPI = () => {
                     Apply
                 </Button>
             </Box>
-            <Grid container spacing={2}>
-                <Grid item xs={12}>
-                    <TableContainer
-                        component={Paper}
+            {dropdownGroups.map((group, index) => (
+                <>
+                    <Box
+                        key={index}
                         sx={{
-                            boxShadow: 3,
-                            borderRadius: 2,
-                            overflow: "hidden",
-                            border: "1px solid #ddd",
-                            maxWidth: "120%",
+                            display: "flex",
+                            alignItems: "center",
+                            mb: 2,
                         }}
                     >
-                        <Table size="small" aria-label="dropdown table">
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Case</TableCell>
-                                    <TableCell align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Output Metric</TableCell>
-                                    <TableCell align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Field</TableCell>
-                                    <TableCell align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>High Case</TableCell>
-                                    <TableCell align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Low Case</TableCell>
+                        {/* Case Dropdown */}
+                        <FormControl sx={{ m: 1, width: "15ch" }}>
+                            <InputLabel id={`case-select-label-${index}`}>Case</InputLabel>
+                            <Select
+                                labelId={`case-select-label-${index}`}
+                                id={`case-select-${index}`}
+                                value={group.Case}
+                                label="Case"
+                                onChange={(e) => handleDropdownChange(index, "Case", e.target.value)}
+                                sx={{ fontSize: "0.9rem" }}
+                            >
+                                <MenuItem value="downside">Downside</MenuItem>
+                                <MenuItem value="base">Base</MenuItem>
+                                <MenuItem value="upside">Upside</MenuItem>
+                            </Select>
+                        </FormControl>
 
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {dropdownGroups.map((group, index) => (
-                                    <TableRow
-                                        key={index}
-                                        sx={{
-                                            "&:last-child td, &:last-child th": { border: 0 }, // Removes bottom border
-                                        }}
-                                    >
-                                        {/* Case Dropdown */}
-                                        <TableCell align="center">
-                                            <FormControl sx={{ width: "15ch" }}>
-                                                {/* <InputLabel id={`case-select-label-${index}`}>Case</InputLabel> */}
-                                                <Select
-                                                    labelId={`case-select-label-${index}`}
-                                                    id={`case-select-${index}`}
-                                                    value={group.Case}
-                                                    placeholder="Select a Case"
-                                                    //label="Case"
-                                                    onChange={(e) => handleDropdownChange(index, "Case", e.target.value)}
-                                                    sx={{ fontSize: "0.9rem" }}
-                                                >
-                                                    <MenuItem value="downside">Downside</MenuItem>
-                                                    <MenuItem value="base">Base</MenuItem>
-                                                    <MenuItem value="upside">Upside</MenuItem>
-                                                </Select>
-                                            </FormControl>
-                                        </TableCell>
+                        {/* Output Metric Dropdown */}
+                        {group.Case && (
+                            <FormControl sx={{ m: 1, width: "15ch" }}>
+                                <InputLabel id={`output-metric-select-label-${index}`}>Output Metric</InputLabel>
+                                <Select
+                                    labelId={`output-metric-select-label-${index}`}
+                                    id={`output-metric-select-${index}`}
+                                    value={group.OutputMetric}
+                                    label="Output Metric"
+                                    onChange={(e) => handleDropdownChange(index, "OutputMetric", e.target.value)}
+                                    sx={{ fontSize: "0.9rem" }}
+                                >
+                                    {products[group.Case] &&
+                                        Object.entries(products[group.Case]).map(([tableKey, tableValue]) =>
+                                            Object.entries(tableValue).map(([id, value]) => (
+                                                <MenuItem key={`${tableKey}-${id}`} value={value.id}>
+                                                    {value.name}
+                                                </MenuItem>
+                                            )))}
+                                </Select>
+                            </FormControl>
+                        )}
 
-                                        {/* Output Metric Dropdown */}
-                                        <TableCell align="center">
-                                            {(
-                                                <FormControl sx={{ width: "15ch" }}>
-                                                    {/* <InputLabel
-                                                    id={`output-metric-select-label-${index}`}
-                                                    sx={{ textAlign: "center" }}
-                                                >
-                                                    Output Metric
-                                                </InputLabel> */}
-                                                    <Select
-                                                        labelId={`output-metric-select-label-${index}`}
-                                                        id={`output-metric-select-${index}`}
-                                                        value={group.OutputMetric}
-                                                        //label="Output Metric"
-                                                        onChange={(e) => handleDropdownChange(index, "OutputMetric", e.target.value)}
-                                                        sx={{ fontSize: "0.9rem" }}
-                                                    >
-                                                        {products[group.Case] &&
-                                                            Object.entries(products[group.Case]).map(([tableKey, tableValue]) =>
-                                                                Object.entries(tableValue).map(([id, value]) => (
-                                                                    <MenuItem key={`${tableKey}-${id}`} value={value.id}>
-                                                                        {value.name}
-                                                                    </MenuItem>
-                                                                ))
-                                                            )}
-                                                    </Select>
-                                                </FormControl>
-                                            )}
-                                        </TableCell>
+                        {/* Field Dropdown */}
+                        {group.OutputMetric && (
+                            <FormControl sx={{ m: 1, width: "15ch" }}>
+                                <InputLabel id={`field-select-label-${index}`}>Field</InputLabel>
+                                <Select
+                                    labelId={`field-select-label-${index}`}
+                                    id={`field-select-${index}`}
+                                    value={group.Field}
+                                    label="Field"
+                                    onChange={(e) => handleDropdownChange(index, "Field", e.target.value)}
+                                    sx={{ fontSize: "0.9rem" }}
+                                >
+                                    {products[group.Case] &&
+                                        Object.entries(products[group.Case]).map(([tableKey, tableValue]) =>
+                                            Object.entries(tableValue).map(([id, value]) => (
+                                                <MenuItem key={`${tableKey}-${id}`} value={value.id}>
+                                                    {value.name}
+                                                </MenuItem>
+                                            )))}
+                                </Select>
+                            </FormControl>
+                        )}
 
-                                        {/* Field Dropdown */}
-                                        <TableCell align="center">
-                                            {(
-                                                <FormControl sx={{ width: "15ch" }}>
-                                                    {/* <InputLabel id={`field-select-label-${index}`}>Field</InputLabel> */}
-                                                    <Select
-                                                        labelId={`field-select-label-${index}`}
-                                                        id={`field-select-${index}`}
-                                                        value={group.Field}
-                                                        //label="Field"
-                                                        onChange={(e) => handleDropdownChange(index, "Field", e.target.value)}
-                                                        sx={{ fontSize: "0.9rem" }}
-                                                    >
-                                                        {products[group.Case] &&
-                                                            Object.entries(products[group.Case]).map(([tableKey, tableValue]) =>
-                                                                Object.entries(tableValue).map(([id, value]) => (
-                                                                    <MenuItem key={`${tableKey}-${id}`} value={value.id}>
-                                                                        {value.name}
-                                                                    </MenuItem>
-                                                                ))
-                                                            )}
-                                                    </Select>
-                                                </FormControl>
-                                            )}
-                                        </TableCell>
+                        {/* High Case Input and Low Case Input Buttons */}
+                        {group.Case && group.OutputMetric && group.Field && (
+                            <>
+                                <Button
+                                    variant="outlined"
+                                    color="success"
+                                    sx={{ ml: 1, width: "6ch", height: "7ch" }}
+                                    onClick={() => {
+                                        setIndex(index);
+                                        setButtonType("High");
+                                        setOpenInputMethodDialog(true);
+                                    }}
+                                >
+                                    High Case
+                                </Button>
+                                <Button
+                                    variant="outlined"
+                                    color="error"
+                                    sx={{ ml: 1, width: "6ch", height: "7ch" }}
+                                    onClick={() => {
+                                        setIndex(index);
+                                        setButtonType("Low")
+                                        setOpenInputMethodDialog(true)
+                                    }}
+                                >
+                                    Low Case
+                                </Button>
+                            </>
+                        )}
 
-                                        {/* High/Low Case Buttons, Add, and Delete */}
-                                        <TableCell align="center">
-                                            <Button
-                                                variant={highMethodForRow[index] ? "contained" : "outlined"}
-                                                color="success"
-                                                onClick={() => {
-                                                    setIndex(index);
-                                                    setButtonType("High");
-                                                    setOpenInputMethodDialog(true);
-                                                }}
-                                            >
-                                                High Case <UploadIcon sx={{ ml: 1 }} />
-                                            </Button>
-                                        </TableCell>
-                                        <TableCell align="center">
-                                            <Button
-                                                variant={lowMethodForRow[index] ? "contained" : "outlined"}
-                                                color="error"
-                                                sx={{ marginLeft: index === dropdownGroups.length - 1 ? 5 : 0 }} // Added left margin
-                                                onClick={() => {
-                                                    setIndex(index);
-                                                    setButtonType("Low");
-                                                    setOpenInputMethodDialog(true);
-                                                }}
-                                            >
-                                                Low Case
-                                                <UploadIcon sx={{ ml: 1 }} />
-                                            </Button>
-                                            {dropdownGroups.length > 1 && (
-                                                <IconButton
-                                                    title="Delete this row"
-                                                    aria-label="delete"
-                                                    sx={{ color: "purple", ml: 1 }}
-                                                    onClick={() => handleDeleteDropdownGroup(index)}
-                                                >
-                                                    <DeleteIcon />
-                                                </IconButton>
-                                            )}
-                                            {
-                                                index === dropdownGroups.length - 1 && (
-                                                    <IconButton
-                                                        title="Add new parameters"
-                                                        aria-label="add"
-                                                        sx={{ color: isLastRowFilled ? "blue" : "grey" }}
-                                                        onClick={isLastRowFilled ? () => handleAddDropdownGroup(index) : null}
-                                                        onMouseOver={(e) => {
-                                                            if (isLastRowFilled) {
-                                                                e.currentTarget.title = "Add new parameters";
-                                                            } else {
-                                                                e.currentTarget.title = "Fill in the table first";
-                                                            }
-                                                        }}
-                                                    >
-                                                        <AddIcon />
-                                                    </IconButton>
-                                                )
-                                            }
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                </Grid>
-                {applyClicked && <Grid item xs={12}>
-                    <Box sx={{ width: '80%', margin: 'auto', textAlign: 'center' }}>
+                        {/* Add and Delete Buttons */}
+                        {index === dropdownGroups.length - 1 && dropdownGroups.length < 6 && isLastRowFilled && (
+                            <IconButton
+                                title="Add new parameters"
+                                aria-label="add"
+                                sx={{ color: "blue", bgcolor: "blue.100", ml: 1 }}
+                                onClick={handleAddDropdownGroup}
+                            >
+                                <AddIcon />
+                            </IconButton>
+                        )}
 
-                        <Bar data={data} options={options} />
+                        {dropdownGroups.length > 1 && (
+                            <IconButton
+                                title="Delete this row"
+                                aria-label="delete"
+                                sx={{ color: "purple", ml: 1 }}
+                                onClick={() => handleDeleteDropdownGroup(index)}
+                            >
+                                <DeleteIcon />
+                            </IconButton>
+                        )}
                     </Box>
-                </Grid>}
+                    {
+                        <Grid container spacing={1} sx={{ mb: 2, mt: 2 }}>
+                            {highStartValue[index] !== undefined && highEndValue[index] !== undefined && highMethodForRow[index] === "StartEnd" && (
+                                <Grid item xs={12}>
+                                    <Typography variant="body2" component="span" sx={{ fontSize: "0.8rem" }}>
+                                        High Case: Start and End values
+                                    </Typography>
+                                </Grid>
+                            )}
+                            {lowStartValue[index] !== undefined && lowEndValue[index] !== undefined && lowMethodForRow[index] === "StartEnd" &&
+                                <Grid item xs={12}>
+                                    <Typography variant="body2" component="span" sx={{ fontSize: "0.8rem" }}>
+                                        Low Case: Start and End values
+                                    </Typography>
+                                </Grid>}
+                            {highFileToFill[index] !== undefined && highMethodForRow[index] === "file" &&
+                                <Grid item xs={12}>
+                                    <Typography variant="body2" component="span" sx={{ fontSize: "0.8rem" }}>
+                                        High Case: Upload File
+                                    </Typography>
+                                </Grid>}
+                            {lowFileToFill[index] !== undefined && lowMethodForRow[index] === "file" &&
+                                <Grid item xs={12}>
+                                    <Typography variant="body2" component="span" sx={{ fontSize: "0.8rem" }}>
+                                        Low Case: Upload File
+                                    </Typography>
+                                </Grid>}
+                        </Grid >
+                    }
+                </>
+            ))
+            }
 
-            </Grid>
+
             {
                 <Dialog open={openInputMethodDialog} onClose={() => { setOpenInputMethodDialog(false); }}
                     maxWidth="sm"
@@ -868,7 +600,7 @@ const KPI = () => {
                             {/* Growth Rate */}
                             <ListItem
                                 button
-                                onClick={() => handleInputMethodSelect('growthRate')}
+                                //onClick={() => handleInputMethodSelect('growthRate')}
                                 sx={{
                                     padding: '18px',
                                     borderBottom: '1px solid #e0e0e0',
@@ -938,7 +670,7 @@ const KPI = () => {
                             </Tooltip>
                             <ListItem
                                 button
-                                onClick={() => handleInputMethodSelect('copy')}
+                                //onClick={() => handleInputMethodSelect('copy')}
                                 sx={{
                                     padding: '18px',
                                     borderBottom: '1px solid #e0e0e0',
@@ -1128,159 +860,8 @@ const KPI = () => {
                     </DialogActions>
                 </Dialog>
             }
-            {
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <Dialog open={openGrowthRateDialog} onClose={() => { setOpenGrowthRateDialog(false); }} maxWidth="sm" fullWidth>
-                        <DialogTitle sx={{ paddingTop: '20px' }}>Set Initial Values and Growth Rate</DialogTitle>
-                        <DialogContent sx={{ paddingTop: '15px' }}>
-                            <Box display="flex" alignItems="center" gap="16px" mb={2} sx={{ paddingTop: '20px' }}>
-                                {/* Start Month/Year picker. Disable editing, and limit the date range to the given period. */}
-                                <DatePicker
-                                    views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
-                                    label={timePeriod === 'Monthly' ? 'Start Month' : 'Start Year'}
-                                    value={fromHistoricalDate} // Auto-populated
-                                    disabled
-                                    format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
-                                    slotProps={{ textField: { size: 'small' } }}
-                                    style={{ minWidth: '120px' }}
-                                />
-                                {/* Starting Value input field. User can edit value. */}
-                                <TextField
-                                    label="Starting Value"
-                                    type="number"
-                                    value={buttonType === 'High' ? editingHighStartingValue[Index] : editingLowStartingValue[Index]}
-                                    onChange={(e) => buttonType === 'High' ? setEditingHighStartingValue(prev => ({
-                                        ...prev,
-                                        [Index]: e.target.value
-                                    })) : setEditingLowStartingValue(prev => ({
-                                        ...prev,
-                                        [Index]: e.target.value
-                                    }))}
-                                    size="small"
-                                    style={{ minWidth: '120px' }}
-                                />
-                                {/* Initial Growth Rate input field. User can edit value. */}
-                                <TextField
-                                    label="Initial Growth Rate (%)"
-                                    type="number"
-                                    value={buttonType === 'High' ? editingHighInitialGrowthRate[Index] : editingLowInitialGrowthRate[Index]}
-                                    onChange={(e) => buttonType === 'High' ? setEditingHighInitialGrowthRate(prev => ({
-                                        ...prev,
-                                        [Index]: e.target.value
-                                    })) : setEditingLowInitialGrowthRate(prev => ({
-                                        ...prev,
-                                        [Index]: e.target.value
-                                    }))}
-                                    size="small"
-                                    style={{ minWidth: '120px' }}
-                                />
-                                {/* Add button to add a new growth rate entry. */}
-                                <IconButton onClick={handleAddGrowthRate} color="primary">
-                                    <AddIcon />
-                                </IconButton>
-                            </Box>
-                            {/* Show all the growth rate entries. Each entry is a Box with a DatePicker, TextField, and Remove button. */}
 
-                            {(buttonType === 'High' ? editingHighGrowthRates[Index] : editingLowGrowthRates[Index])?.map((rate, i) => (
-                                <Box key={i} display="flex" alignItems="center" gap="16px" mb={2}>
-                                    {/* Next Month/Year picker. User can select a date within the given period. */}
-                                    <DatePicker
-                                        views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
-                                        label={timePeriod === 'Monthly' ? 'Next Month' : 'Next Year'}
-                                        value={rate.startDate}
-                                        onChange={(newValue) => handleGrowthRateChange(i, 'startDate', newValue)}
-                                        format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
-                                        slotProps={{ textField: { size: 'small' } }}
-                                        style={{ minWidth: '120px' }}
-                                        minDate={getMinDate(i)} //The user cannot select a Date that is before the Start Date
-                                        maxDate={toForecastDate} //The user cannot select a Start Date that is after the End Date
-                                    />
-                                    {/* Growth Rate input field. User can edit value. */}
-                                    <TextField
-                                        // label="Growth Rate (%)"
-                                        type="number"
-                                        value={rate.growthRate}
-                                        onChange={(e) => handleGrowthRateChange(i, 'growthRate', e.target.value)}
-                                        size="small"
-                                        style={{ minWidth: '120px' }}
-                                    />
-                                    <IconButton onClick={() => handleRemoveGrowthRate(i)} color="secondary">
-                                        <DeleteIcon />
-                                    </IconButton>
-                                </Box>
-                            ))}
-                        </DialogContent>
-                        <DialogActions>
-                            <Button onClick={() => { handleCancelGrowthRate() }} color="primary">
-                                Cancel
-                            </Button>
-                            <Button onClick={() => { handleSaveGrowthRate() }} color="primary">
-                                Save
-                            </Button>
-                            <Button onClick={() => { setOpenGrowthRateDialog(false); }} color="primary">
-                                Close
-                            </Button>
-                        </DialogActions>
-                    </Dialog>
-                </LocalizationProvider>
-            }
-            {
-                <Dialog open={openCopyFromDialog} onClose={() => setOpenCopyFromDialog(false)} maxWidth="sm" fullWidth>
-                    <DialogTitle>Choose the Case to Copy From</DialogTitle>
-                    <DialogContent sx={{ paddingTop: '15px' }}>
-                        <Box display="flex" flexDirection="row" gap="16px" alignItems="center" marginTop="10px">
-                            {/* Render buttons dynamically based on the current product case */}
-                            {(() => {
-                                const options = {
-                                    base: ['downside', 'upside'],
-                                    downside: ['base', 'upside'],
-                                    upside: ['base', 'downside'],
-                                };
-
-                                return options[currentCase[Index]]?.map((caseOption) => (
-                                    <Button
-                                        key={caseOption}
-                                        variant="outlined"
-                                        onClick={() => buttonType === 'High' ? setEditingHighSelectedCaseOption(prev => ({
-                                            ...prev,
-                                            [Index]: caseOption
-                                        })) : setEditingLowSelectedCaseOption(prev => ({
-                                            ...prev,
-                                            [Index]: caseOption
-                                        }))}
-                                        color="primary"
-                                        sx={{
-                                            backgroundColor: buttonType === 'High' ? editingHighSelectedCaseOption[Index] === caseOption ? '#1976d2' : '' : editingLowSelectedCaseOption[Index] === caseOption ? '#1976d2' : '', // Highlight selected option
-                                            color: buttonType === 'High' ? editingHighSelectedCaseOption[Index] === caseOption ? 'white' : '' : editingLowSelectedCaseOption[Index] === caseOption ? 'white' : '', // Highlight selected option
-                                        }}
-                                    >
-                                        Copy from {caseOption}
-                                    </Button>
-                                ));
-                            })()}
-                        </Box>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={() => handleCancelCopy()} color="secondary" >
-                            Cancel
-                        </Button>
-                        <Button onClick={() => handleSaveCopy()} color="primary" >
-                            Save
-                        </Button>
-                        <Button onClick={() => setOpenCopyFromDialog(false)} color="secondary" >
-                            Close
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-            }
         </>
     );
 };
 export default KPI;
-
-
-
-
-
-
-
