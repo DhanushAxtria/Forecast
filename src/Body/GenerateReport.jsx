@@ -169,7 +169,8 @@ export default function GenerateReport() {
         setAnchorEl(null);
         setOpenSubMenu(false);
         setSubMenuAnchorEl(null);
-        setCurrentCategory(null); // Reset current category
+        setCurrentCategory(null); 
+        setIndex(null);
     };
 
     const handleSubMenuOpen = (index, event, category) => {

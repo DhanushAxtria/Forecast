@@ -142,22 +142,12 @@ const Patient_Forecast = () => {
                     <Button
                         variant="contained"
                         onClick={() => {
-                            navigate("/new-scenario/scenario-details/forecastdeepdive/dashboard");
+                            navigate("/new-scenario/scenario-details/forecastdeepdive/analysis");
                         }}
                         color="success"
                         sx={{ fontSize: '0.8rem' }}
                     >
-                        Show Dashboard
-                    </Button>
-                    <Button
-                        variant="contained"
-                        onClick={() => {
-                            navigate("/new-scenario/scenario-details/forecastdeepdive/kpi-analysis");
-                        }}
-                        color="success"
-                        sx={{ fontSize: '0.8rem' }}
-                    >
-                        KPI Analysis
+                        Analysis
                     </Button>
                 </Box>
             </Box>

@@ -1,3 +1,4 @@
+import { Bar, BarChart, XAxis, YAxis, CartesianGrid } from "recharts";
 import React, { useState, useEffect, useContext } from 'react';
 import CalculateIcon from '@mui/icons-material/Calculate';
 import FormControl from '@mui/material/FormControl';
@@ -19,6 +20,7 @@ import {
     ListItem,
     ListItemText,
     MenuItem,
+    Tooltip,
     Card,
     Box,
     Tabs,
@@ -39,13 +41,14 @@ import { MyContext } from './context';
 import dayjs from 'dayjs';
 import Grid from '@mui/material/Grid';
 import { Table, TableHead, TableBody } from '@mui/material';
+import DatePicker from 'react-datepicker';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DatePicker } from '@mui/x-date-pickers';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid, LabelList } from 'recharts';
+import { ResponsiveContainer } from 'recharts';
+
 const KPI = () => {
-    const [baseRev, setBaseRev] = useState(0);
-    const [applyClicked, setApplyClicked] = useState(false);
+    const [applyClicked, setApplyClicked] = useState(true);
+    const [resUpload, setResUpload] = useState({});
     const { products, timePeriod, Formulas, fromHistoricalDate, toForecastDate, values, values2, values3 } = useContext(MyContext);
     const [Res, setRes] = useState({});
     const [Index, setIndex] = useState("");
@@ -101,32 +104,60 @@ const KPI = () => {
     const [editingLowAbsoluteVal, setEditingLowAbsoluteVal] = useState({});
     const [editingHighAbsoluteVal, setEditingHighAbsoluteVal] = useState({});
     const [openAbsoluteVal, setOpenAbsoluteVal] = useState(false);
-    const [highresult, setHighResult] = useState({})
-    const [lowresult, setLowResult] = useState({})
-    const [mainresult, setMainResult] = useState({})
-    const [columns, setColumns] = useState([]);
 
-    const labels = dropdownGroups
-        .map((group) => {
-            if (group?.Field && products[group?.Case]) {
-                return Object.keys(products[group.Case]).map((tableKey) => {
-                    const productList = products[group.Case][tableKey];
-                    if (productList) {
-                        const product = productList.find((product) => product?.id === group.Field);
-                        return product ? product.name : null;
-                    }
-                    return null;
-                })
-                    .filter((label) => label !== null);
-            }
-            return [];
-        })
-        .flat();
-    const chartData = labels.map((label, index) => ({
-        name: label,
-        lowCase: lowCaseData[index],
-        highCase: highCaseData[index],
-    }));
+
+    // Sample data
+    const rawData = [
+        { name: "Start", value: 100 },
+        { name: "Increase", value: 50 },
+        { name: "Decrease", value: -30 },
+        { name: "End", value: 120 },
+    ];
+
+    // Process data for waterfall chart
+    const processWaterfallData = (data) => {
+        let cumulative = 0;
+        return data.map((item, index) => {
+            const prevCumulative = cumulative;
+            cumulative += item.value;
+            return {
+                ...item,
+                cumulative,
+                start: index === 0 ? 0 : prevCumulative,
+            };
+        });
+    };
+    const data = processWaterfallData(rawData);
+    // const data = {
+    //     labels: dropdownGroups
+    //         .map((group) => {
+    //             if (group?.Field && products[group?.Case]) {
+    //                 return Object.keys(products[group.Case]).map((tableKey) => {
+    //                     const productList = products[group.Case][tableKey];
+    //                     if (productList) {
+    //                         const product = productList.find((product) => product?.id === group.Field);
+    //                         return product ? product.name : null;
+    //                     }
+    //                     return null;
+    //                 })
+    //                     .filter((label) => label !== null);
+    //             }
+    //             return [];
+    //         })
+    //         .flat(),
+    //     datasets: [
+    //         {
+    //             label: 'Low Case',
+    //             data: lowCaseData,
+    //             backgroundColor: '#e57373',
+    //         },
+    //         {
+    //             label: 'High Case',
+    //             data: highCaseData,
+    //             backgroundColor: '#81c784',
+    //         },
+    //     ],
+    // };
     // Chart Options
     const options = {
         indexAxis: 'y', // Horizontal bar
@@ -230,6 +261,11 @@ const KPI = () => {
         setDropdownGroups(updatedGroups);
         handledelete(index);
     };
+    useEffect(() => {
+        console.log(currentCase);
+
+    }, [currentCase])
+
     const handleDropdownChange = (index, field, value) => {
         if (field === 'Case') {
             setCurrentCase(prev => ({
@@ -313,93 +349,6 @@ const KPI = () => {
         }
         setOpenUploadDialog(false);
         setOpenInputMethodDialog(true);
-    };
-    const generateMonthlyColumns = (start, end) => {
-        const months = [];
-        let current = dayjs(start);
-        while (current.isBefore(end) || current.isSame(end, 'month')) {
-            months.push(current.format('MMM-YYYY'));
-            current = current.add(1, 'month');
-        }
-        return months;
-    };
-    //Same as generateMonthlyColumns but for yearly time period
-    const generateYearlyColumns = (start, end) => {
-        const years = [];
-        let current = dayjs(start).startOf('year');
-        while (current.isBefore(end) || current.isSame(end, 'year')) {
-            years.push(current.format('YYYY'));
-            current = current.add(1, 'year');
-        }
-        return years;
-    };
-    useEffect(() => {
-        // Generate the columns based on the selected time period
-        // Columns are only regenerated when the time period, start date, or end date changes
-        if (timePeriod === 'Monthly') {
-            setColumns(generateMonthlyColumns(fromHistoricalDate, toForecastDate));
-        } else if (timePeriod === 'Yearly') {
-            setColumns(generateYearlyColumns(fromHistoricalDate, toForecastDate));
-        }
-    }, [timePeriod, fromHistoricalDate, toForecastDate]);
-    const calculateGrowthRateValues = (startingValue, initialGrowthRate, growthRates) => {
-
-        const newValues = {};
-
-        const startDate = dayjs(fromHistoricalDate); // Start date of the calculation period
-        const endDate = dayjs(toForecastDate); // End date of the calculation period
-        const columnIndexEndDate = columns.indexOf(timePeriod === 'Monthly' ? endDate.format('MMM-YYYY') : endDate.format('YYYY')); // column index of the end date
-
-        const startValue = parseFloat(startingValue);
-        const initialGR = parseFloat(initialGrowthRate);
-        let currentValue = startValue;
-        newValues[columns[0]] = startValue;
-
-
-        // Calculate the values for the initial growth rate for the entire period (Month or Year)
-        for (let i = 1; i <= columnIndexEndDate; i++) {
-            currentValue *= (1 + (initialGR / 100))
-            const dateKey = timePeriod === 'Monthly'
-                ? startDate.add(i, 'month').format('MMM-YYYY')
-                : startDate.add(i, 'year').format('YYYY');
-            // Set the calculated value for the specific period
-            newValues[dateKey] = currentValue.toFixed(2);
-        }
-        const sortedGrowthRates = [
-            { startDate: startDate, growthRate: initialGR }, // Include initial growth rate
-            ...growthRates.map((entry) => ({
-                startDate: dayjs(entry.startDate),
-                growthRate: parseFloat(entry.growthRate),
-            })),
-        ].sort((a, b) => a.startDate?.isBefore(b.startDate) ? -1 : 1); // Sort by startDate
-        sortedGrowthRates.forEach((entry, index) => {
-            if (entry.startDate && !entry.startDate.isSame(startDate)) {
-                const currentGrowthRate = parseFloat(entry.growthRate); // Growth rate for the current period
-                const currentStartDate = dayjs(entry.startDate);
-                const columnIndexNextDate = columns.indexOf(timePeriod === 'Monthly' ? currentStartDate.format('MMM-YYYY') : currentStartDate.format('YYYY'));
-                currentValue = newValues[columns[columnIndexNextDate]];
-                // Apply growth rate for each year/month based on the sorted growth rates
-                for (let i = (columnIndexNextDate + 1); i <= columnIndexEndDate; i++) {
-                    const currentDate = timePeriod === 'Monthly'
-                        ? startDate.add(i, 'month')
-                        : startDate.add(i, 'year');
-
-                    // If the current date is after the current growth rate's start date
-                    if (currentDate.isAfter(currentStartDate, 'day')) {
-                        currentValue *= (1 + (currentGrowthRate / 100)); // Apply the new growth rate
-
-                    }
-
-                    // Set the updated value in the values object
-                    const dateKey = timePeriod === 'Monthly'
-                        ? currentDate.format('MMM-YYYY')
-                        : currentDate.format('YYYY');
-                    newValues[dateKey] = currentValue.toFixed(2);
-                }
-            }
-        });
-
-        return newValues;
     };
     const findVal = (method, buttontype, index) => {
         const res = {};
@@ -507,8 +456,6 @@ const KPI = () => {
             const startingVal = buttontype === 'High' ? highStartingValue[index] : lowStartingValue[index];
             const initialGrowth = buttontype === 'High' ? highInitialGrowthRate[index] : lowInitialGrowthRate[index];
             const growthRates = buttontype === 'High' ? highGrowthRates[index] : lowGrowthRates[index]
-            const temp = calculateGrowthRateValues(startingVal, initialGrowth, growthRates);
-            return temp;
         }
         else if (method === 'copy') {
             const tempCase = buttontype === 'High' ? highSelectedCaseOption[index] : lowSelectedCaseOption[index];
@@ -624,15 +571,11 @@ const KPI = () => {
         // Use local arrays to manage the data
         const newLowCaseData = [];
         const newHighCaseData = [];
-        const highResDict = {};
-        const lowResDict = {};
-        const mainResDict = {};
- 
         dropdownGroups.forEach((row, index) => {
             const formulaCase = Formulas[row.Case];
             let formula = null;
             let operators = null;
- 
+
             if (formulaCase) {
                 Object.keys(formulaCase).forEach((key) => {
                     if (formulaCase[key][row.OutputMetric]) {
@@ -642,19 +585,13 @@ const KPI = () => {
                     }
                 });
             }
- 
+
             const row_id = row.Field;
             const highmethod = highMethodForRow[index];
             const lowmethod = lowMethodForRow[index];
             const Highres = handleApplyFormula(formula, row.Case, operators, row_id, highmethod, "High", index);
-            highResDict[index] = Highres;
- 
             const Lowres = handleApplyFormula(formula, row.Case, operators, row_id, lowmethod, "Low", index);
-            lowResDict[index] = Lowres;
-           
             const presentval = row.Case === 'downside' ? values[row.OutputMetric] : row.Case === 'base' ? values2[row.OutputMetric] : values3[row.OutputMetric];
-            mainResDict[index] = presentval;
-           
             const presentSum = Object.keys(presentval).reduce((prev, curr) => prev + parseFloat(presentval[curr], 10), 0).toFixed(2);
             const HighresSum = Object.keys(Highres).reduce((prev, curr) => prev + parseFloat(Highres[curr], 10), 0).toFixed(2);
             const LowresSum = Object.keys(Lowres).reduce((prev, curr) => prev + parseFloat(Lowres[curr], 10), 0).toFixed(2);
@@ -665,33 +602,23 @@ const KPI = () => {
         });
         setLowCaseData(newLowCaseData);
         setHighCaseData(newHighCaseData);
-        setHighResult(highResDict);
-        setLowResult(lowResDict);
-        setMainResult(mainResDict)
         setApplyClicked(true);
     };
-    useEffect(() => {
-        console.log("HighResult", highresult);
-        console.log("LowResult", lowresult);
-        console.log("MainResult", mainresult);
-    }, [highresult, lowresult, mainresult]);
     const handleAddGrowthRate = () => {
         if (buttonType === "High") {
-            const lastStartDate = editingHighGrowthRates[Index]?.[editingHighGrowthRates[Index].length - 1]?.startDate;
             setEditingHighGrowthRates((prev) => ({
                 ...prev,
                 [Index]: [
                     ...(prev[Index] || []), // Initialize as an empty array if undefined
-                    { startDate: lastStartDate ? lastStartDate : dayjs(), growthRate: 0 },
+                    { startDate: dayjs(), growthRate: 0 },
                 ],
             }));
         } else if (buttonType === "Low") {
-            const lastStartDate = editingLowGrowthRates[Index]?.[editingLowGrowthRates[Index].length - 1]?.startDate;
             setEditingLowGrowthRates((prev) => ({
                 ...prev,
                 [Index]: [
                     ...(prev[Index] || []), // Initialize as an empty array if undefined
-                    { startDate: lastStartDate ? lastStartDate : dayjs(), growthRate: 0 },
+                    { startDate: dayjs(), growthRate: 0 },
                 ],
             }));
         }
@@ -741,13 +668,12 @@ const KPI = () => {
             setHighMethodForRow(prev => ({ ...prev, [Index]: "growthRate" }));
             setHighGrowthRates(editingHighGrowthRates);
             setHighInitialGrowthRate(editingHighInitialGrowthRate);
-            setHighStartingValue(editingHighStartingValue);
+            setHighStartingValue(editingLowStartingValue);
         } else if (buttonType === "Low") {
             setLowMethodForRow(prev => ({ ...prev, [Index]: "growthRate" }));
             setLowGrowthRates(editingLowGrowthRates);
             setLowInitialGrowthRate(editingLowInitialGrowthRate);
             setLowStartingValue(editingLowStartingValue);
-
         }
         setOpenGrowthRateDialog(false);
     };
@@ -1015,121 +941,29 @@ const KPI = () => {
                         </Table>
                     </TableContainer>
                 </Grid>
-                {applyClicked && <Grid item xs={12}>
-                    <div style={{ width: '80%', margin: 'auto', textAlign: 'center', marginTop: "150px" }}>
-                        <h3 style={{ color: '#333', marginBottom: '20px' }}>Base Case Revenue: ${baseRev}M</h3>
+
+                <Grid item xs={12}>
+                    <ResponsiveContainer width="100%" height={300}>
                         <BarChart
-                            width={900}
-                            height={500}
-                            data={chartData}
-                            layout="vertical"
-                            margin={{ top: 20, right: 30, left: 50, bottom: 5 }}
+                            data={data}
+                            margin={{ top: 30, right: 30, left: 30, bottom: 30 }}
                         >
-                            <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
-                            <XAxis
-                                type="number"
-                                tickFormatter={(value) => `$${value.toFixed(2)}M`}
-                                stroke="#555"
-                                domain={[5, 'auto']} // Set minimum value to 5
-                            />
-                            <YAxis
-                                dataKey="name"
-                                type="category"
-                                stroke="#555"
-                                tick={{ fontSize: 12 }}
-                            />
-                            <Tooltip
-                                formatter={(value) => `$${value.toFixed(2)}M`}
-                                contentStyle={{ backgroundColor: '#f5f5f5', borderRadius: '10px' }}
-                            />
-                            <Legend
-                                align="center"
-                                verticalAlign="bottom"
-                                wrapperStyle={{ marginTop: '20px' }}
-                            />
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                            <YAxis tick={{ fontSize: 12 }} />
+                            <Tooltip />
+                            <Bar dataKey="start" stackId="a" fill="transparent" />
                             <Bar
-                                dataKey="lowCase"
-                                fill="rgba(192, 77, 77, 0.8)"
-                                name="Low Case"
-
-                            >
-                                <LabelList
-                                    dataKey="lowCase"
-                                    position="insideRight"
-                                    formatter={(value) => `${value.toFixed(2)}M`}
-                                    fill="#fff"
-                                    fontSize={15}
-                                />
-                            </Bar>
-                            <Bar
-                                dataKey="highCase"
-                                fill="rgba(75, 160, 79, 0.8)"
-                                name="High Case"
-
-                            >
-                                <LabelList
-                                    dataKey="highCase"
-                                    position="insideRight"
-                                    formatter={(value) => `${value.toFixed(2)}M`}
-                                    fill="#fff"
-                                    fontSize={15}
-                                />
-                            </Bar>
+                                dataKey="value"
+                                stackId="a"
+                                fill={({ index }) =>
+                                    data[index].value >= 0 ? "#4caf50" : "#f44336"
+                                }
+                            />
                         </BarChart>
-                    </div>
-                </Grid>}
-            </Grid>
-
-            {applyClicked && (
-                <Grid container spacing={2} justifyContent="center">
-                    {dropdownGroups.map((group, index) => (
-                        <Grid item xs={8} key={index}>
-                            <TableContainer component={Paper} sx={{ border: '1px solid #ccc', borderRadius: '10px', margin: '0 auto' }}>
-                                <Table aria-label={`customized-table-${index}`}>
-                                    <TableHead>
-                                        <TableRow style={{ backgroundColor: '#f0f4fa' }}>
-                                            <TableCell align="center" style={{ border: '1px solid #ccc' }}>
-                                                {labels?.[index]}
-                                            </TableCell>
-                                            {columns.map((column) => (
-                                                <TableCell style={{ border: '1px solid #ccc' }} key={column}>
-                                                    {column}
-                                                </TableCell>
-                                            ))}
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        <TableRow>
-                                            <TableCell style={{ border: '1px solid #ccc' }}>Main Result</TableCell>
-                                            {columns.map((column) => (
-                                                <TableCell style={{ border: '1px solid #ccc' }} key={`main-${column}`}>
-                                                    {mainresult?.[index]?.[column]}
-                                                </TableCell>
-                                            ))}
-                                        </TableRow>
-                                        <TableRow>
-                                            <TableCell style={{ border: '1px solid #ccc' }}>High Case Result</TableCell>
-                                            {columns.map((column) => (
-                                                <TableCell style={{ border: '1px solid #ccc' }} key={`high-${column}`}>
-                                                    {highresult?.[index]?.[column]}
-                                                </TableCell>
-                                            ))}
-                                        </TableRow>
-                                        <TableRow>
-                                            <TableCell style={{ border: '1px solid #ccc' }}>Low Case Result</TableCell>
-                                            {columns.map((column) => (
-                                                <TableCell style={{ border: '1px solid #ccc' }} key={`low-${column}`}>
-                                                    {lowresult?.[index]?.[column]}
-                                                </TableCell>
-                                            ))}
-                                        </TableRow>
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
-                        </Grid>
-                    ))}
+                    </ResponsiveContainer>
                 </Grid>
-            )}
+            </Grid>
 
             {
                 <Dialog open={openInputMethodDialog} onClose={() => { setOpenInputMethodDialog(false); }}
@@ -1434,6 +1268,7 @@ const KPI = () => {
                         <DialogTitle sx={{ paddingTop: '20px' }}>Set Initial Values and Growth Rate</DialogTitle>
                         <DialogContent sx={{ paddingTop: '15px' }}>
                             <Box display="flex" alignItems="center" gap="16px" mb={2} sx={{ paddingTop: '20px' }}>
+                                {/* Start Month/Year picker. Disable editing, and limit the date range to the given period. */}
                                 <DatePicker
                                     views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
                                     label={timePeriod === 'Monthly' ? 'Start Month' : 'Start Year'}
@@ -1491,7 +1326,7 @@ const KPI = () => {
                                         format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
                                         slotProps={{ textField: { size: 'small' } }}
                                         style={{ minWidth: '120px' }}
-                                        minDate={getMinDate(i, buttonType)} //The user cannot select a Date that is before the Start Date
+                                        minDate={getMinDate(i)} //The user cannot select a Date that is before the Start Date
                                         maxDate={toForecastDate} //The user cannot select a Start Date that is after the End Date
                                     />
                                     {/* Growth Rate input field. User can edit value. */}

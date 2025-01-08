@@ -22,6 +22,8 @@ import KPI from './Body/KPI'
 import Admin from './Body/Admin'
 import GenerateReport from './Body/GenerateReport';
 import Model1 from './Body/Model1'
+import WaterFall from './Body/WaterFall';
+import Analysis from './Body/Analysis';
 function App() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false); // Initialize the state
   return (
@@ -58,7 +60,7 @@ function App() {
           <Route path="/time-series-methods" element={<Forecastpage />} />
           <Route path="/time-series-methods/forecasted_results" element={<Forecasted_Results />} />
           <Route path="/new-scenario/scenario-details/forecastdeepdive/dashboard" element={<Dashboard />} />
-          <Route path="/new-scenario/scenario-details/forecastdeepdive/kpi-analysis" element={<KPI />} />
+          <Route path="/new-scenario/scenario-details/forecastdeepdive/analysis" element={<Analysis />} />
           <Route path="/new-scenario/scenario-details/forecastdeepdive/patientinput" element={<Patient_Forecast_Input />} />
           <Route path="/generate-report" element={<GenerateReport />} />
           <Route path="/new-scenario/model1" element={<Model1 />} />

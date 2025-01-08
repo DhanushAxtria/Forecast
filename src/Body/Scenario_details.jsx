@@ -118,6 +118,11 @@ const ForecastAndFlowDiagram = (props) => {
             ],
         },
     ]);
+    useEffect(() => {
+      console.log(fromHistoricalDate);
+    
+    }, [fromHistoricalDate])
+    
     //const [scenarioName, setScenarioName] = useState(predefinedScenarioNames[0]);
     const [indicationColumns, setIndicationColumns] = useState(defaultIndicationColumns);
     const location = useLocation();
