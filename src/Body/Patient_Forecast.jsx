@@ -660,6 +660,7 @@ const Patient_Forecast = () => {
                         ))}
                     </tbody>
                 </table>
+                
                 {/* This is the formula dialog  which is displayed when the insert formula icon is clicked*/}
                 {showFormula && (
                     <Dialog
