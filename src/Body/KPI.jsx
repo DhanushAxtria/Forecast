@@ -43,6 +43,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid, LabelList } from 'recharts';
+import { hi } from 'date-fns/locale';
 const KPI = () => {
     const [baseRev, setBaseRev] = useState(0);
     const [applyClicked, setApplyClicked] = useState(false);
@@ -103,6 +104,8 @@ const KPI = () => {
     const [openAbsoluteVal, setOpenAbsoluteVal] = useState(false);
     const [highresult, setHighResult] = useState({})
     const [lowresult, setLowResult] = useState({})
+    const [highresSum, setHighResSum] = useState({})
+    const [lowresSum, setLowResSum] = useState({})
     const [mainresult, setMainResult] = useState({})
     const [columns, setColumns] = useState([]);
 
@@ -123,7 +126,7 @@ const KPI = () => {
         })
         .flat();
     const chartData = labels.map((label, index) => ({
-        name: label,
+        name: `${label} - Scenario(${index + 1})`,
         lowCase: lowCaseData[index],
         highCase: highCaseData[index],
     }));
@@ -342,19 +345,16 @@ const KPI = () => {
             setColumns(generateYearlyColumns(fromHistoricalDate, toForecastDate));
         }
     }, [timePeriod, fromHistoricalDate, toForecastDate]);
+
     const calculateGrowthRateValues = (startingValue, initialGrowthRate, growthRates) => {
-
         const newValues = {};
-
         const startDate = dayjs(fromHistoricalDate); // Start date of the calculation period
         const endDate = dayjs(toForecastDate); // End date of the calculation period
         const columnIndexEndDate = columns.indexOf(timePeriod === 'Monthly' ? endDate.format('MMM-YYYY') : endDate.format('YYYY')); // column index of the end date
-
         const startValue = parseFloat(startingValue);
         const initialGR = parseFloat(initialGrowthRate);
         let currentValue = startValue;
         newValues[columns[0]] = startValue;
-
 
         // Calculate the values for the initial growth rate for the entire period (Month or Year)
         for (let i = 1; i <= columnIndexEndDate; i++) {
@@ -365,14 +365,18 @@ const KPI = () => {
             // Set the calculated value for the specific period
             newValues[dateKey] = currentValue.toFixed(2);
         }
-        const sortedGrowthRates = [
-            { startDate: startDate, growthRate: initialGR }, // Include initial growth rate
-            ...growthRates.map((entry) => ({
-                startDate: dayjs(entry.startDate),
-                growthRate: parseFloat(entry.growthRate),
-            })),
-        ].sort((a, b) => a.startDate?.isBefore(b.startDate) ? -1 : 1); // Sort by startDate
-        sortedGrowthRates.forEach((entry, index) => {
+        const sortedGrowthRates = null;
+        if (growthRates) {
+            sortedGrowthRates = [
+                { startDate: startDate, growthRate: initialGR }, // Include initial growth rate
+                ...growthRates.map((entry) => ({
+                    startDate: dayjs(entry.startDate),
+                    growthRate: parseFloat(entry.growthRate),
+                })),
+            ].sort((a, b) => a.startDate?.isBefore(b.startDate) ? -1 : 1); // Sort by startDate
+        }
+
+        sortedGrowthRates?.forEach((entry, index) => {
             if (entry.startDate && !entry.startDate.isSame(startDate)) {
                 const currentGrowthRate = parseFloat(entry.growthRate); // Growth rate for the current period
                 const currentStartDate = dayjs(entry.startDate);
@@ -398,7 +402,6 @@ const KPI = () => {
                 }
             }
         });
-
         return newValues;
     };
     const findVal = (method, buttontype, index) => {
@@ -506,7 +509,7 @@ const KPI = () => {
         else if (method === 'growthRate') {
             const startingVal = buttontype === 'High' ? highStartingValue[index] : lowStartingValue[index];
             const initialGrowth = buttontype === 'High' ? highInitialGrowthRate[index] : lowInitialGrowthRate[index];
-            const growthRates = buttontype === 'High' ? highGrowthRates[index] : lowGrowthRates[index]
+            const growthRates = buttontype === 'High' ? highGrowthRates[index] : lowGrowthRates[index];
             const temp = calculateGrowthRateValues(startingVal, initialGrowth, growthRates);
             return temp;
         }
@@ -579,6 +582,7 @@ const KPI = () => {
         else {
             idd = selectedIds[0];
             val = tabKey === 'downside' ? values[idd] : tabKey === 'base' ? values2[idd] : values3[idd];
+            
         }
         // If the product has values, loop through its values and add them to the results object
         if (val !== undefined) {
@@ -586,6 +590,7 @@ const KPI = () => {
                 res[key] = val[key];
             });
         }
+        console.log("jussssssssssssssssssssskkkk", res);
         // Iterate over the selected product IDs starting from the second element
         for (let i = 1; i < selectedIds.length; i++) {
             let id = null;
@@ -598,6 +603,7 @@ const KPI = () => {
                 id = selectedIds[i];
                 tempval = tabKey === 'downside' ? values[id] : tabKey === 'base' ? values2[id] : values3[id];
             }
+            console.log("jusssssssssssssssssssss");
 
             // If the product values exist, perform calculations based on the selected operator
             if (tempval !== undefined) {
@@ -627,12 +633,14 @@ const KPI = () => {
         const highResDict = {};
         const lowResDict = {};
         const mainResDict = {};
- 
+        const highResSum = {};
+        const lowResSum = {};
+
         dropdownGroups.forEach((row, index) => {
             const formulaCase = Formulas[row.Case];
             let formula = null;
             let operators = null;
- 
+
             if (formulaCase) {
                 Object.keys(formulaCase).forEach((key) => {
                     if (formulaCase[key][row.OutputMetric]) {
@@ -642,39 +650,52 @@ const KPI = () => {
                     }
                 });
             }
- 
+
             const row_id = row.Field;
             const highmethod = highMethodForRow[index];
             const lowmethod = lowMethodForRow[index];
             const Highres = handleApplyFormula(formula, row.Case, operators, row_id, highmethod, "High", index);
             highResDict[index] = Highres;
- 
+
             const Lowres = handleApplyFormula(formula, row.Case, operators, row_id, lowmethod, "Low", index);
+
             lowResDict[index] = Lowres;
-           
+
             const presentval = row.Case === 'downside' ? values[row.OutputMetric] : row.Case === 'base' ? values2[row.OutputMetric] : values3[row.OutputMetric];
             mainResDict[index] = presentval;
-           
+
             const presentSum = Object.keys(presentval).reduce((prev, curr) => prev + parseFloat(presentval[curr], 10), 0).toFixed(2);
             const HighresSum = Object.keys(Highres).reduce((prev, curr) => prev + parseFloat(Highres[curr], 10), 0).toFixed(2);
+            highResSum[index] = HighresSum;
+
             const LowresSum = Object.keys(Lowres).reduce((prev, curr) => prev + parseFloat(Lowres[curr], 10), 0).toFixed(2);
+            lowResSum[index] = LowresSum;
+
             const highdiff = HighresSum - presentSum;
             const lowdiff = LowresSum - presentSum;
             newLowCaseData.push(lowdiff !== undefined ? lowdiff : 0);
             newHighCaseData.push(highdiff !== undefined ? highdiff : 0);
+            setBaseRev(presentSum);
+
         });
         setLowCaseData(newLowCaseData);
         setHighCaseData(newHighCaseData);
         setHighResult(highResDict);
         setLowResult(lowResDict);
         setMainResult(mainResDict)
+        setHighResSum(highResSum);
+        setLowResSum(lowResSum);
         setApplyClicked(true);
     };
     useEffect(() => {
         console.log("HighResult", highresult);
         console.log("LowResult", lowresult);
         console.log("MainResult", mainresult);
-    }, [highresult, lowresult, mainresult]);
+        console.log("LowCaseData", lowCaseData);
+        console.log("HighCaseData", highCaseData);
+        console.log("HighResSum", highresSum);
+        console.log("LowResSum", lowresSum);
+    }, [highresult, lowresult, mainresult, lowCaseData, highCaseData, highresSum, lowresSum]);
     const handleAddGrowthRate = () => {
         if (buttonType === "High") {
             const lastStartDate = editingHighGrowthRates[Index]?.[editingHighGrowthRates[Index].length - 1]?.startDate;
@@ -1080,56 +1101,128 @@ const KPI = () => {
                 </Grid>}
             </Grid>
 
+
             {applyClicked && (
                 <Grid container spacing={2} justifyContent="center">
-                    {dropdownGroups.map((group, index) => (
-                        <Grid item xs={8} key={index}>
-                            <TableContainer component={Paper} sx={{ border: '1px solid #ccc', borderRadius: '10px', margin: '0 auto' }}>
-                                <Table aria-label={`customized-table-${index}`}>
-                                    <TableHead>
-                                        <TableRow style={{ backgroundColor: '#f0f4fa' }}>
-                                            <TableCell align="center" style={{ border: '1px solid #ccc' }}>
-                                                {labels?.[index]}
+                    <Grid item xs={8}>
+                        <TableContainer
+                            component={Paper}
+                            sx={{ border: '1px solid #ccc', borderRadius: '10px', margin: '0 auto' }}
+                        >
+                            <Table aria-label="customized-table">
+                                <TableHead>
+                                    <TableRow style={{ backgroundColor: '#f0f4fa' }}>
+                                        <TableCell align="center" style={{ border: '1px solid #ccc' }}>
+                                            Scenario
+                                        </TableCell>
+                                        <TableCell align="center" style={{ border: '1px solid #ccc' }}>
+                                            Results
+                                        </TableCell>
+                                        {columns.map((column) => (
+                                            <TableCell style={{ border: '1px solid #ccc' }} key={`header-${column}`}>
+                                                {column}
                                             </TableCell>
-                                            {columns.map((column) => (
-                                                <TableCell style={{ border: '1px solid #ccc' }} key={column}>
-                                                    {column}
-                                                </TableCell>
-                                            ))}
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        <TableRow>
-                                            <TableCell style={{ border: '1px solid #ccc' }}>Main Result</TableCell>
-                                            {columns.map((column) => (
-                                                <TableCell style={{ border: '1px solid #ccc' }} key={`main-${column}`}>
-                                                    {mainresult?.[index]?.[column]}
-                                                </TableCell>
-                                            ))}
-                                        </TableRow>
-                                        <TableRow>
-                                            <TableCell style={{ border: '1px solid #ccc' }}>High Case Result</TableCell>
-                                            {columns.map((column) => (
-                                                <TableCell style={{ border: '1px solid #ccc' }} key={`high-${column}`}>
-                                                    {highresult?.[index]?.[column]}
-                                                </TableCell>
-                                            ))}
-                                        </TableRow>
-                                        <TableRow>
-                                            <TableCell style={{ border: '1px solid #ccc' }}>Low Case Result</TableCell>
-                                            {columns.map((column) => (
-                                                <TableCell style={{ border: '1px solid #ccc' }} key={`low-${column}`}>
-                                                    {lowresult?.[index]?.[column]}
-                                                </TableCell>
-                                            ))}
-                                        </TableRow>
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
-                        </Grid>
-                    ))}
+                                        ))}
+                                        <TableCell align="center" style={{ border: '1px solid #ccc' }}>
+                                            Total
+                                        </TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {/* Static Row for Actual Values */}
+                                    <TableRow>
+                                        <TableCell align="center" style={{ border: '1px solid #ccc' }}></TableCell>
+                                        <TableCell style={{ border: '1px solid #ccc' }}>Actual Values</TableCell>
+                                        {columns.map((column) => (
+                                            <TableCell style={{ border: '1px solid #ccc' }} key={`main-${column}`}>
+                                                {mainresult?.[0]?.[column]}
+                                            </TableCell>
+                                        ))}
+                                        <TableCell align="center" style={{ border: '1px solid #ccc' }}>
+                                            {baseRev}
+                                            {/* {columns.reduce((acc, curr) => acc + (mainresult?.[0]?.[curr] || 0), 0)}*/}
+                                        </TableCell>
+                                    </TableRow>
+
+                                    {/* Dynamic Rows for Each Group */}
+                                    {dropdownGroups.map((group, index) => {
+                                        const groupColors = ['#f0f8ff', '#e6e6fa', '#ffe4e1', '#fafad2', '#d3f9d8'];
+                                        const bgColor = groupColors[index % groupColors.length]; // Rotate colors using index
+                                        return (
+                                            <React.Fragment key={`group-${index}`}>
+                                                {/* Spacer Row for Separation */}
+                                                {index > 0 && <TableRow style={{ height: '30px' }} />}
+
+                                                {/* High Case Row */}
+                                                <TableRow
+                                                    sx={{
+                                                        backgroundColor: bgColor,
+                                                    }}
+                                                >
+                                                    <TableCell align="center" style={{ border: '1px solid #ccc' }}>
+                                                        {`${labels?.[index]} - Scenario ${index + 1}`}
+                                                    </TableCell>
+                                                    <TableCell style={{ border: '1px solid #ccc' }}>
+                                                        High Case Values
+                                                    </TableCell>
+                                                    {columns.map((column) => (
+                                                        <TableCell
+                                                            style={{ border: '1px solid #ccc' }}
+                                                            key={`high-${index}-${column}`}
+                                                        >
+                                                            {highresult?.[index]?.[column]}
+                                                        </TableCell>
+                                                    ))}
+                                                    
+                                                        <TableCell
+                                                            style={{ border: '1px solid #ccc' }}                                                          
+                                                        >
+                                                            {highresSum?.[index]}
+                                                        </TableCell>
+                                                        
+                                                    
+                                                </TableRow>
+
+                                                {/* Low Case Row */}
+                                                <TableRow
+                                                    sx={{
+                                                        backgroundColor: bgColor,
+                                                    }}
+                                                >
+                                                    <TableCell align="center" style={{ border: '1px solid #ccc' }}>
+                                                        {`${labels?.[index]} - Scenario ${index + 1}`}
+                                                    </TableCell>
+                                                    <TableCell style={{ border: '1px solid #ccc' }}>
+                                                        Low Case Values
+                                                    </TableCell>
+                                                    {columns.map((column) => (
+                                                        <TableCell
+                                                            style={{ border: '1px solid #ccc' }}
+                                                            key={`low-${index}-${column}`}
+                                                        >
+                                                            {lowresult?.[index]?.[column]}
+                                                        </TableCell>
+                                                        
+                                                    ))}
+                                                    
+                                                    <TableCell
+                                                            style={{ border: '1px solid #ccc' }}                                                          
+                                                        >
+                                                            {lowresSum?.[index]}
+                                                        </TableCell>
+                                                </TableRow>
+
+                                                
+                                            </React.Fragment>
+                                        );
+                                    })}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </Grid>
                 </Grid>
             )}
+
 
             {
                 <Dialog open={openInputMethodDialog} onClose={() => { setOpenInputMethodDialog(false); }}
@@ -1212,30 +1305,28 @@ const KPI = () => {
                                 <AdjustIcon color="primary" sx={{ marginRight: '12px' }} />
                                 <ListItemText primary="Specify Starting and Target Values" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
                             </ListItem>
-                            <Tooltip title="Only .csv or .xlsx formats allowed" arrow>
-                                <ListItem
-                                    button
-                                    onClick={() => handleInputMethodSelect('file')}
-                                    sx={{
-                                        padding: '18px',
-                                        borderBottom: '1px solid #e0e0e0',
-                                        borderRadius: '8px',
-                                        marginBottom: '12px',
-                                        cursor: 'pointer', // Adds hand cursor on hover
-                                        '&:hover': {
-                                            backgroundColor: '#e3f2fd',
-                                            transform: 'scale(1.02)',
-                                            transition: 'transform 0.2s',
-                                        },
-                                    }}
-                                >
-                                    <Typography variant="h6" color="primary" sx={{ marginRight: '12px', fontWeight: 'bold' }}>
-                                        3.
-                                    </Typography>
-                                    <UploadFileIcon color="primary" sx={{ marginRight: '12px' }} />
-                                    <ListItemText primary="Upload Data File" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
-                                </ListItem>
-                            </Tooltip>
+                            <ListItem
+                                button
+                                onClick={() => handleInputMethodSelect('file')}
+                                sx={{
+                                    padding: '18px',
+                                    borderBottom: '1px solid #e0e0e0',
+                                    borderRadius: '8px',
+                                    marginBottom: '12px',
+                                    cursor: 'pointer', // Adds hand cursor on hover
+                                    '&:hover': {
+                                        backgroundColor: '#e3f2fd',
+                                        transform: 'scale(1.02)',
+                                        transition: 'transform 0.2s',
+                                    },
+                                }}
+                            >
+                                <Typography variant="h6" color="primary" sx={{ marginRight: '12px', fontWeight: 'bold' }}>
+                                    3.
+                                </Typography>
+                                <UploadFileIcon color="primary" sx={{ marginRight: '12px' }} />
+                                <ListItemText primary="Upload Data File" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
+                            </ListItem>
                             <ListItem
                                 button
                                 onClick={() => handleInputMethodSelect('copy')}
@@ -1385,39 +1476,36 @@ const KPI = () => {
                             see the demo file ({timePeriod === 'Monthly' ? 'monthly' : 'yearly'})
                         </Typography>
                     </DialogTitle>
-                    <Tooltip title="Only .csv or .xlsx formats allowed" arrow>
-
-                        <DialogContent sx={{ paddingTop: '15px' }}>
-                            <Box sx={{ paddingTop: '15px' }} display="flex" flexDirection="column" gap="16px">
-                                <Button
-                                    variant="outlined"
-                                    color="primary"
-                                    fullWidth
-                                    component="label"
-                                >
-                                    {/* The button to select a file from local storage */}
-                                    Select File from Local Storage
-                                    <input
-                                        type="file"
-                                        accept=".csv"
-                                        hidden
-                                        onChange={(e) => { buttonType === 'High' ? setEditingHighFileToFill(prev => ({ ...prev, [Index]: e.target.files[0] })) : setEditingLowFileToFill(prev => ({ ...prev, [Index]: e.target.files[0] })) }}
-                                    />
-                                </Button>
-                                <Typography
-                                    align="center"
-                                    sx={{ color: 'green' }}
-                                >
-                                    {/* The text to display when a file has been uploaded successfully */}
-                                    {buttonType === 'High' ? editingHighFileToFill[Index] !== undefined ? "file uploaded successfully" : "" : editingLowFileToFill[Index] !== undefined ? "file uploaded successfully" : ""}
-                                </Typography>
-                                <Button variant="outlined" color="primary" fullWidth>
-                                    {/* The button to select a file from AWS/Azure */}
-                                    Select File from AWS/Azure
-                                </Button>
-                            </Box>
-                        </DialogContent>
-                    </Tooltip>
+                    <DialogContent sx={{ paddingTop: '15px' }}>
+                        <Box sx={{ paddingTop: '15px' }} display="flex" flexDirection="column" gap="16px">
+                            <Button
+                                variant="outlined"
+                                color="primary"
+                                fullWidth
+                                component="label"
+                            >
+                                {/* The button to select a file from local storage */}
+                                Select File from Local Storage
+                                <input
+                                    type="file"
+                                    accept=".csv"
+                                    hidden
+                                    onChange={(e) => { buttonType === 'High' ? setEditingHighFileToFill(prev => ({ ...prev, [Index]: e.target.files[0] })) : setEditingLowFileToFill(prev => ({ ...prev, [Index]: e.target.files[0] })) }}
+                                />
+                            </Button>
+                            <Typography
+                                align="center"
+                                sx={{ color: 'green' }}
+                            >
+                                {/* The text to display when a file has been uploaded successfully */}
+                                {buttonType === 'High' ? editingHighFileToFill[Index] !== undefined ? "file uploaded successfully" : "" : editingLowFileToFill[Index] !== undefined ? "file uploaded successfully" : ""}
+                            </Typography>
+                            <Button variant="outlined" color="primary" fullWidth>
+                                {/* The button to select a file from AWS/Azure */}
+                                Select File from AWS/Azure
+                            </Button>
+                        </Box>
+                    </DialogContent>
                     <DialogActions>
                         <Button onClick={handleCancelUpload} color="secondary">
                             Cancel
@@ -1646,10 +1734,3 @@ const KPI = () => {
     );
 };
 export default KPI;
-
-
-
-
-
-
-

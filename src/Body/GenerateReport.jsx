@@ -160,25 +160,32 @@ export default function GenerateReport() {
     const [subMenuAnchorEl, setSubMenuAnchorEl] = useState(null);
     const [currentCategory, setCurrentCategory] = useState(null); // Track the current category for submenu
     const [Index, setIndex] = useState(null);
-
+   
     const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
+        setAnchorEl(event.currentTarget); // Open main menu
+        setSubMenuAnchorEl(null); // Reset submenu state
+        setCurrentCategory(null); // Reset category
+        setIndex(null); // Reset selected index
     };
-
+    
     const handleClose = () => {
-        setAnchorEl(null);
-        setOpenSubMenu(false);
-        setSubMenuAnchorEl(null);
-        setCurrentCategory(null); 
-        setIndex(null);
+        setAnchorEl(null); // Close main menu
+        setSubMenuAnchorEl(null); // Close submenu
+        setCurrentCategory(null); // Reset category
+        setIndex(null); // Reset selected index
+    };
+    
+    const handleSubMenuOpen = (index, event, category) => {
+        event.stopPropagation(); // Prevent parent menu from closing
+        setSubMenuAnchorEl(event.currentTarget); // Open submenu
+        setCurrentCategory(category); // Set the category for submenu
+        setIndex(index); // Update the selected index
+    };
+    
+    const handleSubMenuClose = () => {
+        setSubMenuAnchorEl(null); // Close submenu only
     };
 
-    const handleSubMenuOpen = (index, event, category) => {
-        setSubMenuAnchorEl(event.currentTarget);
-        setCurrentCategory(category);
-        setOpenSubMenu(true);
-        setIndex(index);
-    };
     return (
         <div style={{ backgroundColor: 'white', padding: '20px', marginTop: '-25px' }}>
             <h2>{getGreetingMessage()}, Welcome to the Saved Scenario Page!</h2>
@@ -248,76 +255,79 @@ export default function GenerateReport() {
                 />
             </Box>
             <div style={{ display: 'flex', justifyContent: 'left', marginTop: '20px' }}>
-                <Button
-                    onClick={handleClick}
-                    disabled={selectedRows.every(val => val === false)}
-                    sx={{
-                        bgcolor: selectedRows.every(val => val === false) ? 'grey' : '#1976d2', // Blue background
-                        color: 'white',  // White text
-                        '&:hover': {
-                            bgcolor: 'darkblue' // Darker blue on hover
-                        }
+            <Button
+                onClick={handleClick}
+                disabled={selectedRows.every(val => val === false)}
+                sx={{
+                    bgcolor: selectedRows.every(val => val === false) ? 'grey' : '#1976d2', // Blue background
+                    color: 'white',  // White text
+                    '&:hover': {
+                        bgcolor: 'darkblue' // Darker blue on hover
+                    }
+                }}
+            >
+                Generate Report
+            </Button>
+
+            {/* Main Dropdown */}
+            <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleClose} // Close main menu when clicking outside
+                
+            >
+                {reportCategories.map((category, index) => (
+                    <MenuItem
+                        key={index}
+                        onClick={(event) => handleSubMenuOpen(index, event, category)}
+                        sx={{
+                            bgcolor: index === Index ? '#1976d2' : 'white',
+                            '&:hover': {
+                                bgcolor: '#1976d2',
+                                color: 'white',
+                            },
+                        }}
+                    >
+                        {category.label}
+                        <Typography variant="body2" sx={{ marginLeft: '8px' }}>
+                            {'>>'}
+                        </Typography>
+                    </MenuItem>
+                ))}
+            </Menu>              
+
+            {/* First-level Submenu */}
+            {currentCategory && (
+                <Menu
+                    anchorEl={subMenuAnchorEl}
+                    open={Boolean(subMenuAnchorEl)}
+                    onClose={handleSubMenuClose} // Close submenu only
+                    anchorOrigin={{
+                        vertical: 'top',
+                        horizontal: 'right',
+                    }}
+                    transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'left',
                     }}
                 >
-                    Generate Report
-                </Button>
-
-                {/* Main Dropdown */}
-                <Menu
-                    anchorEl={anchorEl}
-                    open={Boolean(anchorEl)}
-                    onClose={handleClose}
-                >
-                    {reportCategories.map((category, index) => (
+                    {currentCategory.options.map((option, idx) => (
                         <MenuItem
-                            key={index}
-                            onClick={(event) => handleSubMenuOpen(index, event, category)}
+                            key={idx}
+                            onClick={handleClose} // Close both menus on submenu selection
                             sx={{
-                                bgcolor : Index === index ? '#1976d2' : 'white',
                                 '&:hover': {
                                     bgcolor: '#1976d2',
                                     color: 'white',
                                 },
                             }}
                         >
-                            {category.label}
-                            <Typography variant="body2" sx={{ marginLeft: '8px' }}>
-                                {'>>'}
-                            </Typography>
+                            {option}
                         </MenuItem>
                     ))}
                 </Menu>
-
-                {/* First-level Submenu */}
-                {openSubMenu && currentCategory && (
-                    <Menu
-                        anchorEl={subMenuAnchorEl}
-                        open={openSubMenu}
-                        onClose={handleClose}
-                        anchorOrigin={{
-                            vertical: 'center',
-                            horizontal: 'right',
-                        }}
-                        transformOrigin={{
-                            vertical: 'center',
-                            horizontal: 0,
-                        }}
-                    >
-                        {currentCategory.options.map((option, index) => (
-                            <MenuItem key={index} onClick={handleClose}
-                                sx={{
-                                    '&:hover': {
-                                        bgcolor: '#1976d2',
-                                        color: 'white',
-                                    },
-                                }}>
-                                {option}
-                            </MenuItem>
-                        ))}
-                    </Menu>
-                )}
-
-            </div>
+            )}
+        </div>
 
 
 

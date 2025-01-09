@@ -66,7 +66,7 @@ const MyProvider = ({ children }) => {
   const [countries, setCountries] = React.useState([]);
   const [therapeuticAreas, setTherapeuticAreas] = React.useState([]);
   const [forecastCycles, setForecastCycles] = React.useState([]);
-  
+
   const [rowsData, setRowsData] = useState([
     {
       country: "Sweden",
@@ -101,6 +101,7 @@ const MyProvider = ({ children }) => {
   ]);
 
 
+
   const [Formulas, setFormulas] = useState(() => {
     const formulas = {};
     Object.keys(products).forEach((tabKey) => {
@@ -114,13 +115,56 @@ const MyProvider = ({ children }) => {
     });
     return formulas;
   });
+
   const [editingFormula, setEditingFormula] = useState({ ...Formulas });
 
   useEffect(() => {
-    console.log(Formulas);
-  }, [Formulas])
-
-
+    setFromHistoricalDate(dayjs('2025-01-01'));
+    setFromForecastDate(dayjs('2025-05-01'));
+    setToForecastDate(dayjs('2025-11-01'));
+    const productsList = ["T1-1", "T1-2", "T1-3", "T1-4", "T2-1", "T2-2", "T2-3", "T2-4", "T2-5", "T2-6", "T2-7", "T3-1", "T3-2", "T3-3"];
+    productsList.forEach((product) => {
+      const res1 = {};
+      const res2 = {};
+      const res3 = {};
+      const unit = timePeriod === 'Monthly' ? 'month' : 'year';
+      const format = timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY';
+      for (let i = 0; i < dayjs("2025-11-01").diff(dayjs("2025-01-01"), unit) + 1; i++) {
+        const dateKey = dayjs("2025-01-01").add(i, unit).format(format);
+        if (!res1[dateKey] && !res2[dateKey] && !res3[dateKey]) {
+          res1[dateKey] = Math.floor(Math.random() * 50 + 1);
+          res2[dateKey] = Math.floor(Math.random() * 50 + 1);
+          res3[dateKey] = Math.floor(Math.random() * 50 + 1);
+        }
+      }
+      setValues((prevValues) => ({ ...prevValues, [product]: res1 }));
+      setValues2((prevValues) => ({ ...prevValues, [product]: res2 }));
+      setValues3((prevValues) => ({ ...prevValues, [product]: res3 }));
+    });
+  }, []);
+  useEffect(() => {
+    const formulasDemo = { ...Formulas };
+    Object.keys(formulasDemo).forEach((tabKey) => {
+      Object.keys(formulasDemo[tabKey]).forEach((tableKey) => {
+        formulasDemo[tabKey][tableKey]['T1-1'] = { emptyArray: ['T1-1'], plusArray: ['+'] };
+        formulasDemo[tabKey][tableKey]['T1-3'] = { emptyArray: ['T1-1', 'T1-2'], plusArray: ['+', '+'] };
+        formulasDemo[tabKey][tableKey]['T1-4'] = { emptyArray: ['T1-1', 'T1-2', 'T1-3'], plusArray: ['+', '-', '+'] };
+        formulasDemo[tabKey][tableKey]['T1-2'] = { emptyArray: ['T1-1'], plusArray: ['+'] };
+        formulasDemo[tabKey][tableKey]['T2-2'] = { emptyArray: ['T2-1'], plusArray: ['+'] };
+        formulasDemo[tabKey][tableKey]['T2-3'] = { emptyArray: ['T2-1', 'T2-2'], plusArray: ['+', '-'] };
+        formulasDemo[tabKey][tableKey]['T2-4'] = { emptyArray: ['T2-1', 'T2-2', 'T2-3'], plusArray: ['+', '+', '*'] };
+        formulasDemo[tabKey][tableKey]['T2-5'] = { emptyArray: ['T2-1', 'T2-2', 'T2-3', 'T2-4'], plusArray: ['+', '-', '+', '*'] };
+        formulasDemo[tabKey][tableKey]['T2-6'] = { emptyArray: ['T2-1', 'T2-2', 'T2-3', 'T2-4', 'T2-5'], plusArray: ['+', '-', '+', '*', '/'] };
+        formulasDemo[tabKey][tableKey]['T2-7'] = { emptyArray: ['T2-1', 'T2-2', 'T2-3', 'T2-4', 'T2-5'], plusArray: ['+', '-', '+', '*', '/'] };
+        formulasDemo[tabKey][tableKey]['T2-1'] = { emptyArray: ['T2-1'], plusArray: ['+'] };
+        formulasDemo[tabKey][tableKey]['T3-1'] = { emptyArray: ['T3-1'], plusArray: ['+'] };
+        formulasDemo[tabKey][tableKey]['T3-2'] = { emptyArray: ['T3-1', 'T3-1'], plusArray: ['+', '+'] };
+        formulasDemo[tabKey][tableKey]['T3-3'] = { emptyArray: ['T3-1', 'T3-2', 'T3-2'], plusArray: ['+', '-', '*'] };        
+      });
+    });
+    setFormulas(formulasDemo);
+    setEditingFormula(formulasDemo);
+  }, []);
 
 
   return (
