@@ -131,41 +131,36 @@ const KPI = () => {
         })
         .flat();
 
-    const scenarioValue = dropdownGroups.map((group, index) => (
-        console.log("changeInValue?.[index]", changeInValue?.[index]),
-        Number(mainresult?.[0] || 0) + (changeInValue?.[index] || 0)
-    ))
+   
     const handleScenarioValue = (dropdownGroups, mainresult, changeInValue) => {
-        let scenarioValue = Number(mainresult?.[0] || 0); // Initialize with the base value
- 
+        let scenarioValue = parseFloat(Number(mainresult?.[0]).toFixed(2)) ; // Initialize with the base value
+
         dropdownGroups.forEach((group, index) => {
             console.log("changeInValue?.[index]", changeInValue?.[index]);
             scenarioValue += parseFloat((changeInValue?.[index] || 0).toFixed(2)); // Add the change in value for the current index
             console.log("scenarioValue", scenarioValue);
         });
- 
+
         return scenarioValue; // Return the final value after the loop
     };
- 
-    console.log("scenarioValue", scenarioValue);
- 
+
+
     // Sample data
     const rawData = [
-        { name: "Base Case", value: Number(mainresult?.[0]) || 0 },
+        { name: "Base Case", value: parseFloat(Number(mainresult?.[0]).toFixed(2)) || 0 },
         ...dropdownGroups.map((group, index) => ({
             name: `${labels?.[index] || `Group ${index + 1}`}`,
             value: parseFloat((changeInValue?.[index] || 0).toFixed(2)),
         }
         )),
- 
+
         {
             name: "Scenario Case",
             value: handleScenarioValue(dropdownGroups, mainresult, changeInValue) || 0
         }
- 
+
     ];
- 
- 
+
 
     // Process data for waterfall chart
     const processWaterfallData = (data) => {
@@ -175,8 +170,8 @@ const KPI = () => {
             cumulative += item.value;
             return {
                 ...item,
-                cumulative: Number(cumulative.toFixed(2)),
-                start: index === 0 || index === rawData.length - 1 ? 0 : Number(prevCumulative.toFixed(2)),
+                cumulative,
+                start: index === 0 || index === rawData.length - 1 ? 0 : prevCumulative,
             };
         });
     };
@@ -1631,3 +1626,10 @@ const KPI = () => {
     );
 };
 export default KPI;
+
+
+
+
+
+
+
