@@ -21,6 +21,7 @@ import { MyContext } from './context';
 import { FormControl, InputLabel, Select, MenuItem, Typography, Divider } from '@mui/material';
 import Menu from '@mui/material/Menu';
 import Button from '@mui/material/Button';
+import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 
 // demo data for the table
 const demo_data = [
@@ -289,8 +290,8 @@ export default function GenerateReport() {
                         }}
                     >
                         {category.label}
-                        <Typography variant="body2" sx={{ marginLeft: '8px' }}>
-                            {'>>'}
+                        <Typography variant="body2" sx={{ marginLeft: 'auto' }}>
+                            <ArrowRightIcon sx={{ fontSize: 18 }} />
                         </Typography>
                     </MenuItem>
                 ))}

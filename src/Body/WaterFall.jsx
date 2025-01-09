@@ -6,6 +6,7 @@ import UploadIcon from '@mui/icons-material/Upload';
 import { useNavigate } from 'react-router-dom';
 import produce from "immer";
 import Select from '@mui/material/Select';
+
 import {
     TextField,
     IconButton,
@@ -41,10 +42,10 @@ import { MyContext } from './context';
 import dayjs from 'dayjs';
 import Grid from '@mui/material/Grid';
 import { Table, TableHead, TableBody } from '@mui/material';
-import DatePicker from 'react-datepicker';
+import { DatePicker } from '@mui/x-date-pickers';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { ResponsiveContainer } from 'recharts';
+import { ResponsiveContainer, LabelList } from 'recharts';
 
 const KPI = () => {
     const [applyClicked, setApplyClicked] = useState(true);
@@ -104,15 +105,67 @@ const KPI = () => {
     const [editingLowAbsoluteVal, setEditingLowAbsoluteVal] = useState({});
     const [editingHighAbsoluteVal, setEditingHighAbsoluteVal] = useState({});
     const [openAbsoluteVal, setOpenAbsoluteVal] = useState(false);
+    const [highresult, setHighResult] = useState({})
+    const [lowresult, setLowResult] = useState({})
+
+    const [changedValue, setChangedValue] = useState({})
+    const [changeInValue, setChangeInValue] = useState({})
+    const [mainresult, setMainResult] = useState({})
+    const [columns, setColumns] = useState([]) // Initialize with an empty array of columns
 
 
+    const labels = dropdownGroups
+        .map((group) => {
+            if (group?.Field && products[group?.Case]) {
+                return Object.keys(products[group.Case]).map((tableKey) => {
+                    const productList = products[group.Case][tableKey];
+                    if (productList) {
+                        const product = productList.find((product) => product?.id === group.Field);
+                        return product ? product.name : null;
+                    }
+                    return null;
+                })
+                    .filter((label) => label !== null);
+            }
+            return [];
+        })
+        .flat();
+
+    const scenarioValue = dropdownGroups.map((group, index) => (
+        console.log("changeInValue?.[index]", changeInValue?.[index]),
+        Number(mainresult?.[0] || 0) + (changeInValue?.[index] || 0)
+    ))
+    const handleScenarioValue = (dropdownGroups, mainresult, changeInValue) => {
+        let scenarioValue = Number(mainresult?.[0] || 0); // Initialize with the base value
+ 
+        dropdownGroups.forEach((group, index) => {
+            console.log("changeInValue?.[index]", changeInValue?.[index]);
+            scenarioValue += parseFloat((changeInValue?.[index] || 0).toFixed(2)); // Add the change in value for the current index
+            console.log("scenarioValue", scenarioValue);
+        });
+ 
+        return scenarioValue; // Return the final value after the loop
+    };
+ 
+    console.log("scenarioValue", scenarioValue);
+ 
     // Sample data
     const rawData = [
-        { name: "Start", value: 100 },
-        { name: "Increase", value: 50 },
-        { name: "Decrease", value: -30 },
-        { name: "End", value: 120 },
+        { name: "Base Case", value: Number(mainresult?.[0]) || 0 },
+        ...dropdownGroups.map((group, index) => ({
+            name: `${labels?.[index] || `Group ${index + 1}`}`,
+            value: parseFloat((changeInValue?.[index] || 0).toFixed(2)),
+        }
+        )),
+ 
+        {
+            name: "Scenario Case",
+            value: handleScenarioValue(dropdownGroups, mainresult, changeInValue) || 0
+        }
+ 
     ];
+ 
+ 
 
     // Process data for waterfall chart
     const processWaterfallData = (data) => {
@@ -122,42 +175,15 @@ const KPI = () => {
             cumulative += item.value;
             return {
                 ...item,
-                cumulative,
-                start: index === 0 ? 0 : prevCumulative,
+                cumulative: Number(cumulative.toFixed(2)),
+                start: index === 0 || index === rawData.length - 1 ? 0 : Number(prevCumulative.toFixed(2)),
             };
         });
     };
     const data = processWaterfallData(rawData);
-    // const data = {
-    //     labels: dropdownGroups
-    //         .map((group) => {
-    //             if (group?.Field && products[group?.Case]) {
-    //                 return Object.keys(products[group.Case]).map((tableKey) => {
-    //                     const productList = products[group.Case][tableKey];
-    //                     if (productList) {
-    //                         const product = productList.find((product) => product?.id === group.Field);
-    //                         return product ? product.name : null;
-    //                     }
-    //                     return null;
-    //                 })
-    //                     .filter((label) => label !== null);
-    //             }
-    //             return [];
-    //         })
-    //         .flat(),
-    //     datasets: [
-    //         {
-    //             label: 'Low Case',
-    //             data: lowCaseData,
-    //             backgroundColor: '#e57373',
-    //         },
-    //         {
-    //             label: 'High Case',
-    //             data: highCaseData,
-    //             backgroundColor: '#81c784',
-    //         },
-    //     ],
-    // };
+
+
+    
     // Chart Options
     const options = {
         indexAxis: 'y', // Horizontal bar
@@ -350,151 +376,241 @@ const KPI = () => {
         setOpenUploadDialog(false);
         setOpenInputMethodDialog(true);
     };
+
+    const generateMonthlyColumns = (start, end) => {
+            const months = [];
+            let current = dayjs(start);
+            while (current.isBefore(end) || current.isSame(end, 'month')) {
+                months.push(current.format('MMM-YYYY'));
+                current = current.add(1, 'month');
+            }
+            return months;
+        };
+        //Same as generateMonthlyColumns but for yearly time period
+        const generateYearlyColumns = (start, end) => {
+            const years = [];
+            let current = dayjs(start).startOf('year');
+            while (current.isBefore(end) || current.isSame(end, 'year')) {
+                years.push(current.format('YYYY'));
+                current = current.add(1, 'year');
+            }
+            return years;
+        };
+        useEffect(() => {
+            // Generate the columns based on the selected time period
+            // Columns are only regenerated when the time period, start date, or end date changes
+            if (timePeriod === 'Monthly') {
+                setColumns(generateMonthlyColumns(fromHistoricalDate, toForecastDate));
+            } else if (timePeriod === 'Yearly') {
+                setColumns(generateYearlyColumns(fromHistoricalDate, toForecastDate));
+            }
+        }, [timePeriod, fromHistoricalDate, toForecastDate]);
+
+    const calculateGrowthRateValues = (startingValue, initialGrowthRate, growthRates) => {
+            const newValues = {};
+            const startDate = dayjs(fromHistoricalDate); // Start date of the calculation period
+            const endDate = dayjs(toForecastDate); // End date of the calculation period
+            const columnIndexEndDate = columns.indexOf(timePeriod === 'Monthly' ? endDate.format('MMM-YYYY') : endDate.format('YYYY')); // column index of the end date
+            const startValue = parseFloat(startingValue);
+            const initialGR = parseFloat(initialGrowthRate);
+            let currentValue = startValue;
+            newValues[columns[0]] = startValue;
+    
+            // Calculate the values for the initial growth rate for the entire period (Month or Year)
+            for (let i = 1; i <= columnIndexEndDate; i++) {
+                currentValue *= (1 + (initialGR / 100))
+                const dateKey = timePeriod === 'Monthly'
+                    ? startDate.add(i, 'month').format('MMM-YYYY')
+                    : startDate.add(i, 'year').format('YYYY');
+                // Set the calculated value for the specific period
+                newValues[dateKey] = currentValue.toFixed(2);
+            }
+            const sortedGrowthRates = null;
+            if (growthRates) {
+                sortedGrowthRates = [
+                    { startDate: startDate, growthRate: initialGR }, // Include initial growth rate
+                    ...growthRates.map((entry) => ({
+                        startDate: dayjs(entry.startDate),
+                        growthRate: parseFloat(entry.growthRate),
+                    })),
+                ].sort((a, b) => a.startDate?.isBefore(b.startDate) ? -1 : 1); // Sort by startDate
+            }
+    
+            sortedGrowthRates?.forEach((entry, index) => {
+                if (entry.startDate && !entry.startDate.isSame(startDate)) {
+                    const currentGrowthRate = parseFloat(entry.growthRate); // Growth rate for the current period
+                    const currentStartDate = dayjs(entry.startDate);
+                    const columnIndexNextDate = columns.indexOf(timePeriod === 'Monthly' ? currentStartDate.format('MMM-YYYY') : currentStartDate.format('YYYY'));
+                    currentValue = newValues[columns[columnIndexNextDate]];
+                    // Apply growth rate for each year/month based on the sorted growth rates
+                    for (let i = (columnIndexNextDate + 1); i <= columnIndexEndDate; i++) {
+                        const currentDate = timePeriod === 'Monthly'
+                            ? startDate.add(i, 'month')
+                            : startDate.add(i, 'year');
+    
+                        // If the current date is after the current growth rate's start date
+                        if (currentDate.isAfter(currentStartDate, 'day')) {
+                            currentValue *= (1 + (currentGrowthRate / 100)); // Apply the new growth rate
+    
+                        }
+    
+                        // Set the updated value in the values object
+                        const dateKey = timePeriod === 'Monthly'
+                            ? currentDate.format('MMM-YYYY')
+                            : currentDate.format('YYYY');
+                        newValues[dateKey] = currentValue.toFixed(2);
+                    }
+                }
+            });
+            return newValues;
+        };
     const findVal = (method, buttontype, index) => {
-        const res = {};
-        const unit = timePeriod === 'Monthly' ? 'month' : 'year';
-        const format = timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY';
-        for (let i = 0; i < dayjs(toForecastDate).diff(dayjs(fromHistoricalDate), unit) + 1; i++) {
-            const dateKey = dayjs(fromHistoricalDate).add(i, unit).format(format);
-            if (!res[dateKey]) {
-                res[dateKey] = "0";
-            }
-        }
-        if (method === 'StartEnd') {
-            const start = parseFloat(buttontype === 'High' ? highStartValue[index] : lowStartValue[index]);
-            const end = parseFloat(buttontype === 'High' ? highEndValue[index] : lowEndValue[index]);
-            const len = Object.keys(res).length;
-            const inc = (end - start) / (len - 1);
-            let val = start;
-            Object.keys(res).forEach((key) => {
-                res[key] = parseFloat(val.toFixed(2));
-                val += inc;
-            });
-            return res;
-        }
-        else if (method === 'file') {
-            const file = buttontype === "High" ? highFileToFill[index] : lowFileToFill[index];
-            if (file) {
-                console.log(file);
-                if (timePeriod === 'Monthly') {
-                    // Create a new FileReader instance to read the file
-                    const reader = new FileReader();
-
-                    // Define the onload event handler for the reader
-                    reader.onload = (e) => {
-                        // Get the file content
-                        const content = e.target.result;
-
-                        // Split the content by lines and filter out any empty lines
-                        const rows = content.split('\n').filter((row) => row.trim() !== '');
-
-                        // Extract headers from the first line and trim whitespace
-                        const headers = rows[0].split(',').map((header) => header.trim());
-
-                        // Extract values from the first data row and trim whitespace
-                        const firstRow = rows[1].split(',').map((value) => value.trim());
-                        const possibleFormats = [
-                            'MMM-YY',          // e.g., Dec-23
-                            'YY-MMM',          // e.g., 23-Dec
-                            'YYYY-MM',         // e.g., 2023-12
-                            'MMMM YYYY',       // e.g., December 2023
-                            'MM/YY',           // e.g., 12/23
-                            'DD-MMM-YYYY',     // e.g., 15-Jan-2023
-                            'YYYY/MM/DD',      // e.g., 2023/12/31
-                        ];
-                        // Try to parse the date headers using the possible formats and strict parsing
-                        // If the date is invalid, set the header to 'Invalid Date'
-                        const dateHeaders = headers.map(header => {
-                            const parsedDate = dayjs(header, possibleFormats, true); // strict parsing
-                            return parsedDate.isValid() ? parsedDate.format('MMM-YYYY') : 'Invalid Date';
-                        });
-                        const temp = {}
-                        // Loop through the months between fromHistoricalDate and toForecastDate
-                        for (let i = 0; i < dayjs(toForecastDate).diff(dayjs(fromHistoricalDate), 'month') + 1; i++) {
-                            const month = dayjs(fromHistoricalDate).add(i, 'month').format('MMM-YYYY');
-                            // Find the index of the month in the dateHeaders array
-                            const monthIndex = dateHeaders.indexOf(month);
-                            if (monthIndex !== -1) {
-                                // Get the value at the index from the first row of the CSV file
-                                const val = firstRow[monthIndex];
-                                // Update the values in the state
-                                temp[month] = val;
-                            }
-                        }
-                        setRes(temp);
-                    };
-                    reader.readAsText(file);
-                }
-                else { // doing the same procedure if time period is yearly
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const content = e.target.result;
-                        const rows = content.split('\n').filter((row) => row.trim() !== '');
-                        const headers = rows[0].split(',').map((header) => header.trim());
-                        const firstRow = rows[1].split(',').map((value) => value.trim());
-                        const dateHeaders = headers.map(header => {
-                            const parsedDate = dayjs(header, ["YY", "YYYY"], true); // strict parsing
-                            return parsedDate.isValid() ? parsedDate.format('YYYY') : 'Invalid Date';
-                        });
-                        const temp = {}
-                        for (let i = 0; i < dayjs(toForecastDate).diff(dayjs(fromHistoricalDate), 'year') + 1; i++) {
-                            const month = dayjs(fromHistoricalDate).add(i, 'year').format('YYYY');
-                            const monthIndex = dateHeaders.indexOf(month);
-                            if (monthIndex !== -1) {
-                                const val = firstRow[monthIndex];
-                                temp[month] = val;
-                            }
-                        }
-                        setRes(temp);
-                    };
-                    reader.readAsText(file);
+            const res = {};
+            const unit = timePeriod === 'Monthly' ? 'month' : 'year';
+            const format = timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY';
+            for (let i = 0; i < dayjs(toForecastDate).diff(dayjs(fromHistoricalDate), unit) + 1; i++) {
+                const dateKey = dayjs(fromHistoricalDate).add(i, unit).format(format);
+                if (!res[dateKey]) {
+                    res[dateKey] = "0";
                 }
             }
-            return Res;
-        }
-        else if (method === 'growthRate') {
-            const startingVal = buttontype === 'High' ? highStartingValue[index] : lowStartingValue[index];
-            const initialGrowth = buttontype === 'High' ? highInitialGrowthRate[index] : lowInitialGrowthRate[index];
-            const growthRates = buttontype === 'High' ? highGrowthRates[index] : lowGrowthRates[index]
-        }
-        else if (method === 'copy') {
-            const tempCase = buttontype === 'High' ? highSelectedCaseOption[index] : lowSelectedCaseOption[index];
-            const currentField = dropdownGroups[index]?.Field;
-            const valuesMap = {
-                upside: values3,
-                downside: values,
-                base: values2,
-            };
-            const valuesToUse = valuesMap[tempCase];
-            console.log("vales to use", valuesToUse);
-            if (valuesToUse?.[currentField]) {
+            if (method === 'StartEnd') {
+                const start = parseFloat(buttontype === 'High' ? highStartValue[index] : lowStartValue[index]);
+                const end = parseFloat(buttontype === 'High' ? highEndValue[index] : lowEndValue[index]);
+                const len = Object.keys(res).length;
+                const inc = (end - start) / (len - 1);
+                let val = start;
                 Object.keys(res).forEach((key) => {
-                    res[key] = parseFloat(valuesToUse[currentField][key]);
+                    res[key] = parseFloat(val.toFixed(2));
+                    val += inc;
                 });
-            } else {
-                console.error('No data found');
+                return res;
             }
-            return res;
+            else if (method === 'file') {
+                const file = buttontype === "High" ? highFileToFill[index] : lowFileToFill[index];
+                if (file) {
+                    console.log(file);
+                    if (timePeriod === 'Monthly') {
+                        // Create a new FileReader instance to read the file
+                        const reader = new FileReader();
+    
+                        // Define the onload event handler for the reader
+                        reader.onload = (e) => {
+                            // Get the file content
+                            const content = e.target.result;
+    
+                            // Split the content by lines and filter out any empty lines
+                            const rows = content.split('\n').filter((row) => row.trim() !== '');
+    
+                            // Extract headers from the first line and trim whitespace
+                            const headers = rows[0].split(',').map((header) => header.trim());
+    
+                            // Extract values from the first data row and trim whitespace
+                            const firstRow = rows[1].split(',').map((value) => value.trim());
+                            const possibleFormats = [
+                                'MMM-YY',          // e.g., Dec-23
+                                'YY-MMM',          // e.g., 23-Dec
+                                'YYYY-MM',         // e.g., 2023-12
+                                'MMMM YYYY',       // e.g., December 2023
+                                'MM/YY',           // e.g., 12/23
+                                'DD-MMM-YYYY',     // e.g., 15-Jan-2023
+                                'YYYY/MM/DD',      // e.g., 2023/12/31
+                            ];
+                            // Try to parse the date headers using the possible formats and strict parsing
+                            // If the date is invalid, set the header to 'Invalid Date'
+                            const dateHeaders = headers.map(header => {
+                                const parsedDate = dayjs(header, possibleFormats, true); // strict parsing
+                                return parsedDate.isValid() ? parsedDate.format('MMM-YYYY') : 'Invalid Date';
+                            });
+                            const temp = {}
+                            // Loop through the months between fromHistoricalDate and toForecastDate
+                            for (let i = 0; i < dayjs(toForecastDate).diff(dayjs(fromHistoricalDate), 'month') + 1; i++) {
+                                const month = dayjs(fromHistoricalDate).add(i, 'month').format('MMM-YYYY');
+                                // Find the index of the month in the dateHeaders array
+                                const monthIndex = dateHeaders.indexOf(month);
+                                if (monthIndex !== -1) {
+                                    // Get the value at the index from the first row of the CSV file
+                                    const val = firstRow[monthIndex];
+                                    // Update the values in the state
+                                    temp[month] = val;
+                                }
+                            }
+                            setRes(temp);
+                        };
+                        reader.readAsText(file);
+                    }
+                    else { // doing the same procedure if time period is yearly
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const content = e.target.result;
+                            const rows = content.split('\n').filter((row) => row.trim() !== '');
+                            const headers = rows[0].split(',').map((header) => header.trim());
+                            const firstRow = rows[1].split(',').map((value) => value.trim());
+                            const dateHeaders = headers.map(header => {
+                                const parsedDate = dayjs(header, ["YY", "YYYY"], true); // strict parsing
+                                return parsedDate.isValid() ? parsedDate.format('YYYY') : 'Invalid Date';
+                            });
+                            const temp = {}
+                            for (let i = 0; i < dayjs(toForecastDate).diff(dayjs(fromHistoricalDate), 'year') + 1; i++) {
+                                const month = dayjs(fromHistoricalDate).add(i, 'year').format('YYYY');
+                                const monthIndex = dateHeaders.indexOf(month);
+                                if (monthIndex !== -1) {
+                                    const val = firstRow[monthIndex];
+                                    temp[month] = val;
+                                }
+                            }
+                            setRes(temp);
+                        };
+                        reader.readAsText(file);
+                    }
+                }
+                return Res;
+            }
+            else if (method === 'growthRate') {
+                const startingVal = buttontype === 'High' ? highStartingValue[index] : lowStartingValue[index];
+                const initialGrowth = buttontype === 'High' ? highInitialGrowthRate[index] : lowInitialGrowthRate[index];
+                const growthRates = buttontype === 'High' ? highGrowthRates[index] : lowGrowthRates[index];
+                const temp = calculateGrowthRateValues(startingVal, initialGrowth, growthRates);
+                return temp;
+            }
+            else if (method === 'copy') {
+                const tempCase = buttontype === 'High' ? highSelectedCaseOption[index] : lowSelectedCaseOption[index];
+                const currentField = dropdownGroups[index]?.Field;
+                const valuesMap = {
+                    upside: values3,
+                    downside: values,
+                    base: values2,
+                };
+                const valuesToUse = valuesMap[tempCase];
+                console.log("vales to use", valuesToUse);
+                if (valuesToUse?.[currentField]) {
+                    Object.keys(res).forEach((key) => {
+                        res[key] = parseFloat(valuesToUse[currentField][key]);
+                    });
+                } else {
+                    console.error('No data found');
+                }
+                return res;
+            }
+            else if (method === '%') {
+                const gp = dropdownGroups[index];
+                const temp = gp.Case === 'downside' ? values[gp.Field] : gp.Case === 'base' ? values2[gp.Field] : values3[gp.Field];
+                Object.keys(temp).forEach((key) => {
+                    const tmp = buttontype === 'High' ? parseFloat(HighPercentVal[index]) / 100 : parseFloat(LowPercentVal[index]) / 100;
+                    buttontype === 'High' ? res[key] = ((1 + tmp) * temp[key]).toFixed(2) : res[key] = ((1 - tmp) * temp[key]).toFixed(2);
+                });
+                console.log("res", res);
+                return res;
+            }
+            else if (method === 'Absolute') {
+                const tmp = buttontype === 'High' ? highAbsoluteVal[index] : lowAbsoluteVal[index];
+                Object.keys(res).forEach((key) => {
+                    res[key] = tmp;
+                });
+                return res;
+            }
+            return {}
         }
-        else if (method === '%') {
-            const gp = dropdownGroups[index];
-            const temp = gp.Case === 'downside' ? values[gp.Field] : gp.Case === 'base' ? values2[gp.Field] : values3[gp.Field];
-            Object.keys(temp).forEach((key) => {
-                const tmp = buttontype === 'High' ? parseFloat(HighPercentVal[index]) / 100 : parseFloat(LowPercentVal[index]) / 100;
-                buttontype === 'High' ? res[key] = ((1 + tmp) * temp[key]).toFixed(2) : res[key] = ((1 - tmp) * temp[key]).toFixed(2);
-            });
-            console.log("res", res);
-            return res;
-        }
-        else if (method === 'Absolute') {
-            const tmp = buttontype === 'High' ? highAbsoluteVal[index] : lowAbsoluteVal[index];
-            Object.keys(res).forEach((key) => {
-                res[key] = tmp;
-            });
-            return res;
-        }
-        return {}
-    }
     const handleApplyFormula = (selectedIds, tabKey, operators, row_id, method, buttontype, index) => {
 
         let res = {}; // Object to store the results of the forecast calculation
@@ -571,6 +687,13 @@ const KPI = () => {
         // Use local arrays to manage the data
         const newLowCaseData = [];
         const newHighCaseData = [];
+        const highResDict = {};
+        const lowResDict = {};
+
+        const OriginalSum = {};
+        const ChangedValue = {};
+        const Change = {};
+
         dropdownGroups.forEach((row, index) => {
             const formulaCase = Formulas[row.Case];
             let formula = null;
@@ -590,20 +713,50 @@ const KPI = () => {
             const highmethod = highMethodForRow[index];
             const lowmethod = lowMethodForRow[index];
             const Highres = handleApplyFormula(formula, row.Case, operators, row_id, highmethod, "High", index);
+            highResDict[index] = Highres;
+
             const Lowres = handleApplyFormula(formula, row.Case, operators, row_id, lowmethod, "Low", index);
+            lowResDict[index] = Lowres;
+
             const presentval = row.Case === 'downside' ? values[row.OutputMetric] : row.Case === 'base' ? values2[row.OutputMetric] : values3[row.OutputMetric];
+
+
             const presentSum = Object.keys(presentval).reduce((prev, curr) => prev + parseFloat(presentval[curr], 10), 0).toFixed(2);
-            const HighresSum = Object.keys(Highres).reduce((prev, curr) => prev + parseFloat(Highres[curr], 10), 0).toFixed(2);
+            OriginalSum[index] = presentSum;//original
+
+
             const LowresSum = Object.keys(Lowres).reduce((prev, curr) => prev + parseFloat(Lowres[curr], 10), 0).toFixed(2);
-            const highdiff = HighresSum - presentSum;
-            const lowdiff = LowresSum - presentSum;
-            newLowCaseData.push(lowdiff !== undefined ? lowdiff : 0);
-            newHighCaseData.push(highdiff !== undefined ? highdiff : 0);
+            ChangedValue[index] = LowresSum; // final
+
+            const difference = LowresSum - presentSum;
+            Change[index] = difference; //change   
+
+            newLowCaseData.push(difference !== undefined ? difference : 0);
+            //newHighCaseData.push(highdiff !== undefined ? highdiff : 0);
+
+
         });
         setLowCaseData(newLowCaseData);
         setHighCaseData(newHighCaseData);
+        setHighResult(highResDict);
+        setLowResult(lowResDict);
+
+        setMainResult(OriginalSum)
+        setChangedValue(ChangedValue);
+        setChangeInValue(Change);
+
         setApplyClicked(true);
     };
+
+    useEffect(() => {
+        console.log("HighResult", highresult);
+        console.log("LowResult", lowresult);
+        console.log("MainResult", mainresult);
+        console.log("LowCaseData", lowCaseData);
+        console.log("HighCaseData", highCaseData);
+        console.log("ChangedValue", changedValue);
+        console.log("changeInValue", changeInValue);
+    }, [highresult, lowresult, mainresult, lowCaseData, highCaseData, changedValue, changeInValue]);
     const handleAddGrowthRate = () => {
         if (buttonType === "High") {
             setEditingHighGrowthRates((prev) => ({
@@ -785,8 +938,8 @@ const KPI = () => {
                                     <TableCell align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Case</TableCell>
                                     <TableCell align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Output Metric</TableCell>
                                     <TableCell align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Field</TableCell>
-                                    <TableCell align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>High Case</TableCell>
-                                    <TableCell align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Low Case</TableCell>
+
+                                    <TableCell align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Scenario Case</TableCell>
 
                                 </TableRow>
                             </TableHead>
@@ -878,19 +1031,7 @@ const KPI = () => {
                                         </TableCell>
 
                                         {/* High/Low Case Buttons, Add, and Delete */}
-                                        <TableCell align="center">
-                                            <Button
-                                                variant={highMethodForRow[index] ? "contained" : "outlined"}
-                                                color="success"
-                                                onClick={() => {
-                                                    setIndex(index);
-                                                    setButtonType("High");
-                                                    setOpenInputMethodDialog(true);
-                                                }}
-                                            >
-                                                High Case <UploadIcon sx={{ ml: 1 }} />
-                                            </Button>
-                                        </TableCell>
+
                                         <TableCell align="center">
                                             <Button
                                                 variant={lowMethodForRow[index] ? "contained" : "outlined"}
@@ -902,7 +1043,7 @@ const KPI = () => {
                                                     setOpenInputMethodDialog(true);
                                                 }}
                                             >
-                                                Low Case
+                                                Scenario Case
                                                 <UploadIcon sx={{ ml: 1 }} />
                                             </Button>
                                             {dropdownGroups.length > 1 && (
@@ -948,21 +1089,30 @@ const KPI = () => {
                             data={data}
                             margin={{ top: 30, right: 30, left: 30, bottom: 30 }}
                         >
-                            <CartesianGrid strokeDasharray="3 3" />
+                            <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
                             <XAxis dataKey="name" tick={{ fontSize: 12 }} />
                             <YAxis tick={{ fontSize: 12 }} />
                             <Tooltip />
-                            <Bar dataKey="start" stackId="a" fill="transparent" />
+                            <Bar
+                                dataKey="start"
+                                stackId="a"
+                                fill="transparent" // Invisible bar to create waterfall effect
+                            />
                             <Bar
                                 dataKey="value"
                                 stackId="a"
-                                fill={({ index }) =>
-                                    data[index].value >= 0 ? "#4caf50" : "#f44336"
-                                }
+                                fill="#1976d2"
+                            >
+                            <LabelList
+                              dataKey="value"
+                              position="top"
+                              style={{ fontSize: 14, fill: "#000", fontWeight: "bold" }}      
                             />
+                            </Bar>
                         </BarChart>
                     </ResponsiveContainer>
                 </Grid>
+
             </Grid>
 
             {
@@ -1481,10 +1631,3 @@ const KPI = () => {
     );
 };
 export default KPI;
-
-
-
-
-
-
-

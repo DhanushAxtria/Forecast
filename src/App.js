@@ -18,11 +18,9 @@ import Patient_Forecast from './Body/Patient_Forecast'
 import Patient_Forecast_Input from './Body/Patient_Forecast_Input';
 import Forecasted_Results from './Body/forecastedresults';
 import Dashboard from './Body/Dashboard'
-import KPI from './Body/KPI'
 import Admin from './Body/Admin'
 import GenerateReport from './Body/GenerateReport';
 import Model1 from './Body/Model1'
-import WaterFall from './Body/WaterFall';
 import Analysis from './Body/Analysis';
 function App() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false); // Initialize the state
