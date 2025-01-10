@@ -43,7 +43,6 @@ import UploadFileIcon from '@mui/icons-material/UploadFile';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import AdjustIcon from '@mui/icons-material/Adjust';
 import './ProductListpage.scss';
-import { tab } from '@testing-library/user-event/dist/tab';
 import { MyContext } from './context';
 
 const Patient_Forecast = () => {

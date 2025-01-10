@@ -911,7 +911,7 @@ const KPI = () => {
                                     >
                                         {/* Case Dropdown */}
                                         <TableCell align="center">
-                                            <FormControl sx={{ width: "15ch" }}>
+                                            <FormControl >
                                                 {/* <InputLabel id={`case-select-label-${index}`}>Case</InputLabel> */}
                                                 <Select
                                                     labelId={`case-select-label-${index}`}
@@ -921,7 +921,7 @@ const KPI = () => {
                                                     disabled={index !== 0}
                                                     //label="Case"
                                                     onChange={(e) => handleDropdownChange(index, "Case", e.target.value)}
-                                                    sx={{ fontSize: "0.9rem" }}
+                                                    sx={{ fontSize: "0.9rem", minWidth: "10rem", width: "10rem", height: "2.5rem" }}
                                                 >
                                                     <MenuItem value="downside">Downside</MenuItem>
                                                     <MenuItem value="base">Base</MenuItem>
@@ -933,7 +933,7 @@ const KPI = () => {
                                         {/* Output Metric Dropdown */}
                                         <TableCell align="center">
                                             {(
-                                                <FormControl sx={{ width: "15ch" }}>
+                                                <FormControl >
                                                     {/* <InputLabel
                                                     id={`output-metric-select-label-${index}`}
                                                     sx={{ textAlign: "center" }}
@@ -947,7 +947,7 @@ const KPI = () => {
                                                         //label="Output Metric"
                                                         disabled={index !== 0}
                                                         onChange={(e) => handleDropdownChange(index, "OutputMetric", e.target.value)}
-                                                        sx={{ fontSize: "0.9rem" }}
+                                                        sx={{ fontSize: "0.9rem", minWidth: "10rem", width: "auto", height: "2.5rem" }}
                                                     >
                                                         {products[group.Case] &&
                                                             Object.entries(products[group.Case]).map(([tableKey, tableValue]) =>
@@ -965,7 +965,7 @@ const KPI = () => {
                                         {/* Field Dropdown */}
                                         <TableCell align="center">
                                             {(
-                                                <FormControl sx={{ width: "15ch" }}>
+                                                <FormControl >
                                                     {/* <InputLabel id={`field-select-label-${index}`}>Field</InputLabel> */}
                                                     <Select
                                                         labelId={`field-select-label-${index}`}
@@ -973,7 +973,7 @@ const KPI = () => {
                                                         value={group.Field}
                                                         //label="Field"
                                                         onChange={(e) => handleDropdownChange(index, "Field", e.target.value)}
-                                                        sx={{ fontSize: "0.9rem" }}
+                                                        sx={{ fontSize: "0.9rem", minWidth: "10rem", width: "auto", height: "2.5rem" }}
                                                     >
                                                         {products[group.Case] &&
                                                             Object.entries(products[group.Case]).map(([tableKey, tableValue]) =>
