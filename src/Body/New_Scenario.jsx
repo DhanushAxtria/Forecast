@@ -94,6 +94,7 @@ export default function NewScenario({ username = "User" }) {
 
   const handleSelectClick = (scenario) => {
     // Navigate to the specific page, passing scenario data as state
+    
     navigate('/new-scenario/scenario-details', { state: { scenario } });
   };
   const handleReviewScenario = (scenario) => {

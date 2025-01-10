@@ -1,12 +1,8 @@
 import { Bar, BarChart, XAxis, YAxis, CartesianGrid } from "recharts";
 import React, { useState, useEffect, useContext } from 'react';
-import CalculateIcon from '@mui/icons-material/Calculate';
 import FormControl from '@mui/material/FormControl';
 import UploadIcon from '@mui/icons-material/Upload';
-import { useNavigate } from 'react-router-dom';
-import produce from "immer";
 import Select from '@mui/material/Select';
-
 import {
     TextField,
     IconButton,
@@ -21,7 +17,6 @@ import {
     ListItem,
     ListItemText,
     MenuItem,
-    Tooltip,
     Card,
     Box,
     Tabs,
@@ -45,11 +40,10 @@ import { Table, TableHead, TableBody } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { ResponsiveContainer, LabelList } from 'recharts';
+import { ResponsiveContainer, LabelList, Tooltip} from 'recharts';
 
 const KPI = () => {
     const [applyClicked, setApplyClicked] = useState(true);
-    const [resUpload, setResUpload] = useState({});
     const { products, timePeriod, Formulas, fromHistoricalDate, toForecastDate, values, values2, values3 } = useContext(MyContext);
     const [Res, setRes] = useState({});
     const [Index, setIndex] = useState("");
@@ -107,7 +101,6 @@ const KPI = () => {
     const [openAbsoluteVal, setOpenAbsoluteVal] = useState(false);
     const [highresult, setHighResult] = useState({})
     const [lowresult, setLowResult] = useState({})
-
     const [changedValue, setChangedValue] = useState({})
     const [changeInValue, setChangeInValue] = useState({})
     const [mainresult, setMainResult] = useState({})
@@ -179,36 +172,7 @@ const KPI = () => {
 
 
     
-    // Chart Options
-    const options = {
-        indexAxis: 'y', // Horizontal bar
-        scales: {
-            x: {
-                beginAtZero: true,
-                grid: {
-                    display: true,
-                },
-                ticks: {
-                    callback: (value) => `$${value}M`,
-                },
-            },
-            y: {
-                grid: {
-                    display: false,
-                },
-            },
-        },
-        plugins: {
-            legend: {
-                position: 'top',
-            },
-            tooltip: {
-                callbacks: {
-                    label: (tooltipItem) => `$${tooltipItem.raw}M`,
-                },
-            },
-        },
-    };
+    
     const handleAddDropdownGroup = (index) => {
         setDropdownGroups([...dropdownGroups, { Case: dropdownGroups[index].Case, OutputMetric: dropdownGroups[index].OutputMetric, Field: "" }]);
         setCurrentCase(prev => ({

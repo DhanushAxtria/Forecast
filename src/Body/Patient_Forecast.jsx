@@ -112,7 +112,6 @@ const Patient_Forecast = () => {
         upside: { table1: false, table2: false, table3: false },
     });
 
-
     /*A component that renders a box with three buttons: one to show the preview of the tables,
       one to close the preview and  "Show Dashboard" button to navigate to the dashboard. */
     const Preview = () => {
@@ -660,7 +659,7 @@ const Patient_Forecast = () => {
                         ))}
                     </tbody>
                 </table>
-                
+
                 {/* This is the formula dialog  which is displayed when the insert formula icon is clicked*/}
                 {showFormula && (
                     <Dialog
@@ -702,7 +701,6 @@ const Patient_Forecast = () => {
                             <br></br>
                             <br></br>
                             {/* Render each dropdown dynamically based on selectedValues and operators */}
-                            {console.log(editingFormula[formulaDetails.tabKey][formulaDetails.tableKey][formulaDetails.productId].emptyArray)}
                             {editingFormula[formulaDetails.tabKey]?.[formulaDetails.tableKey]?.[formulaDetails.productId]?.emptyArray?.map((selectedValue, index) => (
                                 <div key={index} style={{ width: 400, display: 'flex', alignItems: 'center', marginBottom: 16 }}>
                                     {/* Operator Dropdown on the left */}
@@ -1464,8 +1462,6 @@ const Patient_Forecast = () => {
         const operatorsList = editingFormula[tabKey][tableKey][row_id].plusArray
         // Slice the operators array to exclude the first element (which is the default "+")
         const operatorSliced = operatorsList.slice(1);
-
-
         let res = {}; // Object to store the results of the forecast calculation
         if (timePeriod === 'Monthly') {
             // Loop through the months in the time period and create a key for each in the results object
@@ -1552,9 +1548,8 @@ const Patient_Forecast = () => {
         }
         setFormulas(editingFormula);
         setShowFormula(false);
-        console.log(Formulas);
-        console.log(res);
     };
+
 
 
 

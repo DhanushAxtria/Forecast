@@ -125,8 +125,28 @@ const KPI = () => {
             return [];
         })
         .flat();
+
+    const labelsOutputMetric = dropdownGroups
+        .map((group) => {
+            if (group?.OutputMetric && products[group?.Case]) {
+                return Object.keys(products[group.Case]).map((tableKey) => {
+                    const productList = products[group.Case][tableKey];
+                    if (productList) {
+                        const product = productList.find((product) => product?.id === group.OutputMetric);
+                        return product ? product.name : null;
+                    }
+                    return null;
+                })
+                    .filter((label) => label !== null);
+            }
+            return [];
+        })
+        .flat();
+
+        console.log("labelsOutputMetric",labelsOutputMetric)
+
     const chartData = labels.map((label, index) => ({
-        name: `${label} - Scenario(${index + 1})`,
+        name: `${label} `,
         lowCase: lowCaseData[index],
         highCase: highCaseData[index],
     }));
@@ -582,7 +602,6 @@ const KPI = () => {
         else {
             idd = selectedIds[0];
             val = tabKey === 'downside' ? values[idd] : tabKey === 'base' ? values2[idd] : values3[idd];
-            
         }
         // If the product has values, loop through its values and add them to the results object
         if (val !== undefined) {
@@ -590,7 +609,6 @@ const KPI = () => {
                 res[key] = val[key];
             });
         }
-        console.log("jussssssssssssssssssssskkkk", res);
         // Iterate over the selected product IDs starting from the second element
         for (let i = 1; i < selectedIds.length; i++) {
             let id = null;
@@ -603,7 +621,6 @@ const KPI = () => {
                 id = selectedIds[i];
                 tempval = tabKey === 'downside' ? values[id] : tabKey === 'base' ? values2[id] : values3[id];
             }
-            console.log("jusssssssssssssssssssss");
 
             // If the product values exist, perform calculations based on the selected operator
             if (tempval !== undefined) {
@@ -658,7 +675,6 @@ const KPI = () => {
             highResDict[index] = Highres;
 
             const Lowres = handleApplyFormula(formula, row.Case, operators, row_id, lowmethod, "Low", index);
-
             lowResDict[index] = Lowres;
 
             const presentval = row.Case === 'downside' ? values[row.OutputMetric] : row.Case === 'base' ? values2[row.OutputMetric] : values3[row.OutputMetric];
@@ -1112,11 +1128,11 @@ const KPI = () => {
                             <Table aria-label="customized-table">
                                 <TableHead>
                                     <TableRow style={{ backgroundColor: '#f0f4fa' }}>
-                                        <TableCell align="center" style={{ border: '1px solid #ccc' }}>
-                                            Scenario
+                                        <TableCell align="center" style={{ border: '1px solid #ccc', minWidth: '200px' }}>
+                                            Output Metric
                                         </TableCell>
-                                        <TableCell align="center" style={{ border: '1px solid #ccc' }}>
-                                            Results
+                                        <TableCell align="center" style={{ border: '1px solid #ccc', minWidth: '200px' }}>
+                                            Scenario
                                         </TableCell>
                                         {columns.map((column) => (
                                             <TableCell style={{ border: '1px solid #ccc' }} key={`header-${column}`}>
@@ -1131,7 +1147,8 @@ const KPI = () => {
                                 <TableBody>
                                     {/* Static Row for Actual Values */}
                                     <TableRow>
-                                        <TableCell align="center" style={{ border: '1px solid #ccc' }}></TableCell>
+                                        <TableCell align="center" style={{ border: '1px solid #ccc' }}>
+                                            {labelsOutputMetric[0]} </TableCell>
                                         <TableCell style={{ border: '1px solid #ccc' }}>Actual Values</TableCell>
                                         {columns.map((column) => (
                                             <TableCell style={{ border: '1px solid #ccc' }} key={`main-${column}`}>
@@ -1159,11 +1176,12 @@ const KPI = () => {
                                                         backgroundColor: bgColor,
                                                     }}
                                                 >
-                                                    <TableCell align="center" style={{ border: '1px solid #ccc' }}>
-                                                        {`${labels?.[index]} - Scenario ${index + 1}`}
+                                                    <TableCell align="center" style={{ border: '1px solid #ccc',whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                                                        {`${labelsOutputMetric[0]} \nInstance ${index + 1}`}
                                                     </TableCell>
-                                                    <TableCell style={{ border: '1px solid #ccc' }}>
-                                                        High Case Values
+                                                    <TableCell style={{ border: '1px solid #ccc',whiteSpace: 'pre-wrap', wordBreak: 'break-word', minWidth: '200px' }}>
+                                                        
+                                                        {`${labels?.[index]} \nHigh Case Values`}
                                                     </TableCell>
                                                     {columns.map((column) => (
                                                         <TableCell
@@ -1189,11 +1207,11 @@ const KPI = () => {
                                                         backgroundColor: bgColor,
                                                     }}
                                                 >
-                                                    <TableCell align="center" style={{ border: '1px solid #ccc' }}>
-                                                        {`${labels?.[index]} - Scenario ${index + 1}`}
+                                                    <TableCell align="center" style={{ border: '1px solid #ccc', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                                                    {`${labelsOutputMetric[0]} \nInstance ${index + 1}`}
                                                     </TableCell>
-                                                    <TableCell style={{ border: '1px solid #ccc' }}>
-                                                        Low Case Values
+                                                    <TableCell style={{ border: '1px solid #ccc',whiteSpace: 'pre-wrap', wordBreak: 'break-word', minWidth: '200px' }}>
+                                                    {`${labels?.[index]} \nLow Case Values`}
                                                     </TableCell>
                                                     {columns.map((column) => (
                                                         <TableCell

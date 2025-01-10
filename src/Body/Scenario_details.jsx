@@ -30,9 +30,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import AdjustIcon from '@mui/icons-material/Adjust';
-
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { MyContext } from './context';
 
@@ -42,6 +40,8 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import Patient_Forecast_Input from './Patient_Forecast_Input';
 import Header from '../Header/Header'
 import { set } from 'date-fns';
+import { useLocation } from 'react-router-dom';
+
 
 const initialNodes = [
     { id: '1', data: { label: 'Product Level Treated Patients' }, position: { x: 250, y: 50 }, style: { width: 200 } },
@@ -78,10 +78,11 @@ const defaultProducts = [
 const defaultIndicationColumns = ['Indication 1', 'Indication 2', 'Indication 3'];
 
 const ForecastAndFlowDiagram = (props) => {
+    const location = useLocation();
+    const scenario = location.state?.scenario;
     const { fromHistoricalDate, setFromHistoricalDate, fromForecastDate, setFromForecastDate, toForecastDate, setToForecastDate, timePeriod, setTimePeriod } = useContext(MyContext);
     const { hasUnsavedChanges, setHasUnsavedChanges } = props;
-    console.log('prop:', props)
-
+    console.log(scenario);
     const [isProductListVisible, setIsProductListVisible] = useState(false);
     const toggleProductListVisibility = () => {
         setIsProductListVisible((prev) => !prev);
@@ -97,10 +98,10 @@ const ForecastAndFlowDiagram = (props) => {
     const [forecastStartMonth, setForecastStartMonth] = useState(dayjs());
     const [forecastMetric, setForecastMetric] = useState('Patients');
     const [currency, setCurrency] = useState('EUR');
-    const [forecastCycle, setForecastCycle] = useState('');
-    const [country, setCountry] = useState('');
+    const [forecastCycle, setForecastCycle] = useState(scenario.forecastScenario);
+    const [country, setCountry] = useState(scenario.country);
     const [isProductTableCollapsed, setIsProductTableCollapsed] = useState(false);
-    const [therapeuticArea, setTherapeuticArea] = useState('');
+    const [therapeuticArea, setTherapeuticArea] = useState(scenario.therapeuticArea);
     const [showHistoricalCalendar, setShowHistoricalCalendar] = useState(false);
     const [showForecastCalendar, setShowForecastCalendar] = useState(false);
     const [historicalView, setHistoricalView] = useState('year'); // Track the view state
@@ -123,9 +124,9 @@ const ForecastAndFlowDiagram = (props) => {
     
     }, [fromHistoricalDate])
     
+    
     //const [scenarioName, setScenarioName] = useState(predefinedScenarioNames[0]);
     const [indicationColumns, setIndicationColumns] = useState(defaultIndicationColumns);
-    const location = useLocation();
     //const [editMode, setEditMode] = useState(false); // Track if edit is enabled
     const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal visibility
     const [tempScenarioDetails, setTempScenarioDetails] = useState(); // Temp storage for edit text
