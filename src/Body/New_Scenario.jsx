@@ -25,7 +25,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import Typography from '@mui/material/Typography';
 import * as XLSX from 'xlsx';
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { SavedFilesContext } from './SavedFilesContext';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import AssessmentIcon from '@mui/icons-material/Assessment';
@@ -38,6 +38,9 @@ import ListItemText from '@mui/material/ListItemText';
 import Autocomplete from '@mui/material/Autocomplete';
 import Tooltip from '@mui/material/Tooltip';
 import { MyContext } from './context';
+import './New_Scenario.css'
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+
 
 export default function NewScenario({ username = "User" }) {
   const { savedFiles, setSavedFiles } = useContext(SavedFilesContext);
@@ -55,6 +58,8 @@ export default function NewScenario({ username = "User" }) {
   const [fileStatuses, setFileStatuses] = React.useState({});
   const [selectedAction, setSelectedAction] = useState('');
   const { rowsData, setRowsData } = useContext(MyContext);
+  const [tutorialActive, setTutorialActive] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0); // Track the current step in the tutorial
   const blueFolderIcon = BlueFolder;
 
   const navigate = useNavigate();
@@ -94,7 +99,7 @@ export default function NewScenario({ username = "User" }) {
 
   const handleSelectClick = (scenario) => {
     // Navigate to the specific page, passing scenario data as state
-    
+
     navigate('/new-scenario/scenario-details', { state: { scenario } });
   };
   const handleReviewScenario = (scenario) => {
@@ -252,15 +257,226 @@ export default function NewScenario({ username = "User" }) {
     return `Good Evening`;
   };
 
+
+  const showTutorial = (step) => {
+    const targetElement = document.querySelector(step.target);
+    const popup = document.createElement('div');
+    popup.classList.add('tutorial-popup', step.placement);
+    popup.textContent = step.content;
+    targetElement.style.boxShadow = '0px 0px 10px 0px rgba(0,0,0,0.75)';
+    targetElement.style.border = '3px solid navy';
+    // Position the popup based on the target element and placement
+    const rect = targetElement.getBoundingClientRect();
+    let top, left;
+    if (step.placement === 'top') {
+      top = rect.top - popup.offsetHeight;
+      left = rect.left + rect.width / 2 - popup.offsetWidth / 2;
+    } else if (step.placement === 'bottom') {
+      top = rect.bottom + 10;
+      left = rect.left + rect.width / 2 - popup.offsetWidth / 2;
+    } else if (step.placement === 'left') {
+      top = rect.top + rect.height / 2 - popup.offsetHeight / 2;
+      left = rect.left - 350;
+    } else if (step.placement === 'right') {
+      top = rect.top;
+      left = rect.right;
+    }
+    popup.style.top = `${top}px`;
+    popup.style.left = `${left}px`;
+    document.body.appendChild(popup);
+    // Add a button to close the popup
+    const closeButton = document.createElement('button');
+    closeButton.textContent = currentStep === (selectedAction === '' ? steps : selectedAction === 'savedTemplates' ? steps3 : steps2).length - 1 ? 'Finish' : 'Skip Tutorial';
+    closeButton.style.marginRight = '40px';
+    closeButton.style.padding = '5px 10px';
+    closeButton.style.borderRadius = '5px';
+    closeButton.addEventListener('click', () => {
+      setTutorialActive(false);
+      setCurrentStep(0);
+      popup.remove();
+      targetElement.style.border = '';
+      targetElement.style.boxShadow = '';
+    });
+    popup.appendChild(closeButton);
+    const previousButton = document.createElement('button');
+    previousButton.textContent = 'Previous';
+    previousButton.style.padding = '5px 10px';
+    previousButton.style.marginRight = '5px';
+    previousButton.style.borderRadius = '5px';
+    previousButton.disabled = currentStep === 0; // Disable if first step
+    previousButton.style.backgroundColor = previousButton.disabled ? 'grey' : 'navy';
+    previousButton.addEventListener('click', () => {
+      popup.remove();
+      setCurrentStep(currentStep - 1); // Move to previous step
+      targetElement.style.border = '';
+      targetElement.style.boxShadow = '';
+    });
+    const nextButton = document.createElement('button');
+    nextButton.textContent = 'Next';
+    nextButton.style.padding = '5px 10px';
+    nextButton.style.borderRadius = '5px';
+    nextButton.disabled = currentStep === (selectedAction === '' ? steps : selectedAction === 'savedTemplates' ? steps3 : steps2).length - 1; // Disable if last step
+    nextButton.style.backgroundColor = nextButton.disabled ? 'grey' : 'green';
+    nextButton.addEventListener('click', () => {
+      popup.remove();
+      setCurrentStep(currentStep + 1); // Move to next step
+      targetElement.style.border = '';
+      targetElement.style.boxShadow = '';
+    });
+    const buttons = document.createElement('div');
+    buttons.style.display = 'flex';
+    buttons.style.marginTop = '20px';
+    buttons.style.justifyContent = 'space-between';
+    buttons.style.width = '100%';
+    buttons.appendChild(closeButton);
+    const flexEndButtons = document.createElement('div');
+    flexEndButtons.style.display = 'flex';
+    flexEndButtons.appendChild(previousButton);
+    flexEndButtons.appendChild(nextButton);
+    buttons.appendChild(flexEndButtons);
+    popup.appendChild(buttons); // Insert the buttons after the text
+  };
+
+  const handleStartTutorial = () => {
+    setTutorialActive(true);
+    setCurrentStep(0); // Start from the first step
+  };
+  useEffect(() => {
+    if (selectedAction === '') {
+      if (tutorialActive && currentStep < steps.length) {
+        showTutorial(steps[currentStep]);
+      }
+    }
+    else if (selectedAction === 'savedTemplates') {
+      if (tutorialActive && currentStep < steps3.length) {
+        showTutorial(steps3[currentStep]);
+      }
+    }
+    else {
+      if (tutorialActive && currentStep < steps2.length) {
+        showTutorial(steps2[currentStep]);
+      }
+    }
+  }, [tutorialActive, currentStep]);
+
+  const steps = [
+    {
+      index: 0,
+      target: '.copy-button',
+      content: 'Clicking here allow you to copy the scenario from submitted scenarios.',
+      placement: 'right',
+    },
+    {
+      index: 1,
+      target: '.saved-button',
+      content: 'Clicking here allow you to copy the scenario from saved scenarios.',
+      placement: 'right',
+    },
+    {
+      index: 2,
+      target: '.saved-template',
+      content: 'Clicking here allow you to see the scenario templates.',
+      placement: 'right',
+    },
+    {
+      index: 3,
+      target: '.filter-button',
+      content: 'To filter out the table based on the selected filters.',
+      placement: 'right',
+    }
+  ];
+  const steps2 = [
+    {
+      index: 0,
+      target: '.copy-button',
+      content: 'Clicking here allow you to copy the scenario from submitted scenarios.',
+      placement: 'right',
+    },
+    {
+      index: 1,
+      target: '.saved-button',
+      content: 'Clicking here allow you to copy the scenario from saved scenarios.',
+      placement: 'right',
+    },
+    {
+      index: 2,
+      target: '.saved-template',
+      content: 'Clicking here allow you to see the scenario templates.',
+      placement: 'right',
+    },
+    {
+      index: 3,
+      target: '.filter-button',
+      content: 'To filter out the table based on the selected filters.',
+      placement: 'right',
+    },
+    {
+      index: 4,
+      target: '.create-button',
+      content: 'Select all the filters and click here to create a new scenario.',
+      placement: 'left',
+    },
+    {
+      index: 5,
+      target: '.select-button',
+      content: 'Clicking here allow you to edit this scenario.',
+      placement: 'left',
+    }
+  ];
+  const steps3 = [
+    {
+      index: 0,
+      target: '.copy-button',
+      content: 'Clicking here allow you to copy the scenario from submitted scenarios.',
+      placement: 'right',
+    },
+    {
+      index: 1,
+      target: '.saved-button',
+      content: 'Clicking here allow you to copy the scenario from saved scenarios.',
+      placement: 'right',
+    },
+    {
+      index: 2,
+      target: '.saved-template',
+      content: 'Clicking here allow you to see the scenario templates.',
+      placement: 'right',
+    },
+    {
+      index: 3,
+      target: '.filter-button',
+      content: 'To filter out the table based on the selected filters.',
+      placement: 'right',
+    },
+    {
+      index: 4,
+      target: '.folder-button',
+      content: 'Clicking here allow you to use this template to create a scenario.',
+      placement: 'right',
+    }
+  ];
+
+
   return (
 
     <div style={{ backgroundColor: 'white', padding: '20px', marginTop: '-25px' }}>
-      <h2>{getGreetingMessage()}, Please provide details for New Scenario Configuration</h2>
+      
+      <IconButton
+          aria-label="help"
+          sx={{color:'black', position: 'absolute', right: 0}}
+          title="Show tutorial"
+          onClick={() => handleStartTutorial()}
+        >
+          <HelpOutlineIcon />
+        </IconButton>
+        <h2>{getGreetingMessage()}, Please provide details for New Scenario Configuration</h2>
+
       {/* Add the three buttons with background colors */}
       <h4>Choose an option to build Scenario</h4>
 
       <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
         <Button
+          className='copy-button'
           variant="contained"
           sx={{
             backgroundColor: selectedAction === 'copySubmission' ? '#1e88e5' : 'gray',
@@ -273,6 +489,7 @@ export default function NewScenario({ username = "User" }) {
           Copy from Submission Scenarios
         </Button>
         <Button
+          className='saved-button'
           variant="contained"
           sx={{
             backgroundColor: selectedAction === 'copySaved' ? '#1e88e5' : 'gray',
@@ -285,6 +502,7 @@ export default function NewScenario({ username = "User" }) {
           Copy from Saved Scenarios
         </Button>
         <Button
+          className='saved-template'
           variant="contained"
           sx={{
             backgroundColor: selectedAction === 'savedTemplates' ? '#1e88e5' : 'gray',
@@ -296,12 +514,13 @@ export default function NewScenario({ username = "User" }) {
         >
           Using Saved Templates
         </Button>
+        
       </div>
-
       <h4>Please select a Scenario to Continue</h4>
       <Box display="flex" gap={2} mb={6} sx={{ width: '100%' }}>
         {/* Autocomplete with Checkboxes for Forecast Cycle */}
         <Autocomplete
+          className='filter-button'
           multiple
           id="forecast-cycle-autocomplete"
           options={forecastCycleOptions}
@@ -413,6 +632,7 @@ export default function NewScenario({ username = "User" }) {
                     </Tooltip>
                     <Tooltip title="Select Scenario">
                       <Button
+                        className='create-button'
                         variant="contained"
                         color="primary"
                         size="small"
@@ -446,7 +666,7 @@ export default function NewScenario({ username = "User" }) {
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Select Scenario">
-                        <Button variant="contained" color="primary" size="small" onClick={() => handleSelectClick(row)}>
+                        <Button className="select-button" variant="contained" color="primary" size="small" onClick={() => handleSelectClick(row)}>
                           Select
                         </Button>
                       </Tooltip>
@@ -496,6 +716,7 @@ export default function NewScenario({ username = "User" }) {
                     </Tooltip>
                     <Tooltip title="Select Scenario">
                       <Button
+                        className='create-button'
                         variant="contained"
                         color="primary"
                         size="small"
@@ -529,7 +750,7 @@ export default function NewScenario({ username = "User" }) {
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Select Scenario">
-                        <Button variant="contained" color="primary" size="small" onClick={() => handleSelectClick(row)}>
+                        <Button className='select-button' variant="contained" color="primary" size="small" onClick={() => handleSelectClick(row)}>
                           Select
                         </Button>
                       </Tooltip>
@@ -551,6 +772,7 @@ export default function NewScenario({ username = "User" }) {
 
             return (
               <Paper
+                className='folder-button'
                 key={index}
                 elevation={3}
                 style={{

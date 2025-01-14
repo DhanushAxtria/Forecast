@@ -544,7 +544,6 @@ const WaterFall = () => {
         return {}
     }
     const handleApplyFormula = (selectedIds, tabKey, operators, row_id, method, buttontype, index) => {
-
         let res = {}; // Object to store the results of the forecast calculation
         if (timePeriod === 'Monthly') {
             // Loop through the months in the time period and create a key for each in the results object
@@ -776,7 +775,7 @@ const WaterFall = () => {
         <>
 
 
-            <Box display="flex" alignItems="center" gap="15px" ml={2} p={2} >
+            <Box display="flex" alignItems="center" gap="15px" ml={1} p={2} >
                 <Button
                     variant="contained"
                     onClick={() => KPIAnalysis()}

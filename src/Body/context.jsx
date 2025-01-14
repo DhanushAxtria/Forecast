@@ -23,7 +23,8 @@ const initialProducts2 = [
 const initialProducts3 = [
   { id: 'T3-1', name: 'Compliance' },
   { id: 'T3-2', name: 'Payer Access' },
-  { id: 'T3-3', name: 'Patients on GS1179 (post Compliance) - Chronic Therapy' }
+  { id: 'T3-3', name: 'Patients on GS1179 (post Compliance) - Chronic Therapy' },
+  { id: 'T3-4', name: 'Revenue' }
 
 ];
 
@@ -150,6 +151,7 @@ const MyProvider = ({ children }) => {
         formulasDemo[tabKey][tableKey]['T3-1'] = { emptyArray: ['T3-1'], plusArray: ['+'] };
         formulasDemo[tabKey][tableKey]['T3-2'] = { emptyArray: ['T3-1', 'T3-1'], plusArray: ['+', '+'] };
         formulasDemo[tabKey][tableKey]['T3-3'] = { emptyArray: ['T3-1', 'T3-2', 'T3-2'], plusArray: ['+', '+', '*'] };
+        formulasDemo[tabKey][tableKey]['T3-4'] = { emptyArray: ['T3-1', 'T3-1'], plusArray: ['+', '+'] };
       });
     });
     setFormulas(formulasDemo);

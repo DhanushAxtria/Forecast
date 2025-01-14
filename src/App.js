@@ -62,6 +62,8 @@ function App() {
           <Route path="/new-scenario/scenario-details/forecastdeepdive/patientinput" element={<Patient_Forecast_Input />} />
           <Route path="/generate-report" element={<GenerateReport />} />
           <Route path="/new-scenario/model1" element={<Model1 />} />
+          <Route path="/new-scenario/model1/analysis" element={<Analysis />} />
+
 
           {/* Add more routes as needed */}
         </Routes>

@@ -22,6 +22,7 @@ import { FormControl, InputLabel, Select, MenuItem, Typography, Divider } from '
 import Menu from '@mui/material/Menu';
 import Button from '@mui/material/Button';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
 // demo data for the table
 const demo_data = [
@@ -123,6 +124,8 @@ export default function GenerateReport() {
     const { countries, setCountries } = useContext(MyContext);
     const { therapeuticAreas, setTherapeuticAreas } = useContext(MyContext);
     const { forecastCycles, setForecastCycles } = useContext(MyContext);
+    const [tutorialActive, setTutorialActive] = useState(false);
+    const [currentStep, setCurrentStep] = useState(0); // Track the current step in the tutorial
     // dropdown values
     const countryOptions = ['All', 'USA', 'Canada', 'Germany', 'India', 'Norway', 'Finland'];
     const therapeuticAreaOptions = ['All', 'Cardiology', 'Oncology', 'Neurology', 'Diabetes', 'TA 1'];
@@ -161,39 +164,157 @@ export default function GenerateReport() {
     const [subMenuAnchorEl, setSubMenuAnchorEl] = useState(null);
     const [currentCategory, setCurrentCategory] = useState(null); // Track the current category for submenu
     const [Index, setIndex] = useState(null);
-   
+
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget); // Open main menu
         setSubMenuAnchorEl(null); // Reset submenu state
         setCurrentCategory(null); // Reset category
         setIndex(null); // Reset selected index
     };
-    
+
     const handleClose = () => {
         setAnchorEl(null); // Close main menu
         setSubMenuAnchorEl(null); // Close submenu
         setCurrentCategory(null); // Reset category
         setIndex(null); // Reset selected index
     };
-    
+
     const handleSubMenuOpen = (index, event, category) => {
         event.stopPropagation(); // Prevent parent menu from closing
         setSubMenuAnchorEl(event.currentTarget); // Open submenu
         setCurrentCategory(category); // Set the category for submenu
         setIndex(index); // Update the selected index
     };
-    
+
     const handleSubMenuClose = () => {
         setSubMenuAnchorEl(null); // Close submenu only
     };
 
+    const showTutorial = (step) => {
+        const targetElement = document.querySelector(step.target);
+        const popup = document.createElement('div');
+        popup.classList.add('tutorial-popup', step.placement);
+        popup.textContent = step.content;
+        targetElement.style.boxShadow = '0px 0px 10px 0px rgba(0,0,0,0.75)';
+        targetElement.style.border = '3px solid navy';
+        // Position the popup based on the target element and placement
+        const rect = targetElement.getBoundingClientRect();
+        let top, left;
+        if (step.placement === 'top') {
+            top = rect.top - popup.offsetHeight;
+            left = rect.left + rect.width / 2 - popup.offsetWidth / 2;
+        } else if (step.placement === 'bottom') {
+            top = rect.bottom + 10;
+            left = rect.left + rect.width / 2 - popup.offsetWidth / 2;
+        } else if (step.placement === 'left') {
+            top = rect.top + rect.height / 2 - popup.offsetHeight / 2;
+            left = rect.left - 350;
+        } else if (step.placement === 'right') {
+            top = rect.top;
+            left = rect.right + 25;
+        }
+        popup.style.top = `${top}px`;
+        popup.style.left = `${left}px`;
+        document.body.appendChild(popup);
+        // Add a button to close the popup
+        const closeButton = document.createElement('button');
+        closeButton.textContent = currentStep === steps.length - 1 ? 'Finish' : 'Skip Tutorial';
+        closeButton.style.marginRight = '40px';
+        closeButton.style.padding = '5px 10px';
+        closeButton.style.borderRadius = '5px';
+        closeButton.addEventListener('click', () => {
+            setTutorialActive(false);
+            setCurrentStep(0);
+            popup.remove();
+            targetElement.style.border = '';
+            targetElement.style.boxShadow = '';
+        });
+        popup.appendChild(closeButton);
+        const previousButton = document.createElement('button');
+        previousButton.textContent = 'Previous';
+        previousButton.style.padding = '5px 10px';
+        previousButton.style.marginRight = '5px';
+        previousButton.style.borderRadius = '5px';
+        previousButton.disabled = currentStep === 0; // Disable if first step
+        previousButton.style.backgroundColor = previousButton.disabled ? 'grey' : 'navy';
+        previousButton.addEventListener('click', () => {
+            popup.remove();
+            setCurrentStep(currentStep - 1); // Move to previous step
+            targetElement.style.border = '';
+            targetElement.style.boxShadow = '';
+        });
+        const nextButton = document.createElement('button');
+        nextButton.textContent = 'Next';
+        nextButton.style.padding = '5px 10px';
+        nextButton.style.borderRadius = '5px';
+        nextButton.disabled = currentStep === steps.length - 1; // Disable if last step
+        nextButton.style.backgroundColor = nextButton.disabled ? 'grey' : 'green';
+        nextButton.addEventListener('click', () => {
+            popup.remove();
+            setCurrentStep(currentStep + 1); // Move to next step
+            targetElement.style.border = '';
+            targetElement.style.boxShadow = '';
+        });
+        const buttons = document.createElement('div');
+        buttons.style.display = 'flex';
+        buttons.style.marginTop = '20px';
+        buttons.style.justifyContent = 'space-between';
+        buttons.style.width = '100%';
+        buttons.appendChild(closeButton);
+        const flexEndButtons = document.createElement('div');
+        flexEndButtons.style.display = 'flex';
+        flexEndButtons.appendChild(previousButton);
+        flexEndButtons.appendChild(nextButton);
+        buttons.appendChild(flexEndButtons);
+        popup.appendChild(buttons); // Insert the buttons after the text
+    };
+
+    const handleStartTutorial = () => {
+        setTutorialActive(true);
+        setCurrentStep(0); // Start from the first step
+    };
+    useEffect(() => {
+        if (tutorialActive && currentStep < steps.length) {
+            showTutorial(steps[currentStep]);
+        }
+    }, [tutorialActive, currentStep]);
+    const steps = [
+        {
+            index: 0,
+            target: '.filter-button',
+            content: 'Use this button to apply filters and narrow down the table data based on your criteria.',
+            placement: 'right',
+        },
+        {
+            index: 1,
+            target: '.generate-button',
+            content: 'Click here to generate a report for the rows you have selected.',
+            placement: 'right',
+        },
+        {
+            index: 2,
+            target: '.tick-button',
+            content: 'Click this button to select a row for report generation.',
+            placement: 'right',
+        }
+    ];
+
     return (
         <div style={{ backgroundColor: 'white', padding: '20px', marginTop: '-25px' }}>
+            <IconButton
+                    aria-label="help"
+                    sx={{ color: 'black', position: 'absolute', right: 0 }}
+                    title="Show tutorial"
+                    onClick={() => handleStartTutorial()}
+                >
+                    <HelpOutlineIcon />
+                </IconButton>
             <h2>{getGreetingMessage()}, Welcome to the Saved Scenario Page!</h2>
             <h4>Please select a Scenario to Continue</h4>
             <Box display="flex" gap={2} mb={2} sx={{ width: '100%' }}>
                 {/* Forecast Cycle Dropdown */}
                 <Autocomplete
+                    className='filter-button'
                     multiple
                     id="forecast-cycle-autocomplete"
                     options={forecastCycleOptions}
@@ -254,81 +375,83 @@ export default function GenerateReport() {
                     )}
                     sx={{ width: '300px' }}
                 />
+                
             </Box>
             <div style={{ display: 'flex', justifyContent: 'left', marginTop: '20px' }}>
-            <Button
-                onClick={handleClick}
-                disabled={selectedRows.every(val => val === false)}
-                sx={{
-                    bgcolor: selectedRows.every(val => val === false) ? 'grey' : '#1976d2', // Blue background
-                    color: 'white',  // White text
-                    '&:hover': {
-                        bgcolor: 'darkblue' // Darker blue on hover
-                    }
-                }}
-            >
-                Generate Report
-            </Button>
-
-            {/* Main Dropdown */}
-            <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleClose} // Close main menu when clicking outside
-                
-            >
-                {reportCategories.map((category, index) => (
-                    <MenuItem
-                        key={index}
-                        onClick={(event) => handleSubMenuOpen(index, event, category)}
-                        sx={{
-                            bgcolor: index === Index ? '#1976d2' : 'white',
-                            '&:hover': {
-                                bgcolor: '#1976d2',
-                                color: 'white',
-                            },
-                        }}
-                    >
-                        {category.label}
-                        <Typography variant="body2" sx={{ marginLeft: 'auto' }}>
-                            <ArrowRightIcon sx={{ fontSize: 18 }} />
-                        </Typography>
-                    </MenuItem>
-                ))}
-            </Menu>              
-
-            {/* First-level Submenu */}
-            {currentCategory && (
-                <Menu
-                    anchorEl={subMenuAnchorEl}
-                    open={Boolean(subMenuAnchorEl)}
-                    onClose={handleSubMenuClose} // Close submenu only
-                    anchorOrigin={{
-                        vertical: 'top',
-                        horizontal: 'right',
-                    }}
-                    transformOrigin={{
-                        vertical: 'top',
-                        horizontal: 'left',
+                <Button
+                    className='generate-button'
+                    onClick={handleClick}
+                    disabled={selectedRows.every(val => val === false)}
+                    sx={{
+                        bgcolor: selectedRows.every(val => val === false) ? 'grey' : '#1976d2', // Blue background
+                        color: 'white',  // White text
+                        '&:hover': {
+                            bgcolor: 'darkblue' // Darker blue on hover
+                        }
                     }}
                 >
-                    {currentCategory.options.map((option, idx) => (
+                    Generate Report
+                </Button>
+
+                {/* Main Dropdown */}
+                <Menu
+                    anchorEl={anchorEl}
+                    open={Boolean(anchorEl)}
+                    onClose={handleClose} // Close main menu when clicking outside
+
+                >
+                    {reportCategories.map((category, index) => (
                         <MenuItem
-                            key={idx}
-                            onClick={handleClose} // Close both menus on submenu selection
+                            key={index}
+                            onClick={(event) => handleSubMenuOpen(index, event, category)}
                             sx={{
+                                bgcolor: index === Index ? '#1976d2' : 'white',
                                 '&:hover': {
                                     bgcolor: '#1976d2',
                                     color: 'white',
                                 },
                             }}
                         >
-                            {option}
+                            {category.label}
+                            <Typography variant="body2" sx={{ marginLeft: 'auto' }}>
+                                <ArrowRightIcon sx={{ fontSize: 18 }} />
+                            </Typography>
                         </MenuItem>
                     ))}
                 </Menu>
-            )}
-        </div>
+
+                {/* First-level Submenu */}
+                {currentCategory && (
+                    <Menu
+                        anchorEl={subMenuAnchorEl}
+                        open={Boolean(subMenuAnchorEl)}
+                        onClose={handleSubMenuClose} // Close submenu only
+                        anchorOrigin={{
+                            vertical: 'top',
+                            horizontal: 'right',
+                        }}
+                        transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'left',
+                        }}
+                    >
+                        {currentCategory.options.map((option, idx) => (
+                            <MenuItem
+                                key={idx}
+                                onClick={handleClose} // Close both menus on submenu selection
+                                sx={{
+                                    '&:hover': {
+                                        bgcolor: '#1976d2',
+                                        color: 'white',
+                                    },
+                                }}
+                            >
+                                {option}
+                            </MenuItem>
+                        ))}
+                    </Menu>
+                )}
+            </div>
 
 
 
@@ -361,7 +484,7 @@ export default function GenerateReport() {
                             {filteredData.map((row, index) => (
                                 <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? '#e5f1fb' : 'white', height: 53 }}>
                                     {/* Checkbox for selecting this row */}
-                                    <TableCell padding="checkbox">
+                                    <TableCell className = "tick-button" padding="checkbox">
                                         <Checkbox
                                             checked={selectedRows[index]}
                                             onChange={() => setSelectedRows(

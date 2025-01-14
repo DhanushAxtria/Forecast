@@ -5,6 +5,9 @@ import UploadIcon from '@mui/icons-material/Upload';
 import { useNavigate } from 'react-router-dom';
 import produce from "immer";
 import Select from '@mui/material/Select';
+import GetAppIcon from '@mui/icons-material/GetApp';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import { Snackbar } from '@mui/material';
 import {
     TextField,
     IconButton,
@@ -44,6 +47,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid, LabelList } from 'recharts';
 import { hi } from 'date-fns/locale';
+import { Today } from '@mui/icons-material';
 const KPI = () => {
     const [baseRev, setBaseRev] = useState(0);
     const [applyClicked, setApplyClicked] = useState(false);
@@ -108,6 +112,11 @@ const KPI = () => {
     const [lowresSum, setLowResSum] = useState({})
     const [mainresult, setMainResult] = useState({})
     const [columns, setColumns] = useState([]);
+    const [columns2, setColumns2] = useState([]);
+    const [fromDate, setFromDate] = useState(dayjs(fromHistoricalDate));
+    const [toDate, setToDate] = useState(dayjs(toForecastDate));
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState("");
 
     const labels = dropdownGroups
         .map((group) => {
@@ -143,7 +152,7 @@ const KPI = () => {
         })
         .flat();
 
-        console.log("labelsOutputMetric",labelsOutputMetric)
+    console.log("labelsOutputMetric", labelsOutputMetric)
 
     const chartData = labels.map((label, index) => ({
         name: `${label} `,
@@ -160,7 +169,7 @@ const KPI = () => {
                     display: true,
                 },
                 ticks: {
-                    callback: (value) => `$${value}M`,
+                    callback: (value) => `$${value}`,
                 },
             },
             y: {
@@ -175,7 +184,7 @@ const KPI = () => {
             },
             tooltip: {
                 callbacks: {
-                    label: (tooltipItem) => `$${tooltipItem.raw}M`,
+                    label: (tooltipItem) => `$${tooltipItem.raw}`,
                 },
             },
         },
@@ -259,6 +268,18 @@ const KPI = () => {
                 ...prev,
                 [index]: value
             }));
+            const updatedGroups = [...dropdownGroups];
+            updatedGroups.forEach((group, i) => {
+                group[field] = value;
+            });
+            setDropdownGroups(updatedGroups);
+        }
+        if (field === 'OutputMetric') {
+            const updatedGroups = [...dropdownGroups];
+            updatedGroups.forEach((group, i) => {
+                group[field] = value;
+            });
+            setDropdownGroups(updatedGroups);
         }
         const updatedGroups = [...dropdownGroups];
         updatedGroups[index][field] = value;
@@ -365,6 +386,15 @@ const KPI = () => {
             setColumns(generateYearlyColumns(fromHistoricalDate, toForecastDate));
         }
     }, [timePeriod, fromHistoricalDate, toForecastDate]);
+    useEffect(() => {
+        // Generate the columns based on the selected time period
+        // Columns are only regenerated when the time period, start date, or end date changes
+        if (timePeriod === 'Monthly') {
+            setColumns2(generateMonthlyColumns(fromDate, toDate));
+        } else if (timePeriod === 'Yearly') {
+            setColumns2(generateYearlyColumns(fromDate, toDate));
+        }
+    }, [toDate, fromDate, timePeriod, fromHistoricalDate, toForecastDate]);
 
     const calculateGrowthRateValues = (startingValue, initialGrowthRate, growthRates) => {
         const newValues = {};
@@ -542,7 +572,6 @@ const KPI = () => {
                 base: values2,
             };
             const valuesToUse = valuesMap[tempCase];
-            console.log("vales to use", valuesToUse);
             if (valuesToUse?.[currentField]) {
                 Object.keys(res).forEach((key) => {
                     res[key] = parseFloat(valuesToUse[currentField][key]);
@@ -567,6 +596,24 @@ const KPI = () => {
             Object.keys(res).forEach((key) => {
                 res[key] = tmp;
             });
+            return res;
+        }
+        else {
+            const currentRow = dropdownGroups[index]?.Field;
+            const currentCase = dropdownGroups[index]?.Case;
+            const valuesMap = {
+                upside: values3,
+                downside: values,
+                base: values2,
+            };
+            const valuesToUse = valuesMap[currentCase];
+            if (valuesToUse?.[currentRow]) {
+                Object.keys(res).forEach((key) => {
+                    res[key] = parseFloat(valuesToUse[currentRow][key]);
+                });
+            } else {
+                console.error('No data found');
+            }
             return res;
         }
         return {}
@@ -616,6 +663,7 @@ const KPI = () => {
             if (selectedIds[i] === row_id) {
                 id = selectedIds[i];
                 tempval = findVal(method, buttontype, index);
+                console.log("tempval", tempval);
             }
             else {
                 id = selectedIds[i];
@@ -644,6 +692,7 @@ const KPI = () => {
         return res;
     };
     const KPIAnalysis = () => {
+        const dates = timePeriod === 'Monthly' ? generateMonthlyColumns(fromDate, toDate) : generateYearlyColumns(fromDate, toDate);
         // Use local arrays to manage the data
         const newLowCaseData = [];
         const newHighCaseData = [];
@@ -671,13 +720,31 @@ const KPI = () => {
             const row_id = row.Field;
             const highmethod = highMethodForRow[index];
             const lowmethod = lowMethodForRow[index];
-            const Highres = handleApplyFormula(formula, row.Case, operators, row_id, highmethod, "High", index);
+            const temphighres = handleApplyFormula(formula, row.Case, operators, row_id, highmethod, "High", index);
+            const Highres = {};
+            dates.forEach((date) => {
+                if (temphighres[date]) {
+                    Highres[date] = temphighres[date];
+                }
+            });
             highResDict[index] = Highres;
 
-            const Lowres = handleApplyFormula(formula, row.Case, operators, row_id, lowmethod, "Low", index);
+            const templowres = handleApplyFormula(formula, row.Case, operators, row_id, lowmethod, "Low", index);
+            const Lowres = {}
+            dates.forEach((date) => {
+                if (templowres[date]) {
+                    Lowres[date] = templowres[date];
+                }
+            });
             lowResDict[index] = Lowres;
 
-            const presentval = row.Case === 'downside' ? values[row.OutputMetric] : row.Case === 'base' ? values2[row.OutputMetric] : values3[row.OutputMetric];
+            const temppreval = row.Case === 'downside' ? values[row.OutputMetric] : row.Case === 'base' ? values2[row.OutputMetric] : values3[row.OutputMetric];
+            const presentval = {}
+            dates.forEach((date) => {
+                if (temppreval[date]) {
+                    presentval[date] = temppreval[date];
+                }
+            });
             mainResDict[index] = presentval;
 
             const presentSum = Object.keys(presentval).reduce((prev, curr) => prev + parseFloat(presentval[curr], 10), 0).toFixed(2);
@@ -703,15 +770,7 @@ const KPI = () => {
         setLowResSum(lowResSum);
         setApplyClicked(true);
     };
-    useEffect(() => {
-        console.log("HighResult", highresult);
-        console.log("LowResult", lowresult);
-        console.log("MainResult", mainresult);
-        console.log("LowCaseData", lowCaseData);
-        console.log("HighCaseData", highCaseData);
-        console.log("HighResSum", highresSum);
-        console.log("LowResSum", lowresSum);
-    }, [highresult, lowresult, mainresult, lowCaseData, highCaseData, highresSum, lowresSum]);
+
     const handleAddGrowthRate = () => {
         if (buttonType === "High") {
             const lastStartDate = editingHighGrowthRates[Index]?.[editingHighGrowthRates[Index].length - 1]?.startDate;
@@ -862,14 +921,7 @@ const KPI = () => {
 
     return (
         <>
-            <Box
-                sx={{
-                    display: "flex",
-                    justifyContent: "flex-start",
-                    mb: 2,
-                    ml: 1,
-                }}
-            >
+            <Box display="flex" alignItems="center" gap="15px" ml={1} p={2} >
                 <Button
                     variant="contained"
                     onClick={() => KPIAnalysis()}
@@ -877,7 +929,31 @@ const KPI = () => {
                 >
                     Apply
                 </Button>
-            </Box>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                        views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
+                        label={timePeriod === 'Monthly' ? 'Start Month' : 'Start Year'}
+                        value={fromDate}
+                        onChange={(newValue) => setFromDate(newValue)}
+                        format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
+                        slotProps={{ textField: { size: 'small' } }}
+                        sx={{ width: '200px' }}
+                        minDate={fromHistoricalDate}
+                        maxDate={toForecastDate}
+                    />
+                    <DatePicker
+                        views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
+                        label={timePeriod === 'Monthly' ? 'End Month' : 'End Year'}
+                        value={toDate}
+                        onChange={(newValue) => setToDate(newValue)}
+                        format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
+                        slotProps={{ textField: { size: 'small' } }}
+                        sx={{ width: '200px' }}
+                        minDate={fromDate}
+                        maxDate={toForecastDate}
+                    />
+                </LocalizationProvider>
+            </Box >
             <Grid container spacing={2}>
                 <Grid item xs={12}>
                     <TableContainer
@@ -1054,7 +1130,7 @@ const KPI = () => {
                 </Grid>
                 {applyClicked && <Grid item xs={12}>
                     <div style={{ width: '80%', margin: 'auto', textAlign: 'center', marginTop: "150px" }}>
-                        <h3 style={{ color: '#333', marginBottom: '20px' }}>Base Case Revenue: ${baseRev}M</h3>
+                        <h3 style={{ color: '#333', marginBottom: '20px' }}>{dropdownGroups[0].Case.charAt(0).toUpperCase() + dropdownGroups[0].Case.slice(1)} Case, {labelsOutputMetric[0]}: ${baseRev}</h3>
                         <BarChart
                             width={900}
                             height={500}
@@ -1065,7 +1141,7 @@ const KPI = () => {
                             <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
                             <XAxis
                                 type="number"
-                                tickFormatter={(value) => `$${value.toFixed(2)}M`}
+                                tickFormatter={(value) => `$${value.toFixed(2)}`}
                                 stroke="#555"
                                 domain={[5, 'auto']} // Set minimum value to 5
                             />
@@ -1076,7 +1152,7 @@ const KPI = () => {
                                 tick={{ fontSize: 12 }}
                             />
                             <Tooltip
-                                formatter={(value) => `$${value.toFixed(2)}M`}
+                                formatter={(value) => `$${value.toFixed(2)}`}
                                 contentStyle={{ backgroundColor: '#f5f5f5', borderRadius: '10px' }}
                             />
                             <Legend
@@ -1093,7 +1169,7 @@ const KPI = () => {
                                 <LabelList
                                     dataKey="lowCase"
                                     position="insideRight"
-                                    formatter={(value) => `${value.toFixed(2)}M`}
+                                    formatter={(value) => `${value.toFixed(2)}`}
                                     fill="#fff"
                                     fontSize={15}
                                 />
@@ -1107,7 +1183,7 @@ const KPI = () => {
                                 <LabelList
                                     dataKey="highCase"
                                     position="insideRight"
-                                    formatter={(value) => `${value.toFixed(2)}M`}
+                                    formatter={(value) => `${value.toFixed(2)}`}
                                     fill="#fff"
                                     fontSize={15}
                                 />
@@ -1120,45 +1196,96 @@ const KPI = () => {
 
             {applyClicked && (
                 <Grid container spacing={2} justifyContent="center">
-                    <Grid item xs={8}>
+                    <Grid item xs={10}>
+                        <IconButton
+                            color="primary"
+                            onClick={() => {
+                                const csvContent = [];
+                                csvContent.push(['Output Metric', 'Scenario', 'Total', ...columns2]);
+                                csvContent.push([labelsOutputMetric[0], 'Actual Values', baseRev, ...columns2.map(column => mainresult?.[0]?.[column])]);
+                                dropdownGroups.forEach((group, index) => {
+                                    csvContent.push([`${labelsOutputMetric[0]} Instance ${index + 1}`, `${labels?.[index]} High Case Values`, highresSum?.[index], ...columns2.map(column => highresult?.[index]?.[column])]);
+                                    csvContent.push([`${labelsOutputMetric[0]} Instance ${index + 1}`, `${labels?.[index]} Low Case Values`, lowresSum?.[index], ...columns2.map(column => lowresult?.[index]?.[column])]);
+                                });
+                                const csvString = csvContent.map(row => row.join(',')).join('\n');
+                                const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+                                const url = URL.createObjectURL(blob);
+                                const link = document.createElement('a');
+                                link.href = url;
+                                link.setAttribute('download', 'table_data.csv');
+                                document.body.appendChild(link);
+                                link.click();
+                                document.body.removeChild(link);
+                                setSnackbarOpen(true);
+                                setSnackbarMessage("Downloaded as csv file");
+                            }}
+                            className="download-icon"
+                        >
+                            <GetAppIcon />
+                        </IconButton>
+                        <IconButton
+                            color="primary"
+                            onClick={() => {
+                                const csvContent = [];
+                                csvContent.push(['Output Metric', 'Scenario', 'Total', ...columns2]);
+                                csvContent.push([labelsOutputMetric[0], 'Actual Values', baseRev, ...columns2.map(column => mainresult?.[0]?.[column])]);
+                                dropdownGroups.forEach((group, index) => {
+                                    csvContent.push([`${labelsOutputMetric[0]} Instance ${index + 1}`, `${labels?.[index]} High Case Values`, highresSum?.[index], ...columns2.map(column => highresult?.[index]?.[column])]);
+                                    csvContent.push([`${labelsOutputMetric[0]} Instance ${index + 1}`, `${labels?.[index]} Low Case Values`, lowresSum?.[index], ...columns2.map(column => lowresult?.[index]?.[column])]);
+                                });
+                                const csvString = csvContent.map(row => row.join(',')).join('\n');
+                                navigator.clipboard.writeText(csvString);
+                                setSnackbarOpen(true);
+                                setSnackbarMessage("Copied to clipboard");
+                            }}
+                            className="copy-icon"
+                        >
+                            <ContentCopyIcon />
+                        </IconButton>
+                        <Snackbar
+                            open={snackbarOpen}
+                            onClose={() => setSnackbarOpen(false)}
+                            message={snackbarMessage}
+                            autoHideDuration={1500}
+                        />
                         <TableContainer
                             component={Paper}
-                            sx={{ border: '1px solid #ccc', borderRadius: '10px', margin: '0 auto' }}
+                            sx={{ border: '1px solid #ccc', borderRadius: '10px', margin: '0 auto', marginTop: '10px' }}
                         >
                             <Table aria-label="customized-table">
                                 <TableHead>
-                                    <TableRow style={{ backgroundColor: '#f0f4fa' }}>
-                                        <TableCell align="center" style={{ border: '1px solid #ccc', minWidth: '200px' }}>
+                                    <TableRow style={{ backgroundColor: 'rgb(198, 244, 214)' }}>
+                                        <TableCell align="center" style={{ border: '1px solid #ccc', minWidth: '400px', fontWeight: 'bold' }}>
                                             Output Metric
                                         </TableCell>
-                                        <TableCell align="center" style={{ border: '1px solid #ccc', minWidth: '200px' }}>
+                                        <TableCell align="center" style={{ border: '1px solid #ccc', minWidth: '400px', fontWeight: 'bold' }}>
                                             Scenario
                                         </TableCell>
-                                        {columns.map((column) => (
-                                            <TableCell style={{ border: '1px solid #ccc' }} key={`header-${column}`}>
+                                        <TableCell align="center" style={{ border: '1px solid #ccc', minWidth: '100px', fontWeight: 'bold' }}>
+                                            Total
+                                        </TableCell>
+                                        {columns2.map((column) => (
+                                            <TableCell align="center" style={{ border: '1px solid #ccc', minWidth: '100px', fontWeight: 'bold' }} key={`header-${column}`}>
                                                 {column}
                                             </TableCell>
                                         ))}
-                                        <TableCell align="center" style={{ border: '1px solid #ccc' }}>
-                                            Total
-                                        </TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
                                     {/* Static Row for Actual Values */}
-                                    <TableRow>
-                                        <TableCell align="center" style={{ border: '1px solid #ccc' }}>
-                                            {labelsOutputMetric[0]} </TableCell>
-                                        <TableCell style={{ border: '1px solid #ccc' }}>Actual Values</TableCell>
-                                        {columns.map((column) => (
-                                            <TableCell style={{ border: '1px solid #ccc' }} key={`main-${column}`}>
+                                    <TableRow style={{ backgroundColor: 'lightyellow' }}>
+                                        <TableCell align="center" style={{ border: '1px solid #ccc', backgroundColor: 'lightyellow' }}>
+                                            {labelsOutputMetric[0]}
+                                        </TableCell>
+                                        <TableCell align="center" style={{ border: '1px solid #ccc' }}>Actual Values</TableCell>
+                                        <TableCell align="center" style={{ border: '1px solid #ccc', fontWeight: 'bold' }}>
+                                        {baseRev}
+                                        </TableCell>
+                                        {columns2.map((column) => (
+                                            <TableCell align="center" style={{ border: '1px solid #ccc' }} key={`main-${column}`}>
                                                 {mainresult?.[0]?.[column]}
                                             </TableCell>
                                         ))}
-                                        <TableCell align="center" style={{ border: '1px solid #ccc' }}>
-                                            {baseRev}
-                                            {/* {columns.reduce((acc, curr) => acc + (mainresult?.[0]?.[curr] || 0), 0)}*/}
-                                        </TableCell>
                                     </TableRow>
 
                                     {/* Dynamic Rows for Each Group */}
@@ -1171,66 +1298,40 @@ const KPI = () => {
                                                 {index > 0 && <TableRow style={{ height: '30px' }} />}
 
                                                 {/* High Case Row */}
-                                                <TableRow
-                                                    sx={{
-                                                        backgroundColor: bgColor,
-                                                    }}
-                                                >
-                                                    <TableCell align="center" style={{ border: '1px solid #ccc',whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-                                                        {`${labelsOutputMetric[0]} \nInstance ${index + 1}`}
+                                                <TableRow sx={{ backgroundColor: bgColor }}>
+                                                    <TableCell align="center" style={{ border: '1px solid #ccc', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                                                        {`${labelsOutputMetric[0]} Instance ${index + 1}`}
                                                     </TableCell>
-                                                    <TableCell style={{ border: '1px solid #ccc',whiteSpace: 'pre-wrap', wordBreak: 'break-word', minWidth: '200px' }}>
-                                                        
-                                                        {`${labels?.[index]} \nHigh Case Values`}
+                                                    <TableCell align="center" style={{ border: '1px solid #ccc', whiteSpace: 'pre-wrap', wordBreak: 'break-word', minWidth: '200px' }}>
+                                                        {`${labels?.[index]} High Case Values`}
                                                     </TableCell>
-                                                    {columns.map((column) => (
-                                                        <TableCell
-                                                            style={{ border: '1px solid #ccc' }}
-                                                            key={`high-${index}-${column}`}
-                                                        >
+                                                    <TableCell align="center" style={{ border: '1px solid #ccc', fontWeight: 'bold' }}>
+                                                        {highresSum?.[index]}
+                                                    </TableCell>
+                                                    {columns2.map((column) => (
+                                                        <TableCell align="center" style={{ border: '1px solid #ccc' }} key={`high-${index}-${column}`}>
                                                             {highresult?.[index]?.[column]}
                                                         </TableCell>
                                                     ))}
-                                                    
-                                                        <TableCell
-                                                            style={{ border: '1px solid #ccc' }}                                                          
-                                                        >
-                                                            {highresSum?.[index]}
-                                                        </TableCell>
-                                                        
-                                                    
                                                 </TableRow>
 
                                                 {/* Low Case Row */}
-                                                <TableRow
-                                                    sx={{
-                                                        backgroundColor: bgColor,
-                                                    }}
-                                                >
+                                                <TableRow sx={{ backgroundColor: bgColor }}>
                                                     <TableCell align="center" style={{ border: '1px solid #ccc', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-                                                    {`${labelsOutputMetric[0]} \nInstance ${index + 1}`}
+                                                        {`${labelsOutputMetric[0]} Instance ${index + 1}`}
                                                     </TableCell>
-                                                    <TableCell style={{ border: '1px solid #ccc',whiteSpace: 'pre-wrap', wordBreak: 'break-word', minWidth: '200px' }}>
-                                                    {`${labels?.[index]} \nLow Case Values`}
+                                                    <TableCell align="center" style={{ border: '1px solid #ccc', whiteSpace: 'pre-wrap', wordBreak: 'break-word', minWidth: '200px' }}>
+                                                        {`${labels?.[index]} Low Case Values`}
                                                     </TableCell>
-                                                    {columns.map((column) => (
-                                                        <TableCell
-                                                            style={{ border: '1px solid #ccc' }}
-                                                            key={`low-${index}-${column}`}
-                                                        >
+                                                    <TableCell align="center" style={{ border: '1px solid #ccc', fontWeight: 'bold' }}>
+                                                        {lowresSum?.[index]}
+                                                    </TableCell>
+                                                    {columns2.map((column) => (
+                                                        <TableCell align="center" style={{ border: '1px solid #ccc' }} key={`low-${index}-${column}`}>
                                                             {lowresult?.[index]?.[column]}
                                                         </TableCell>
-                                                        
                                                     ))}
-                                                    
-                                                    <TableCell
-                                                            style={{ border: '1px solid #ccc' }}                                                          
-                                                        >
-                                                            {lowresSum?.[index]}
-                                                        </TableCell>
                                                 </TableRow>
-
-                                                
                                             </React.Fragment>
                                         );
                                     })}

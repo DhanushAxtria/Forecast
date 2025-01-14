@@ -52,21 +52,7 @@ const Forecastpagehelper = () => {
             setSelectedFile(file);
 
             // to get the min and max dates for the historical data
-            Papa.parse(file, {
-                complete: (result) => {
-                    if (result.data && result.data.length > 0 && result.data[0].length > 2) {
-                        setIsCol(false); // data is in row format
-                        setHistoricalFrom(result.data[0][0]);
-                        setHistoricalTo(result.data[0][result.data[0].length - 1]);
-                    }
-                    else {
-                        setIsCol(true); // data is in col format
-                        setHistoricalFrom(result.data[0][0]);
-                        setHistoricalTo(result.data[result.data.length - 1][0]);
-                    }
-                },
-                skipEmptyLines: true,
-            });
+            
             // Show success Snackbar
             setSnackbarMessage(`File uploaded: ${file.name}`);
             setSnackbarOpen(true);

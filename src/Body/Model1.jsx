@@ -43,7 +43,6 @@ import UploadFileIcon from '@mui/icons-material/UploadFile';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import AdjustIcon from '@mui/icons-material/Adjust';
 import './ProductListpage.scss';
-import { tab } from '@testing-library/user-event/dist/tab';
 import { MyContext } from './context';
 
 const Model1 = () => {
@@ -67,9 +66,8 @@ const Model1 = () => {
     const { values3, setValues3 } = useContext(MyContext);
     const [UploadedFileToFill, setUploadedFileToFill] = useState(null);
     const [openUploadDialog, setOpenUploadDialog] = useState(false); // Dialog for file upload
-    const { fromHistoricalDate, setFromHistoricalDate } = useContext(MyContext);
-    const { fromForecastDate, setFromForecastDate } = useContext(MyContext);
-    const { toForecastDate, setToForecastDate } = useContext(MyContext);
+    const { fromHistoricalDate, setFromHistoricalDate, fromForecastDate, setFromForecastDate } = useContext(MyContext);
+    const { toForecastDate, setToForecastDate, } = useContext(MyContext);
     const [manualEntry, setManualEntry] = useState(false);
     const [growthRates, setGrowthRates] = useState([]);
     const [startingValue, setStartingValue] = useState('');
@@ -113,7 +111,6 @@ const Model1 = () => {
         upside: { table1: false, table2: false, table3: false },
     });
 
-
     /*A component that renders a box with three buttons: one to show the preview of the tables,
       one to close the preview and  "Show Dashboard" button to navigate to the dashboard. */
     const Preview = () => {
@@ -143,22 +140,12 @@ const Model1 = () => {
                     <Button
                         variant="contained"
                         onClick={() => {
-                            navigate("/new-scenario/forecastdeepdive/dashboard");
+                            navigate("/new-scenario/model1/analysis");
                         }}
                         color="success"
                         sx={{ fontSize: '0.8rem' }}
                     >
-                        Show Dashboard
-                    </Button>
-                    <Button
-                        variant="contained"
-                        onClick={() => {
-                            navigate("/new-scenario/forecastdeepdive/kpi-analysis");
-                        }}
-                        color="success"
-                        sx={{ fontSize: '0.8rem' }}
-                    >
-                        KPI Analysis
+                        Analysis
                     </Button>
                 </Box>
             </Box>
@@ -533,8 +520,20 @@ const Model1 = () => {
                                     zIndex: 2,
                                     width: '600px'
                                 }}></th>
-                            {columns.map((column, index) => (
-                                <th key={index} style={{ minWidth: '150px' }}>{column}</th>
+                            {columns.map((column) => (
+                                <th
+                                    style={{
+                                        minWidth: '150px',
+                                        backgroundColor:
+                                            timePeriod === 'Year'
+                                                ? dayjs(column).isBefore(dayjs(fromForecastDate), 'year')
+                                                : dayjs(column).isBefore(dayjs(fromForecastDate), 'month')
+                                                    ? '#C6F4D6' // Light green for columns between fromHistorical and fromForecast
+                                                    : '#FFFFE0', // Light yellow for all other columns
+                                    }}
+                                >
+                                    {column}
+                                </th>
                             ))}
                         </tr>
                     </thead>
@@ -596,7 +595,7 @@ const Model1 = () => {
 
                                                 <Tooltip title="Edit Row Name" placement="top" >
                                                     <IconButton onClick={() => handleEditClick(product.id, tabKey, tableKey)} style={{ marginLeft: '8px' }} disabled>
-                                                        <EditIcon fontSize="small" />
+                                                        <EditIcon fontSize="small"/>
                                                     </IconButton>
                                                 </Tooltip>
                                                 {index !== tableProducts.length - 1 ? (
@@ -613,7 +612,7 @@ const Model1 = () => {
                                                 <Tooltip title="Insert Formula" placement="top" >
                                                     <IconButton onClick={() => {
                                                         setFormulaDetails({ tableKey, tabKey, productId: product.id }); setFormulaProductId(product.id); setShowFormula(true);
-                                                    }} style={{ marginLeft: '4px' }}>
+                                                    }} style={{ marginLeft: '4px' }} >
                                                         <CalculateIcon fontSize="small" />
                                                     </IconButton>
                                                 </Tooltip>
@@ -659,6 +658,7 @@ const Model1 = () => {
                         ))}
                     </tbody>
                 </table>
+
                 {/* This is the formula dialog  which is displayed when the insert formula icon is clicked*/}
                 {showFormula && (
                     <Dialog
@@ -700,7 +700,6 @@ const Model1 = () => {
                             <br></br>
                             <br></br>
                             {/* Render each dropdown dynamically based on selectedValues and operators */}
-                            {console.log(editingFormula[formulaDetails.tabKey][formulaDetails.tableKey][formulaDetails.productId].emptyArray)}
                             {editingFormula[formulaDetails.tabKey]?.[formulaDetails.tableKey]?.[formulaDetails.productId]?.emptyArray?.map((selectedValue, index) => (
                                 <div key={index} style={{ width: 400, display: 'flex', alignItems: 'center', marginBottom: 16 }}>
                                     {/* Operator Dropdown on the left */}
@@ -998,6 +997,30 @@ const Model1 = () => {
                                         <ListItemText primary="Input Values Manually" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
                                     </ListItem>
 
+                                    {/* Copy from Input Page */}
+                                    <ListItem
+                                        button
+                                        onClick={handleCopyFromInputPage}
+                                        sx={{
+                                            padding: '18px',
+                                            borderBottom: '1px solid #e0e0e0',
+                                            borderRadius: '8px',
+                                            marginBottom: '12px',
+                                            cursor: 'pointer', // Adds hand cursor on hover
+                                            '&:hover': {
+                                                backgroundColor: '#e3f2fd',
+                                                transform: 'scale(1.02)',
+                                                transition: 'transform 0.2s',
+                                            },
+                                        }}
+                                    >
+                                        <Typography variant="h6" color="primary" sx={{ marginRight: '12px', fontWeight: 'bold' }}>
+                                            2.
+                                        </Typography>
+                                        <AdjustIcon color="primary" sx={{ marginRight: '12px' }} />
+                                        <ListItemText primary="Copy from Input Page" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
+                                    </ListItem>
+
                                     {/* File Upload */}
                                     <Tooltip title="Only .csv or .xlsx formats allowed" arrow>
                                         <ListItem
@@ -1017,7 +1040,7 @@ const Model1 = () => {
                                             }}
                                         >
                                             <Typography variant="h6" color="primary" sx={{ marginRight: '12px', fontWeight: 'bold' }}>
-                                                2.
+                                                3.
                                             </Typography>
                                             <UploadFileIcon color="primary" sx={{ marginRight: '12px' }} />
                                             <ListItemText primary="Upload Data File" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
@@ -1042,7 +1065,7 @@ const Model1 = () => {
                                         }}
                                     >
                                         <Typography variant="h6" color="primary" sx={{ marginRight: '12px', fontWeight: 'bold' }}>
-                                            3.
+                                            4.
                                         </Typography>
                                         <TrendingUpIcon color="primary" sx={{ marginRight: '12px' }} />
                                         <ListItemText primary="Set Initial Values with Growth Rate" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
@@ -1052,28 +1075,6 @@ const Model1 = () => {
                                     <ListItem
                                         button
                                         onClick={() => handleInputMethodSelect('startEndValues')}
-                                        sx={{
-                                            padding: '18px',
-                                            borderBottom: '1px solid #e0e0e0',
-                                            borderRadius: '8px',
-                                            marginBottom: '12px',
-                                            cursor: 'pointer', // Adds hand cursor on hover
-                                            '&:hover': {
-                                                backgroundColor: '#e3f2fd',
-                                                transform: 'scale(1.02)',
-                                                transition: 'transform 0.2s',
-                                            },
-                                        }}
-                                    >
-                                        <Typography variant="h6" color="primary" sx={{ marginRight: '12px', fontWeight: 'bold' }}>
-                                            4.
-                                        </Typography>
-                                        <AdjustIcon color="primary" sx={{ marginRight: '12px' }} />
-                                        <ListItemText primary="Specify Starting and Target Values" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
-                                    </ListItem>
-                                    <ListItem
-                                        button
-                                        onClick={handleCopyFromInputPage}
                                         sx={{
                                             padding: '18px',
                                             borderRadius: '8px',
@@ -1090,8 +1091,12 @@ const Model1 = () => {
                                             5.
                                         </Typography>
                                         <AdjustIcon color="primary" sx={{ marginRight: '12px' }} />
-                                        <ListItemText primary="Copy from Input Page" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
+                                        <ListItemText primary="Specify Starting and Target Values" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
                                     </ListItem>
+
+
+                                    {/*Copy from Input Page*/}
+
                                 </List>
                             </DialogContent>
                             <DialogActions sx={{ padding: '16px', backgroundColor: '#f0f4fa' }}>
@@ -1456,8 +1461,6 @@ const Model1 = () => {
         const operatorsList = editingFormula[tabKey][tableKey][row_id].plusArray
         // Slice the operators array to exclude the first element (which is the default "+")
         const operatorSliced = operatorsList.slice(1);
-
-
         let res = {}; // Object to store the results of the forecast calculation
         if (timePeriod === 'Monthly') {
             // Loop through the months in the time period and create a key for each in the results object
@@ -1544,9 +1547,8 @@ const Model1 = () => {
         }
         setFormulas(editingFormula);
         setShowFormula(false);
-        console.log(Formulas);
-        console.log(res);
     };
+
 
 
 
