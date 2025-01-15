@@ -18,7 +18,7 @@
 }
  
 .tutorial-popup.bottom {
-    top: 100%;
+    top: -20px;
     left: 50%;
     transform: translateX(-50%);
 }
@@ -27,6 +27,7 @@
     left: -20px;
     top: 50%;
     transform: translateY(-50%);
+
 }
  
 .tutorial-popup.right {

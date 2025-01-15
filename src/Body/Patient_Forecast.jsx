@@ -5,6 +5,8 @@ import UploadIcon from '@mui/icons-material/Upload';
 import { useNavigate } from 'react-router-dom';
 import produce from "immer";
 import Select from '@mui/material/Select';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+
 import {
     TextField,
     IconButton,
@@ -44,6 +46,8 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import AdjustIcon from '@mui/icons-material/Adjust';
 import './ProductListpage.scss';
 import { MyContext } from './context';
+import { ta } from 'date-fns/locale';
+import { tab } from '@testing-library/user-event/dist/tab';
 
 const Patient_Forecast = () => {
     const { countries, setCountries, storeValues, setStoreValues, } = useContext(MyContext); // Multi-select for countries
@@ -111,6 +115,11 @@ const Patient_Forecast = () => {
         upside: { table1: false, table2: false, table3: false },
     });
 
+    const [selectedAction, setSelectedAction] = useState('');
+
+    const [tutorialActive, setTutorialActive] = useState(false);
+    const [currentStep, setCurrentStep] = useState(0); // Track the current step in the tutorial
+
     /*A component that renders a box with three buttons: one to show the preview of the tables,
       one to close the preview and  "Show Dashboard" button to navigate to the dashboard. */
     const Preview = () => {
@@ -174,6 +183,7 @@ const Patient_Forecast = () => {
                         },
                         transition: 'transform 0.4s ease, box-shadow 0.5s ease', // Smooth transition for hover
                     }}
+
                 >
                     <Box sx={{ flexGrow: 1 }}>
 
@@ -241,8 +251,9 @@ const Patient_Forecast = () => {
                                         transform: tabTableVisibility[currentTabKey].table1 ? 'rotate(45deg)' : 'rotate(0deg)', // Optional: rotate when toggling
                                     }}
                                     onClick={() => toggleTableVisibility(currentTabKey, 'table1')}
+
                                 >  {/* Display either Add or Remove icon depending on table1 visibility */}
-                                    {tabTableVisibility[currentTabKey].table1 ? <RemoveIcon /> : <AddIcon />}
+                                    {tabTableVisibility[currentTabKey].table1 ? <RemoveIcon className='open-card-selection'/> : <AddIcon className='card-selection' />}
                                 </IconButton>
                             </>
                         )}
@@ -374,6 +385,7 @@ const Patient_Forecast = () => {
                         },
                         transition: 'transform 0.4s ease, box-shadow 0.5s ease', // Smooth transition for hover
                     }}
+                    
                 >
                     <Box sx={{ flexGrow: 1 }}>
                         {isCardEditing3 ? (
@@ -521,7 +533,7 @@ const Patient_Forecast = () => {
                                     width: '600px'
                                 }}></th>
                             {columns.map((column) => (
-                                <th
+                                <th className='date-table-header'
                                     style={{
                                         minWidth: '150px',
                                         backgroundColor:
@@ -547,22 +559,23 @@ const Patient_Forecast = () => {
                                         justifyContent: 'center', alignItems: 'center', width: '720px'
                                     }}>
                                         <Tooltip title="Source Info" placement="top" >
-                                            <IconButton color="info" onClick={() => {
+                                            <IconButton className = 'info-button' color="info" onClick={() => {
 
                                                 // Store the id of the selected row
                                                 setselectedRowId(product.id);
                                                 setOpenInfoMethodDialog(true);
+                                                
                                             }}>
                                                 <InfoIcon fontSize="small" />
                                             </IconButton>
                                         </Tooltip>
                                         <Tooltip title="Data Input" placement="top">
-                                            <IconButton color="primary" onClick={() => {
+                                            <IconButton className = 'data-input-button' color="primary" onClick={() => {
                                                 setSelectedTab(tabKey);
                                                 setselectedRowId(product.id);
-                                                setOpenInputMethodDialog(true);
+                                                setOpenInputMethodDialog(true);                                                
                                             }}>
-                                                <CloudUploadIcon fontSize="small" />
+                                                <CloudUploadIcon fontSize="small"   />
                                             </IconButton>
                                         </Tooltip>
                                         {editingProductId === product.id ? (
@@ -594,13 +607,13 @@ const Patient_Forecast = () => {
                                                 </span>
 
                                                 <Tooltip title="Edit Row Name" placement="top" >
-                                                    <IconButton onClick={() => handleEditClick(product.id, tabKey, tableKey)} style={{ marginLeft: '8px' }}>
+                                                    <IconButton onClick={() => handleEditClick(product.id, tabKey, tableKey)} style={{ marginLeft: '8px' }} className='edit-row-name'>
                                                         <EditIcon fontSize="small" />
                                                     </IconButton>
                                                 </Tooltip>
                                                 {index !== tableProducts.length - 1 ? (
                                                     <Tooltip title="Add Row" placement="top" >
-                                                        <IconButton onClick={() => handleAddRow(tabKey, tableKey, product.id)} style={{ marginLeft: '8px' }}>
+                                                        <IconButton onClick={() => handleAddRow(tabKey, tableKey, product.id)} style={{ marginLeft: '8px' }} className='add-row'>
                                                             <AddIcon fontSize="small" />
                                                         </IconButton>
                                                     </Tooltip>
@@ -610,15 +623,16 @@ const Patient_Forecast = () => {
                                                     </IconButton>
                                                 )}
                                                 <Tooltip title="Insert Formula" placement="top" >
-                                                    <IconButton onClick={() => {
+                                                    <IconButton className='insert-formula' onClick={() => {
                                                         setFormulaDetails({ tableKey, tabKey, productId: product.id }); setFormulaProductId(product.id); setShowFormula(true);
-                                                    }} style={{ marginLeft: '4px' }}>
+                                                    }} style={{ marginLeft: '4px' }}
+                                                    >
                                                         <CalculateIcon fontSize="small" />
                                                     </IconButton>
                                                 </Tooltip>
 
                                                 <Tooltip title="Delete Row" placement="top" >
-                                                    <IconButton onClick={() => handleDeleteRow(product.id, tabKey, tableKey)} style={{ marginLeft: '8px' }}>
+                                                    <IconButton className='delete-row' onClick={() => handleDeleteRow(product.id, tabKey, tableKey)} style={{ marginLeft: '8px' }} >
                                                         <DeleteIcon fontSize="small" />
                                                     </IconButton>
                                                 </Tooltip>
@@ -634,6 +648,7 @@ const Patient_Forecast = () => {
                                 {columns.map((date) => (
                                     <td key={date}>
                                         <TextField
+                                            className='manual-input'
                                             type="number"
                                             value={
                                                 tabKey === 'downside'
@@ -2194,6 +2209,214 @@ const Patient_Forecast = () => {
         setValues3({});
 
     };
+    // const handleActionClick = (action) => {
+    //     setSelectedAction(action); // Set the clicked action
+    //     if (action === 'savedTemplates') {
+
+    //     } else {
+
+    //     }
+    //   };
+    const showTutorial = (step) => {
+        const targetElement = document.querySelector(step.target);
+        const popup = document.createElement('div');
+        popup.classList.add('tutorial-popup', step.placement);
+        popup.textContent = step.content;
+        targetElement.style.boxShadow = '0px 0px 10px 0px rgba(0,0,0,0.75)';
+        targetElement.style.border = '3px solid navy';
+        // Position the popup based on the target element and placement
+        const rect = targetElement.getBoundingClientRect();
+        let top, left;
+        if (step.placement === 'top') {
+            top = rect.top + rect.height + rect.height - 5;
+            left = rect.left + rect.width / 2 - popup.offsetWidth / 2;
+        } else if (step.placement === 'bottom') {
+            top = rect.bottom + 10;
+            left = rect.left + rect.width / 2 - popup.offsetWidth / 2;
+        } else if (step.placement === 'left') {
+            top = rect.top + 475;
+            left = rect.left - 350;
+        } else if (step.placement === 'right') {
+            top = rect.top + rect.height - popup.offsetHeight / 2;
+            left = rect.right;
+        }
+        popup.style.top = `${top}px`;
+        popup.style.left = `${left}px`;
+        document.body.appendChild(popup);
+        // Add a button to close the popup
+        const closeButton = document.createElement('button');
+        //closeButton.textContent = currentStep === steps.length - 1 ? 'Finish' : 'Skip Tutorial';
+        closeButton.textContent = currentStep === (tab_value === '' ? steps : Object.values(tabTableVisibility).some(category =>
+            Object.values(category).some(value => value === true)
+        ) ? steps3 : steps2).length - 1 ? 'Finish' : 'Skip Tutorial';
+        closeButton.style.marginRight = '40px';
+        closeButton.style.padding = '5px 10px';
+        closeButton.style.borderRadius = '5px';
+        closeButton.addEventListener('click', () => {
+            setTutorialActive(false);
+            setCurrentStep(0);
+            popup.remove();
+            targetElement.style.border = '';
+            targetElement.style.boxShadow = '';
+        });
+        popup.appendChild(closeButton);
+        const previousButton = document.createElement('button');
+        previousButton.textContent = 'Previous';
+        previousButton.style.padding = '5px 10px';
+        previousButton.style.marginRight = '5px';
+        previousButton.style.borderRadius = '5px';
+        previousButton.disabled = currentStep === 0; // Disable if first step
+        previousButton.style.backgroundColor = previousButton.disabled ? 'grey' : 'navy';
+        previousButton.addEventListener('click', () => {
+            popup.remove();
+            setCurrentStep(currentStep - 1); // Move to previous step
+            targetElement.style.border = '';
+            targetElement.style.boxShadow = '';
+        });
+        const nextButton = document.createElement('button');
+        nextButton.textContent = 'Next';
+        nextButton.style.padding = '5px 10px';
+        nextButton.style.borderRadius = '5px';
+        // nextButton.disabled = currentStep === steps.length - 1; // Disable if last step
+        nextButton.disabled = currentStep === (tab_value === '' ? steps : Object.values(tabTableVisibility).some(category =>
+            Object.values(category).some(value => value === true)
+        ) ? steps3 : steps2).length - 1; // Disable if last step
+        nextButton.style.backgroundColor = nextButton.disabled ? 'grey' : 'green';
+        nextButton.addEventListener('click', () => {
+            popup.remove();
+            setCurrentStep(currentStep + 1); // Move to next step
+            targetElement.style.border = '';
+            targetElement.style.boxShadow = '';
+        });
+        const buttons = document.createElement('div');
+        buttons.style.display = 'flex';
+        buttons.style.marginTop = '20px';
+        buttons.style.justifyContent = 'space-between';
+        buttons.style.width = '100%';
+        buttons.appendChild(closeButton);
+        const flexEndButtons = document.createElement('div');
+        flexEndButtons.style.display = 'flex';
+        flexEndButtons.appendChild(previousButton);
+        flexEndButtons.appendChild(nextButton);
+        buttons.appendChild(flexEndButtons);
+        popup.appendChild(buttons); // Insert the buttons after the text
+    };
+
+    const handleStartTutorial = () => {
+        setTutorialActive(true);
+        setCurrentStep(0); // Start from the first step
+    };
+
+    // useEffect(() => {
+    //     if (tutorialActive && currentStep < steps.length) {
+    //         showTutorial(steps[currentStep]);
+    //     }
+    // }, [tutorialActive, currentStep]);
+    useEffect(() => {
+        if (tab_value === '') {
+            if (tutorialActive && currentStep < steps.length) {
+                showTutorial(steps[currentStep]);
+            }
+        }
+        else if (Object.values(tabTableVisibility).some(category =>
+            Object.values(category).some(value => value === true)
+        )) {
+            if (tutorialActive && currentStep < steps3.length) {
+                showTutorial(steps3[currentStep]);
+            }
+        }
+        else {
+            if (tutorialActive && currentStep < steps2.length) {
+                showTutorial(steps2[currentStep]);
+            }
+        }
+    }, [tutorialActive, currentStep]);
+
+    const steps = [
+        {
+            index: 0,
+            target: '.tab-navigation',
+            content: 'Clicking here allows you to open the tab for a specific case.',
+            placement: 'bottom',
+        }
+    ];
+    const steps2 = [
+        {
+            index: 0,
+            target: '.tab-navigation',
+            content: 'Clicking here allows you to open the tab for a specific case.',
+            placement: 'bottom',
+        },
+        {
+            index: 1,
+            target: '.card-selection',
+            content: 'Clicking here allows you to display the data table asociated with that card.',
+            placement: 'right',
+        }
+
+    ];
+    const steps3 = [
+        {
+            index: 0,
+            target: '.tab-navigation',
+            content: 'Clicking here allows you to open the tab for a specific case.',
+            placement: 'bottom',
+        },
+        {
+            index: 1,
+            target: '.open-card-selection',
+            content: 'Clicking here allows you to close the data table asociated with this card.',
+            placement: 'right',
+        },
+        {
+            index: 2,
+            target: '.info-button',
+            content: 'Click here to enter data source information',
+            placement: 'right',
+        },
+        {
+            index: 3,
+            target: '.data-input-button',
+            content: 'Clicking here allows you to choose options to add data to table rows using a particular method.',
+            placement: 'right',
+        },
+        {
+            index: 4,
+            target: '.edit-row-name',
+            content: 'Clicking here allows you to edit row name.',
+            placement: 'right',
+        },
+        {
+            index: 5,
+            target: '.add-row',
+            content: 'Clicking here allows you to add a row below.',
+            placement: 'right',
+        },
+        {
+            index: 6,
+            target: '.insert-formula',
+            content: 'Clicking here allows you create and insert a formula.',
+            placement: 'right',
+        },
+        {
+            index: 7,
+            target: '.delete-row',
+            content: 'Clicking here allows you to delete the currunt row.',
+            placement: 'right',
+        },
+        {
+            index: 8,
+            target: '.manual-input',
+            content: 'Clicking here allows you to manually enter the data.',
+            placement: 'right',
+        },
+        {
+            index: 9,
+            target: '.date-table-header',
+            content: 'The column headers are dates that spanning the historical and forecast period.',
+            placement: 'right',
+        }
+    ];
 
 
     const [greeting, setGreeting] = useState('');
@@ -2218,6 +2441,14 @@ const Patient_Forecast = () => {
 
                 {/* Section displaying the greeting message */}
                 <div style={{ backgroundColor: 'white', padding: '0.5px', marginTop: '-25px', marginLeft: '10px' }}>
+                    <IconButton
+                        aria-label="help"
+                        sx={{ color: 'black', position: 'absolute', right: 0 }}
+                        title="Show tutorial"
+                        onClick={() => handleStartTutorial()}
+                    >
+                        <HelpOutlineIcon />
+                    </IconButton>
                     <h2 style={{ textAlign: 'left' }}>{greeting}, Welcome to the Patient Based Forecasting Page!</h2> </div>
                 <Button
                     variant="contained"
@@ -2242,7 +2473,7 @@ const Patient_Forecast = () => {
 
                     <Box sx={{ width: '90%', margin: '0 auto' }}>
 
-                        <Tabs tab_value={tab_value} onChange={handleTabChange} aria-label="basic tabs example"
+                        <Tabs tab_value={tab_value} onChange={handleTabChange} aria-label="basic tabs example" className='tab-navigation'
                             sx={{
                                 borderBottom: 2,
                                 borderColor: 'divider',
@@ -2298,6 +2529,7 @@ const Patient_Forecast = () => {
                                         position: 'sticky',
                                     }}
                                 >
+
                                     {/* Render Card1, Card2, and Card3 and render tables based on tabTableVisibility state */}
                                     {Card1()}
                                     {tabTableVisibility[currentTabKey].table1 && renderTable(currentTabKey, 'table1')}

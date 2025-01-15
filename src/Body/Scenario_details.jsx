@@ -19,6 +19,7 @@ import {
     Box, ListItemIcon, List, ListItem, ListItemText
 } from '@mui/material';
 import ApplyIcon from '@mui/icons-material/CheckCircle';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 import EditIcon from '@mui/icons-material/Edit';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
@@ -41,6 +42,7 @@ import Patient_Forecast_Input from './Patient_Forecast_Input';
 import Header from '../Header/Header'
 import { set } from 'date-fns';
 import { useLocation } from 'react-router-dom';
+
 
 
 const initialNodes = [
@@ -98,10 +100,10 @@ const ForecastAndFlowDiagram = (props) => {
     const [forecastStartMonth, setForecastStartMonth] = useState(dayjs());
     const [forecastMetric, setForecastMetric] = useState('Patients');
     const [currency, setCurrency] = useState('EUR');
-    const [forecastCycle, setForecastCycle] = useState(scenario.forecastScenario);
-    const [country, setCountry] = useState(scenario.country);
+    const [forecastCycle, setForecastCycle] = useState(scenario?.forecastScenario ? scenario.forecastScenario : '');
+    const [country, setCountry] = useState(scenario?.country ? scenario.country : '');
     const [isProductTableCollapsed, setIsProductTableCollapsed] = useState(false);
-    const [therapeuticArea, setTherapeuticArea] = useState(scenario.therapeuticArea);
+    const [therapeuticArea, setTherapeuticArea] = useState(scenario?.therapeuticArea? scenario.therapeuticArea: '');
     const [showHistoricalCalendar, setShowHistoricalCalendar] = useState(false);
     const [showForecastCalendar, setShowForecastCalendar] = useState(false);
     const [historicalView, setHistoricalView] = useState('year'); // Track the view state
@@ -120,11 +122,11 @@ const ForecastAndFlowDiagram = (props) => {
         },
     ]);
     useEffect(() => {
-      console.log(fromHistoricalDate);
-    
+        console.log(fromHistoricalDate);
+
     }, [fromHistoricalDate])
-    
-    
+
+
     //const [scenarioName, setScenarioName] = useState(predefinedScenarioNames[0]);
     const [indicationColumns, setIndicationColumns] = useState(defaultIndicationColumns);
     //const [editMode, setEditMode] = useState(false); // Track if edit is enabled
@@ -154,24 +156,29 @@ const ForecastAndFlowDiagram = (props) => {
     const [isEditingScenarioName, setIsEditingScenarioName] = useState(false);
     const [editedScenarioName, setEditedScenarioName] = useState('');
 
+    const [selectedAction, setSelectedAction] = useState('');
+
+    const [tutorialActive, setTutorialActive] = useState(false);
+    const [currentStep, setCurrentStep] = useState(0); // Track the current step in the tutorial
+
 
     // Save the edited scenario name
-   // Save the edited scenario name
-const handleSaveScenarioName = () => {
-    setScenarioName(editedScenarioName);
-    setIsEditingScenarioName(false);
-};
+    // Save the edited scenario name
+    const handleSaveScenarioName = () => {
+        setScenarioName(editedScenarioName);
+        setIsEditingScenarioName(false);
+    };
 
-// Cancel editing and revert any changes
-const handleCancelScenarioName = () => {
-    setEditedScenarioName(scenarioName); // Revert changes to the original scenario name
-    setIsEditingScenarioName(false);
-};
+    // Cancel editing and revert any changes
+    const handleCancelScenarioName = () => {
+        setEditedScenarioName(scenarioName); // Revert changes to the original scenario name
+        setIsEditingScenarioName(false);
+    };
 
-// Handle changes to the edited scenario name
-const handleEditedScenarioNameChange = (event) => {
-    setEditedScenarioName(event.target.value);
-};
+    // Handle changes to the edited scenario name
+    const handleEditedScenarioNameChange = (event) => {
+        setEditedScenarioName(event.target.value);
+    };
     const handleForecastCycleChange = (event) => {
         setForecastCycle(event.target.value);
     };
@@ -442,12 +449,239 @@ const handleEditedScenarioNameChange = (event) => {
     const onEdgesChange = useCallback((changes) => setEdges((eds) => applyEdgeChanges(changes, eds)), []);
     const onConnect = useCallback((params) => setEdges((eds) => addEdge({ ...params, animated: true }, eds)), []);
 
+    const showTutorial = (step) => {
+        const targetElement = document.querySelector(step.target);
+        const popup = document.createElement('div');
+        popup.classList.add('tutorial-popup', step.placement);
+        popup.textContent = step.content;
+        targetElement.style.boxShadow = '0px 0px 10px 0px rgba(0,0,0,0.75)';
+        targetElement.style.border = '3px solid navy';
+        // Position the popup based on the target element and placement
+        const rect = targetElement.getBoundingClientRect();
+        let top, left;
+        if (step.placement === 'top') {
+            top = rect.top + rect.height + rect.height -5  ;
+            left = rect.left + rect.width / 2 - popup.offsetWidth / 2;
+        } else if (step.placement === 'bottom') {
+            top = rect.bottom + 10;
+            left = rect.right ;
+        } else if (step.placement === 'left') {
+            top = rect.top + 475;
+            left = rect.left - 350;   
+        } else if (step.placement === 'right') {
+            top = rect.top + rect.height - popup.offsetHeight / 2 ;
+            left = rect.right;
+        }
+        popup.style.top = `${top}px`;
+        popup.style.left = `${left}px`;
+        document.body.appendChild(popup);
+        // Add a button to close the popup
+        const closeButton = document.createElement('button');
+        closeButton.textContent = currentStep === steps.length - 1 ? 'Finish' : 'Skip Tutorial';
+        //closeButton.textContent = currentStep === (selectedAction === '' ? steps : selectedAction === 'savedTemplates' ? steps3 : steps2).length - 1 ? 'Finish' : 'Skip Tutorial';
+        closeButton.style.marginRight = '40px';
+        closeButton.style.padding = '5px 10px';
+        closeButton.style.borderRadius = '5px';
+        closeButton.addEventListener('click', () => {
+            setTutorialActive(false);
+            setCurrentStep(0);
+            popup.remove();
+            targetElement.style.border = '';
+            targetElement.style.boxShadow = '';
+        });
+        popup.appendChild(closeButton);
+        const previousButton = document.createElement('button');
+        previousButton.textContent = 'Previous';
+        previousButton.style.padding = '5px 10px';
+        previousButton.style.marginRight = '5px';
+        previousButton.style.borderRadius = '5px';
+        previousButton.disabled = currentStep === 0; // Disable if first step
+        previousButton.style.backgroundColor = previousButton.disabled ? 'grey' : 'navy';
+        previousButton.addEventListener('click', () => {
+            popup.remove();
+            setCurrentStep(currentStep - 1); // Move to previous step
+            targetElement.style.border = '';
+            targetElement.style.boxShadow = '';
+        });
+        const nextButton = document.createElement('button');
+        nextButton.textContent = 'Next';
+        nextButton.style.padding = '5px 10px';
+        nextButton.style.borderRadius = '5px';
+        nextButton.disabled = currentStep === steps.length - 1; // Disable if last step
+        // nextButton.disabled = currentStep === (selectedAction === '' ? steps : selectedAction === 'savedTemplates' ? steps3 : steps2).length - 1; // Disable if last step
+        nextButton.style.backgroundColor = nextButton.disabled ? 'grey' : 'green';
+        nextButton.addEventListener('click', () => {
+            popup.remove();
+            setCurrentStep(currentStep + 1); // Move to next step
+            targetElement.style.border = '';
+            targetElement.style.boxShadow = '';
+        });
+        const buttons = document.createElement('div');
+        buttons.style.display = 'flex';
+        buttons.style.marginTop = '20px';
+        buttons.style.justifyContent = 'space-between';
+        buttons.style.width = '100%';
+        buttons.appendChild(closeButton);
+        const flexEndButtons = document.createElement('div');
+        flexEndButtons.style.display = 'flex';
+        flexEndButtons.appendChild(previousButton);
+        flexEndButtons.appendChild(nextButton);
+        buttons.appendChild(flexEndButtons);
+        popup.appendChild(buttons); // Insert the buttons after the text
+    };
+
+    const handleStartTutorial = () => {
+        setTutorialActive(true);
+        setCurrentStep(0); // Start from the first step
+    };
+
+    useEffect(() => {
+        if (tutorialActive && currentStep < steps.length) {
+            showTutorial(steps[currentStep]);
+        }
+    }, [tutorialActive, currentStep]);
+    // useEffect(() => {
+    //     if (selectedAction === '') {
+    //         if (tutorialActive && currentStep < steps.length) {
+    //             showTutorial(steps[currentStep]);
+    //         }
+    //     }
+    //     else if (selectedAction === 'savedTemplates') {
+    //         if (tutorialActive && currentStep < steps3.length) {
+    //             showTutorial(steps3[currentStep]);
+    //         }
+    //     }
+    //     else {
+    //         if (tutorialActive && currentStep < steps2.length) {
+    //             showTutorial(steps2[currentStep]);
+    //         }
+    //     }
+    // }, [tutorialActive, currentStep]);
+
+    const steps = [
+        {
+            index: 0,
+            target: '.edit-button',
+            content: 'Clicking here allows you to change the scenario name.',
+            placement: 'right',
+        },
+        {
+            index: 1,
+            target: '.scenario-details-button',
+            content: 'You can use these dropdowns to change the scenario details.',
+            placement: 'right',
+        },
+        {
+            index: 2,
+            target: '.scenario-parameters-button',
+            content: 'You can use these dropdowns to change the scenario parameter details.',
+            placement: 'right',
+        },
+        {
+            index: 3,
+            target: '.time-period-button',
+            content: 'You can use these dropdowns to change the scenario time period details.',
+            placement: 'top',
+        },
+        {
+            index: 4,
+            target: '.input-table-container',
+            content: 'You can click on the add parameter button to add a new parameter.\nA table will be displayed to add the parameter details for each case.',
+            placement: 'top',
+        },
+        {
+            index: 5,
+            target: '.product-indication-table-container',
+            content: 'clicking on this button displays the product-indication table.',
+            placement: 'left',
+        }
+        
+    ];
+    //   const steps2 = [
+    //     {
+    //       index: 0,
+    //       target: '.copy-button',
+    //       content: 'Clicking here allow you to copy the scenario from submitted scenarios.',
+    //       placement: 'right',
+    //     },
+    //     {
+    //       index: 1,
+    //       target: '.saved-button',
+    //       content: 'Clicking here allow you to copy the scenario from saved scenarios.',
+    //       placement: 'right',
+    //     },
+    //     {
+    //       index: 2,
+    //       target: '.saved-template',
+    //       content: 'Clicking here allow you to see the scenario templates.',
+    //       placement: 'right',
+    //     },
+    //     {
+    //       index: 3,
+    //       target: '.filter-button',
+    //       content: 'To filter out the table based on the selected filters.',
+    //       placement: 'right',
+    //     },
+    //     {
+    //       index: 4,
+    //       target: '.create-button',
+    //       content: 'Select all the filters and click here to create a new scenario.',
+    //       placement: 'left',
+    //     },
+    //     {
+    //       index: 5,
+    //       target: '.select-button',
+    //       content: 'Clicking here allow you to edit this scenario.',
+    //       placement: 'left',
+    //     }
+    //   ];
+    //   const steps3 = [
+    //     {
+    //       index: 0,
+    //       target: '.copy-button',
+    //       content: 'Clicking here allow you to copy the scenario from submitted scenarios.',
+    //       placement: 'right',
+    //     },
+    //     {
+    //       index: 1,
+    //       target: '.saved-button',
+    //       content: 'Clicking here allow you to copy the scenario from saved scenarios.',
+    //       placement: 'right',
+    //     },
+    //     {
+    //       index: 2,
+    //       target: '.saved-template',
+    //       content: 'Clicking here allow you to see the scenario templates.',
+    //       placement: 'right',
+    //     },
+    //     {
+    //       index: 3,
+    //       target: '.filter-button',
+    //       content: 'To filter out the table based on the selected filters.',
+    //       placement: 'right',
+    //     },
+    //     {
+    //       index: 4,
+    //       target: '.folder-button',
+    //       content: 'Clicking here allow you to use this template to create a scenario.',
+    //       placement: 'right',
+    //     }
+    // ];
+
     return (
 
         <div className="content">
             {activeTab === 'controlSheet' && (
                 <Box sx={{ display: 'flex', padding: '20px', flexDirection: 'column', marginTop: '-35px' }} >
-                    <h1 className="greeting">{greeting}, Welcome to the Forecast & Worksheet Selections</h1>
+                    <IconButton
+                        aria-label="help"
+                        sx={{ color: 'black', position: 'absolute', right: 0 }}
+                        title="Show tutorial"
+                        onClick={() => handleStartTutorial()}
+                    >
+                        <HelpOutlineIcon />
+                    </IconButton>
+                    <h2 className="greeting">{greeting}, Welcome to the Forecast & Worksheet Selections</h2>
 
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
                         <Button
@@ -468,7 +702,7 @@ const handleEditedScenarioNameChange = (event) => {
                                 <Box display="flex" alignItems="center" gap="15px" ml={2} p={2}>
                                     <TextField
                                         size="small"
-                                       
+
                                         label="Scenario Name"
                                         value={isEditingScenarioName ? editedScenarioName : scenarioName}
                                         onChange={handleEditedScenarioNameChange} // Update value during editing
@@ -501,65 +735,68 @@ const handleEditedScenarioNameChange = (event) => {
                                                             setEditedScenarioName(scenarioName); // Initialize with the current value
                                                         }}
                                                     >
-                                                        <EditIcon />
+                                                        <EditIcon className='edit-button' />
                                                     </IconButton>
                                                 </InputAdornment>
                                             ),
                                             readOnly: !isEditingScenarioName, // Set input as read-only unless editing
                                         }}
                                     />
-                                    <TextField
-                                        select
-                                        size="small"
-                                        sx={{ width: '200px' }}
-                                        label="Forecast Cycle"
-                                        value={forecastCycle}
-                                        onChange={handleForecastCycleChange}
-                                        variant="outlined"
-                                        margin="normal"
-                                    >
-                                        {forecastCycleOptions.map((cycle) => (
-                                            <MenuItem key={cycle} value={cycle}>
-                                                {cycle}
-                                            </MenuItem>
-                                        ))}
-                                    </TextField>
+                                    <Box className="scenario-details-button">
+                                        <TextField
+                                            select
+                                            size="small"
+                                            sx={{ width: '200px', mr: 2 }}
+                                            label="Forecast Cycle"
+                                            value={forecastCycle}
+                                            onChange={handleForecastCycleChange}
+                                            variant="outlined"
+                                            margin="normal"
 
+                                        >
+                                            {forecastCycleOptions.map((cycle) => (
+                                                <MenuItem key={cycle} value={cycle}>
+                                                    {cycle}
+                                                </MenuItem>
+                                            ))}
+                                        </TextField>
 
-                                    <TextField
-                                        select
-                                        size="small"
-                                        sx={{ width: '200px' }}
-                                        label="Country"
-                                        value={country}
-                                        onChange={handleCountryChange}
-                                        variant="outlined"
-                                        margin="normal"
-                                    >
-                                        {countryOptions.map((countryName) => (
-                                            <MenuItem key={countryName} value={countryName}>
-                                                {countryName}
-                                            </MenuItem>
-                                        ))}
-                                    </TextField>
+                                        <TextField
+                                            select
+                                            size="small"
+                                            sx={{ width: '200px', mr: 2 }}
+                                            label="Country"
+                                            value={country}
+                                            onChange={handleCountryChange}
+                                            variant="outlined"
+                                            margin="normal"
 
+                                        >
+                                            {countryOptions.map((countryName) => (
+                                                <MenuItem key={countryName} value={countryName}>
+                                                    {countryName}
+                                                </MenuItem>
+                                            ))}
+                                        </TextField>
 
-                                    <TextField
-                                        select
-                                        size="small"
-                                        sx={{ width: '200px' }}
-                                        label="Therapeutic Area"
-                                        value={therapeuticArea}
-                                        onChange={handleTherapeuticAreaChange}
-                                        variant="outlined"
-                                        margin="normal"
-                                    >
-                                        {therapeuticAreaOptions.map((area) => (
-                                            <MenuItem key={area} value={area}>
-                                                {area}
-                                            </MenuItem>
-                                        ))}
-                                    </TextField>
+                                        <TextField
+                                            select
+                                            size="small"
+                                            sx={{ width: '200px' }}
+                                            label="Therapeutic Area"
+                                            value={therapeuticArea}
+                                            onChange={handleTherapeuticAreaChange}
+                                            variant="outlined"
+                                            margin="normal"
+
+                                        >
+                                            {therapeuticAreaOptions.map((area) => (
+                                                <MenuItem key={area} value={area}>
+                                                    {area}
+                                                </MenuItem>
+                                            ))}
+                                        </TextField>
+                                    </Box>
                                 </Box>
                             </Grid>
                         </Grid>
@@ -569,11 +806,12 @@ const handleEditedScenarioNameChange = (event) => {
                         <Grid item xs={12}>
                             <h2>Scenario Parameters</h2>
                         </Grid>
-                        <Box display="flex" alignItems="center" gap="15px" ml={2} p={2} >
+                        <Box display="flex" alignItems="center"  ml={2} p={2} className="scenario-parameters-button">
+                           
                             <TextField
                                 select
                                 size="small"
-                                sx={{ width: '200px' }}
+                                sx={{ width: '200px',mr:2 }}
                                 value={forecastMetric}
                                 onChange={(e) => setForecastMetric(e.target.value)}
                                 label="Forecast Metric"
@@ -597,6 +835,7 @@ const handleEditedScenarioNameChange = (event) => {
                                 <MenuItem value="USD">USD</MenuItem>
                                 <MenuItem value="GBP">GBP</MenuItem>
                             </TextField>
+                           
                         </Box>
                     </Grid>
                     <Grid container spacing={2} >
@@ -604,7 +843,7 @@ const handleEditedScenarioNameChange = (event) => {
                             <h2>Time Period</h2>
                         </Grid>
 
-                        <Box display="flex" alignItems="center" gap="15px" ml={2} p={2} >
+                        <Box display="flex" alignItems="center"  ml={2} p={2} className="time-period-button" >
                             <TextField
                                 select
                                 label="Time Period"
@@ -612,7 +851,7 @@ const handleEditedScenarioNameChange = (event) => {
                                 onChange={(e) => setTimePeriod(e.target.value)}
                                 size="small"
                                 variant="outlined"
-                                sx={{ width: '200px' }}
+                                sx={{ width: '200px',mr:2 }}
                             >
                                 <MenuItem value="Monthly">Monthly</MenuItem>
                                 <MenuItem value="Yearly">Yearly</MenuItem>
@@ -625,7 +864,7 @@ const handleEditedScenarioNameChange = (event) => {
                                     onChange={(newValue) => setFromHistoricalDate(newValue)}
                                     format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
                                     slotProps={{ textField: { size: 'small' } }}
-                                    sx={{ width: '200px' }}
+                                    sx={{ width: '200px',mr:2 }}
                                     maxDate={toForecastDate}
                                 />
                                 <DatePicker
@@ -635,7 +874,7 @@ const handleEditedScenarioNameChange = (event) => {
                                     onChange={(newValue) => setFromForecastDate(newValue)}
                                     format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
                                     slotProps={{ textField: { size: 'small' } }}
-                                    sx={{ width: '200px' }}
+                                    sx={{ width: '200px',mr:2 }}
                                     minDate={fromHistoricalDate}
 
                                 />
@@ -656,19 +895,21 @@ const handleEditedScenarioNameChange = (event) => {
                         <Grid item xs={12}>
                             <h2>Input Table</h2>
                         </Grid>
-                        <Box>
+                        <Box className="input-table-container">
                             <Patient_Forecast_Input />
                         </Box>
                     </Box>
 
                     <div className="section">
                         <h2>Product List</h2>
-                        <Box display="flex" justifyContent={'flex-end'} >
+                        <Box display="flex" justifyContent={'flex-end'}  >
                             <Button
                                 variant="outlined"
                                 size='small'
                                 startIcon={isProductListVisible ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                                 onClick={toggleProductListVisibility}
+                                className='product-indication-table-container'
+                                
                             >
                                 {isProductListVisible ? 'Collapse' : 'Expand'}
                             </Button>
