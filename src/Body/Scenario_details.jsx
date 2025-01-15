@@ -103,7 +103,7 @@ const ForecastAndFlowDiagram = (props) => {
     const [forecastCycle, setForecastCycle] = useState(scenario?.forecastScenario ? scenario.forecastScenario : '');
     const [country, setCountry] = useState(scenario?.country ? scenario.country : '');
     const [isProductTableCollapsed, setIsProductTableCollapsed] = useState(false);
-    const [therapeuticArea, setTherapeuticArea] = useState(scenario?.therapeuticArea? scenario.therapeuticArea: '');
+    const [therapeuticArea, setTherapeuticArea] = useState(scenario?.therapeuticArea ? scenario.therapeuticArea : '');
     const [showHistoricalCalendar, setShowHistoricalCalendar] = useState(false);
     const [showForecastCalendar, setShowForecastCalendar] = useState(false);
     const [historicalView, setHistoricalView] = useState('year'); // Track the view state
@@ -449,6 +449,42 @@ const ForecastAndFlowDiagram = (props) => {
     const onEdgesChange = useCallback((changes) => setEdges((eds) => applyEdgeChanges(changes, eds)), []);
     const onConnect = useCallback((params) => setEdges((eds) => addEdge({ ...params, animated: true }, eds)), []);
 
+    const showTutorial2 = () => {
+        const step = {
+            index: 0,
+            target: '.tutorial-btn',
+            content: 'You can always see this tutorial by clicking on this button.',
+            placement: 'left',
+        };
+        const targetElement = document.querySelector(step.target);
+        const popup = document.createElement('div');
+        popup.classList.add('tutorial-popup', step.placement);
+        popup.textContent = step.content;
+        targetElement.style.boxShadow = '0px 0px 10px 0px rgba(0,0,0,0.75)';
+        targetElement.style.border = '3px solid navy';
+        // Position the popup based on the target element and placement
+        const rect = targetElement.getBoundingClientRect();
+        let top, left;
+        top = rect.top + rect.height / 2 - popup.offsetHeight / 2;
+        left = rect.left - 350;
+        popup.style.top = `${top}px`;
+        popup.style.left = `${left}px`;
+        document.body.appendChild(popup);
+        // Add a button to close the popup
+        const closeButton = document.createElement('button');
+        closeButton.textContent = 'Cancel';
+        closeButton.style.marginRight = '40px';
+        closeButton.style.padding = '5px 10px';
+        closeButton.style.borderRadius = '5px';
+        closeButton.addEventListener('click', () => {
+            setTutorialActive(false);
+            setCurrentStep(0);
+            popup.remove();
+            targetElement.style.border = '';
+            targetElement.style.boxShadow = '';
+        });
+        popup.appendChild(closeButton);
+    };
     const showTutorial = (step) => {
         const targetElement = document.querySelector(step.target);
         const popup = document.createElement('div');
@@ -460,16 +496,16 @@ const ForecastAndFlowDiagram = (props) => {
         const rect = targetElement.getBoundingClientRect();
         let top, left;
         if (step.placement === 'top') {
-            top = rect.top + rect.height + rect.height -5  ;
+            top = rect.top + rect.height + rect.height - 5;
             left = rect.left + rect.width / 2 - popup.offsetWidth / 2;
         } else if (step.placement === 'bottom') {
             top = rect.bottom + 10;
-            left = rect.right ;
+            left = rect.right;
         } else if (step.placement === 'left') {
             top = rect.top + 475;
-            left = rect.left - 350;   
+            left = rect.left - 350;
         } else if (step.placement === 'right') {
-            top = rect.top + rect.height - popup.offsetHeight / 2 ;
+            top = rect.top + rect.height - popup.offsetHeight / 2;
             left = rect.right;
         }
         popup.style.top = `${top}px`;
@@ -488,6 +524,7 @@ const ForecastAndFlowDiagram = (props) => {
             popup.remove();
             targetElement.style.border = '';
             targetElement.style.boxShadow = '';
+            showTutorial2();
         });
         popup.appendChild(closeButton);
         const previousButton = document.createElement('button');
@@ -595,7 +632,7 @@ const ForecastAndFlowDiagram = (props) => {
             content: 'clicking on this button displays the product-indication table.',
             placement: 'left',
         }
-        
+
     ];
     //   const steps2 = [
     //     {
@@ -673,14 +710,14 @@ const ForecastAndFlowDiagram = (props) => {
         <div className="content">
             {activeTab === 'controlSheet' && (
                 <Box sx={{ display: 'flex', padding: '20px', flexDirection: 'column', marginTop: '-35px' }} >
-                    <IconButton
-                        aria-label="help"
-                        sx={{ color: 'black', position: 'absolute', right: 0 }}
-                        title="Show tutorial"
+                    <Typography
+                        className='tutorial-btn'
+                        variant="body2"
+                        sx={{ color: 'black', position: 'absolute', right: 0, cursor: 'pointer', mt: 4, mr: 2 }}
                         onClick={() => handleStartTutorial()}
                     >
-                        <HelpOutlineIcon />
-                    </IconButton>
+                        Show tutorial
+                    </Typography>
                     <h2 className="greeting">{greeting}, Welcome to the Forecast & Worksheet Selections</h2>
 
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
@@ -806,12 +843,12 @@ const ForecastAndFlowDiagram = (props) => {
                         <Grid item xs={12}>
                             <h2>Scenario Parameters</h2>
                         </Grid>
-                        <Box display="flex" alignItems="center"  ml={2} p={2} className="scenario-parameters-button">
-                           
+                        <Box display="flex" alignItems="center" ml={2} p={2} className="scenario-parameters-button">
+
                             <TextField
                                 select
                                 size="small"
-                                sx={{ width: '200px',mr:2 }}
+                                sx={{ width: '200px', mr: 2 }}
                                 value={forecastMetric}
                                 onChange={(e) => setForecastMetric(e.target.value)}
                                 label="Forecast Metric"
@@ -835,7 +872,7 @@ const ForecastAndFlowDiagram = (props) => {
                                 <MenuItem value="USD">USD</MenuItem>
                                 <MenuItem value="GBP">GBP</MenuItem>
                             </TextField>
-                           
+
                         </Box>
                     </Grid>
                     <Grid container spacing={2} >
@@ -843,7 +880,7 @@ const ForecastAndFlowDiagram = (props) => {
                             <h2>Time Period</h2>
                         </Grid>
 
-                        <Box display="flex" alignItems="center"  ml={2} p={2} className="time-period-button" >
+                        <Box display="flex" alignItems="center" ml={2} p={2} className="time-period-button" >
                             <TextField
                                 select
                                 label="Time Period"
@@ -851,7 +888,7 @@ const ForecastAndFlowDiagram = (props) => {
                                 onChange={(e) => setTimePeriod(e.target.value)}
                                 size="small"
                                 variant="outlined"
-                                sx={{ width: '200px',mr:2 }}
+                                sx={{ width: '200px', mr: 2 }}
                             >
                                 <MenuItem value="Monthly">Monthly</MenuItem>
                                 <MenuItem value="Yearly">Yearly</MenuItem>
@@ -864,7 +901,7 @@ const ForecastAndFlowDiagram = (props) => {
                                     onChange={(newValue) => setFromHistoricalDate(newValue)}
                                     format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
                                     slotProps={{ textField: { size: 'small' } }}
-                                    sx={{ width: '200px',mr:2 }}
+                                    sx={{ width: '200px', mr: 2 }}
                                     maxDate={toForecastDate}
                                 />
                                 <DatePicker
@@ -874,7 +911,7 @@ const ForecastAndFlowDiagram = (props) => {
                                     onChange={(newValue) => setFromForecastDate(newValue)}
                                     format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
                                     slotProps={{ textField: { size: 'small' } }}
-                                    sx={{ width: '200px',mr:2 }}
+                                    sx={{ width: '200px', mr: 2 }}
                                     minDate={fromHistoricalDate}
 
                                 />
@@ -909,7 +946,7 @@ const ForecastAndFlowDiagram = (props) => {
                                 startIcon={isProductListVisible ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                                 onClick={toggleProductListVisibility}
                                 className='product-indication-table-container'
-                                
+
                             >
                                 {isProductListVisible ? 'Collapse' : 'Expand'}
                             </Button>

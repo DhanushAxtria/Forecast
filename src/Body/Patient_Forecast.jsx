@@ -253,7 +253,7 @@ const Patient_Forecast = () => {
                                     onClick={() => toggleTableVisibility(currentTabKey, 'table1')}
 
                                 >  {/* Display either Add or Remove icon depending on table1 visibility */}
-                                    {tabTableVisibility[currentTabKey].table1 ? <RemoveIcon className='open-card-selection'/> : <AddIcon className='card-selection' />}
+                                    {tabTableVisibility[currentTabKey].table1 ? <RemoveIcon className='open-card-selection' /> : <AddIcon className='card-selection' />}
                                 </IconButton>
                             </>
                         )}
@@ -385,7 +385,7 @@ const Patient_Forecast = () => {
                         },
                         transition: 'transform 0.4s ease, box-shadow 0.5s ease', // Smooth transition for hover
                     }}
-                    
+
                 >
                     <Box sx={{ flexGrow: 1 }}>
                         {isCardEditing3 ? (
@@ -559,23 +559,23 @@ const Patient_Forecast = () => {
                                         justifyContent: 'center', alignItems: 'center', width: '720px'
                                     }}>
                                         <Tooltip title="Source Info" placement="top" >
-                                            <IconButton className = 'info-button' color="info" onClick={() => {
+                                            <IconButton className='info-button' color="info" onClick={() => {
 
                                                 // Store the id of the selected row
                                                 setselectedRowId(product.id);
                                                 setOpenInfoMethodDialog(true);
-                                                
+
                                             }}>
                                                 <InfoIcon fontSize="small" />
                                             </IconButton>
                                         </Tooltip>
                                         <Tooltip title="Data Input" placement="top">
-                                            <IconButton className = 'data-input-button' color="primary" onClick={() => {
+                                            <IconButton className='data-input-button' color="primary" onClick={() => {
                                                 setSelectedTab(tabKey);
                                                 setselectedRowId(product.id);
-                                                setOpenInputMethodDialog(true);                                                
+                                                setOpenInputMethodDialog(true);
                                             }}>
-                                                <CloudUploadIcon fontSize="small"   />
+                                                <CloudUploadIcon fontSize="small" />
                                             </IconButton>
                                         </Tooltip>
                                         {editingProductId === product.id ? (
@@ -2217,6 +2217,42 @@ const Patient_Forecast = () => {
 
     //     }
     //   };
+    const showTutorial2 = () => {
+        const step = {
+            index: 0,
+            target: '.tutorial-btn',
+            content: 'You can always see this tutorial by clicking on this button.',
+            placement: 'left',
+        };
+        const targetElement = document.querySelector(step.target);
+        const popup = document.createElement('div');
+        popup.classList.add('tutorial-popup', step.placement);
+        popup.textContent = step.content;
+        targetElement.style.boxShadow = '0px 0px 10px 0px rgba(0,0,0,0.75)';
+        targetElement.style.border = '3px solid navy';
+        // Position the popup based on the target element and placement
+        const rect = targetElement.getBoundingClientRect();
+        let top, left;
+        top = rect.top + rect.height / 2 - popup.offsetHeight / 2;
+        left = rect.left - 350;
+        popup.style.top = `${top}px`;
+        popup.style.left = `${left}px`;
+        document.body.appendChild(popup);
+        // Add a button to close the popup
+        const closeButton = document.createElement('button');
+        closeButton.textContent = 'Cancel';
+        closeButton.style.marginRight = '40px';
+        closeButton.style.padding = '5px 10px';
+        closeButton.style.borderRadius = '5px';
+        closeButton.addEventListener('click', () => {
+            setTutorialActive(false);
+            setCurrentStep(0);
+            popup.remove();
+            targetElement.style.border = '';
+            targetElement.style.boxShadow = '';
+        });
+        popup.appendChild(closeButton);
+    };
     const showTutorial = (step) => {
         const targetElement = document.querySelector(step.target);
         const popup = document.createElement('div');
@@ -2258,6 +2294,7 @@ const Patient_Forecast = () => {
             popup.remove();
             targetElement.style.border = '';
             targetElement.style.boxShadow = '';
+            showTutorial2();
         });
         popup.appendChild(closeButton);
         const previousButton = document.createElement('button');
@@ -2441,14 +2478,14 @@ const Patient_Forecast = () => {
 
                 {/* Section displaying the greeting message */}
                 <div style={{ backgroundColor: 'white', padding: '0.5px', marginTop: '-25px', marginLeft: '10px' }}>
-                    <IconButton
-                        aria-label="help"
-                        sx={{ color: 'black', position: 'absolute', right: 0 }}
-                        title="Show tutorial"
+                    <Typography
+                        className='tutorial-btn'
+                        variant="body2"
+                        sx={{ color: 'black', position: 'absolute', right: 0, cursor: 'pointer', mt: 4, mr: 2 }}
                         onClick={() => handleStartTutorial()}
                     >
-                        <HelpOutlineIcon />
-                    </IconButton>
+                        Show tutorial
+                    </Typography>
                     <h2 style={{ textAlign: 'left' }}>{greeting}, Welcome to the Patient Based Forecasting Page!</h2> </div>
                 <Button
                     variant="contained"

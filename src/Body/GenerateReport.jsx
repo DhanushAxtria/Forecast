@@ -189,7 +189,42 @@ export default function GenerateReport() {
     const handleSubMenuClose = () => {
         setSubMenuAnchorEl(null); // Close submenu only
     };
-
+    const showTutorial2 = () => {
+        const step = {
+            index: 0,
+            target: '.tutorial-btn',
+            content: 'You can always see this tutorial by clicking on this button.',
+            placement: 'left',
+        };
+        const targetElement = document.querySelector(step.target);
+        const popup = document.createElement('div');
+        popup.classList.add('tutorial-popup', step.placement);
+        popup.textContent = step.content;
+        targetElement.style.boxShadow = '0px 0px 10px 0px rgba(0,0,0,0.75)';
+        targetElement.style.border = '3px solid navy';
+        // Position the popup based on the target element and placement
+        const rect = targetElement.getBoundingClientRect();
+        let top, left;
+        top = rect.top + rect.height / 2 - popup.offsetHeight / 2;
+        left = rect.left - 350;
+        popup.style.top = `${top}px`;
+        popup.style.left = `${left}px`;
+        document.body.appendChild(popup);
+        // Add a button to close the popup
+        const closeButton = document.createElement('button');
+        closeButton.textContent = 'Cancel';
+        closeButton.style.marginRight = '40px';
+        closeButton.style.padding = '5px 10px';
+        closeButton.style.borderRadius = '5px';
+        closeButton.addEventListener('click', () => {
+            setTutorialActive(false);
+            setCurrentStep(0);
+            popup.remove();
+            targetElement.style.border = '';
+            targetElement.style.boxShadow = '';
+        });
+        popup.appendChild(closeButton);
+    };
     const showTutorial = (step) => {
         const targetElement = document.querySelector(step.target);
         const popup = document.createElement('div');
@@ -228,6 +263,7 @@ export default function GenerateReport() {
             popup.remove();
             targetElement.style.border = '';
             targetElement.style.boxShadow = '';
+            showTutorial2();
         });
         popup.appendChild(closeButton);
         const previousButton = document.createElement('button');
@@ -301,14 +337,14 @@ export default function GenerateReport() {
 
     return (
         <div style={{ backgroundColor: 'white', padding: '20px', marginTop: '-25px' }}>
-            <IconButton
-                    aria-label="help"
-                    sx={{ color: 'black', position: 'absolute', right: 0 }}
-                    title="Show tutorial"
-                    onClick={() => handleStartTutorial()}
-                >
-                    <HelpOutlineIcon />
-                </IconButton>
+            <Typography
+                className='tutorial-btn'
+                variant="body2"
+                sx={{ color: 'black', position: 'absolute', right: 0, cursor: 'pointer', mt: 4, mr: 2 }}
+                onClick={() => handleStartTutorial()}
+            >
+                Show tutorial
+            </Typography>
             <h2>{getGreetingMessage()}, Welcome to the Saved Scenario Page!</h2>
             <h4>Please select a Scenario to Continue</h4>
             <Box display="flex" gap={2} mb={2} sx={{ width: '100%' }}>
@@ -375,7 +411,7 @@ export default function GenerateReport() {
                     )}
                     sx={{ width: '300px' }}
                 />
-                
+
             </Box>
             <div style={{ display: 'flex', justifyContent: 'left', marginTop: '20px' }}>
                 <Button
@@ -484,7 +520,7 @@ export default function GenerateReport() {
                             {filteredData.map((row, index) => (
                                 <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? '#e5f1fb' : 'white', height: 53 }}>
                                     {/* Checkbox for selecting this row */}
-                                    <TableCell className = "tick-button" padding="checkbox">
+                                    <TableCell className="tick-button" padding="checkbox">
                                         <Checkbox
                                             checked={selectedRows[index]}
                                             onChange={() => setSelectedRows(
