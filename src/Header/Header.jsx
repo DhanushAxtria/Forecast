@@ -69,10 +69,10 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 }));
 
 const breadcrumbNameMap = {
-  '/new-scenario': 'New Scenario',
-  '/new-scenario/scenario-details': 'Scenario Details',
+  '/new-model/epidemiology-model': 'New Scenario',
+  '/new-model/epidemiology-model/scenario-details': 'Scenario Details',
   '/scenario-details': 'New Scenario / Scenario Details',
-  '/new-scenario/scenario-details/Inputpage': 'Input page',
+  '/new-model/epidemiology-model/scenario-details/Inputpage': 'Input page',
   '/Inputpage': 'New Scenario / Scenario Details / Input page',
   '/saved-scenario': 'Saved Scenario',
   '/data-consolidation': 'Data Consolidation',
@@ -280,7 +280,7 @@ export default function PersistentDrawerLeft(props) {
 
         <List sx={{ width: '100', bgcolor: 'background.paper', borderRadius: '10px', overflow: 'auto' }}>
           {[
-            { text: 'New Scenario', icon: <Assessment />, path: '/new-scenario' },
+            { text: 'New Scenario', icon: <Assessment />, path: '/new-model/epidemiology-model' },
             { text: 'Saved Scenario', icon: <SaveAlt />, path: '/saved-scenario' },
             { text: 'Data Consolidation', icon: <FilePresent />, path: '/data-consolidation' },
             { text: 'Scenario Comparison', icon: <CompareArrows />, path: '/scenario-comparison' },

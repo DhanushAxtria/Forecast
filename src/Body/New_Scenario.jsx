@@ -100,15 +100,15 @@ export default function NewScenario({ username = "User" }) {
   const handleSelectClick = (scenario) => {
     // Navigate to the specific page, passing scenario data as state
 
-    navigate('/new-scenario/scenario-details', { state: { scenario } });
+    navigate('/new-model/epidemiology-model/scenario-details', { state: { scenario } });
   };
   const handleReviewScenario = (scenario) => {
     // Navigate to the specific page, passing scenario data as state
-    navigate('/new-scenario/review-scenario', { state: { scenario } });
+    navigate('/new-model/epidemiology-model/review-scenario', { state: { scenario } });
   };
   const handleReviewScenarioSummary = (scenario) => {
     // Navigate to the specific page, passing scenario data as state
-    navigate('/new-scenario/summary-scenario', { state: { scenario } });
+    navigate('/new-model/epidemiology-model/summary-scenario', { state: { scenario } });
   };
 
   const handleActionClick = (action) => {
@@ -672,7 +672,7 @@ export default function NewScenario({ username = "User" }) {
                         variant="contained"
                         color="primary"
                         size="small"
-                        onClick={() => navigate("/new-scenario/scenario-details")}
+                        onClick={() => navigate("/new-model/epidemiology-model/scenario-details")}
                         disabled={!(forecastCycles.length > 0 && countries.length > 0 && therapeuticAreas.length > 0)}
                       >
                         Create
@@ -756,7 +756,7 @@ export default function NewScenario({ username = "User" }) {
                         variant="contained"
                         color="primary"
                         size="small"
-                        onClick={() => navigate("/new-scenario/forecastdeepdive")}
+                        onClick={() => navigate("/new-model/epidemiology-model/forecastdeepdive")}
                         disabled={!(forecastCycles.length > 0 && countries.length > 0 && therapeuticAreas.length > 0)}
                       >
                         Create
@@ -821,7 +821,7 @@ export default function NewScenario({ username = "User" }) {
                 }}
                 onClick={() => {
                   if (isHighlighted) { // Only navigate if the folder is highlighted (blue)
-                    navigate('/new-scenario/model1', { state: { folder } });
+                    navigate('/new-model/epidemiology-model/model1', { state: { folder } });
                   }
                 }}
               >

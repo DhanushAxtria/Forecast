@@ -274,7 +274,7 @@ export default function Forecasted_Results() {
     } catch (error) {
       setLoading(false); // Ensure loading state is reset on error
       alert("Please upload the correct data"); // Alert the user if there's an error
-      navigate("/time-series-methods"); // Navigate to admin page on error
+      navigate("/new-model/time-series-model"); // Navigate to admin page on error
       console.error('Error uploading file:', error); // Log the error for debugging
     }
     setNotAllowed(true); // Update state for UI changes

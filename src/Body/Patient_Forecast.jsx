@@ -149,7 +149,7 @@ const Patient_Forecast = () => {
                     <Button
                         variant="contained"
                         onClick={() => {
-                            navigate("/new-scenario/scenario-details/forecastdeepdive/analysis");
+                            navigate("/new-model/epidemiology-model/scenario-details/forecastdeepdive/analysis");
                         }}
                         color="success"
                         sx={{ fontSize: '0.8rem' }}

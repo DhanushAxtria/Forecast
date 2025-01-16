@@ -424,7 +424,7 @@ const ForecastAndFlowDiagram = (props) => {
     };
     const navigate = useNavigate();
     const handleSaveAndContinue = () => {
-        navigate('/new-scenario/scenario-details/forecastdeepdive'); // Navigate to the patient forecast page
+        navigate('/new-model/epidemiology-model/scenario-details/forecastdeepdive'); // Navigate to the patient forecast page
     };
     const [nodes, setNodes] = useState(initialNodes);
     const [edges, setEdges] = useState(initialEdges);

@@ -97,7 +97,7 @@ const Forecastpage = () => {
             alert("Please select all the dates properly");
         }
         else {
-            navigate("/time-series-methods/forecasted_results"); // if all the data is filled, proceed to the results page
+            navigate("/new-model/time-series-model/forecasted_results"); // if all the data is filled, proceed to the results page
         }
     };
 

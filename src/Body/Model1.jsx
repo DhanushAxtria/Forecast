@@ -140,7 +140,7 @@ const Model1 = () => {
                     <Button
                         variant="contained"
                         onClick={() => {
-                            navigate("/new-scenario/model1/analysis");
+                            navigate("/new-model/epidemiology-model/model1/analysis");
                         }}
                         color="success"
                         sx={{ fontSize: '0.8rem' }}

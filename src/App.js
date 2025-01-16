@@ -22,6 +22,7 @@ import Admin from './Body/Admin'
 import GenerateReport from './Body/GenerateReport';
 import Model1 from './Body/Model1'
 import Analysis from './Body/Analysis';
+import NewModel from './Body/NewModel';
 function App() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false); // Initialize the state
   return (
@@ -39,30 +40,31 @@ function App() {
           {/* Home Page Route - Display HomePage */}
           <Route path="/" element={<Body />} />
           {/* New Scenario Page Route - Display */}
-          <Route path="/new-scenario" element={<NewScenario />} />
+          <Route path="/new-model/epidemiology-model" element={<NewScenario />} />
           {/* Scenario Comparison Page Route */}
           <Route path="/scenario-comparsion" element={<ScenarioComparsion />} />
           {/* Data Consolidation  Page Route */}
           <Route path="/data-consolidation" element={<DataConsolidation />} />
           /{/*<Route path="/Forecast" element={<HomePage />} />*/}
-          <Route path="/new-scenario/scenario-details" element={<ScenarioDetails />} />
+          <Route path="/new-model/epidemiology-model/scenario-details" element={<ScenarioDetails />} />
           <Route path="/saved-scenario/review-scenario" element={<ReviewScenario />} />
           <Route path="/saved-scenario/Summary-scenario" element={<SummaryScenario />} />
-          <Route path="/new-scenario/review-scenario" element={<ReviewScenario />} />
-          <Route path="/new-scenario/Summary-scenario" element={<SummaryScenario />} />
+          <Route path="/new-model/epidemiology-model/review-scenario" element={<ReviewScenario />} />
+          <Route path="/new-model/epidemiology-model/Summary-scenario" element={<SummaryScenario />} />
           <Route path="/submissions-tracker" element={<Submission_Tracker />} />
-          {/* <Route path="new-scenario/scenario-details/Inputpage" element={<Inputpage />} /> */}
+          {/* <Route path="epidemiology-model/scenario-details/Inputpage" element={<Inputpage />} /> */}
           <Route path="/saved-scenario" element={<SavedScenario />} />
           <Route path="/admin" element={<Admin/>} />
-          <Route path="/new-scenario/scenario-details/forecastdeepdive" element={<Patient_Forecast />} />
-          <Route path="/time-series-methods" element={<Forecastpage />} />
-          <Route path="/time-series-methods/forecasted_results" element={<Forecasted_Results />} />
-          <Route path="/new-scenario/scenario-details/forecastdeepdive/dashboard" element={<Dashboard />} />
-          <Route path="/new-scenario/scenario-details/forecastdeepdive/analysis" element={<Analysis />} />
-          <Route path="/new-scenario/scenario-details/forecastdeepdive/patientinput" element={<Patient_Forecast_Input />} />
+          <Route path="/new-model/epidemiology-model/scenario-details/forecastdeepdive" element={<Patient_Forecast />} />
+          <Route path="/new-model/time-series-model" element={<Forecastpage />} />
+          <Route path="/new-model/time-series-model/forecasted_results" element={<Forecasted_Results />} />
+          <Route path="/new-model/epidemiology-model/scenario-details/forecastdeepdive/dashboard" element={<Dashboard />} />
+          <Route path="/new-model/epidemiology-model/scenario-details/forecastdeepdive/analysis" element={<Analysis />} />
+          <Route path="/new-model/epidemiology-model/scenario-details/forecastdeepdive/patientinput" element={<Patient_Forecast_Input />} />
           <Route path="/generate-report" element={<GenerateReport />} />
-          <Route path="/new-scenario/model1" element={<Model1 />} />
-          <Route path="/new-scenario/model1/analysis" element={<Analysis />} />
+          <Route path="/new-model/epidemiology-model/model1" element={<Model1 />} />
+          <Route path="/new-model/epidemiology-model/model1/analysis" element={<Analysis />} />
+          <Route path="/new-model" element={<NewModel />} />
 
 
           {/* Add more routes as needed */}
