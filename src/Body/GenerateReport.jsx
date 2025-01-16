@@ -343,7 +343,7 @@ export default function GenerateReport() {
                 sx={{ color: 'black', position: 'absolute', right: 0, cursor: 'pointer', mt: 4, mr: 2 }}
                 onClick={() => handleStartTutorial()}
             >
-                Show tutorial
+                Show Tutorial
             </Typography>
             <h2>{getGreetingMessage()}, Welcome to the Saved Scenario Page!</h2>
             <h4>Please select a Scenario to Continue</h4>

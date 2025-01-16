@@ -151,7 +151,7 @@ const MyProvider = ({ children }) => {
         formulasDemo[tabKey][tableKey]['T3-1'] = { emptyArray: ['T3-1'], plusArray: ['+'] };
         formulasDemo[tabKey][tableKey]['T3-2'] = { emptyArray: ['T3-1', 'T3-1'], plusArray: ['+', '+'] };
         formulasDemo[tabKey][tableKey]['T3-3'] = { emptyArray: ['T3-1', 'T3-2', 'T3-2'], plusArray: ['+', '+', '*'] };
-        formulasDemo[tabKey][tableKey]['T3-4'] = { emptyArray: ['T3-1', 'T3-1'], plusArray: ['+', '+'] };
+        formulasDemo[tabKey][tableKey]['T3-4'] = { emptyArray: ['T1-1', 'T1-2', 'T1-3', 'T1-4', 'T2-1', 'T2-2', 'T2-3', 'T2-4', 'T2-5', 'T2-6', 'T2-7', 'T3-1', 'T3-2', 'T3-3'], plusArray: ['+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+'] };
       });
     });
     setFormulas(formulasDemo);

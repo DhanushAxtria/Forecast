@@ -917,10 +917,184 @@ const KPI = () => {
         setOpenAbsoluteVal(false);
         setOpenInputMethodDialog(true);
     }
+    const [tutorialActive, setTutorialActive] = useState(false);
+    const [currentStep, setCurrentStep] = useState(0);
+    const showTutorial2 = () => {
+        const step = {
+            index: 0,
+            target: '.tutorial-btn',
+            content: 'You can always see this tutorial by clicking on this button.',
+            placement: 'left',
+        };
+        const targetElement = document.querySelector(step.target);
+        const popup = document.createElement('div');
+        popup.classList.add('tutorial-popup', step.placement);
+        popup.textContent = step.content;
+        targetElement.style.boxShadow = '0px 0px 10px 0px rgba(0,0,0,0.75)';
+        targetElement.style.border = '3px solid navy';
+        // Position the popup based on the target element and placement
+        const rect = targetElement.getBoundingClientRect();
+        let top, left;
+        top = rect.top + rect.height / 2 - popup.offsetHeight / 2;
+        left = rect.left - 350;
+        popup.style.top = `${top}px`;
+        popup.style.left = `${left}px`;
+        document.body.appendChild(popup);
+        // Add a button to close the popup
+        const closeButton = document.createElement('button');
+        closeButton.textContent = 'Cancel';
+        closeButton.style.marginRight = '40px';
+        closeButton.style.padding = '5px 10px';
+        closeButton.style.borderRadius = '5px';
+        closeButton.addEventListener('click', () => {
+            setTutorialActive(false);
+            setCurrentStep(0);
+            popup.remove();
+            targetElement.style.border = '';
+            targetElement.style.boxShadow = '';
+        });
+        popup.appendChild(closeButton);
+    };
+    const showTutorial = (step) => {
+        const targetElement = document.querySelector(step.target);
+        const popup = document.createElement('div');
+        popup.classList.add('tutorial-popup', step.placement);
+        popup.textContent = step.content;
+        targetElement.style.boxShadow = '0px 0px 10px 0px rgba(0,0,0,0.75)';
+        targetElement.style.border = '3px solid navy';
+        // Position the popup based on the target element and placement
+        const rect = targetElement.getBoundingClientRect();
+        let top, left;
+        if (step.placement === 'top') {
+            top = rect.top + rect.height + rect.height - 5;
+            left = rect.left + rect.width / 2 - popup.offsetWidth / 2;
+        } else if (step.placement === 'bottom') {
+            top = rect.bottom + 10;
+            left = rect.right;
+        } else if (step.placement === 'left') {
+            top = rect.top;
+            left = rect.left - 350;
+        } else if (step.placement === 'right') {
+            top = rect.top + rect.height - popup.offsetHeight / 2;
+            left = rect.right;
+        }
+        popup.style.top = `${top}px`;
+        popup.style.left = `${left}px`;
+        document.body.appendChild(popup);
+        // Add a button to close the popup
+        const closeButton = document.createElement('button');
+        closeButton.textContent = currentStep === steps.length - 1 ? 'Finish' : 'Skip Tutorial';
+        //closeButton.textContent = currentStep === (selectedAction === '' ? steps : selectedAction === 'savedTemplates' ? steps3 : steps2).length - 1 ? 'Finish' : 'Skip Tutorial';
+        closeButton.style.marginRight = '40px';
+        closeButton.style.padding = '5px 10px';
+        closeButton.style.borderRadius = '5px';
+        closeButton.addEventListener('click', () => {
+            setTutorialActive(false);
+            setCurrentStep(0);
+            popup.remove();
+            targetElement.style.border = '';
+            targetElement.style.boxShadow = '';
+            showTutorial2();
+        });
+        popup.appendChild(closeButton);
+        const previousButton = document.createElement('button');
+        previousButton.textContent = 'Previous';
+        previousButton.style.padding = '5px 10px';
+        previousButton.style.marginRight = '5px';
+        previousButton.style.borderRadius = '5px';
+        previousButton.disabled = currentStep === 0; // Disable if first step
+        previousButton.style.backgroundColor = previousButton.disabled ? 'grey' : 'navy';
+        previousButton.addEventListener('click', () => {
+            popup.remove();
+            setCurrentStep(currentStep - 1); // Move to previous step
+            targetElement.style.border = '';
+            targetElement.style.boxShadow = '';
+        });
+        const nextButton = document.createElement('button');
+        nextButton.textContent = 'Next';
+        nextButton.style.padding = '5px 10px';
+        nextButton.style.borderRadius = '5px';
+        nextButton.disabled = currentStep === steps.length - 1; // Disable if last step
+        // nextButton.disabled = currentStep === (selectedAction === '' ? steps : selectedAction === 'savedTemplates' ? steps3 : steps2).length - 1; // Disable if last step
+        nextButton.style.backgroundColor = nextButton.disabled ? 'grey' : 'green';
+        nextButton.addEventListener('click', () => {
+            popup.remove();
+            setCurrentStep(currentStep + 1); // Move to next step
+            targetElement.style.border = '';
+            targetElement.style.boxShadow = '';
+        });
+        const buttons = document.createElement('div');
+        buttons.style.display = 'flex';
+        buttons.style.marginTop = '20px';
+        buttons.style.justifyContent = 'space-between';
+        buttons.style.width = '100%';
+        buttons.appendChild(closeButton);
+        const flexEndButtons = document.createElement('div');
+        flexEndButtons.style.display = 'flex';
+        flexEndButtons.appendChild(previousButton);
+        flexEndButtons.appendChild(nextButton);
+        buttons.appendChild(flexEndButtons);
+        popup.appendChild(buttons); // Insert the buttons after the text
+    };
+    const handleStartTutorial = () => {
+        setTutorialActive(true);
+        setCurrentStep(0); // Start from the first step
+    };
+    useEffect(() => {
+        if (tutorialActive && currentStep < steps.length) {
+            showTutorial(steps[currentStep]);
+        }
+    }, [tutorialActive, currentStep]);
+    const steps = [
+        {
+            index: 0,
+            target: '.dates',
+            content: `To choose out the months for which the effect you want to see.`,
+            placement: 'right',
+        },
+        {
+            index: 1,
+            target: '.case',
+            content: `To choose out the Case.`,
+            placement: 'right',
+        },
+        {
+            index: 2,
+            target: '.metric',
+            content: `To choose out the product for which you want to see the sensitivity.`,
+            placement: 'right',
+        },
+        {
+            index: 3,
+            target: '.field',
+            content: `To choose out the product for which you want to change the values to see the change in outputmatric.`,
+            placement: 'right',
+        },
+        {
+            index: 4,
+            target: '.high',
+            content: `High case to increase the value of field. There are many options to update the data: upload file, change by %, and many more.`,
+            placement: 'left',
+        },
+        {
+            index: 5,
+            target: '.low',
+            content: `Low case to decrease the value of field. There are many options to update the data: upload file, change by %, and many more.`,
+            placement: 'left',
+        },
+    ];
 
 
     return (
         <>
+            <Typography
+                className='tutorial-btn'
+                variant="body2"
+                sx={{ color: 'black', position: 'absolute', right: 0, cursor: 'pointer', mt: -6, mr: 6 }}
+                onClick={() => handleStartTutorial()}
+            >
+                Show Tutorial
+            </Typography>
             <Box display="flex" alignItems="center" gap="15px" ml={1} p={2} >
                 <Button
                     variant="contained"
@@ -930,28 +1104,30 @@ const KPI = () => {
                     Apply
                 </Button>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                        views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
-                        label={timePeriod === 'Monthly' ? 'Start Month' : 'Start Year'}
-                        value={fromDate}
-                        onChange={(newValue) => setFromDate(newValue)}
-                        format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
-                        slotProps={{ textField: { size: 'small' } }}
-                        sx={{ width: '200px' }}
-                        minDate={fromHistoricalDate}
-                        maxDate={toForecastDate}
-                    />
-                    <DatePicker
-                        views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
-                        label={timePeriod === 'Monthly' ? 'End Month' : 'End Year'}
-                        value={toDate}
-                        onChange={(newValue) => setToDate(newValue)}
-                        format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
-                        slotProps={{ textField: { size: 'small' } }}
-                        sx={{ width: '200px' }}
-                        minDate={fromDate}
-                        maxDate={toForecastDate}
-                    />
+                    <Box className='dates' display="flex" alignItems="center" gap="15px" >
+                        <DatePicker
+                            views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
+                            label={timePeriod === 'Monthly' ? 'Start Month' : 'Start Year'}
+                            value={fromDate}
+                            onChange={(newValue) => setFromDate(newValue)}
+                            format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
+                            slotProps={{ textField: { size: 'small' } }}
+                            sx={{ width: '200px' }}
+                            minDate={fromHistoricalDate}
+                            maxDate={toForecastDate}
+                        />
+                        <DatePicker
+                            views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
+                            label={timePeriod === 'Monthly' ? 'End Month' : 'End Year'}
+                            value={toDate}
+                            onChange={(newValue) => setToDate(newValue)}
+                            format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
+                            slotProps={{ textField: { size: 'small' } }}
+                            sx={{ width: '200px' }}
+                            minDate={fromDate}
+                            maxDate={toForecastDate}
+                        />
+                    </Box>
                 </LocalizationProvider>
             </Box >
             <Grid container spacing={2}>
@@ -969,12 +1145,11 @@ const KPI = () => {
                         <Table size="small" aria-label="dropdown table">
                             <TableHead>
                                 <TableRow>
-                                    <TableCell align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Case</TableCell>
-                                    <TableCell align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Output Metric</TableCell>
-                                    <TableCell align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Field</TableCell>
-                                    <TableCell align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>High Case</TableCell>
-                                    <TableCell align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Low Case</TableCell>
-
+                                    <TableCell className='case' align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Case</TableCell>
+                                    <TableCell className='metric' align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Output Metric</TableCell>
+                                    <TableCell className='field' align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Field</TableCell>
+                                    <TableCell className='high' align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>High Case</TableCell>
+                                    <TableCell className='low' align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Low Case</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -1279,11 +1454,11 @@ const KPI = () => {
                                         </TableCell>
                                         <TableCell align="center" style={{ border: '1px solid #ccc' }}>Actual Values</TableCell>
                                         <TableCell align="center" style={{ border: '1px solid #ccc', fontWeight: 'bold' }}>
-                                        {baseRev}
+                                            {baseRev ? `${Number(baseRev).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '0.00M'}
                                         </TableCell>
                                         {columns2.map((column) => (
                                             <TableCell align="center" style={{ border: '1px solid #ccc' }} key={`main-${column}`}>
-                                                {mainresult?.[0]?.[column]}
+                                                {mainresult?.[0]?.[column] ? `${Number(mainresult?.[0]?.[column]).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '0.00M'}
                                             </TableCell>
                                         ))}
                                     </TableRow>
@@ -1306,11 +1481,11 @@ const KPI = () => {
                                                         {`${labels?.[index]} High Case Values`}
                                                     </TableCell>
                                                     <TableCell align="center" style={{ border: '1px solid #ccc', fontWeight: 'bold' }}>
-                                                        {highresSum?.[index]}
+                                                        {highresSum?.[index] ? `${Number(highresSum?.[index]).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '0.00M'}
                                                     </TableCell>
                                                     {columns2.map((column) => (
                                                         <TableCell align="center" style={{ border: '1px solid #ccc' }} key={`high-${index}-${column}`}>
-                                                            {highresult?.[index]?.[column]}
+                                                            {highresult?.[index]?.[column] ? `${Number(highresult?.[index]?.[column]).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '0.00M'}
                                                         </TableCell>
                                                     ))}
                                                 </TableRow>
@@ -1324,11 +1499,11 @@ const KPI = () => {
                                                         {`${labels?.[index]} Low Case Values`}
                                                     </TableCell>
                                                     <TableCell align="center" style={{ border: '1px solid #ccc', fontWeight: 'bold' }}>
-                                                        {lowresSum?.[index]}
+                                                        {lowresSum?.[index] ? `${Number(lowresSum?.[index]).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '0.00M'}
                                                     </TableCell>
                                                     {columns2.map((column) => (
                                                         <TableCell align="center" style={{ border: '1px solid #ccc' }} key={`low-${index}-${column}`}>
-                                                            {lowresult?.[index]?.[column]}
+                                                            {lowresult?.[index]?.[column] ? `${Number(lowresult?.[index]?.[column]).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '0.00M'}
                                                         </TableCell>
                                                     ))}
                                                 </TableRow>

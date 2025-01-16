@@ -1,7 +1,7 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { MyContext } from "./context";
 import FormControl from "@mui/material/FormControl";
-import { MenuItem, InputLabel } from "@mui/material";
+import { MenuItem, InputLabel, Typography } from "@mui/material";
 import Select from "@mui/material/Select";
 import { styled } from '@mui/material/styles';
 import Switch from '@mui/material/Switch';
@@ -105,7 +105,7 @@ const Dashboard = () => {
     const { products } = useContext(MyContext);
     const { values, values2, values3, setDropdownGroups, dropdownGroups } = useContext(MyContext); // values, values2, values3 are table values.
     const { cardTitle1, cardTitle2, cardTitle3 } = useContext(MyContext);
-    const {  timePeriod } = useContext(MyContext);
+    const { timePeriod } = useContext(MyContext);
     const { fromHistoricalDate, setFromHistoricalDate } = useContext(MyContext);
     const { fromForecastDate, setFromForecastDate } = useContext(MyContext);
     const { toForecastDate, setToForecastDate } = useContext(MyContext);
@@ -122,8 +122,6 @@ const Dashboard = () => {
             });
         });
     });
-
-    // Format data for the Line Chart
     const chartData = months.map((month) => {
         const dataPoint = { month };
         dropdownGroups.forEach(({ Case, SelectedRow }) => {
@@ -139,9 +137,6 @@ const Dashboard = () => {
         });
         return dataPoint;
     });
-
-
-
     const handleAddDropdownGroup = () => {
         const lastGroup = dropdownGroups[dropdownGroups.length - 1];
         setDropdownGroups([
@@ -153,35 +148,195 @@ const Dashboard = () => {
             },
         ]);
     };
-
     const handleDeleteDropdownGroup = (index) => {
         const updatedGroups = dropdownGroups.filter((_, i) => i !== index);
         setDropdownGroups(updatedGroups);
     };
-
     const handleDropdownChange = (index, field, value) => {
         const updatedGroups = [...dropdownGroups];
         updatedGroups[index][field] = value;
         setDropdownGroups(updatedGroups);
     };
-
     const isLastRowFilled =
         dropdownGroups.length > 0 &&
         dropdownGroups[dropdownGroups.length - 1].Case &&
         dropdownGroups[dropdownGroups.length - 1].SelectedCard &&
         dropdownGroups[dropdownGroups.length - 1].SelectedRow;
 
-    // State for chart type
     const [chartType, setChartType] = useState("line");
-
-    // Toggle chart type
     const toggleChartType = () => {
         setChartType((prevType) => (prevType === "line" ? "bar" : "line"));
     };
-
-
+    const [tutorialActive, setTutorialActive] = useState(false);
+    const [currentStep, setCurrentStep] = useState(0);
+    const showTutorial2 = () => {
+        const step = {
+            index: 0,
+            target: '.tutorial-btn',
+            content: 'You can always see this tutorial by clicking on this button.',
+            placement: 'left',
+        };
+        const targetElement = document.querySelector(step.target);
+        const popup = document.createElement('div');
+        popup.classList.add('tutorial-popup', step.placement);
+        popup.textContent = step.content;
+        targetElement.style.boxShadow = '0px 0px 10px 0px rgba(0,0,0,0.75)';
+        targetElement.style.border = '3px solid navy';
+        // Position the popup based on the target element and placement
+        const rect = targetElement.getBoundingClientRect();
+        let top, left;
+        top = rect.top + rect.height / 2 - popup.offsetHeight / 2;
+        left = rect.left - 350;
+        popup.style.top = `${top}px`;
+        popup.style.left = `${left}px`;
+        document.body.appendChild(popup);
+        // Add a button to close the popup
+        const closeButton = document.createElement('button');
+        closeButton.textContent = 'Cancel';
+        closeButton.style.marginRight = '40px';
+        closeButton.style.padding = '5px 10px';
+        closeButton.style.borderRadius = '5px';
+        closeButton.addEventListener('click', () => {
+            setTutorialActive(false);
+            setCurrentStep(0);
+            popup.remove();
+            targetElement.style.border = '';
+            targetElement.style.boxShadow = '';
+        });
+        popup.appendChild(closeButton);
+    };
+    const showTutorial = (step) => {
+        const targetElement = document.querySelector(step.target);
+        const popup = document.createElement('div');
+        popup.classList.add('tutorial-popup', step.placement);
+        popup.textContent = step.content;
+        targetElement.style.boxShadow = '0px 0px 10px 0px rgba(0,0,0,0.75)';
+        targetElement.style.border = '3px solid navy';
+        // Position the popup based on the target element and placement
+        const rect = targetElement.getBoundingClientRect();
+        let top, left;
+        if (step.placement === 'top') {
+            top = rect.top + rect.height + rect.height - 5;
+            left = rect.left + rect.width / 2 - popup.offsetWidth / 2;
+        } else if (step.placement === 'bottom') {
+            top = rect.bottom + 10;
+            left = rect.right;
+        } else if (step.placement === 'left') {
+            top = rect.top ;
+            left = rect.left-350;
+        } else if (step.placement === 'right') {
+            top = rect.top + rect.height - popup.offsetHeight / 2;
+            left = rect.right;
+        }
+        popup.style.top = `${top}px`;
+        popup.style.left = `${left}px`;
+        document.body.appendChild(popup);
+        // Add a button to close the popup
+        const closeButton = document.createElement('button');
+        closeButton.textContent = currentStep === steps.length - 1 ? 'Finish' : 'Skip Tutorial';
+        //closeButton.textContent = currentStep === (selectedAction === '' ? steps : selectedAction === 'savedTemplates' ? steps3 : steps2).length - 1 ? 'Finish' : 'Skip Tutorial';
+        closeButton.style.marginRight = '40px';
+        closeButton.style.padding = '5px 10px';
+        closeButton.style.borderRadius = '5px';
+        closeButton.addEventListener('click', () => {
+            setTutorialActive(false);
+            setCurrentStep(0);
+            popup.remove();
+            targetElement.style.border = '';
+            targetElement.style.boxShadow = '';
+            showTutorial2();
+        });
+        popup.appendChild(closeButton);
+        const previousButton = document.createElement('button');
+        previousButton.textContent = 'Previous';
+        previousButton.style.padding = '5px 10px';
+        previousButton.style.marginRight = '5px';
+        previousButton.style.borderRadius = '5px';
+        previousButton.disabled = currentStep === 0; // Disable if first step
+        previousButton.style.backgroundColor = previousButton.disabled ? 'grey' : 'navy';
+        previousButton.addEventListener('click', () => {
+            popup.remove();
+            setCurrentStep(currentStep - 1); // Move to previous step
+            targetElement.style.border = '';
+            targetElement.style.boxShadow = '';
+        });
+        const nextButton = document.createElement('button');
+        nextButton.textContent = 'Next';
+        nextButton.style.padding = '5px 10px';
+        nextButton.style.borderRadius = '5px';
+        nextButton.disabled = currentStep === steps.length - 1; // Disable if last step
+        // nextButton.disabled = currentStep === (selectedAction === '' ? steps : selectedAction === 'savedTemplates' ? steps3 : steps2).length - 1; // Disable if last step
+        nextButton.style.backgroundColor = nextButton.disabled ? 'grey' : 'green';
+        nextButton.addEventListener('click', () => {
+            popup.remove();
+            setCurrentStep(currentStep + 1); // Move to next step
+            targetElement.style.border = '';
+            targetElement.style.boxShadow = '';
+        });
+        const buttons = document.createElement('div');
+        buttons.style.display = 'flex';
+        buttons.style.marginTop = '20px';
+        buttons.style.justifyContent = 'space-between';
+        buttons.style.width = '100%';
+        buttons.appendChild(closeButton);
+        const flexEndButtons = document.createElement('div');
+        flexEndButtons.style.display = 'flex';
+        flexEndButtons.appendChild(previousButton);
+        flexEndButtons.appendChild(nextButton);
+        buttons.appendChild(flexEndButtons);
+        popup.appendChild(buttons); // Insert the buttons after the text
+    };
+    const handleStartTutorial = () => {
+        setTutorialActive(true);
+        setCurrentStep(0); // Start from the first step
+    };
+    useEffect(() => {
+        if (tutorialActive && currentStep < steps.length) {
+            showTutorial(steps[currentStep]);
+        }
+    }, [tutorialActive, currentStep]);
+    const steps = [
+        {
+            index: 0,
+            target: '.filter-case',
+            content: `To choose out the Case.`,
+            placement: 'right',
+        },
+        {
+            index: 1,
+            target: '.filter-card',
+            content: `To choose out the Card.`,
+            placement: 'right',
+        },
+        {
+            index: 2,
+            target: '.filter-product',
+            content: `To choose out the product.`,
+            placement: 'right',
+        },
+        {
+            index: 3,
+            target: '.plus',
+            content: `By clicking this you can add a new row of dropdowns and this can be done for upto 6 rows of dropdowns`,
+            placement: 'right',
+        },
+        {
+            index: 4,
+            target: '.toggle',
+            content: `Toggle the chart type between line and bar.`,
+            placement: 'left',
+        },
+    ];
     return (
         <>
+            <Typography
+                className='tutorial-btn'
+                variant="body2"
+                sx={{ color: 'black', position: 'absolute', right: 0, cursor: 'pointer', mt: -9, mr: 6 }}
+                onClick={() => handleStartTutorial()}
+            >
+                Show Tutorial
+            </Typography>
 
             {dropdownGroups.map((group, index) => (
                 <Box
@@ -189,11 +344,13 @@ const Dashboard = () => {
                     sx={{
                         display: "flex",
                         alignItems: "center",
-                        mb: 2,
+                        mb: -5,
+                        ml: 7,
+                        mt: 5,
                     }}
                 >
                     {/* Case Dropdown */}
-                    <FormControl sx= {{ m: 1 }}>
+                    <FormControl className='filter-case' sx={{ ml: 1 }}>
                         <InputLabel id={`case-select-label-${index}`}>Case</InputLabel>
                         <Select
                             labelId={`case-select-label-${index}`}
@@ -210,7 +367,7 @@ const Dashboard = () => {
                     </FormControl>
 
                     {/* Card Dropdown */}
-                    <FormControl sx={{ mr: 1 }}>
+                    <FormControl className='filter-card' sx={{ m: 1 }}>
                         <InputLabel id={`card-select-label-${index}`}>Card Name</InputLabel>
                         <Select
                             labelId={`card-select-label-${index}`}
@@ -227,7 +384,7 @@ const Dashboard = () => {
                     </FormControl>
 
                     {/* Parameter Dropdown */}
-                    <FormControl sx={{ mr: 1 }}>
+                    <FormControl className='filter-product' sx={{ mr: 1 }}>
                         <InputLabel id={`parameter-select-label-${index}`}>Parameter Name</InputLabel>
                         <Select
                             labelId={`parameter-select-label-${index}`}
@@ -253,7 +410,7 @@ const Dashboard = () => {
                             sx={{ color: "blue", bgcolor: "blue.100", ml: 1 }}
                             onClick={handleAddDropdownGroup}
                         >
-                            <AddIcon />
+                            <AddIcon className="plus"/>
                         </IconButton>
                     )}
 
@@ -280,15 +437,11 @@ const Dashboard = () => {
                 }}
             >
                 <Box sx={{ mr: 2 }}>Toggle Chart Type</Box>
-                <Android12Switch checked={chartType === "bar"} onChange={toggleChartType} />
+                <Android12Switch className = 'toggle' checked={chartType === "bar"} onChange={toggleChartType} />
             </Box>
             <ResponsiveContainer width={1300}
                 height={400}
                 margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
-                {/* 
-                    if chartType is line, display line chart
-                    else display bar chart
-                */}
                 {chartType === "line" ? (
                     <LineChart data={chartData}>
                         <CartesianGrid strokeDasharray="3 3" />

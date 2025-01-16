@@ -503,7 +503,7 @@ export default function NewScenario({ username = "User" }) {
         sx={{ color: 'black', position: 'absolute', right: 0, cursor: 'pointer', mt: 4, mr: 2 }}
         onClick={() => handleStartTutorial()}
       >
-        Show tutorial
+        Show Tutorial
       </Typography>
       <h2>{getGreetingMessage()}, Please provide details for New Scenario Configuration</h2>
 

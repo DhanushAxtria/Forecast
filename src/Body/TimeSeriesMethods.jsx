@@ -420,7 +420,7 @@ const Forecastpage = () => {
                             sx={{ color: 'black', position: 'absolute', right: 0, cursor: 'pointer', mt: 4, mr: 2 }}
                             onClick={() => handleStartTutorial()}
                         >
-                            Show tutorial
+                            Show Tutorial
                         </Typography>
                     </Box>
                     {/* Box with upload button, file name display and clear button */}

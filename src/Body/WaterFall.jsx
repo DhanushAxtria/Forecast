@@ -774,7 +774,14 @@ const WaterFall = () => {
     return (
         <>
 
-
+            <Typography
+                className='tutorial-btn'
+                variant="body2"
+                sx={{ color: 'black', position: 'absolute', right: 0, cursor: 'pointer', mt: -6, mr: 6 }}
+            //onClick={() => handleStartTutorial()}
+            >
+                Show Tutorial
+            </Typography>
             <Box display="flex" alignItems="center" gap="15px" ml={1} p={2} >
                 <Button
                     variant="contained"

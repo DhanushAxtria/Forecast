@@ -716,7 +716,7 @@ const ForecastAndFlowDiagram = (props) => {
                         sx={{ color: 'black', position: 'absolute', right: 0, cursor: 'pointer', mt: 4, mr: 2 }}
                         onClick={() => handleStartTutorial()}
                     >
-                        Show tutorial
+                        Show Tutorial
                     </Typography>
                     <h2 className="greeting">{greeting}, Welcome to the Forecast & Worksheet Selections</h2>
 

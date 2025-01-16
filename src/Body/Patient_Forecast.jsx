@@ -1562,6 +1562,20 @@ const Patient_Forecast = () => {
         }
         setFormulas(editingFormula);
         setShowFormula(false);
+        const dataToDownload = {
+            values,
+            values2,
+            values3,
+        };
+        const filename = "patient_forecast_data.json";
+        const json = JSON.stringify(dataToDownload);
+        const blob = new Blob([json], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
     };
 
 
@@ -2484,7 +2498,7 @@ const Patient_Forecast = () => {
                         sx={{ color: 'black', position: 'absolute', right: 0, cursor: 'pointer', mt: 4, mr: 2 }}
                         onClick={() => handleStartTutorial()}
                     >
-                        Show tutorial
+                        Show Tutorial
                     </Typography>
                     <h2 style={{ textAlign: 'left' }}>{greeting}, Welcome to the Patient Based Forecasting Page!</h2> </div>
                 <Button
