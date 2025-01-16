@@ -337,14 +337,15 @@ export default function GenerateReport() {
 
     return (
         <div style={{ backgroundColor: 'white', padding: '20px', marginTop: '-25px' }}>
-            <Typography
+            <Button
                 className='tutorial-btn'
-                variant="body2"
-                sx={{ color: 'black', position: 'absolute', right: 0, cursor: 'pointer', mt: 4, mr: 2 }}
+                variant="contained"
+                size='small'
+                sx={{ color: 'white', position: 'absolute', right: 0, cursor: 'pointer', mt: 3, mr: 2 }}
                 onClick={() => handleStartTutorial()}
             >
                 Show Tutorial
-            </Typography>
+            </Button>
             <h2>{getGreetingMessage()}, Welcome to the Saved Scenario Page!</h2>
             <h4>Please select a Scenario to Continue</h4>
             <Box display="flex" gap={2} mb={2} sx={{ width: '100%' }}>

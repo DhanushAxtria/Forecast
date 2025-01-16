@@ -329,14 +329,15 @@ const Dashboard = () => {
     ];
     return (
         <>
-            <Typography
+            <Button
                 className='tutorial-btn'
-                variant="body2"
-                sx={{ color: 'black', position: 'absolute', right: 0, cursor: 'pointer', mt: -9, mr: 6 }}
+                variant="contained"
+                size = "small"
+                sx={{ color: 'white', position: 'absolute', right: 0, cursor: 'pointer', mt: -9.5, mr: 6 }}
                 onClick={() => handleStartTutorial()}
             >
                 Show Tutorial
-            </Typography>
+            </Button>
 
             {dropdownGroups.map((group, index) => (
                 <Box

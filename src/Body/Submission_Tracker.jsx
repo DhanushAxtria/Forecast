@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { FaFilter } from 'react-icons/fa';
 import { MyContext } from './context';
+import {  Button, Typography } from '@mui/material';
 
 // filter parameters and there respective values
 const therapeuticAreas = ['Cardiology', 'Oncology', 'Neurology', 'Immunology', 'Dermatology', 'HIV'];
@@ -11,14 +12,15 @@ const sampleUsernames = ['john_doe', 'michael_wang', 'chris_jones'];
 
 
 const DataConsolidation = () => {
-  const {rowsData, setRowsData} = useContext(MyContext);
+  const { rowsData, setRowsData } = useContext(MyContext);
   const [selectedTherapeuticArea, setSelectedTherapeuticArea] = useState('');
   const [selectedCountry, setSelectedCountry] = useState('');
   const [selectedForecastStatus, setSelectedForecastStatus] = useState('');
   const [selectedForecastScenario, setSelectedForecastScenario] = useState('');
   const [hoveredRow, setHoveredRow] = useState(null);
   const [greeting, setGreeting] = useState('');
-
+  const [tutorialActive, setTutorialActive] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0); // Track the current step in the tutorial
 
 
 
@@ -94,13 +96,165 @@ const DataConsolidation = () => {
     }
   }, []);
 
+  const showTutorial2 = () => {
+    const step = {
+      index: 0,
+      target: '.tutorial-btn',
+      content: 'You can always see this tutorial by clicking on this button.',
+      placement: 'left',
+    };
+    const targetElement = document.querySelector(step.target);
+    const popup = document.createElement('div');
+    popup.classList.add('tutorial-popup', step.placement);
+    popup.textContent = step.content;
+    targetElement.style.boxShadow = '0px 0px 10px 0px rgba(0,0,0,0.75)';
+    targetElement.style.border = '3px solid navy';
+    // Position the popup based on the target element and placement
+    const rect = targetElement.getBoundingClientRect();
+    let top, left;
+    top = rect.top + rect.height / 2 - popup.offsetHeight / 2;
+    left = rect.left - 350;
+    popup.style.top = `${top}px`;
+    popup.style.left = `${left}px`;
+    document.body.appendChild(popup);
+    // Add a button to close the popup
+    const closeButton = document.createElement('button');
+    closeButton.textContent = 'Cancel';
+    closeButton.style.marginRight = '40px';
+    closeButton.style.padding = '5px 10px';
+    closeButton.style.borderRadius = '5px';
+    closeButton.addEventListener('click', () => {
+      setTutorialActive(false);
+      setCurrentStep(0);
+      popup.remove();
+      targetElement.style.border = '';
+      targetElement.style.boxShadow = '';
+    });
+    popup.appendChild(closeButton);
+  };
+  const showTutorial = (step) => {
+    const targetElement = document.querySelector(step.target);
+    const popup = document.createElement('div');
+    popup.classList.add('tutorial-popup', step.placement);
+    popup.textContent = step.content;
+    targetElement.style.boxShadow = '0px 0px 10px 0px rgba(0,0,0,0.75)';
+    targetElement.style.border = '3px solid navy';
+    // Position the popup based on the target element and placement
+    const rect = targetElement.getBoundingClientRect();
+    let top, left;
+    if (step.placement === 'top') {
+      top = rect.top  - popup.offsetWidth / 2
+      left = rect.left + rect.width / 2 - popup.offsetWidth / 2;
+    } else if (step.placement === 'bottom') {
+      top = rect.bottom + 20;
+      left = rect.left + rect.width / 2 - popup.offsetWidth / 2;
+    } else if (step.placement === 'left') {
+      top = rect.top + rect.height / 2 - popup.offsetHeight / 2;
+      left = rect.left - 350;
+    } else if (step.placement === 'right') {
+      top = rect.top;
+      left = rect.right + 25;
+    }
+   
+    popup.style.top = `${top}px`;
+    popup.style.left = `${left}px`;
+    document.body.appendChild(popup);
+    // Add a button to close the popup
+    const closeButton = document.createElement('button');
+    closeButton.textContent = currentStep === steps.length - 1 ? 'Finish' : 'Skip Tutorial';
+    closeButton.style.marginRight = '40px';
+    closeButton.style.padding = '5px 10px';
+    closeButton.style.borderRadius = '5px';
+    closeButton.addEventListener('click', () => {
+      setTutorialActive(false);
+      setCurrentStep(0);
+      popup.remove();
+      targetElement.style.border = '';
+      targetElement.style.boxShadow = '';
+      showTutorial2();
+    });
+    popup.appendChild(closeButton);
+    const previousButton = document.createElement('button');
+    previousButton.textContent = 'Previous';
+    previousButton.style.padding = '5px 10px';
+    previousButton.style.marginRight = '5px';
+    previousButton.style.borderRadius = '5px';
+    previousButton.disabled = currentStep === 0; // Disable if first step
+    previousButton.style.backgroundColor = previousButton.disabled ? 'grey' : 'navy';
+    previousButton.addEventListener('click', () => {
+      popup.remove();
+      setCurrentStep(currentStep - 1); // Move to previous step
+      targetElement.style.border = '';
+      targetElement.style.boxShadow = '';
+    });
+    const nextButton = document.createElement('button');
+    nextButton.textContent = 'Next';
+    nextButton.style.padding = '5px 10px';
+    nextButton.style.borderRadius = '5px';
+    nextButton.disabled = currentStep === steps.length - 1; // Disable if last step
+    nextButton.style.backgroundColor = nextButton.disabled ? 'grey' : 'green';
+    nextButton.addEventListener('click', () => {
+      popup.remove();
+      setCurrentStep(currentStep + 1); // Move to next step
+      targetElement.style.border = '';
+      targetElement.style.boxShadow = '';
+    });
+    const buttons = document.createElement('div');
+    buttons.style.display = 'flex';
+    buttons.style.marginTop = '20px';
+    buttons.style.justifyContent = 'space-between';
+    buttons.style.width = '100%';
+    buttons.appendChild(closeButton);
+    const flexEndButtons = document.createElement('div');
+    flexEndButtons.style.display = 'flex';
+    flexEndButtons.appendChild(previousButton);
+    flexEndButtons.appendChild(nextButton);
+    buttons.appendChild(flexEndButtons);
+    popup.appendChild(buttons); // Insert the buttons after the text
+  };
+
+  const handleStartTutorial = () => {
+    setTutorialActive(true);
+    setCurrentStep(0); // Start from the first step
+  };
+  useEffect(() => {
+    if (tutorialActive && currentStep < steps.length) {
+      showTutorial(steps[currentStep]);
+    }
+  }, [tutorialActive, currentStep]);
+  const steps = [
+    {
+      index: 0,
+      target: '.filter-button',
+      content: 'Use these dropdowns to apply filters and narrow down the table data based on your criteria.',
+      placement: 'top',
+    },
+    {
+      index: 2,
+      target: '.table-container',
+      content: 'This table gets updated as and when the user applies filters.It shows submission status of forecasts.',
+      placement: 'top',
+    },
+   
+  ];
+
+
   return (
     <div style={{ backgroundColor: 'white', padding: '20px', marginTop: '-44px' }}>
-     
+      <Button
+        className='tutorial-btn'
+        variant="contained"
+        size='small'
+        sx={{ color: 'white', position: 'absolute', right: 0, cursor: 'pointer', mt: 3, mr: 2 }}
+        onClick={() => handleStartTutorial()}
+      >
+        Show Tutorial
+      </Button>
+
       {/* Display greeting message with a welcome note */}
       <h2>{greeting}, Welcome to the Submission Tracker Page!</h2>
 
-      <div style={styles.selectionContainer}>
+      <div style={styles.selectionContainer} className='filter-button'>
 
         {/* Section for selecting Forecast Status */}
         <section style={styles.section}>
@@ -192,10 +346,10 @@ const DataConsolidation = () => {
 
       </div>
 
-      <div style={styles.tableContainer}>
+      <div style={styles.tableContainer} >
         {/* Table for displaying country-TA wise forecast submission status */}
         <h2 style={styles.tableHeading}> Country-TA wise Forecast Submission Status</h2>
-        <table style={styles.table}>
+        <table style={styles.table} className='table-container'>
           <thead>
             <tr >
               {/* Header for Therapeutic Area column with filter icon */}
@@ -221,7 +375,7 @@ const DataConsolidation = () => {
                 onMouseEnter={() => setHoveredRow(index)}
                 // Reset the hovered row index on mouse leave
                 onMouseLeave={() => setHoveredRow(null)}
-         
+
                 style={{
                   backgroundColor: index % 2 === 0 ? '#e5f1fb' : 'white', // Alternate row colors
                   // Apply the hover effect if the row is hovered

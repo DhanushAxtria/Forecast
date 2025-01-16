@@ -40,6 +40,7 @@ import Grid from '@mui/material/Grid';
 import { Table, TableHead, TableBody } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import { LocalizationProvider } from '@mui/x-date-pickers';
+import InputAdornment from '@mui/material/InputAdornment';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import {
     ResponsiveContainer,
@@ -51,6 +52,7 @@ const WaterFall = () => {
     const { products, timePeriod, Formulas, fromHistoricalDate, toForecastDate, fromForecastDate, values, values2, values3 } = useContext(MyContext);
     const [Res, setRes] = useState({});
     const [Index, setIndex] = useState("");
+   
     const [buttonType, setButtonType] = useState("");
     const [editingFileToFill, setEditingFileToFill] = useState({});
     const [FileToFill, setFileToFill] = useState({});
@@ -774,14 +776,15 @@ const WaterFall = () => {
     return (
         <>
 
-            <Typography
+            <Button
                 className='tutorial-btn'
-                variant="body2"
-                sx={{ color: 'black', position: 'absolute', right: 0, cursor: 'pointer', mt: -6, mr: 6 }}
-            //onClick={() => handleStartTutorial()}
+                variant="contained"
+                size='small'
+                sx={{ color: 'white', position: 'absolute', right: 0, cursor: 'pointer', mt: -6.5, mr: 2 }}
+
             >
                 Show Tutorial
-            </Typography>
+            </Button>
             <Box display="flex" alignItems="center" gap="15px" ml={1} p={2} >
                 <Button
                     variant="contained"
@@ -1434,7 +1437,29 @@ const WaterFall = () => {
                 <Dialog open={openChangeDialog} onClose={() => setOpenChangeDialog(false)} maxWidth="sm" fullWidth>
                     <DialogTitle>Percentage</DialogTitle>
                     <DialogContent sx={{ paddingTop: '15px' }}>
-                        <Box display="flex" flexDirection="row" gap="16px" alignItems="center" marginTop="10px">
+                        <Box display="flex" flexDirection="column" gap="2px" alignItems="left" marginTop="10px">
+                            {/* Display the increase or decrease message */}
+                            {editingPercentVal[Index] !== undefined && (
+                                <Typography
+                                    variant="body2"
+                                    color={
+                                        Number(editingPercentVal[Index]) > 0
+                                            ? 'green' // If the value is positive, use green
+                                            : Number(editingPercentVal[Index]) < 0
+                                                ? 'red' // If the value is negative, use red
+                                                : 'black' // Default color when there's no value
+                                    }
+                                    sx={{ marginBottom: '10px' }}
+                                >
+                                    {Number(editingPercentVal[Index]) > 0
+                                        ? `Increase by ${editingPercentVal[Index]} %`
+                                        : Number(editingPercentVal[Index]) < 0
+                                            ? `Decrease by ${Math.abs(editingPercentVal[Index])} %`
+                                            : ''}
+                                </Typography>
+                            )}
+
+                            {/* Input field for percentage */}
                             <TextField
                                 type="number"
                                 variant="outlined"
@@ -1447,6 +1472,9 @@ const WaterFall = () => {
                                         ...prev,
                                         [Index]: val,
                                     }));
+                                }}
+                                InputProps={{
+                                    endAdornment: <InputAdornment position="end">%</InputAdornment>,
                                 }}
                             />
                         </Box>

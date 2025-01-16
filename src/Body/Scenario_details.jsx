@@ -709,27 +709,18 @@ const ForecastAndFlowDiagram = (props) => {
 
         <div className="content">
             {activeTab === 'controlSheet' && (
-                <Box sx={{ display: 'flex', padding: '20px', flexDirection: 'column', marginTop: '-35px' }} >
-                    <Typography
-                        className='tutorial-btn'
-                        variant="body2"
-                        sx={{ color: 'black', position: 'absolute', right: 0, cursor: 'pointer', mt: 4, mr: 2 }}
-                        onClick={() => handleStartTutorial()}
-                    >
-                        Show Tutorial
-                    </Typography>
+               <> 
+               <Box sx={{ display: 'flex', padding: '20px', flexDirection: 'column', marginTop: '-35px',paddingBottom: '40px' }} >
+                     <Button
+                           className='tutorial-btn'
+                           variant="contained"
+                           size='small'
+                           sx={{ color: 'white', position: 'absolute', right: 0, cursor: 'pointer', mt: 3, mr: 2 }}
+                           onClick={() => handleStartTutorial()}
+                         >
+                           Show Tutorial
+                         </Button>
                     <h2 className="greeting">{greeting}, Welcome to the Forecast & Worksheet Selections</h2>
-
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-                        <Button
-                            variant="contained"
-                            className="fixed-apply-button" // Apply the custom CSS class
-                            startIcon={<ApplyIcon />}
-                            onClick={handleSaveAndContinue}
-                        >
-                            Save & Continue
-                        </Button>
-                    </Box>
 
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
@@ -1082,6 +1073,23 @@ const ForecastAndFlowDiagram = (props) => {
                         )}
                     </div>
                 </Box>
+                <Box sx={{ display: 'flex',
+                    flexDirection: 'column',
+                    position: 'fixed',
+                    bottom: 0,
+                    right: 10,
+                    padding: '10px',
+                    zIndex: 10, }}>
+                        <Button
+                            variant="contained"
+                            className="fixed-apply-button" // Apply the custom CSS class
+                            startIcon={<ApplyIcon />}
+                            onClick={handleSaveAndContinue}
+                        >
+                            Save & Continue
+                        </Button>
+                    </Box>
+                </>
             )}
         </div>
 
