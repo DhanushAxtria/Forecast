@@ -126,25 +126,51 @@ const Patient_Forecast = () => {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 2 }}>
                 <Box sx={{ display: 'flex', gap: 1 }}>
-                    <Button variant="contained" onClick={() => {
-                        if (!tabTableVisibility[currentTabKey].table1) toggleTableVisibility(currentTabKey, 'table1')
-                        if (!tabTableVisibility[currentTabKey].table2) toggleTableVisibility(currentTabKey, 'table2')
-                        if (!tabTableVisibility[currentTabKey].table3) toggleTableVisibility(currentTabKey, 'table3')
-
-                    }} color="primary" sx={{ fontSize: '0.8rem' }}>
-                        Show Preview
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        sx={{ fontSize: '0.8rem' }}
+                    >
+                        Submit
                     </Button>
                     <Button
                         variant="contained"
                         onClick={() => {
-                            if (tabTableVisibility[currentTabKey].table1) toggleTableVisibility(currentTabKey, 'table1');
-                            if (tabTableVisibility[currentTabKey].table2) toggleTableVisibility(currentTabKey, 'table2');
-                            if (tabTableVisibility[currentTabKey].table3) toggleTableVisibility(currentTabKey, 'table3');
+                            const allVisible = Object.values(tabTableVisibility[currentTabKey]).every((value) => value);
+                            if (allVisible) {
+                                setTabTableVisibility((prev) => ({
+                                    ...prev,
+                                    [currentTabKey]: {
+                                        table1: false,
+                                        table2: false,
+                                        table3: false,
+                                    },
+                                }));
+                            } else {
+                                setTabTableVisibility((prev) => ({
+                                    ...prev,
+                                    [currentTabKey]: {
+                                        table1: true,
+                                        table2: true,
+                                        table3: true,
+                                    },
+                                }));
+                            }
                         }}
-                        color="primary"
+                        color={
+                            tabTableVisibility[currentTabKey].table1 &&
+                                tabTableVisibility[currentTabKey].table2 &&
+                                tabTableVisibility[currentTabKey].table3
+                                ? 'error'
+                                : 'primary'
+                        }
                         sx={{ fontSize: '0.8rem' }}
                     >
-                        Close Preview
+                        {tabTableVisibility[currentTabKey].table1 &&
+                            tabTableVisibility[currentTabKey].table2 &&
+                            tabTableVisibility[currentTabKey].table3
+                            ? 'Close Preview'
+                            : 'Show Preview'}
                     </Button>
                     <Button
                         variant="contained"
@@ -2488,37 +2514,46 @@ const Patient_Forecast = () => {
     return (
         <>
             {/* Main wrapper div for the product list page */}
-            <div className="product-list-page" style={{ marginLeft: '10px' }}>
+            <Box className="product-list-page" style={{ marginLeft: '10px' }}
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    paddingBottom: '60px'
+
+                }}>
 
                 {/* Section displaying the greeting message */}
                 <div style={{ backgroundColor: 'white', padding: '0.5px', marginTop: '-25px', marginLeft: '10px' }}>
-                    <Typography
+                    <Button
                         className='tutorial-btn'
-                        variant="body2"
-                        sx={{ color: 'black', position: 'absolute', right: 0, cursor: 'pointer', mt: 4, mr: 2 }}
+                        variant="contained"
+                        size='small'
+                        sx={{ color: 'white', position: 'absolute', right: 0, cursor: 'pointer', mt: 3, mr: 2 }}
                         onClick={() => handleStartTutorial()}
                     >
                         Show Tutorial
-                    </Typography>
+                    </Button>
                     <h2 style={{ textAlign: 'left' }}>{greeting}, Welcome to the Patient Based Forecasting Page!</h2> </div>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => {
-                        if (window.confirm("Are you sure you want to clear all data? This action cannot be undone.")) {
-                            handleReset();
-                        }
-                    }}
-                    sx={{ marginLeft: '18px', marginBottom: '2px' }}>
-                    Clear All Data
-                </Button>
+                <div style={{ marginLeft: '10px', marginTop: '5px' }}>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => {
+                            if (window.confirm("Are you sure you want to clear all data? This action cannot be undone.")) {
+                                handleReset();
+                            }
+                        }}>
+                        Clear All Data
+                    </Button>
+                </div>
 
                 <Box
                     sx={{
                         maxWidth: '100%',   // Set width to contain horizontal scroll
                         overflowY: 'auto',  // Enable vertical scrolling
                         marginBottom: '15px',
-                        textAlign: 'left' // Align box contents to the left
+                        textAlign: 'left', // Align box contents to the left
+
                     }}
                 >
 
@@ -2563,6 +2598,7 @@ const Patient_Forecast = () => {
                             }} />
                         </Tabs>
 
+
                         {tab_value !== null &&
                             <div>
 
@@ -2578,6 +2614,7 @@ const Patient_Forecast = () => {
                                         overflowX: 'auto',
                                         maxWidth: '100%',
                                         position: 'sticky',
+
                                     }}
                                 >
 
@@ -2597,14 +2634,25 @@ const Patient_Forecast = () => {
                                     {Card3()}
                                     {tabTableVisibility[currentTabKey].table3 && renderTable(currentTabKey, 'table3')}
                                 </Box>
-                                {Preview()} {/* Render Preview component inside each tab*/}
-
-
                             </div>
                         }
                     </Box>
                 </Box>
-            </div>
+            </Box >
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    position: 'fixed',
+                    bottom: 0,
+                    right: 20,
+                    padding: '10px',
+                    zIndex: 10,
+                }}
+            >
+                {Preview()} {/* Render Preview component at the bottom of the page */}
+            </Box>
+
         </>
     )
 }

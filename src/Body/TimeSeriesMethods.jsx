@@ -414,14 +414,15 @@ const Forecastpage = () => {
                         <Typography variant="subtitle2" sx={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
                             Upload historical data
                         </Typography>
-                        <Typography
+                        <Button
                             className='tutorial-btn'
-                            variant="body2"
-                            sx={{ color: 'black', position: 'absolute', right: 0, cursor: 'pointer', mt: 4, mr: 2 }}
+                            variant="contained"
+                            size='small'
+                            sx={{ color: 'white', position: 'absolute', right: 0, cursor: 'pointer', mt: 3, mr: 2 }}
                             onClick={() => handleStartTutorial()}
                         >
                             Show Tutorial
-                        </Typography>
+                        </Button>
                     </Box>
                     {/* Box with upload button, file name display and clear button */}
                     <Box sx={{ display: 'flex', gap: 2, marginTop: '10px', alignItems: 'center' }}>

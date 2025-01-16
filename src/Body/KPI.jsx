@@ -7,6 +7,7 @@ import produce from "immer";
 import Select from '@mui/material/Select';
 import GetAppIcon from '@mui/icons-material/GetApp';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import InputAdornment from '@mui/material/InputAdornment';
 import { Snackbar } from '@mui/material';
 import {
     TextField,
@@ -54,6 +55,7 @@ const KPI = () => {
     const { products, timePeriod, Formulas, fromHistoricalDate, toForecastDate, values, values2, values3 } = useContext(MyContext);
     const [Res, setRes] = useState({});
     const [Index, setIndex] = useState("");
+
     const [buttonType, setButtonType] = useState("");
     const [editingHighFileToFill, setEditingHighFileToFill] = useState({});
     const [highFileToFill, setHighFileToFill] = useState({});
@@ -586,7 +588,7 @@ const KPI = () => {
             const temp = gp.Case === 'downside' ? values[gp.Field] : gp.Case === 'base' ? values2[gp.Field] : values3[gp.Field];
             Object.keys(temp).forEach((key) => {
                 const tmp = buttontype === 'High' ? parseFloat(HighPercentVal[index]) / 100 : parseFloat(LowPercentVal[index]) / 100;
-                buttontype === 'High' ? res[key] = ((1 + tmp) * temp[key]).toFixed(2) : res[key] = ((1 - tmp) * temp[key]).toFixed(2);
+                buttontype === 'High' ? res[key] = ((1 + tmp) * temp[key]).toFixed(2) : res[key] = ((1 + tmp) * temp[key]).toFixed(2);
             });
             console.log("res", res);
             return res;
@@ -1084,17 +1086,18 @@ const KPI = () => {
         },
     ];
 
-
+    const currentPercentVal = buttonType === 'High' ? editingHighPercentVal[Index] : editingLowPercentVal[Index];
     return (
         <>
-            <Typography
+            <Button
                 className='tutorial-btn'
-                variant="body2"
-                sx={{ color: 'black', position: 'absolute', right: 0, cursor: 'pointer', mt: -6, mr: 6 }}
+                variant="contained"
+                size='small'
+                sx={{ color: 'white', position: 'absolute', right: 0, cursor: 'pointer', mt: -6.5, mr: 2 }}
                 onClick={() => handleStartTutorial()}
             >
                 Show Tutorial
-            </Typography>
+            </Button>
             <Box display="flex" alignItems="center" gap="15px" ml={1} p={2} >
                 <Button
                     variant="contained"
@@ -1956,24 +1959,51 @@ const KPI = () => {
                 <Dialog open={openChangeDialog} onClose={() => setOpenChangeDialog(false)} maxWidth="sm" fullWidth>
                     <DialogTitle>Percentage</DialogTitle>
                     <DialogContent sx={{ paddingTop: '15px' }}>
-                        <Box display="flex" flexDirection="row" gap="16px" alignItems="center" marginTop="10px">
+                        <Box display="flex" flexDirection="column"  gap="2px" alignItems="left" marginTop="10px">
+                            {/* Display the increase or decrease message */}
+                            {currentPercentVal !== undefined && (
+                                <Typography
+                                    variant="body2"
+                                    color={
+                                        Number(currentPercentVal) > 0
+                                            ? 'green' // If the value is positive, use green
+                                            : Number(currentPercentVal) < 0
+                                                ? 'red' // If the value is negative, use red
+                                                : 'black' // Default color when there's no value
+                                    }
+                                    sx={{ marginBottom: '10px' }}
+                                >
+                                    {Number(currentPercentVal) > 0
+                                        ? `Increase by ${currentPercentVal} %`
+                                        : Number(currentPercentVal) < 0
+                                            ? `Decrease by ${Math.abs(currentPercentVal)} %`
+                                            : ''}
+                                </Typography>
+                            )}
+
+                            {/* Input field for percentage */}
                             <TextField
                                 type="number"
                                 variant="outlined"
                                 margin="dense"
                                 fullWidth
-                                value={buttonType === 'High' ? editingHighPercentVal[Index] : editingLowPercentVal[Index]}
+                                value={currentPercentVal}
                                 onChange={(e) => {
                                     const val = e.target.value;
-                                    buttonType === 'High'
-                                        ? setEditingHighPercentVal((prev) => ({
-                                            ...prev,
-                                            [Index]: val,
-                                        }))
-                                        : setEditingLowPercentVal((prev) => ({
+                                    if (buttonType === 'High') {
+                                        setEditingHighPercentVal((prev) => ({
                                             ...prev,
                                             [Index]: val,
                                         }));
+                                    } else {
+                                        setEditingLowPercentVal((prev) => ({
+                                            ...prev,
+                                            [Index]: val,
+                                        }));
+                                    }
+                                }}
+                                InputProps={{
+                                    endAdornment: <InputAdornment position="end">%</InputAdornment>, // Add percentage symbol
                                 }}
                             />
                         </Box>
