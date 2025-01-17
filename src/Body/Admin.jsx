@@ -305,7 +305,7 @@ const Admin = () => {
       >
         Show Tutorial
       </Button>
-      <h2>{greeting}, Welcome to the Data Consolidation Page!</h2>
+      <h2>{greeting}, Welcome to the Admin Page!</h2>
 
       {/* Forecast and Worksheet Selections Container */}
       <div style={styles.selectionContainer}>
