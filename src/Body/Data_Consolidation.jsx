@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { FaFilter } from 'react-icons/fa'; // Importing the filter icon
 import { generateDummyData } from './Generate_Dummy'; // importing dummy data
+import Button from '@mui/material/Button';
+
 
 // Unicode for Lock and Good to Go icons
 const lockIcon = '🔒';
@@ -29,6 +31,8 @@ const DataConsolidation = () => {
   const [selectedTherapeuticArea, setSelectedTherapeuticArea] = useState(''); // State for selected Therapeutic Area
   const [selectedRegion, setSelectedRegion] = useState(''); // State for selected Region
   const [selectedForecastCycle, setSelectedForecastCycle] = useState(''); // State for selected Forecast Cycle
+  const [tutorialActive, setTutorialActive] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0); // Track the current step in the tutorial
 
   // Set the greeting based on the current time
   useEffect(() => {
@@ -63,15 +67,15 @@ const DataConsolidation = () => {
         forecastOptions[selectedForecastCycle].includes(row.forecast);
       return matchesTherapeuticArea && matchesRegion && matchesForecastCycle;
     });
-  
+
     // Get countries in the selected region
     const countriesInRegion = countries[selectedRegion];
-  
+
     // Create an array that includes all countries and their respective rows if any
     const rowsWithCountries = countriesInRegion.map((country) => {
       // Find rows for the current country
       const countryRows = filteredRows.filter((row) => row.country === country);
-  
+
       // If no dummy data exists for the country, give the following default values
       if (countryRows.length === 0) {
         return [
@@ -86,10 +90,10 @@ const DataConsolidation = () => {
           },
         ];
       }
-  
+
       return countryRows;
     });
-  
+
     // Flatten the result to get a list of rows
     return rowsWithCountries.flat();
   };
@@ -106,10 +110,165 @@ const DataConsolidation = () => {
   const areAllFiltersSelected = () => {
     return selectedTherapeuticArea !== '' && selectedRegion !== '' && selectedForecastCycle !== '';
   };
+  const showTutorial2 = () => {
+    const step = {
+      index: 0,
+      target: '.tutorial-btn',
+      content: 'You can always see this tutorial by clicking on this button.',
+      placement: 'left',
+    };
+    const targetElement = document.querySelector(step.target);
+    const popup = document.createElement('div');
+    popup.classList.add('tutorial-popup', step.placement);
+    popup.textContent = step.content;
+    targetElement.style.boxShadow = '0px 0px 10px 0px rgba(0,0,0,0.75)';
+    targetElement.style.border = '3px solid navy';
+    // Position the popup based on the target element and placement
+    const rect = targetElement.getBoundingClientRect();
+    let top, left;
+    top = rect.top + rect.height / 2 - popup.offsetHeight / 2;
+    left = rect.left - 350;
+    popup.style.top = `${top}px`;
+    popup.style.left = `${left}px`;
+    document.body.appendChild(popup);
+    // Add a button to close the popup
+    const closeButton = document.createElement('button');
+    closeButton.textContent = 'Cancel';
+    closeButton.style.marginRight = '40px';
+    closeButton.style.padding = '5px 10px';
+    closeButton.style.borderRadius = '5px';
+    closeButton.addEventListener('click', () => {
+      setTutorialActive(false);
+      setCurrentStep(0);
+      popup.remove();
+      targetElement.style.border = '';
+      targetElement.style.boxShadow = '';
+    });
+    popup.appendChild(closeButton);
+  };
+  const showTutorial = (step) => {
+    const targetElement = document.querySelector(step.target);
+    const popup = document.createElement('div');
+    popup.classList.add('tutorial-popup', step.placement);
+    popup.textContent = step.content;
+    targetElement.style.boxShadow = '0px 0px 10px 0px rgba(0,0,0,0.75)';
+    targetElement.style.border = '3px solid navy';
+    // Position the popup based on the target element and placement
+    const rect = targetElement.getBoundingClientRect();
+    let top, left;
+    if (step.placement === 'top') {
+      top = rect.top - popup.offsetHeight;
+      left = rect.left + rect.width / 2 - popup.offsetWidth / 2;
+    } else if (step.placement === 'bottom') {
+      top = rect.bottom + 10;
+      left = rect.left + rect.width / 2 - popup.offsetWidth / 2;
+    } else if (step.placement === 'left') {
+      top = rect.top + rect.height / 2 - popup.offsetHeight / 2;
+      left = rect.left - 350;
+    } else if (step.placement === 'right') {
+      top = rect.top;
+      left = rect.right + 25;
+    }
+    popup.style.top = `${top}px`;
+    popup.style.left = `${left}px`;
+    document.body.appendChild(popup);
+    // Add a button to close the popup
+    const closeButton = document.createElement('button');
+    closeButton.textContent = currentStep === steps.length - 1 ? 'Finish' : 'Skip Tutorial';
+    closeButton.style.marginRight = '40px';
+    closeButton.style.padding = '5px 10px';
+    closeButton.style.borderRadius = '5px';
+    closeButton.addEventListener('click', () => {
+      setTutorialActive(false);
+      setCurrentStep(0);
+      popup.remove();
+      targetElement.style.border = '';
+      targetElement.style.boxShadow = '';
+      showTutorial2();
+    });
+    popup.appendChild(closeButton);
+    const previousButton = document.createElement('button');
+    previousButton.textContent = 'Previous';
+    previousButton.style.padding = '5px 10px';
+    previousButton.style.marginRight = '5px';
+    previousButton.style.borderRadius = '5px';
+    previousButton.disabled = currentStep === 0; // Disable if first step
+    previousButton.style.backgroundColor = previousButton.disabled ? 'grey' : 'navy';
+    previousButton.addEventListener('click', () => {
+      popup.remove();
+      setCurrentStep(currentStep - 1); // Move to previous step
+      targetElement.style.border = '';
+      targetElement.style.boxShadow = '';
+    });
+    const nextButton = document.createElement('button');
+    nextButton.textContent = 'Next';
+    nextButton.style.padding = '5px 10px';
+    nextButton.style.borderRadius = '5px';
+    nextButton.disabled = currentStep === steps.length - 1; // Disable if last step
+    nextButton.style.backgroundColor = nextButton.disabled ? 'grey' : 'green';
+    nextButton.addEventListener('click', () => {
+      popup.remove();
+      setCurrentStep(currentStep + 1); // Move to next step
+      targetElement.style.border = '';
+      targetElement.style.boxShadow = '';
+    });
+    const buttons = document.createElement('div');
+    buttons.style.display = 'flex';
+    buttons.style.marginTop = '20px';
+    buttons.style.justifyContent = 'space-between';
+    buttons.style.width = '100%';
+    buttons.appendChild(closeButton);
+    const flexEndButtons = document.createElement('div');
+    flexEndButtons.style.display = 'flex';
+    flexEndButtons.appendChild(previousButton);
+    flexEndButtons.appendChild(nextButton);
+    buttons.appendChild(flexEndButtons);
+    popup.appendChild(buttons); // Insert the buttons after the text
+  };
+
+  const handleStartTutorial = () => {
+    setTutorialActive(true);
+    setCurrentStep(0); // Start from the first step
+  };
+  useEffect(() => {
+    if (tutorialActive && currentStep < steps.length) {
+      showTutorial(steps[currentStep]);
+    }
+  }, [tutorialActive, currentStep]);
+  
+  const steps = [
+    {
+      index: 0,
+      target: '.filter1-button',
+      content: 'Use this button to select Forecast Cycle.',
+      placement: 'right',
+    },
+    {
+      index: 1,
+      target: '.filter2-button',
+      content: 'Use this button to select Therapeutic Area.',
+      placement: 'right',
+    },
+    {
+      index: 2,
+      target: '.filter3-button',
+      content: 'Use this button to select Region.\nA table is displayed with the countries of this region with filtered scenario data.',
+      placement: 'left',
+    }
+  ];
 
   return (
-    <div style={{ backgroundColor: 'white', padding: '20px', marginTop: '-44px' }}>
+    <div style={{ backgroundColor: 'white', marginTop: '20px' }}>
       {/* Greeting section */}
+      <Button
+                className='tutorial-btn'
+                variant="contained"
+                size='small'
+                sx={{ color: 'white', position: 'absolute', right: 0, cursor: 'pointer', mt: 0, mr: 2 }}
+                onClick={() => handleStartTutorial()}
+            >
+                Show Tutorial
+            </Button>
       <h2>{greeting}, Welcome to the Data Consolidation Page!</h2>
 
       {/* Forecast and Worksheet Selections Container */}
@@ -122,6 +281,7 @@ const DataConsolidation = () => {
             <div style={styles.labeledSelect}>
               <label style={styles.label}>Select Forecast Cycle</label>
               <select
+                className='filter1-button'
                 style={styles.select}
                 value={selectedForecastCycle}
                 onChange={(e) => setSelectedForecastCycle(e.target.value)}
@@ -146,6 +306,7 @@ const DataConsolidation = () => {
             <div style={styles.labeledSelect}>
               <label style={styles.label}>Select Therapeutic Area</label>
               <select
+                className='filter2-button'
                 style={styles.select}
                 value={selectedTherapeuticArea}
                 onChange={(e) => setSelectedTherapeuticArea(e.target.value)}
@@ -169,6 +330,7 @@ const DataConsolidation = () => {
             <div style={styles.labeledSelect}>
               <label style={styles.label}>Select Region</label>
               <select
+                className='filter3-button'
                 style={styles.select}
                 value={selectedRegion}
                 onChange={(e) => setSelectedRegion(e.target.value)}
@@ -193,7 +355,7 @@ const DataConsolidation = () => {
           <table style={styles.table}>
             <thead>
               <tr >
-                 {/* Column headers with filter icons */}
+                {/* Column headers with filter icons */}
                 <th style={styles.tableHeader}>
                   Therapeutic Area <FaFilter style={styles.filterIcon} /> {/* Filter Icon for Therapeutic Area */}
                 </th>
@@ -210,7 +372,7 @@ const DataConsolidation = () => {
               {/* Rendering each filtered row */}
               {getFilteredRows().map((row, index) => (
                 <tr style={{ textAlign: 'center', backgroundColor: index % 2 === 0 ? '#e5f1fb' : 'white' }} key={index}> {/* Alternating row colors for readability*/}
-                  <td>{row.therapeuticArea}</td> 
+                  <td>{row.therapeuticArea}</td>
                   <td>{row.country}</td>
                   <td>
                     <select style={{ ...styles.select, textAlign: 'center' }}>
@@ -234,7 +396,7 @@ const DataConsolidation = () => {
                   </td>
                   <td>
                     {/* display username */}
-                   {row.username} 
+                    {row.username}
                   </td>
                 </tr>
               ))}
@@ -315,7 +477,7 @@ const styles = {
     marginTop: '10px',
     boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
   },
-  
+
   tableHeader: {
     backgroundColor: '#1976d2',
     color: 'white',
@@ -323,7 +485,7 @@ const styles = {
     fontSize: '16px',
     textAlign: 'center',
     padding: '8px',
-  
+
   },
   forecastCell: {
     display: 'flex',
@@ -332,7 +494,7 @@ const styles = {
   },
   icon: {
     marginLeft: '10px',
-    
+
   },
   iconGoodToGo: {
     marginLeft: '10px',
@@ -340,7 +502,7 @@ const styles = {
   input: {
     padding: '8px',
     borderRadius: '4px',
-    
+
     width: '100%',
     textAlign: 'center',
   },

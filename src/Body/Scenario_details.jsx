@@ -634,76 +634,7 @@ const ForecastAndFlowDiagram = (props) => {
         }
 
     ];
-    //   const steps2 = [
-    //     {
-    //       index: 0,
-    //       target: '.copy-button',
-    //       content: 'Clicking here allow you to copy the scenario from submitted scenarios.',
-    //       placement: 'right',
-    //     },
-    //     {
-    //       index: 1,
-    //       target: '.saved-button',
-    //       content: 'Clicking here allow you to copy the scenario from saved scenarios.',
-    //       placement: 'right',
-    //     },
-    //     {
-    //       index: 2,
-    //       target: '.saved-template',
-    //       content: 'Clicking here allow you to see the scenario templates.',
-    //       placement: 'right',
-    //     },
-    //     {
-    //       index: 3,
-    //       target: '.filter-button',
-    //       content: 'To filter out the table based on the selected filters.',
-    //       placement: 'right',
-    //     },
-    //     {
-    //       index: 4,
-    //       target: '.create-button',
-    //       content: 'Select all the filters and click here to create a new scenario.',
-    //       placement: 'left',
-    //     },
-    //     {
-    //       index: 5,
-    //       target: '.select-button',
-    //       content: 'Clicking here allow you to edit this scenario.',
-    //       placement: 'left',
-    //     }
-    //   ];
-    //   const steps3 = [
-    //     {
-    //       index: 0,
-    //       target: '.copy-button',
-    //       content: 'Clicking here allow you to copy the scenario from submitted scenarios.',
-    //       placement: 'right',
-    //     },
-    //     {
-    //       index: 1,
-    //       target: '.saved-button',
-    //       content: 'Clicking here allow you to copy the scenario from saved scenarios.',
-    //       placement: 'right',
-    //     },
-    //     {
-    //       index: 2,
-    //       target: '.saved-template',
-    //       content: 'Clicking here allow you to see the scenario templates.',
-    //       placement: 'right',
-    //     },
-    //     {
-    //       index: 3,
-    //       target: '.filter-button',
-    //       content: 'To filter out the table based on the selected filters.',
-    //       placement: 'right',
-    //     },
-    //     {
-    //       index: 4,
-    //       target: '.folder-button',
-    //       content: 'Clicking here allow you to use this template to create a scenario.',
-    //       placement: 'right',
-    //     }
-    // ];
+   
 
     return (
 
@@ -1082,6 +1013,7 @@ const ForecastAndFlowDiagram = (props) => {
                     zIndex: 10, }}>
                         <Button
                             variant="contained"
+                            color="success"
                             className="fixed-apply-button" // Apply the custom CSS class
                             startIcon={<ApplyIcon />}
                             onClick={handleSaveAndContinue}

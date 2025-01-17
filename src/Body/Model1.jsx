@@ -114,43 +114,69 @@ const Model1 = () => {
     /*A component that renders a box with three buttons: one to show the preview of the tables,
       one to close the preview and  "Show Dashboard" button to navigate to the dashboard. */
     const Preview = () => {
-        return (
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 2 }}>
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                    <Button variant="contained" onClick={() => {
-                        if (!tabTableVisibility[currentTabKey].table1) toggleTableVisibility(currentTabKey, 'table1')
-                        if (!tabTableVisibility[currentTabKey].table2) toggleTableVisibility(currentTabKey, 'table2')
-                        if (!tabTableVisibility[currentTabKey].table3) toggleTableVisibility(currentTabKey, 'table3')
-
-                    }} color="primary" sx={{ fontSize: '0.8rem' }}>
-                        Show Preview
-                    </Button>
-                    <Button
-                        variant="contained"
-                        onClick={() => {
-                            if (tabTableVisibility[currentTabKey].table1) toggleTableVisibility(currentTabKey, 'table1');
-                            if (tabTableVisibility[currentTabKey].table2) toggleTableVisibility(currentTabKey, 'table2');
-                            if (tabTableVisibility[currentTabKey].table3) toggleTableVisibility(currentTabKey, 'table3');
-                        }}
-                        color="primary"
-                        sx={{ fontSize: '0.8rem' }}
-                    >
-                        Close Preview
-                    </Button>
-                    <Button
-                        variant="contained"
-                        onClick={() => {
-                            navigate("/new-model/epidemiology-model/model1/analysis");
-                        }}
-                        color="success"
-                        sx={{ fontSize: '0.8rem' }}
-                    >
-                        Analysis
-                    </Button>
+            return (
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 2 }}>
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            sx={{ fontSize: '0.8rem' }}
+                        >
+                            Submit
+                        </Button>
+                        <Button
+                            variant="contained"
+                            onClick={() => {
+                                const allVisible = Object.values(tabTableVisibility[currentTabKey]).every((value) => value);
+                                if (allVisible) {
+                                    setTabTableVisibility((prev) => ({
+                                        ...prev,
+                                        [currentTabKey]: {
+                                            table1: false,
+                                            table2: false,
+                                            table3: false,
+                                        },
+                                    }));
+                                } else {
+                                    setTabTableVisibility((prev) => ({
+                                        ...prev,
+                                        [currentTabKey]: {
+                                            table1: true,
+                                            table2: true,
+                                            table3: true,
+                                        },
+                                    }));
+                                }
+                            }}
+                            color={
+                                tabTableVisibility[currentTabKey].table1 &&
+                                    tabTableVisibility[currentTabKey].table2 &&
+                                    tabTableVisibility[currentTabKey].table3
+                                    ? 'error'
+                                    : 'primary'
+                            }
+                            sx={{ fontSize: '0.8rem' }}
+                        >
+                            {tabTableVisibility[currentTabKey].table1 &&
+                                tabTableVisibility[currentTabKey].table2 &&
+                                tabTableVisibility[currentTabKey].table3
+                                ? 'Close Preview'
+                                : 'Show Preview'}
+                        </Button>
+                        <Button
+                            variant="contained"
+                            onClick={() => {
+                                navigate("/new-model/epidemiology-model/scenario-details/forecastdeepdive/analysis");
+                            }}
+                            color="success"
+                            sx={{ fontSize: '0.8rem' }}
+                        >
+                            Analysis
+                        </Button>
+                    </Box>
                 </Box>
-            </Box>
-        );
-    };
+            );
+        };
     const Card1 = () => {
         return (
             <>
@@ -2212,117 +2238,140 @@ const Model1 = () => {
     }, []);
 
     return (
-        <>
-            {/* Main wrapper div for the product list page */}
-            <div className="product-list-page" style={{ marginLeft: '10px' }}>
-
-                {/* Section displaying the greeting message */}
-                <div style={{ backgroundColor: 'white', padding: '0.5px', marginTop: '-25px', marginLeft: '10px' }}>
-                    <h2 style={{ textAlign: 'left' }}>{greeting}, Welcome to the Patient Based Forecasting Page!</h2> </div>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => {
-                        if (window.confirm("Are you sure you want to clear all data? This action cannot be undone.")) {
-                            handleReset();
-                        }
-                    }}
-                    sx={{ marginLeft: '18px', marginBottom: '2px' }}>
-                    Clear All Data
-                </Button>
-
+            <>
+                {/* Main wrapper div for the product list page */}
+                <Box className="product-list-page" style={{ marginLeft: '10px' }}
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        paddingBottom: '60px'
+    
+                    }}>
+    
+                    {/* Section displaying the greeting message */}
+                    <div style={{ backgroundColor: 'white', padding: '0.5px', marginTop: '-25px', marginLeft: '10px' }}>
+                        
+                        <h2 style={{ textAlign: 'left' }}>{greeting}, Welcome to the Patient Based Forecasting Page!</h2> </div>
+                    <div style={{ marginLeft: '10px', marginTop: '5px' }}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => {
+                                if (window.confirm("Are you sure you want to clear all data? This action cannot be undone.")) {
+                                    handleReset();
+                                }
+                            }}>
+                            Clear All Data
+                        </Button>
+                    </div>
+    
+                    <Box
+                        sx={{
+                            maxWidth: '100%',   // Set width to contain horizontal scroll
+                            overflowY: 'auto',  // Enable vertical scrolling
+                            marginBottom: '15px',
+                            textAlign: 'left', // Align box contents to the left
+    
+                        }}
+                    >
+    
+                        <Box sx={{ width: '90%', margin: '0 auto' }}>
+    
+                            <Tabs tab_value={tab_value} onChange={handleTabChange} aria-label="basic tabs example" className='tab-navigation'
+                                sx={{
+                                    borderBottom: 2,
+                                    borderColor: 'divider',
+                                    marginBottom: 2,
+                                    '.MuiTabs-flexContainer': {
+                                        justifyContent: 'space-around', // Distribute tabs evenly
+                                    },
+                                }} >
+                                <Tab label="Downside Case" sx={{
+                                    fontWeight: 'bold',
+                                    fontSize: '15px', // Increase font size
+                                    color: tab_value === 0 ? '#007bff' : 'black', // Highlight selected tab
+                                    '&.Mui-selected': {
+                                        color: '#007bff', // Color of selected tab label
+                                        fontSize: '20px', // Increase font size of selected tab
+                                    }
+                                }} />
+                                <Tab label="Base Case" sx={{
+                                    fontWeight: 'bold',
+                                    fontSize: '15px', // Increase font size
+                                    color: tab_value === 1 ? '#007bff' : 'black', // Highlight selected tab
+                                    '&.Mui-selected': {
+                                        color: '#007bff', // Color of selected tab label
+                                        fontSize: '20px', // Increase font size of selected tab
+                                    }
+                                }} />
+    
+                                <Tab label="Upside Case" sx={{
+                                    fontWeight: 'bold',
+                                    fontSize: '15px', // Increase font size
+                                    color: tab_value === 2 ? '#007bff' : 'black', // Highlight selected tab
+                                    '&.Mui-selected': {
+                                        color: '#007bff', // Color of selected tab label
+                                        fontSize: '20px', // Increase font size of selected tab
+                                    }
+                                }} />
+                            </Tabs>
+    
+    
+                            {tab_value !== null &&
+                                <div>
+    
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            gap: 2,
+                                            left: 0,
+                                            marginTop: 2,
+                                            overflowY: 'auto',
+                                            overflowX: 'auto',
+                                            maxWidth: '100%',
+                                            position: 'sticky',
+    
+                                        }}
+                                    >
+    
+                                        {/* Render Card1, Card2, and Card3 and render tables based on tabTableVisibility state */}
+                                        {Card1()}
+                                        {tabTableVisibility[currentTabKey].table1 && renderTable(currentTabKey, 'table1')}
+    
+                                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            <img src="https://pluspng.com/img-png/down-arrow-png-down-icon-1600.png" width="20px" height="20px" alt="Downward arrow" />
+                                        </Box>
+                                        {Card2()}
+                                        {tabTableVisibility[currentTabKey].table2 && renderTable(currentTabKey, 'table2')}
+    
+                                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            <img src="https://pluspng.com/img-png/down-arrow-png-down-icon-1600.png" width="20px" height="20px" alt="Downward arrow" />
+                                        </Box>
+                                        {Card3()}
+                                        {tabTableVisibility[currentTabKey].table3 && renderTable(currentTabKey, 'table3')}
+                                    </Box>
+                                </div>
+                            }
+                        </Box>
+                    </Box>
+                </Box >
                 <Box
                     sx={{
-                        maxWidth: '100%',   // Set width to contain horizontal scroll
-                        overflowY: 'auto',  // Enable vertical scrolling
-                        marginBottom: '15px',
-                        textAlign: 'left' // Align box contents to the left
+                        display: 'flex',
+                        flexDirection: 'column',
+                        position: 'fixed',
+                        bottom: 0,
+                        right: 20,
+                        padding: '10px',
+                        zIndex: 10,
                     }}
                 >
-
-                    <Box sx={{ width: '90%', margin: '0 auto' }}>
-
-                        <Tabs tab_value={tab_value} onChange={handleTabChange} aria-label="basic tabs example"
-                            sx={{
-                                borderBottom: 2,
-                                borderColor: 'divider',
-                                marginBottom: 2,
-                                '.MuiTabs-flexContainer': {
-                                    justifyContent: 'space-around', // Distribute tabs evenly
-                                },
-                            }} >
-                            <Tab label="Downside Case" sx={{
-                                fontWeight: 'bold',
-                                fontSize: '15px', // Increase font size
-                                color: tab_value === 0 ? '#007bff' : 'black', // Highlight selected tab
-                                '&.Mui-selected': {
-                                    color: '#007bff', // Color of selected tab label
-                                    fontSize: '20px', // Increase font size of selected tab
-                                }
-                            }} />
-                            <Tab label="Base Case" sx={{
-                                fontWeight: 'bold',
-                                fontSize: '15px', // Increase font size
-                                color: tab_value === 1 ? '#007bff' : 'black', // Highlight selected tab
-                                '&.Mui-selected': {
-                                    color: '#007bff', // Color of selected tab label
-                                    fontSize: '20px', // Increase font size of selected tab
-                                }
-                            }} />
-
-                            <Tab label="Upside Case" sx={{
-                                fontWeight: 'bold',
-                                fontSize: '15px', // Increase font size
-                                color: tab_value === 2 ? '#007bff' : 'black', // Highlight selected tab
-                                '&.Mui-selected': {
-                                    color: '#007bff', // Color of selected tab label
-                                    fontSize: '20px', // Increase font size of selected tab
-                                }
-                            }} />
-                        </Tabs>
-
-                        {tab_value !== null &&
-                            <div>
-
-                                <Box
-                                    sx={{
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        alignItems: 'center',
-                                        gap: 2,
-                                        left: 0,
-                                        marginTop: 2,
-                                        overflowY: 'auto',
-                                        overflowX: 'auto',
-                                        maxWidth: '100%',
-                                        position: 'sticky',
-                                    }}
-                                >
-                                    {/* Render Card1, Card2, and Card3 and render tables based on tabTableVisibility state */}
-                                    {Card1()}
-                                    {tabTableVisibility[currentTabKey].table1 && renderTable(currentTabKey, 'table1')}
-
-                                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        <img src="https://pluspng.com/img-png/down-arrow-png-down-icon-1600.png" width="20px" height="20px" alt="Downward arrow" />
-                                    </Box>
-                                    {Card2()}
-                                    {tabTableVisibility[currentTabKey].table2 && renderTable(currentTabKey, 'table2')}
-
-                                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        <img src="https://pluspng.com/img-png/down-arrow-png-down-icon-1600.png" width="20px" height="20px" alt="Downward arrow" />
-                                    </Box>
-                                    {Card3()}
-                                    {tabTableVisibility[currentTabKey].table3 && renderTable(currentTabKey, 'table3')}
-                                </Box>
-                                {Preview()} {/* Render Preview component inside each tab*/}
-
-
-                            </div>
-                        }
-                    </Box>
+                    {Preview()} {/* Render Preview component at the bottom of the page */}
                 </Box>
-            </div>
-        </>
-    )
+    
+            </>
+        )
 }
 export default Model1;

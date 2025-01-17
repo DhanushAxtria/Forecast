@@ -23,6 +23,7 @@ import GenerateReport from './Body/GenerateReport';
 import Model1 from './Body/Model1'
 import Analysis from './Body/Analysis';
 import NewModel from './Body/NewModel';
+import ReportTabs from './Body/Reports';
 function App() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false); // Initialize the state
   return (
@@ -61,7 +62,7 @@ function App() {
           <Route path="/new-model/epidemiology-model/scenario-details/forecastdeepdive/dashboard" element={<Dashboard />} />
           <Route path="/new-model/epidemiology-model/scenario-details/forecastdeepdive/analysis" element={<Analysis />} />
           <Route path="/new-model/epidemiology-model/scenario-details/forecastdeepdive/patientinput" element={<Patient_Forecast_Input />} />
-          <Route path="/generate-report" element={<GenerateReport />} />
+          <Route path="/generate-report" element={<ReportTabs />} />
           <Route path="/new-model/epidemiology-model/model1" element={<Model1 />} />
           <Route path="/new-model/epidemiology-model/model1/analysis" element={<Analysis />} />
           <Route path="/new-model" element={<NewModel />} />

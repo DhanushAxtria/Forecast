@@ -8,6 +8,8 @@ import LockIcon from '@mui/icons-material/Lock';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import Button from '@mui/material/Button';
+
 
 // Unicode for Lock and Good to Go icons
 const lockIcon = '🔒';
@@ -57,6 +59,8 @@ const Admin = () => {
   const [selectedForecastCycle, setSelectedForecastCycle] = useState(''); // State for selected Forecast Cycle
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+  const [tutorialActive, setTutorialActive] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0); // Track the current step in the tutorial
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -142,9 +146,165 @@ const Admin = () => {
     return selectedTherapeuticArea !== '' && selectedRegion !== '' && selectedForecastCycle !== '';
   };
 
+  const showTutorial2 = () => {
+    const step = {
+      index: 0,
+      target: '.tutorial-btn',
+      content: 'You can always see this tutorial by clicking on this button.',
+      placement: 'left',
+    };
+    const targetElement = document.querySelector(step.target);
+    const popup = document.createElement('div');
+    popup.classList.add('tutorial-popup', step.placement);
+    popup.textContent = step.content;
+    targetElement.style.boxShadow = '0px 0px 10px 0px rgba(0,0,0,0.75)';
+    targetElement.style.border = '3px solid navy';
+    // Position the popup based on the target element and placement
+    const rect = targetElement.getBoundingClientRect();
+    let top, left;
+    top = rect.top + rect.height / 2 - popup.offsetHeight / 2;
+    left = rect.left - 350;
+    popup.style.top = `${top}px`;
+    popup.style.left = `${left}px`;
+    document.body.appendChild(popup);
+    // Add a button to close the popup
+    const closeButton = document.createElement('button');
+    closeButton.textContent = 'Cancel';
+    closeButton.style.marginRight = '40px';
+    closeButton.style.padding = '5px 10px';
+    closeButton.style.borderRadius = '5px';
+    closeButton.addEventListener('click', () => {
+      setTutorialActive(false);
+      setCurrentStep(0);
+      popup.remove();
+      targetElement.style.border = '';
+      targetElement.style.boxShadow = '';
+    });
+    popup.appendChild(closeButton);
+  };
+  const showTutorial = (step) => {
+    const targetElement = document.querySelector(step.target);
+    const popup = document.createElement('div');
+    popup.classList.add('tutorial-popup', step.placement);
+    popup.textContent = step.content;
+    targetElement.style.boxShadow = '0px 0px 10px 0px rgba(0,0,0,0.75)';
+    targetElement.style.border = '3px solid navy';
+    // Position the popup based on the target element and placement
+    const rect = targetElement.getBoundingClientRect();
+    let top, left;
+    if (step.placement === 'top') {
+      top = rect.top - popup.offsetHeight;
+      left = rect.left + rect.width / 2 - popup.offsetWidth / 2;
+    } else if (step.placement === 'bottom') {
+      top = rect.bottom + 10;
+      left = rect.left + rect.width / 2 - popup.offsetWidth / 2;
+    } else if (step.placement === 'left') {
+      top = rect.top + rect.height / 2 - popup.offsetHeight / 2;
+      left = rect.left - 350;
+    } else if (step.placement === 'right') {
+      top = rect.top;
+      left = rect.right + 25;
+    }
+    popup.style.top = `${top}px`;
+    popup.style.left = `${left}px`;
+    document.body.appendChild(popup);
+    // Add a button to close the popup
+    const closeButton = document.createElement('button');
+    closeButton.textContent = currentStep === steps.length - 1 ? 'Finish' : 'Skip Tutorial';
+    closeButton.style.marginRight = '40px';
+    closeButton.style.padding = '5px 10px';
+    closeButton.style.borderRadius = '5px';
+    closeButton.addEventListener('click', () => {
+      setTutorialActive(false);
+      setCurrentStep(0);
+      popup.remove();
+      targetElement.style.border = '';
+      targetElement.style.boxShadow = '';
+      showTutorial2();
+    });
+    popup.appendChild(closeButton);
+    const previousButton = document.createElement('button');
+    previousButton.textContent = 'Previous';
+    previousButton.style.padding = '5px 10px';
+    previousButton.style.marginRight = '5px';
+    previousButton.style.borderRadius = '5px';
+    previousButton.disabled = currentStep === 0; // Disable if first step
+    previousButton.style.backgroundColor = previousButton.disabled ? 'grey' : 'navy';
+    previousButton.addEventListener('click', () => {
+      popup.remove();
+      setCurrentStep(currentStep - 1); // Move to previous step
+      targetElement.style.border = '';
+      targetElement.style.boxShadow = '';
+    });
+    const nextButton = document.createElement('button');
+    nextButton.textContent = 'Next';
+    nextButton.style.padding = '5px 10px';
+    nextButton.style.borderRadius = '5px';
+    nextButton.disabled = currentStep === steps.length - 1; // Disable if last step
+    nextButton.style.backgroundColor = nextButton.disabled ? 'grey' : 'green';
+    nextButton.addEventListener('click', () => {
+      popup.remove();
+      setCurrentStep(currentStep + 1); // Move to next step
+      targetElement.style.border = '';
+      targetElement.style.boxShadow = '';
+    });
+    const buttons = document.createElement('div');
+    buttons.style.display = 'flex';
+    buttons.style.marginTop = '20px';
+    buttons.style.justifyContent = 'space-between';
+    buttons.style.width = '100%';
+    buttons.appendChild(closeButton);
+    const flexEndButtons = document.createElement('div');
+    flexEndButtons.style.display = 'flex';
+    flexEndButtons.appendChild(previousButton);
+    flexEndButtons.appendChild(nextButton);
+    buttons.appendChild(flexEndButtons);
+    popup.appendChild(buttons); // Insert the buttons after the text
+  };
+
+  const handleStartTutorial = () => {
+    setTutorialActive(true);
+    setCurrentStep(0); // Start from the first step
+  };
+  useEffect(() => {
+    if (tutorialActive && currentStep < steps.length) {
+      showTutorial(steps[currentStep]);
+    }
+  }, [tutorialActive, currentStep]);
+
+  const steps = [
+    {
+      index: 0,
+      target: '.filter1-button',
+      content: 'Use this button to select Forecast Cycle.',
+      placement: 'right',
+    },
+    {
+      index: 1,
+      target: '.filter2-button',
+      content: 'Use this button to select Therapeutic Area.',
+      placement: 'right',
+    },
+    {
+      index: 2,
+      target: '.filter3-button',
+      content: 'Use this button to select Region.\nA table is displayed with the countries of this region with filtered scenario data.',
+      placement: 'left',
+    }
+  ];
+
   return (
     <div style={{ backgroundColor: 'white', padding: '20px', marginTop: '-44px' }}>
       {/* Greeting section */}
+      <Button
+        className='tutorial-btn'
+        variant="contained"
+        size='small'
+        sx={{ color: 'white', position: 'absolute', right: 0, cursor: 'pointer', mt: 3, mr: 2 }}
+        onClick={() => handleStartTutorial()}
+      >
+        Show Tutorial
+      </Button>
       <h2>{greeting}, Welcome to the Data Consolidation Page!</h2>
 
       {/* Forecast and Worksheet Selections Container */}
@@ -157,6 +317,7 @@ const Admin = () => {
             <div style={styles.labeledSelect}>
               <label style={styles.label}>Select Forecast Cycle</label>
               <select
+                className='filter1-button'
                 style={styles.select}
                 value={selectedForecastCycle}
                 onChange={(e) => setSelectedForecastCycle(e.target.value)}
@@ -181,6 +342,7 @@ const Admin = () => {
             <div style={styles.labeledSelect}>
               <label style={styles.label}>Select Therapeutic Area</label>
               <select
+              className='filter2-button'
                 style={styles.select}
                 value={selectedTherapeuticArea}
                 onChange={(e) => setSelectedTherapeuticArea(e.target.value)}
@@ -204,6 +366,7 @@ const Admin = () => {
             <div style={styles.labeledSelect}>
               <label style={styles.label}>Select Region</label>
               <select
+                className='filter3-button'
                 style={styles.select}
                 value={selectedRegion}
                 onChange={(e) => setSelectedRegion(e.target.value)}
