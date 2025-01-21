@@ -2,6 +2,7 @@ import React from 'react';
 import { Grid, Card, CardContent, Typography, CardActionArea, CardActions, Button, Box } from '@mui/material';
 import { Timeline, HealthAndSafety } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import './NewModel.css';
 
 const NewModel = () => {
     const navigate = useNavigate();
@@ -41,6 +42,8 @@ const NewModel = () => {
                             }}
                         >
                             <CardActionArea>
+                                <div className='circleOne'></div>
+                                
                                 <Box
                                     sx={{
                                         display: 'flex',
@@ -64,6 +67,7 @@ const NewModel = () => {
                                         {model.description}
                                     </Typography>
                                 </CardContent>
+                                <div className='circleTwo'></div>
                             </CardActionArea>
                             <CardActions sx={{ justifyContent: 'center', paddingBottom: 2 }}>
                                 <Button
@@ -78,6 +82,7 @@ const NewModel = () => {
                                 >
                                     Create
                                 </Button>
+                                
                             </CardActions>
                         </Card>
                     </Grid>

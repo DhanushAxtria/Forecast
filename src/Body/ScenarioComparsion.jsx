@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Autocomplete, TextField, Box, Checkbox, ListItemText, Button, Typography, Accordion, AccordionSummary, AccordionDetails, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, InputAdornment, List, ListItemButton, ListItemIcon, FormControl, InputLabel, OutlinedInput } from '@mui/material';
-import { Add, Remove, ExpandMore, Work } from '@mui/icons-material';
+import { Add, Remove } from '@mui/icons-material';
 import { Select, MenuItem } from '@mui/material';
-import { Folder, InsertDriveFile } from '@mui/icons-material';
 import './Newpage.scss';
+import introJs from 'intro.js';
+
 
 const ScenarioComparsion = () => {
     const [filters, setFilters] = useState({
@@ -197,261 +198,292 @@ const ScenarioComparsion = () => {
         }
     }, [scenarios.scenario1, scenarios.scenario2, selectedWorksheet]);
     const showTutorial2 = () => {
-        const step = {
-            index: 0,
-            target: '.tutorial-btn',
-            content: 'You can always see this tutorial by clicking on this button.',
-            placement: 'left',
-        };
-        const targetElement = document.querySelector(step.target);
-        const popup = document.createElement('div');
-        popup.classList.add('tutorial-popup', step.placement);
-        popup.textContent = step.content;
-        targetElement.style.boxShadow = '0px 0px 10px 0px rgba(0,0,0,0.75)';
-        targetElement.style.border = '3px solid navy';
-        // Position the popup based on the target element and placement
-        const rect = targetElement.getBoundingClientRect();
-        let top, left
-        top = rect.top + rect.height / 2 - popup.offsetHeight / 2;
-        left = rect.left - 350;
-     
-        popup.style.top = `${top}px`;
-        popup.style.left = `${left}px`;
-     
-        document.body.appendChild(popup);
-        // Add a button to close the popup
-        const closeButton = document.createElement('button');
-        closeButton.textContent = 'Cancel';
-        closeButton.style.marginRight = '40px';
-        closeButton.style.padding = '5px 10px';
-        closeButton.style.borderRadius = '5px';
-        closeButton.addEventListener('click', () => {
-            setTutorialActive(false);
-            setCurrentStep(0);
-            popup.remove();
-            targetElement.style.border = '';
-            targetElement.style.boxShadow = '';
+        const end = introJs();
+        end.setOptions({
+            steps: [
+                {
+                    element: '.start-tour-button',
+                    intro: 'You can click here to rewatch the tutorial.',
+                    position: 'left'
+                },
+            ],
+            showProgress: false, // Disable progress bar
+            showStepNumbers: false,
+            showBullets: false,
+            nextLabel: '', // Remove "Next" button label
+            prevLabel: '', // Remove "Previous" button label    
+            showButtons: false, // Disable default Next/Prev buttons
         });
-        popup.appendChild(closeButton);
-    };
-    const showTutorial = (step) => {
-        const targetElement = document.querySelector(step.target);
-        const popup = document.createElement('div');
-        popup.classList.add('tutorial-popup', step.placement);
-        popup.textContent = step.content;
-        targetElement.style.boxShadow = '0px 0px 10px 0px rgba(0,0,0,0.75)';
-        targetElement.style.border = '3px solid navy';
-        // Position the popup based on the target element and placement
-        const rect = targetElement.getBoundingClientRect();
-        let top, left, bottom;
-        if (step.placement === 'top') {
-            top = rect.top - popup.offsetHeight;
-            left = rect.left + rect.width / 2 - popup.offsetWidth / 2;
-         
-        } else if (step.placement === 'bottom') {
-            top = rect.bottom + 10;
-            left = rect.left + rect.width / 2 - popup.offsetWidth / 2;
-          
-        } else if (step.placement === 'left') {
-            top = rect.top + rect.height / 2 - popup.offsetHeight / 2;
-            left = rect.left - 350;
-          
-        } else if (step.placement === 'right') {
-            top = rect.top;
-            left = rect.right + 25;
-        }
-        popup.style.top = `${top}px`;
-        popup.style.left = `${left}px`;
-        document.body.appendChild(popup);
-        // Add a button to close the popup
-        const closeButton = document.createElement('button');
-        closeButton.textContent = currentStep === (isOption1Clicked ? steps2 : isOption2Clicked ? steps3 : steps).length - 1 ? 'Finish' : 'Skip Tutorial';
-        closeButton.style.marginRight = '40px';
-        closeButton.style.padding = '5px 10px';
-        closeButton.style.borderRadius = '5px';
-        closeButton.addEventListener('click', () => {
-            setTutorialActive(false);
-            setCurrentStep(0);
-            popup.remove();
-            targetElement.style.border = '';
-            targetElement.style.boxShadow = '';
-            showTutorial2();
-        });
-        popup.appendChild(closeButton);
-        const previousButton = document.createElement('button');
-        previousButton.textContent = 'Previous';
-        previousButton.style.padding = '5px 10px';
-        previousButton.style.marginRight = '5px';
-        previousButton.style.borderRadius = '5px';
-        previousButton.disabled = currentStep === 0; // Disable if first step
-        previousButton.style.backgroundColor = previousButton.disabled ? 'grey' : 'navy';
-        previousButton.addEventListener('click', () => {
-            popup.remove();
-            setCurrentStep(currentStep - 1); // Move to previous step
-            targetElement.style.border = '';
-            targetElement.style.boxShadow = '';
-        });
-        const nextButton = document.createElement('button');
-        nextButton.textContent = 'Next';
-        nextButton.style.padding = '5px 10px';
-        nextButton.style.borderRadius = '5px';
-        nextButton.disabled = currentStep === (isOption1Clicked ? steps2 : isOption2Clicked ? steps3 : steps).length - 1 ; // Disable if last step
-        nextButton.style.backgroundColor = nextButton.disabled ? 'grey' : 'green';
-        nextButton.addEventListener('click', () => {
-            popup.remove();
-            setCurrentStep(currentStep + 1); // Move to next step
-            targetElement.style.border = '';
-            targetElement.style.boxShadow = '';
-        });
-        const buttons = document.createElement('div');
-        buttons.style.display = 'flex';
-        buttons.style.marginTop = '20px';
-        buttons.style.justifyContent = 'space-between';
-        buttons.style.width = '100%';
-        buttons.appendChild(closeButton);
-        const flexEndButtons = document.createElement('div');
-        flexEndButtons.style.display = 'flex';
-        flexEndButtons.appendChild(previousButton);
-        flexEndButtons.appendChild(nextButton);
-        buttons.appendChild(flexEndButtons);
-        popup.appendChild(buttons); // Insert the buttons after the text
-    };
 
+        end.onafterchange(() => {
+            const tooltipContainer = document.querySelector('.introjs-tooltipbuttons');
+            const tooltip = document.querySelector('.introjs-tooltip');
+            const crossIcon = document.querySelector('.introjs-skipbutton')
+
+            if (crossIcon) {
+                Object.assign(crossIcon.style, {
+                    color: "red",
+                    padding: "2px",
+                    marginBottom: '0px'
+                })
+            }
+            // Remove any existing buttons in the tooltip
+            if (tooltipContainer) {
+                tooltipContainer.innerHTML = ''; // Clear all buttons
+            }
+
+            // Style the tooltip box
+            if (tooltip) {
+                Object.assign(tooltip.style, {
+                    backgroundColor: '#f9f9f9',
+                    color: '#333',
+                    whiteSpace: 'nowrap',
+                    borderRadius: '6px',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                    padding: "5px",
+                    maxWidth: '500px',
+                    fontSize: '14px',
+                    minWidth: '300px',
+                    textAlign: 'center',
+                });
+                tooltip.style.display = 'flex';
+                tooltip.style.flexDirection = 'column';
+                tooltip.style.justifyContent = 'space-between';
+            }
+        });
+
+
+        end.start();
+    };
+    const showTutorial = () => {
+        const intro = introJs();
+        const steps1 = [
+            {
+                element: '.filter1-button',
+                intro: 'Use these to select your desired scenario.',
+            },
+            {
+                element: '.filter2-button',
+                intro: 'Use this button to select your desired scenario option.',
+            },
+            {
+                element: '.choose-op1-button',
+                intro: 'Click this button to Compare scenarios.',
+            },
+            {
+                element: '.choose-op2-button',
+                intro: 'Click this button to download comparison deck.',
+            }
+        ];
+        const steps2 = [
+            {
+                element: '.filter1-button',
+                intro: 'Use these to select your desired scenario.',
+            },
+            {
+                element: '.filter2-button',
+                intro: 'Use this button to select your desired scenario option.',
+            },
+            {
+                element: '.choose-op1-button',
+                intro: 'Click this button to Compare scenarios.',
+            },
+            {
+                element: '.choose-op2-button',
+                intro: 'Click this button to download comparison deck.',
+            },
+            {
+                element: '.worksheet-button',
+                intro: 'Click this button to select a worksheet.',
+            },
+            {
+                element: '.variance-button',
+                intro: 'Click this button to change variance.',
+            }
+        ];
+        const steps3 = [
+            {
+                element: '.filter1-button',
+                intro: 'Use these to select your desired scenario.',
+            },
+            {
+                element: '.filter2-button',
+                intro: 'Use this button to select your desired scenario option.',
+            },
+            {
+                element: '.choose-op1-button',
+                intro: 'Click this button to Compare scenarios.',
+            },
+            {
+                element: '.choose-op2-button',
+                intro: 'Click this button to download comparison deck.',
+            },
+            {
+                element: '.select-worksheet-button',
+                intro: 'Click this button to select a worksheet.',
+            },
+            {
+                element: '.select-deck-button',
+                intro: 'Click this button to change variance.',
+            }
+        ];
+        intro.setOptions({
+            steps : isOption1Clicked ? steps2 : isOption2Clicked ? steps3 : steps1,
+            showProgress: false, // Disable progress bar
+            showStepNumbers: false,
+            showBullets: false,
+            nextLabel: 'Next step',
+            prevLabel: 'Previous step',
+            doneLabel: 'Finished'
+        });
+
+        intro.onafterchange(() => {
+            const tooltipContainer = document.querySelector('.introjs-tooltipbuttons');
+            const nextButton = document.querySelector('.introjs-nextbutton');
+            const prevButton = document.querySelector('.introjs-prevbutton');
+            const tooltip = document.querySelector('.introjs-tooltip');
+            const totalSteps = intro._options.steps.length; // Get total number of steps
+            const currentStep = intro._currentStep; // Get current step index
+            console.log(currentStep)
+            console.log(totalSteps)
+
+            // Remove default close button
+            const crossIcon = document.querySelector('.introjs-skipbutton');
+            if (crossIcon) {
+                crossIcon.remove();
+            }
+
+            // Add a custom "Skip tutorial" button
+            let customSkipButton = document.querySelector('.custom-skip-button');
+            if (!customSkipButton) {
+                customSkipButton = document.createElement('button');
+                customSkipButton.className = 'custom-skip-button';
+                Object.assign(customSkipButton.style, {
+                    backgroundColor: 'red',
+                    fontSize: '12px',
+                    position: 'absolute',
+                    top: '10px',
+                    right: '10px',
+                    color: 'white',
+                    fontWeight: 'bold',
+                    textShadow: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    height: '20px',
+                    borderRadius: '5px',
+                });
+
+                customSkipButton.onclick = () => {
+                    intro.exit(); // End the current tour
+                    showTutorial2(); // Start the second tour
+                };
+
+                if (tooltipContainer && prevButton) {
+                    tooltipContainer.insertBefore(customSkipButton, prevButton.nextSibling);
+                }
+            }
+
+            // Update the custom "Skip tutorial" button text dynamically
+            if (currentStep === totalSteps - 1) {
+                customSkipButton.textContent = 'Close'; // Change Skip button text to "Close"
+            } else {
+                customSkipButton.textContent = 'Skip tutorial'; // Reset Skip button text
+            }
+
+            if (nextButton) {
+                if (currentStep === totalSteps - 1) {
+                    // Disable and style the Next button on the last step
+                    nextButton.disabled = true;
+                    Object.assign(nextButton.style, {
+                        position: 'absolute',
+                        bottom: '15px',
+                        right: '10px',
+                        backgroundColor: 'grey',
+                        color: 'white',
+                        cursor: 'not-allowed',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        textShadow: 'none',
+                        padding: '5px 10px',
+                        borderRadius: '5px',
+                        boxShadow: 'none',
+                    });
+                } else {
+                    // Enable and style the Next button for other steps
+                    nextButton.disabled = false;
+                    Object.assign(nextButton.style, {
+                        position: 'absolute',
+                        bottom: '15px',
+                        right: '10px',
+                        backgroundColor: 'green',
+                        color: 'white',
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        textShadow: 'none',
+                        padding: '5px 10px',
+                        borderRadius: '5px',
+                        boxShadow: 'none',
+                    });
+                }
+            }
+
+            // Style the Previous button
+            if (prevButton) {
+                if (currentStep === 0) {
+                    prevButton.disabled = true;
+                    Object.assign(prevButton.style, {
+                        backgroundColor: 'grey',
+                        fontSize: '12px',
+                        color: 'white',
+                        marginRight: '40px',
+                        fontWeight: 'bold',
+                        textShadow: 'none',
+                        borderRadius: '5px',
+                        padding: '5px 10px',
+                    });
+                }
+                else {
+                    Object.assign(prevButton.style, {
+                        backgroundColor: 'navy',
+                        fontSize: '12px',
+                        color: 'white',
+                        marginRight: '40px',
+                        fontWeight: 'bold',
+                        textShadow: 'none',
+                        borderRadius: '5px',
+                        padding: '5px 10px',
+                    })
+                }
+            }
+
+            // Style the tooltip box
+            if (tooltip) {
+                Object.assign(tooltip.style, {
+                    backgroundColor: '#f9f9f9',
+                    color: '#333',
+                    borderRadius: '6px',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                    padding: '5px',
+                    maxWidth: '500px',
+                    fontSize: '14px',
+                    minWidth: '300px',
+                    textAlign: 'center',
+                });
+            }
+        });
+
+        intro.start();
+    };
     const handleStartTutorial = () => {
-        setTutorialActive(true);
-        setCurrentStep(0); // Start from the first step
+        showTutorial();
     };
-    // useEffect(() => {
-    //     if (tutorialActive && currentStep < steps.length) {
-    //         showTutorial(steps[currentStep]);
-    //     }
-    // }, [tutorialActive, currentStep]);
-
-      useEffect(() => {
-            if (isOption1Clicked) {
-                if (tutorialActive && currentStep < steps2.length) {
-                    showTutorial(steps2[currentStep]);
-                }
-            }
-            else if (isOption2Clicked) {
-                if (tutorialActive && currentStep < steps3.length) {
-                    showTutorial(steps3[currentStep]);
-                }
-            }
-            else {
-                if (tutorialActive && currentStep < steps.length) {
-                    showTutorial(steps[currentStep]);
-                }
-            }
-        }, [tutorialActive, currentStep]);
-    const steps = [
-        {
-            index: 0,
-            target: '.filter1-button',
-            content: 'Use these to select your desired scenario.',
-            placement: 'right',
-        },
-        {
-            index: 1,
-            target: '.filter2-button',
-            content: 'Use this button to select your desired scenario option.',
-            placement: 'right',
-        },
-        {
-            index: 2,
-            target: '.choose-op1-button',
-            content: 'Click this button to Compare scenarios.',
-            placement: 'right',
-        },
-        {
-            index: 3,
-            target: '.choose-op2-button',
-            content: 'Click this button to download comparison deck.',
-            placement: 'right',
-        }
-    ];
-
-    const steps2 = [
-        {
-            index: 0,
-            target: '.filter1-button',
-            content: 'Use these to select your desired scenario.',
-            placement: 'right',
-        },
-        {
-            index: 1,
-            target: '.filter2-button',
-            content: 'Use this button to select your desired scenario option.',
-            placement: 'right',
-        },
-        {
-            index: 2,
-            target: '.choose-op1-button',
-            content: 'Click this button to Compare scenarios.',
-            placement: 'right',
-        },
-        {
-            index: 3,
-            target: '.choose-op2-button',
-            content: 'Click this button to download comparison deck.',
-            placement: 'right',
-        },
-        {
-            index: 4,
-            target: '.worksheet-button',
-            content: 'Click this button to select a worksheet.',
-            placement: 'right',
-        },
-        {
-            index: 5,
-            target: '.variance-button',
-            content: 'Click this button to change variance.',
-            placement: 'left',
-        }
-    ];
-    const steps3 = [
-        {
-            index: 0,
-            target: '.filter1-button',
-            content: 'Use these to select your desired scenario.',
-            placement: 'right',
-        },
-        {
-            index: 1,
-            target: '.filter2-button',
-            content: 'Use this button to select your desired scenario option.',
-            placement: 'right',
-        },
-        {
-            index: 2,
-            target: '.choose-op1-button',
-            content: 'Click this button to Compare scenarios.',
-            placement: 'right',
-        },
-        {
-            index: 3,
-            target: '.choose-op2-button',
-            content: 'Click this button to download comparison deck.',
-            placement: 'right',
-        },
-        {
-            index: 4,
-            target: '.select-worksheet-button',
-            content: 'Click this button to select a worksheet.',
-            placement: 'right',
-        },
-        {
-            index: 5,
-            target: '.select-deck-button',
-            content: 'Click this button to change variance.',
-            placement: 'right',
-        }
-    ];
+    
 
     return (
         <div style={{ backgroundColor: 'white', marginTop: '20px', marginLeft: '10px' }}>
             <Button
-                className='tutorial-btn'
+                className='start-tour-button'
                 variant="contained"
                 size='small'
                 sx={{ color: 'white', position: 'absolute', right: 0, cursor: 'pointer', mt: 0, mr: 2 }}
@@ -463,50 +495,50 @@ const ScenarioComparsion = () => {
             <Typography variant="h7" gutterBottom sx={{ marginBottom: '50px' }}>Please select the below options: </Typography>
             <Box className="filter1-button" mr={50} >
                 <Box display="flex" gap={2} mb={4} mt={2}>
-                {/* Multi-select for Forecast Cycles */}
-                <Autocomplete
-                    multiple
-                    options={['All', '2013-H1', '2013-H2', '2014-H1', '2014-H2']}
-                    onChange={handleChange('forecastCycles')}
-                    renderInput={(params) => <TextField {...params} size="small" label="Forecast Cycle" />}
-                    renderOption={(props, option, { selected }) => (
-                        <li {...props}>
-                            <Checkbox checked={selected} />
-                            <ListItemText primary={option} />
-                        </li>
-                    )}
-                    style={{ width: '250px' }}
-                />
+                    {/* Multi-select for Forecast Cycles */}
+                    <Autocomplete
+                        multiple
+                        options={['All', '2013-H1', '2013-H2', '2014-H1', '2014-H2']}
+                        onChange={handleChange('forecastCycles')}
+                        renderInput={(params) => <TextField {...params} size="small" label="Forecast Cycle" />}
+                        renderOption={(props, option, { selected }) => (
+                            <li {...props}>
+                                <Checkbox checked={selected} />
+                                <ListItemText primary={option} />
+                            </li>
+                        )}
+                        style={{ width: '250px' }}
+                    />
 
-                {/* Multi-select for Country */}
-                <Autocomplete
-                    multiple
-                    options={['All', 'USA', 'Canada', 'Germany', 'India']}
-                    onChange={handleChange('countries')}
-                    renderInput={(params) => <TextField {...params} size="small" label="Country" />}
-                    renderOption={(props, option, { selected }) => (
-                        <li {...props}>
-                            <Checkbox checked={selected} />
-                            <ListItemText primary={option} />
-                        </li>
-                    )}
-                    style={{ width: '250px' }}
-                />
+                    {/* Multi-select for Country */}
+                    <Autocomplete
+                        multiple
+                        options={['All', 'USA', 'Canada', 'Germany', 'India']}
+                        onChange={handleChange('countries')}
+                        renderInput={(params) => <TextField {...params} size="small" label="Country" />}
+                        renderOption={(props, option, { selected }) => (
+                            <li {...props}>
+                                <Checkbox checked={selected} />
+                                <ListItemText primary={option} />
+                            </li>
+                        )}
+                        style={{ width: '250px' }}
+                    />
 
-                {/* Multi-select for Therapeutic Area */}
-                <Autocomplete
-                    multiple
-                    options={['All', 'Cardiology', 'Oncology', 'Neurology', 'Diabetes']}
-                    onChange={handleChange('therapeuticAreas')}
-                    renderInput={(params) => <TextField {...params} size="small" label="Therapeutic Area" />}
-                    renderOption={(props, option, { selected }) => (
-                        <li {...props}>
-                            <Checkbox checked={selected} />
-                            <ListItemText primary={option} />
-                        </li>
-                    )}
-                    style={{ width: '250px' }}
-                />
+                    {/* Multi-select for Therapeutic Area */}
+                    <Autocomplete
+                        multiple
+                        options={['All', 'Cardiology', 'Oncology', 'Neurology', 'Diabetes']}
+                        onChange={handleChange('therapeuticAreas')}
+                        renderInput={(params) => <TextField {...params} size="small" label="Therapeutic Area" />}
+                        renderOption={(props, option, { selected }) => (
+                            <li {...props}>
+                                <Checkbox checked={selected} />
+                                <ListItemText primary={option} />
+                            </li>
+                        )}
+                        style={{ width: '250px' }}
+                    />
                 </Box>
             </Box>
             <Box className="filter2-button" mr={60}  >
@@ -535,7 +567,7 @@ const ScenarioComparsion = () => {
                     marginBottom: 'auto',
                     fontSize: '0.9rem'
                 }}
-                className='choose-op1-button'>
+                    className='choose-op1-button'>
                     Option 1
                 </Button>
 
@@ -545,11 +577,11 @@ const ScenarioComparsion = () => {
                     fontSize: '0.9rem'
 
                 }}
-                className='choose-op2-button'>
+                    className='choose-op2-button'>
                     Option 2
                 </Button>
             </Box>
-            
+
 
             {isOption2Clicked && (
                 // Container for selecting worksheet and comparison deck. Displayed when Option 2 is clicked

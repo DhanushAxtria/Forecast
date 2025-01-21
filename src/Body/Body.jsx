@@ -1,4 +1,4 @@
-import { React, useState, useEffect } from 'react';
+import { React, useState, useEffect, useContext } from 'react';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
@@ -24,6 +24,8 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
+import introJs from 'intro.js';
+import { MyContext } from './context';
 
 
 const demo_data = [
@@ -67,193 +69,266 @@ function a11yProps(index) {
 const Body = () => {
   const navigate = useNavigate();
   const [value, setValue] = useState(0);
-  const [tutorialActive, setTutorialActive] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0);
+  const {tutHome, setTutHome} = useContext(MyContext);
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
-  const showTutorial2 = () => {
-    const step = {
-      index: 0,
-      target: '.tutorial-btn',
-      content: 'You can always see this tutorial by clicking on this button.',
-      placement: 'left',
-    };
-    const targetElement = document.querySelector(step.target);
-    const popup = document.createElement('div');
-    popup.classList.add('tutorial-popup', step.placement);
-    popup.textContent = step.content;
-    targetElement.style.boxShadow = '0px 0px 10px 0px rgba(0,0,0,0.75)';
-    targetElement.style.border = '3px solid navy';
-    // Position the popup based on the target element and placement
-    const rect = targetElement.getBoundingClientRect();
-    let top, left;
-    top = rect.top + rect.height / 2 - popup.offsetHeight / 2;
-    left = rect.left - 350;
-    popup.style.top = `${top}px`;
-    popup.style.left = `${left}px`;
-    document.body.appendChild(popup);
-    // Add a button to close the popup
-    const closeButton = document.createElement('button');
-    closeButton.textContent = 'Cancel';
-    closeButton.style.marginRight = '40px';
-    closeButton.style.padding = '5px 10px';
-    closeButton.style.borderRadius = '5px';
-    closeButton.addEventListener('click', () => {
-      setTutorialActive(false);
-      setCurrentStep(0);
-      popup.remove();
-      targetElement.style.border = '';
-      targetElement.style.boxShadow = '';
-    });
-    popup.appendChild(closeButton);
-  };
-  const showTutorial = (step) => {
-    const targetElement = document.querySelector(step.target);
-    const popup = document.createElement('div');
-    popup.classList.add('tutorial-popup', step.placement);
-    popup.textContent = step.content;
-    targetElement.style.boxShadow = '0px 0px 10px 0px rgba(0,0,0,0.75)';
-    targetElement.style.border = '3px solid navy';
-    // Position the popup based on the target element and placement
-    const rect = targetElement.getBoundingClientRect();
-    let top, left;
-    if (step.placement === 'top') {
-      top = rect.top - popup.offsetHeight;
-      left = rect.left + rect.width / 2 - popup.offsetWidth / 2;
-    } else if (step.placement === 'bottom') {
-      top = rect.bottom + 10;
-      left = rect.left + rect.width / 2 - popup.offsetWidth / 2;
-    } else if (step.placement === 'left') {
-      top = rect.top + rect.height / 2 - popup.offsetHeight / 2;
-      left = rect.left - 350;
-    } else if (step.placement === 'right') {
-      top = rect.top;
-      left = rect.right;
-    }
-    popup.style.top = `${top}px`;
-    popup.style.left = `${left}px`;
-    document.body.appendChild(popup);
-    // Add a button to close the popup
-    const closeButton = document.createElement('button');
-    closeButton.textContent = currentStep === steps.length - 1 ? 'Finish' : 'Skip Tutorial';
-    closeButton.style.marginRight = '40px';
-    closeButton.style.padding = '5px 10px';
-    closeButton.style.borderRadius = '5px';
-    closeButton.addEventListener('click', () => {
-      setTutorialActive(false);
-      setCurrentStep(0);
-      popup.remove();
-      targetElement.style.border = '';
-      targetElement.style.boxShadow = '';
-      showTutorial2();
-    });
-    popup.appendChild(closeButton);
-    const previousButton = document.createElement('button');
-    previousButton.textContent = 'Previous';
-    previousButton.style.padding = '5px 10px';
-    previousButton.style.marginRight = '5px';
-    previousButton.style.borderRadius = '5px';
-    previousButton.disabled = currentStep === 0; // Disable if first step
-    previousButton.style.backgroundColor = previousButton.disabled ? 'grey' : 'navy';
-    previousButton.addEventListener('click', () => {
-      popup.remove();
-      setCurrentStep(currentStep - 1); // Move to previous step
-      targetElement.style.border = '';
-      targetElement.style.boxShadow = '';
-    });
-    const nextButton = document.createElement('button');
-    nextButton.textContent = 'Next';
-    nextButton.style.padding = '5px 10px';
-    nextButton.style.borderRadius = '5px';
-    nextButton.disabled = currentStep === steps.length - 1; // Disable if last step
-    nextButton.style.backgroundColor = nextButton.disabled ? 'grey' : 'green';
-    nextButton.addEventListener('click', () => {
-      popup.remove();
-      setCurrentStep(currentStep + 1); // Move to next step
-      targetElement.style.border = '';
-      targetElement.style.boxShadow = '';
-    });
-    const buttons = document.createElement('div');
-    buttons.style.display = 'flex';
-    buttons.style.marginTop = '20px';
-    buttons.style.justifyContent = 'space-between';
-    buttons.style.width = '100%';
-    buttons.appendChild(closeButton);
-    const flexEndButtons = document.createElement('div');
-    flexEndButtons.style.display = 'flex';
-    flexEndButtons.appendChild(previousButton);
-    flexEndButtons.appendChild(nextButton);
-    buttons.appendChild(flexEndButtons);
-    popup.appendChild(buttons); // Insert the buttons after the text
-  };
-  const handleStartTutorial = () => {
-    setTutorialActive(true);
-    setCurrentStep(0); // Start from the first step
-  };
-  useEffect(() => {
-    if (tutorialActive && currentStep < steps.length) {
-      showTutorial(steps[currentStep]);
-    }
-  }, [tutorialActive, currentStep]);
-  const steps = [
-    {
-      index: 0,
-      target: '.model-button',
-      content: 'Click here to create a new model of two types: time series or epidemiology.',
-      placement: 'right',
-    },
-    {
-      index: 1,
-      target: '.existing-button',
-      content: 'Click here to view and edit existing models.',
-      placement: 'right',
-    },
-    {
-      index: 2,
-      target: '.submission-template',
-      content: 'Click here to track submitted models.',
-      placement: 'right',
-    },
-    {
-      index: 3,
-      target: '.report-button',
-      content: 'Click here to create a standard report, data consolidation, or scenario/model comparison.',
-      placement: 'left',
-    },
-    {
-      index: 4,
-      target: '.admin-button',
-      content: 'Click here to access admin-level information.',
-      placement: 'left',
-    },
-    {
-      index: 5,
-      target: '.table-button',
-      content: 'These tabs contain your recent files, pinned files, and files recently shared with you.',
-      placement: 'top',
-    }
-  ];
   useEffect(() => {
     let isMounted = true;
     const timer = setTimeout(() => {
-      if (isMounted) {
-        setTutorialActive(true);  // Start the tutorial
+      if (isMounted && tutHome) {
+        setTutHome(false);
+        showTutorial();  // Start the tutorial
       }
-    }, 1000); // Start after 1 seconds
-
+    }, 1000); // Start after 1 second
     return () => {
       clearTimeout(timer);
       isMounted = false;
     }; // Cleanup the timer
 
   }, []);
+  const showTutorial2 = () => {
+    const end = introJs();
+    end.setOptions({
+      steps: [
+        {
+          element: '.start-tour-button',
+          intro: 'You can click here to rewatch the tutorial.',
+          position: 'left'
+        },
+      ],
+      showProgress: false, // Disable progress bar
+      showStepNumbers: false,
+      showBullets: false,
+      nextLabel: '', // Remove "Next" button label
+      prevLabel: '', // Remove "Previous" button label    
+      showButtons: false, // Disable default Next/Prev buttons
+    });
+
+    end.onafterchange(() => {
+      const tooltipContainer = document.querySelector('.introjs-tooltipbuttons');
+      const tooltip = document.querySelector('.introjs-tooltip');
+      const crossIcon = document.querySelector('.introjs-skipbutton')
+
+      if (crossIcon) {
+        Object.assign(crossIcon.style, {
+          color: "red",
+          padding: "2px",
+          marginBottom: '0px'
+        })
+      }
+      // Remove any existing buttons in the tooltip
+      if (tooltipContainer) {
+        tooltipContainer.innerHTML = ''; // Clear all buttons
+      }
+
+      // Style the tooltip box
+      if (tooltip) {
+        Object.assign(tooltip.style, {
+          backgroundColor: '#f9f9f9',
+          color: '#333',
+          whiteSpace: 'nowrap',
+          borderRadius: '6px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+          padding: "5px",
+          maxWidth: '500px',
+          fontSize: '14px',
+          minWidth: '300px',
+          textAlign: 'center',
+        });
+        tooltip.style.display = 'flex';
+        tooltip.style.flexDirection = 'column';
+        tooltip.style.justifyContent = 'space-between';
+      }
+    });
+
+
+    end.start();
+  };
+  const showTutorial = () => {
+    const intro = introJs();
+    intro.setOptions({
+      steps: [
+        {
+          element: '.model-button',
+          intro: 'Click here to create a new model of two types: time series or epidemiology.',
+        },
+        {
+          element: '.existing-button',
+          intro: 'Click here to view and edit existing models.',
+        },
+        {
+          element: '.submission-template',
+          intro: 'Click here to track submitted models.',
+        },
+        {
+          element: '.report-button',
+          intro: 'Click here to create a standard report, data consolidation, or scenario/model comparison.',
+        },
+        {
+          element: '.admin-button',
+          intro: 'Click here to access admin-level information.',
+        },
+        {
+          element: '.table-button',
+          intro: 'These tabs contain your recent files, pinned files, and files recently shared with you.',
+        }
+      ],
+      showProgress: false, // Disable progress bar
+      showStepNumbers: false,
+      showBullets: false,
+      nextLabel: 'Next step',
+      prevLabel: 'Previous step',
+      doneLabel: 'Finished'
+    });
+
+    intro.onafterchange(() => {
+      const tooltipContainer = document.querySelector('.introjs-tooltipbuttons');
+      const nextButton = document.querySelector('.introjs-nextbutton');
+      const prevButton = document.querySelector('.introjs-prevbutton');
+      const tooltip = document.querySelector('.introjs-tooltip');
+      const totalSteps = intro._options.steps.length; // Get total number of steps
+      const currentStep = intro._currentStep; // Get current step index
+      console.log(currentStep)
+      console.log(totalSteps)
+
+      // Remove default close button
+      const crossIcon = document.querySelector('.introjs-skipbutton');
+      if (crossIcon) {
+        crossIcon.remove();
+      }
+
+      // Add a custom "Skip tutorial" button
+      let customSkipButton = document.querySelector('.custom-skip-button');
+      if (!customSkipButton) {
+        customSkipButton = document.createElement('button');
+        customSkipButton.className = 'custom-skip-button';
+        Object.assign(customSkipButton.style, {
+          backgroundColor: 'red',
+          fontSize: '12px',
+          position: 'absolute',
+          top: '10px',
+          right: '10px',
+          color: 'white',
+          fontWeight: 'bold',
+          textShadow: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          height: '20px',
+          borderRadius: '5px',
+        });
+
+        customSkipButton.onclick = () => {
+          intro.exit(); // End the current tour
+          showTutorial2(); // Start the second tour
+        };
+
+        if (tooltipContainer && prevButton) {
+          tooltipContainer.insertBefore(customSkipButton, prevButton.nextSibling);
+        }
+      }
+
+      // Update the custom "Skip tutorial" button text dynamically
+      if (currentStep === totalSteps - 1) {
+        customSkipButton.textContent = 'Close'; // Change Skip button text to "Close"
+      } else {
+        customSkipButton.textContent = 'Skip tutorial'; // Reset Skip button text
+      }
+
+      if (nextButton) {
+        if (currentStep === totalSteps - 1) {
+          // Disable and style the Next button on the last step
+          nextButton.disabled = true;
+          Object.assign(nextButton.style, {
+            position: 'absolute',
+            bottom: '15px',
+            right: '10px',
+            backgroundColor: 'grey',
+            color: 'white',
+            cursor: 'not-allowed',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            textShadow: 'none',
+            padding: '5px 10px',
+            borderRadius: '5px',
+            boxShadow: 'none',
+          });
+        } else {
+          // Enable and style the Next button for other steps
+          nextButton.disabled = false;
+          Object.assign(nextButton.style, {
+            position: 'absolute',
+            bottom: '15px',
+            right: '10px',
+            backgroundColor: 'green',
+            color: 'white',
+            cursor: 'pointer',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            textShadow: 'none',
+            padding: '5px 10px',
+            borderRadius: '5px',
+            boxShadow: 'none',
+          });
+        }
+      }
+
+      // Style the Previous button
+      if (prevButton) {
+        if (currentStep === 0) {
+          prevButton.disabled = true;
+          Object.assign(prevButton.style, {
+            backgroundColor: 'grey',
+            fontSize: '12px',
+            color: 'white',
+            marginRight: '40px',
+            fontWeight: 'bold',
+            textShadow: 'none',
+            borderRadius: '5px',
+            padding: '5px 10px',
+          });
+        }
+        else {
+          Object.assign(prevButton.style, {
+            backgroundColor: 'navy',
+            fontSize: '12px',
+            color: 'white',
+            marginRight: '40px',
+            fontWeight: 'bold',
+            textShadow: 'none',
+            borderRadius: '5px',
+            padding: '5px 10px',
+          })
+        }
+      }
+
+      // Style the tooltip box
+      if (tooltip) {
+        Object.assign(tooltip.style, {
+          backgroundColor: '#f9f9f9',
+          color: '#333',
+          borderRadius: '6px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+          padding: '5px',
+          maxWidth: '500px',
+          fontSize: '14px',
+          minWidth: '300px',
+          textAlign: 'center',
+        });
+      }
+    });
+
+    intro.start();
+  };
+  const handleStartTutorial = () => {
+    showTutorial();
+  };
   return (
     <>
       <Box>
         <Box mt={8} display="flex" justifyContent="center" alignItems="center">
           <Button
-            className='tutorial-btn'
+            className='start-tour-button'
             variant="contained"
             size='small'
             sx={{ color: 'white', position: 'absolute', right: 0, cursor: 'pointer', mt: -18, mr: 3 }}
@@ -294,14 +369,14 @@ const Body = () => {
               color: 'linear-gradient(135deg, #ff9a9e, #fecfef)',
               title: 'Submissions Tracker',
               description: 'Track the status of all submitted forecast models.',
-              icon: <QueryStats sx={{ fontSize: 50, color: 'black', margin: '20px' }} />,
+              icon: <QueryStats sx={{ fontSize: 50, color: 'white', margin: '20px' }} />,
               path: '/submissions-tracker',
             },
             {
               className: "report-button",
               color: 'linear-gradient(135deg, #36d1dc, #5b86e5)',
               title: 'Generate Report',
-              description: 'Generate detailed reports based on your forecast scenarios.',
+              description: 'Generate reports based on your forecast scenarios.',
               icon: <Assignment sx={{ fontSize: 50, color: 'white', margin: '20px' }} />,
               path: '/generate-report',
             },
@@ -417,7 +492,6 @@ const Body = () => {
           </Table>
         </TableContainer>
       )}
-
     </>
   );
 };
