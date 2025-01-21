@@ -1,0 +1,45 @@
+/* #c345fd
+#2fc5ff
+#04f6cd */
+.mainCardContainer{
+    display: flex;
+    padding: 10px;
+}
+.cardContainer{
+    height: 150px;
+    width: 150px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    padding-left:5px;
+    position: relative;
+    overflow: hidden;
+    margin: 10px;
+}
+.caredName{
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+}
+.cardValue{
+    font-size: 20px;
+    font-weight: 600;
+}
+.circleOne{
+    height: 220px;
+    width: 220px;
+    background: rgba(105, 240, 93, 0.379);
+    border-radius: 110px;
+    position: absolute;
+    right: -22px;
+    bottom: -120px; 
+}
+.circleTwo{
+    height: 220px;
+    width: 220px;
+    background: rgba(99, 101, 199, 0.363);
+    border-radius: 110px;
+    position: absolute;
+    right: -50px;
+    top: -50px;
+}

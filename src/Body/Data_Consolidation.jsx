@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { FaFilter } from 'react-icons/fa'; // Importing the filter icon
 import { generateDummyData } from './Generate_Dummy'; // importing dummy data
 import Button from '@mui/material/Button';
+import introJs from 'intro.js';
+
 
 
 // Unicode for Lock and Good to Go icons
@@ -31,8 +33,6 @@ const DataConsolidation = () => {
   const [selectedTherapeuticArea, setSelectedTherapeuticArea] = useState(''); // State for selected Therapeutic Area
   const [selectedRegion, setSelectedRegion] = useState(''); // State for selected Region
   const [selectedForecastCycle, setSelectedForecastCycle] = useState(''); // State for selected Forecast Cycle
-  const [tutorialActive, setTutorialActive] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0); // Track the current step in the tutorial
 
   // Set the greeting based on the current time
   useEffect(() => {
@@ -111,164 +111,243 @@ const DataConsolidation = () => {
     return selectedTherapeuticArea !== '' && selectedRegion !== '' && selectedForecastCycle !== '';
   };
   const showTutorial2 = () => {
-    const step = {
-      index: 0,
-      target: '.tutorial-btn',
-      content: 'You can always see this tutorial by clicking on this button.',
-      placement: 'left',
-    };
-    const targetElement = document.querySelector(step.target);
-    const popup = document.createElement('div');
-    popup.classList.add('tutorial-popup', step.placement);
-    popup.textContent = step.content;
-    targetElement.style.boxShadow = '0px 0px 10px 0px rgba(0,0,0,0.75)';
-    targetElement.style.border = '3px solid navy';
-    // Position the popup based on the target element and placement
-    const rect = targetElement.getBoundingClientRect();
-    let top, left;
-    top = rect.top + rect.height / 2 - popup.offsetHeight / 2;
-    left = rect.left - 350;
-    popup.style.top = `${top}px`;
-    popup.style.left = `${left}px`;
-    document.body.appendChild(popup);
-    // Add a button to close the popup
-    const closeButton = document.createElement('button');
-    closeButton.textContent = 'Cancel';
-    closeButton.style.marginRight = '40px';
-    closeButton.style.padding = '5px 10px';
-    closeButton.style.borderRadius = '5px';
-    closeButton.addEventListener('click', () => {
-      setTutorialActive(false);
-      setCurrentStep(0);
-      popup.remove();
-      targetElement.style.border = '';
-      targetElement.style.boxShadow = '';
+    const end = introJs();
+    end.setOptions({
+      steps: [
+        {
+          element: '.start-tour-button',
+          intro: 'You can click here to rewatch the tutorial.',
+          position: 'left'
+        },
+      ],
+      showProgress: false, // Disable progress bar
+      showStepNumbers: false,
+      showBullets: false,
+      nextLabel: '', // Remove "Next" button label
+      prevLabel: '', // Remove "Previous" button label    
+      showButtons: false, // Disable default Next/Prev buttons
     });
-    popup.appendChild(closeButton);
-  };
-  const showTutorial = (step) => {
-    const targetElement = document.querySelector(step.target);
-    const popup = document.createElement('div');
-    popup.classList.add('tutorial-popup', step.placement);
-    popup.textContent = step.content;
-    targetElement.style.boxShadow = '0px 0px 10px 0px rgba(0,0,0,0.75)';
-    targetElement.style.border = '3px solid navy';
-    // Position the popup based on the target element and placement
-    const rect = targetElement.getBoundingClientRect();
-    let top, left;
-    if (step.placement === 'top') {
-      top = rect.top - popup.offsetHeight;
-      left = rect.left + rect.width / 2 - popup.offsetWidth / 2;
-    } else if (step.placement === 'bottom') {
-      top = rect.bottom + 10;
-      left = rect.left + rect.width / 2 - popup.offsetWidth / 2;
-    } else if (step.placement === 'left') {
-      top = rect.top + rect.height / 2 - popup.offsetHeight / 2;
-      left = rect.left - 350;
-    } else if (step.placement === 'right') {
-      top = rect.top;
-      left = rect.right + 25;
-    }
-    popup.style.top = `${top}px`;
-    popup.style.left = `${left}px`;
-    document.body.appendChild(popup);
-    // Add a button to close the popup
-    const closeButton = document.createElement('button');
-    closeButton.textContent = currentStep === steps.length - 1 ? 'Finish' : 'Skip Tutorial';
-    closeButton.style.marginRight = '40px';
-    closeButton.style.padding = '5px 10px';
-    closeButton.style.borderRadius = '5px';
-    closeButton.addEventListener('click', () => {
-      setTutorialActive(false);
-      setCurrentStep(0);
-      popup.remove();
-      targetElement.style.border = '';
-      targetElement.style.boxShadow = '';
-      showTutorial2();
-    });
-    popup.appendChild(closeButton);
-    const previousButton = document.createElement('button');
-    previousButton.textContent = 'Previous';
-    previousButton.style.padding = '5px 10px';
-    previousButton.style.marginRight = '5px';
-    previousButton.style.borderRadius = '5px';
-    previousButton.disabled = currentStep === 0; // Disable if first step
-    previousButton.style.backgroundColor = previousButton.disabled ? 'grey' : 'navy';
-    previousButton.addEventListener('click', () => {
-      popup.remove();
-      setCurrentStep(currentStep - 1); // Move to previous step
-      targetElement.style.border = '';
-      targetElement.style.boxShadow = '';
-    });
-    const nextButton = document.createElement('button');
-    nextButton.textContent = 'Next';
-    nextButton.style.padding = '5px 10px';
-    nextButton.style.borderRadius = '5px';
-    nextButton.disabled = currentStep === steps.length - 1; // Disable if last step
-    nextButton.style.backgroundColor = nextButton.disabled ? 'grey' : 'green';
-    nextButton.addEventListener('click', () => {
-      popup.remove();
-      setCurrentStep(currentStep + 1); // Move to next step
-      targetElement.style.border = '';
-      targetElement.style.boxShadow = '';
-    });
-    const buttons = document.createElement('div');
-    buttons.style.display = 'flex';
-    buttons.style.marginTop = '20px';
-    buttons.style.justifyContent = 'space-between';
-    buttons.style.width = '100%';
-    buttons.appendChild(closeButton);
-    const flexEndButtons = document.createElement('div');
-    flexEndButtons.style.display = 'flex';
-    flexEndButtons.appendChild(previousButton);
-    flexEndButtons.appendChild(nextButton);
-    buttons.appendChild(flexEndButtons);
-    popup.appendChild(buttons); // Insert the buttons after the text
-  };
 
-  const handleStartTutorial = () => {
-    setTutorialActive(true);
-    setCurrentStep(0); // Start from the first step
+    end.onafterchange(() => {
+      const tooltipContainer = document.querySelector('.introjs-tooltipbuttons');
+      const tooltip = document.querySelector('.introjs-tooltip');
+      const crossIcon = document.querySelector('.introjs-skipbutton')
+
+      if (crossIcon) {
+        Object.assign(crossIcon.style, {
+          color: "red",
+          padding: "2px",
+          marginBottom: '0px'
+        })
+      }
+      // Remove any existing buttons in the tooltip
+      if (tooltipContainer) {
+        tooltipContainer.innerHTML = ''; // Clear all buttons
+      }
+
+      // Style the tooltip box
+      if (tooltip) {
+        Object.assign(tooltip.style, {
+          backgroundColor: '#f9f9f9',
+          color: '#333',
+          whiteSpace: 'nowrap',
+          borderRadius: '6px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+          padding: "5px",
+          maxWidth: '500px',
+          fontSize: '14px',
+          minWidth: '300px',
+          textAlign: 'center',
+        });
+        tooltip.style.display = 'flex';
+        tooltip.style.flexDirection = 'column';
+        tooltip.style.justifyContent = 'space-between';
+      }
+    });
+
+
+    end.start();
   };
-  useEffect(() => {
-    if (tutorialActive && currentStep < steps.length) {
-      showTutorial(steps[currentStep]);
-    }
-  }, [tutorialActive, currentStep]);
+  const showTutorial = () => {
+    const intro = introJs();
+    intro.setOptions({
+      steps : [
+        {
+          element: '.filter1-button',
+          intro: 'Use this button to select Forecast Cycle.',
+        },
+        {
+          element: '.filter2-button',
+          intro: 'Use this button to select Therapeutic Area.',
+        },
+        {
+          element: '.filter3-button',
+          intro: 'Use this button to select Region.\nA table is displayed with the countries of this region with filtered scenario data.',
+        }
+      ],
+      showProgress: false, // Disable progress bar
+      showStepNumbers: false,
+      showBullets: false,
+      nextLabel: 'Next step',
+      prevLabel: 'Previous step',
+      doneLabel: 'Finished'
+    });
+
+    intro.onafterchange(() => {
+      const tooltipContainer = document.querySelector('.introjs-tooltipbuttons');
+      const nextButton = document.querySelector('.introjs-nextbutton');
+      const prevButton = document.querySelector('.introjs-prevbutton');
+      const tooltip = document.querySelector('.introjs-tooltip');
+      const totalSteps = intro._options.steps.length; // Get total number of steps
+      const currentStep = intro._currentStep; // Get current step index
+      console.log(currentStep)
+      console.log(totalSteps)
+
+      // Remove default close button
+      const crossIcon = document.querySelector('.introjs-skipbutton');
+      if (crossIcon) {
+        crossIcon.remove();
+      }
+
+      // Add a custom "Skip tutorial" button
+      let customSkipButton = document.querySelector('.custom-skip-button');
+      if (!customSkipButton) {
+        customSkipButton = document.createElement('button');
+        customSkipButton.className = 'custom-skip-button';
+        Object.assign(customSkipButton.style, {
+          backgroundColor: 'red',
+          fontSize: '12px',
+          position: 'absolute',
+          top: '10px',
+          right: '10px',
+          color: 'white',
+          fontWeight: 'bold',
+          textShadow: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          height: '20px',
+          borderRadius: '5px',
+        });
+
+        customSkipButton.onclick = () => {
+          intro.exit(); // End the current tour
+          showTutorial2(); // Start the second tour
+        };
+
+        if (tooltipContainer && prevButton) {
+          tooltipContainer.insertBefore(customSkipButton, prevButton.nextSibling);
+        }
+      }
+
+      // Update the custom "Skip tutorial" button text dynamically
+      if (currentStep === totalSteps - 1) {
+        customSkipButton.textContent = 'Close'; // Change Skip button text to "Close"
+      } else {
+        customSkipButton.textContent = 'Skip tutorial'; // Reset Skip button text
+      }
+
+      if (nextButton) {
+        if (currentStep === totalSteps - 1) {
+          // Disable and style the Next button on the last step
+          nextButton.disabled = true;
+          Object.assign(nextButton.style, {
+            position: 'absolute',
+            bottom: '15px',
+            right: '10px',
+            backgroundColor: 'grey',
+            color: 'white',
+            cursor: 'not-allowed',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            textShadow: 'none',
+            padding: '5px 10px',
+            borderRadius: '5px',
+            boxShadow: 'none',
+          });
+        } else {
+          // Enable and style the Next button for other steps
+          nextButton.disabled = false;
+          Object.assign(nextButton.style, {
+            position: 'absolute',
+            bottom: '15px',
+            right: '10px',
+            backgroundColor: 'green',
+            color: 'white',
+            cursor: 'pointer',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            textShadow: 'none',
+            padding: '5px 10px',
+            borderRadius: '5px',
+            boxShadow: 'none',
+          });
+        }
+      }
+
+      // Style the Previous button
+      if (prevButton) {
+        if (currentStep === 0) {
+          prevButton.disabled = true;
+          Object.assign(prevButton.style, {
+            backgroundColor: 'grey',
+            fontSize: '12px',
+            color: 'white',
+            marginRight: '40px',
+            fontWeight: 'bold',
+            textShadow: 'none',
+            borderRadius: '5px',
+            padding: '5px 10px',
+          });
+        }
+        else {
+          Object.assign(prevButton.style, {
+            backgroundColor: 'navy',
+            fontSize: '12px',
+            color: 'white',
+            marginRight: '40px',
+            fontWeight: 'bold',
+            textShadow: 'none',
+            borderRadius: '5px',
+            padding: '5px 10px',
+          })
+        }
+      }
+
+      // Style the tooltip box
+      if (tooltip) {
+        Object.assign(tooltip.style, {
+          backgroundColor: '#f9f9f9',
+          color: '#333',
+          borderRadius: '6px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+          padding: '5px',
+          maxWidth: '500px',
+          fontSize: '14px',
+          minWidth: '300px',
+          textAlign: 'center',
+        });
+      }
+    });
+
+    intro.start();
+  };
+  const handleStartTutorial = () => {
+    showTutorial();
+  };
   
-  const steps = [
-    {
-      index: 0,
-      target: '.filter1-button',
-      content: 'Use this button to select Forecast Cycle.',
-      placement: 'right',
-    },
-    {
-      index: 1,
-      target: '.filter2-button',
-      content: 'Use this button to select Therapeutic Area.',
-      placement: 'right',
-    },
-    {
-      index: 2,
-      target: '.filter3-button',
-      content: 'Use this button to select Region.\nA table is displayed with the countries of this region with filtered scenario data.',
-      placement: 'left',
-    }
-  ];
 
   return (
     <div style={{ backgroundColor: 'white', marginTop: '20px' }}>
       {/* Greeting section */}
       <Button
-                className='tutorial-btn'
-                variant="contained"
-                size='small'
-                sx={{ color: 'white', position: 'absolute', right: 0, cursor: 'pointer', mt: 0, mr: 2 }}
-                onClick={() => handleStartTutorial()}
-            >
-                Show Tutorial
-            </Button>
+        className='start-tour-button'
+        variant="contained"
+        size='small'
+        sx={{ color: 'white', position: 'absolute', right: 0, cursor: 'pointer', mt: 0, mr: 2 }}
+        onClick={() => handleStartTutorial()}
+      >
+        Show Tutorial
+      </Button>
       <h2>{greeting}, Welcome to the Data Consolidation Page!</h2>
 
       {/* Forecast and Worksheet Selections Container */}

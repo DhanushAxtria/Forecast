@@ -67,6 +67,7 @@ const MyProvider = ({ children }) => {
   const [countries, setCountries] = React.useState([]);
   const [therapeuticAreas, setTherapeuticAreas] = React.useState([]);
   const [forecastCycles, setForecastCycles] = React.useState([]);
+  const [tutHome, setTutHome] = useState(true);
 
   const [rowsData, setRowsData] = useState([
     {
@@ -192,6 +193,7 @@ const MyProvider = ({ children }) => {
       editingFormula, setEditingFormula,
       rowsData, setRowsData,
       storeValues, setStoreValues,
+      tutHome, setTutHome,
     }}>
       {children}
     </MyContext.Provider>
