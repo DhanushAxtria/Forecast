@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
+import introJs from 'intro.js';
 import CalculateIcon from '@mui/icons-material/Calculate';
 import FormControl from '@mui/material/FormControl';
 import UploadIcon from '@mui/icons-material/Upload';
@@ -115,11 +116,6 @@ const Patient_Forecast = () => {
         upside: { table1: false, table2: false, table3: false },
     });
 
-    const [selectedAction, setSelectedAction] = useState('');
-
-    const [tutorialActive, setTutorialActive] = useState(false);
-    const [currentStep, setCurrentStep] = useState(0); // Track the current step in the tutorial
-
     /*A component that renders a box with three buttons: one to show the preview of the tables,
       one to close the preview and  "Show Dashboard" button to navigate to the dashboard. */
     const Preview = () => {
@@ -127,6 +123,7 @@ const Patient_Forecast = () => {
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 2 }}>
                 <Box sx={{ display: 'flex', gap: 1 }}>
                     <Button
+                        className='submit-button'
                         variant="contained"
                         color="primary"
                         sx={{ fontSize: '0.8rem' }}
@@ -134,6 +131,7 @@ const Patient_Forecast = () => {
                         Submit
                     </Button>
                     <Button
+                        className='preview-button'
                         variant="contained"
                         onClick={() => {
                             const allVisible = Object.values(tabTableVisibility[currentTabKey]).every((value) => value);
@@ -173,6 +171,7 @@ const Patient_Forecast = () => {
                             : 'Show Preview'}
                     </Button>
                     <Button
+                        className='analysis-button'
                         variant="contained"
                         onClick={() => {
                             navigate("/new-model/epidemiology-model/scenario-details/forecastdeepdive/analysis");
@@ -264,6 +263,7 @@ const Patient_Forecast = () => {
                                 )}
                                 {/* Toggle the visibility of table1 when the button is clicked */}
                                 <IconButton
+                                    
                                     aria-label='add'
                                     size="large"
                                     sx={{
@@ -279,7 +279,7 @@ const Patient_Forecast = () => {
                                     onClick={() => toggleTableVisibility(currentTabKey, 'table1')}
 
                                 >  {/* Display either Add or Remove icon depending on table1 visibility */}
-                                    {tabTableVisibility[currentTabKey].table1 ? <RemoveIcon className='open-card-selection' /> : <AddIcon className='card-selection' />}
+                                    {tabTableVisibility[currentTabKey].table1 ? <RemoveIcon className='close-card-selection' /> : <AddIcon className='open-card-selection' />}
                                 </IconButton>
                             </>
                         )}
@@ -2257,242 +2257,499 @@ const Patient_Forecast = () => {
 
     //     }
     //   };
-    const showTutorial2 = () => {
-        const step = {
-            index: 0,
-            target: '.tutorial-btn',
-            content: 'You can always see this tutorial by clicking on this button.',
-            placement: 'left',
-        };
-        const targetElement = document.querySelector(step.target);
-        const popup = document.createElement('div');
-        popup.classList.add('tutorial-popup', step.placement);
-        popup.textContent = step.content;
-        targetElement.style.boxShadow = '0px 0px 10px 0px rgba(0,0,0,0.75)';
-        targetElement.style.border = '3px solid navy';
-        // Position the popup based on the target element and placement
-        const rect = targetElement.getBoundingClientRect();
-        let top, left;
-        top = rect.top + rect.height / 2 - popup.offsetHeight / 2;
-        left = rect.left - 350;
-        popup.style.top = `${top}px`;
-        popup.style.left = `${left}px`;
-        document.body.appendChild(popup);
-        // Add a button to close the popup
-        const closeButton = document.createElement('button');
-        closeButton.textContent = 'Cancel';
-        closeButton.style.marginRight = '40px';
-        closeButton.style.padding = '5px 10px';
-        closeButton.style.borderRadius = '5px';
-        closeButton.addEventListener('click', () => {
-            setTutorialActive(false);
-            setCurrentStep(0);
-            popup.remove();
-            targetElement.style.border = '';
-            targetElement.style.boxShadow = '';
-        });
-        popup.appendChild(closeButton);
-    };
-    const showTutorial = (step) => {
-        const targetElement = document.querySelector(step.target);
-        const popup = document.createElement('div');
-        popup.classList.add('tutorial-popup', step.placement);
-        popup.textContent = step.content;
-        targetElement.style.boxShadow = '0px 0px 10px 0px rgba(0,0,0,0.75)';
-        targetElement.style.border = '3px solid navy';
-        // Position the popup based on the target element and placement
-        const rect = targetElement.getBoundingClientRect();
-        let top, left;
-        if (step.placement === 'top') {
-            top = rect.top + rect.height + rect.height - 5;
-            left = rect.left + rect.width / 2 - popup.offsetWidth / 2;
-        } else if (step.placement === 'bottom') {
-            top = rect.bottom + 10;
-            left = rect.left + rect.width / 2 - popup.offsetWidth / 2;
-        } else if (step.placement === 'left') {
-            top = rect.top + 475;
-            left = rect.left - 350;
-        } else if (step.placement === 'right') {
-            top = rect.top + rect.height - popup.offsetHeight / 2;
-            left = rect.right;
-        }
-        popup.style.top = `${top}px`;
-        popup.style.left = `${left}px`;
-        document.body.appendChild(popup);
-        // Add a button to close the popup
-        const closeButton = document.createElement('button');
-        //closeButton.textContent = currentStep === steps.length - 1 ? 'Finish' : 'Skip Tutorial';
-        closeButton.textContent = currentStep === (tab_value === '' ? steps : Object.values(tabTableVisibility).some(category =>
-            Object.values(category).some(value => value === true)
-        ) ? steps3 : steps2).length - 1 ? 'Finish' : 'Skip Tutorial';
-        closeButton.style.marginRight = '40px';
-        closeButton.style.padding = '5px 10px';
-        closeButton.style.borderRadius = '5px';
-        closeButton.addEventListener('click', () => {
-            setTutorialActive(false);
-            setCurrentStep(0);
-            popup.remove();
-            targetElement.style.border = '';
-            targetElement.style.boxShadow = '';
-            showTutorial2();
-        });
-        popup.appendChild(closeButton);
-        const previousButton = document.createElement('button');
-        previousButton.textContent = 'Previous';
-        previousButton.style.padding = '5px 10px';
-        previousButton.style.marginRight = '5px';
-        previousButton.style.borderRadius = '5px';
-        previousButton.disabled = currentStep === 0; // Disable if first step
-        previousButton.style.backgroundColor = previousButton.disabled ? 'grey' : 'navy';
-        previousButton.addEventListener('click', () => {
-            popup.remove();
-            setCurrentStep(currentStep - 1); // Move to previous step
-            targetElement.style.border = '';
-            targetElement.style.boxShadow = '';
-        });
-        const nextButton = document.createElement('button');
-        nextButton.textContent = 'Next';
-        nextButton.style.padding = '5px 10px';
-        nextButton.style.borderRadius = '5px';
-        // nextButton.disabled = currentStep === steps.length - 1; // Disable if last step
-        nextButton.disabled = currentStep === (tab_value === '' ? steps : Object.values(tabTableVisibility).some(category =>
-            Object.values(category).some(value => value === true)
-        ) ? steps3 : steps2).length - 1; // Disable if last step
-        nextButton.style.backgroundColor = nextButton.disabled ? 'grey' : 'green';
-        nextButton.addEventListener('click', () => {
-            popup.remove();
-            setCurrentStep(currentStep + 1); // Move to next step
-            targetElement.style.border = '';
-            targetElement.style.boxShadow = '';
-        });
-        const buttons = document.createElement('div');
-        buttons.style.display = 'flex';
-        buttons.style.marginTop = '20px';
-        buttons.style.justifyContent = 'space-between';
-        buttons.style.width = '100%';
-        buttons.appendChild(closeButton);
-        const flexEndButtons = document.createElement('div');
-        flexEndButtons.style.display = 'flex';
-        flexEndButtons.appendChild(previousButton);
-        flexEndButtons.appendChild(nextButton);
-        buttons.appendChild(flexEndButtons);
-        popup.appendChild(buttons); // Insert the buttons after the text
-    };
+    // const showTutorial2 = () => {
+    //     const step = {
+    //         index: 0,
+    //         target: '.tutorial-btn',
+    //         content: 'You can always see this tutorial by clicking on this button.',
+    //         placement: 'left',
+    //     };
+    //     const targetElement = document.querySelector(step.target);
+    //     const popup = document.createElement('div');
+    //     popup.classList.add('tutorial-popup', step.placement);
+    //     popup.textContent = step.content;
+    //     targetElement.style.boxShadow = '0px 0px 10px 0px rgba(0,0,0,0.75)';
+    //     targetElement.style.border = '3px solid navy';
+    //     // Position the popup based on the target element and placement
+    //     const rect = targetElement.getBoundingClientRect();
+    //     let top, left;
+    //     top = rect.top + rect.height / 2 - popup.offsetHeight / 2;
+    //     left = rect.left - 350;
+    //     popup.style.top = `${top}px`;
+    //     popup.style.left = `${left}px`;
+    //     document.body.appendChild(popup);
+    //     // Add a button to close the popup
+    //     const closeButton = document.createElement('button');
+    //     closeButton.textContent = 'Cancel';
+    //     closeButton.style.marginRight = '40px';
+    //     closeButton.style.padding = '5px 10px';
+    //     closeButton.style.borderRadius = '5px';
+    //     closeButton.addEventListener('click', () => {
+    //         setTutorialActive(false);
+    //         setCurrentStep(0);
+    //         popup.remove();
+    //         targetElement.style.border = '';
+    //         targetElement.style.boxShadow = '';
+    //     });
+    //     popup.appendChild(closeButton);
+    // };
+    // const showTutorial = (step) => {
+    //     const targetElement = document.querySelector(step.target);
+    //     const popup = document.createElement('div');
+    //     popup.classList.add('tutorial-popup', step.placement);
+    //     popup.textContent = step.content;
+    //     targetElement.style.boxShadow = '0px 0px 10px 0px rgba(0,0,0,0.75)';
+    //     targetElement.style.border = '3px solid navy';
+    //     // Position the popup based on the target element and placement
+    //     const rect = targetElement.getBoundingClientRect();
+    //     let top, left;
+    //     if (step.placement === 'top') {
+    //         top = rect.top + rect.height + rect.height - 5;
+    //         left = rect.left + rect.width / 2 - popup.offsetWidth / 2;
+    //     } else if (step.placement === 'bottom') {
+    //         top = rect.bottom + 10;
+    //         left = rect.left + rect.width / 2 - popup.offsetWidth / 2;
+    //     } else if (step.placement === 'left') {
+    //         top = rect.top + 475;
+    //         left = rect.left - 350;
+    //     } else if (step.placement === 'right') {
+    //         top = rect.top + rect.height - popup.offsetHeight / 2;
+    //         left = rect.right;
+    //     }
+    //     popup.style.top = `${top}px`;
+    //     popup.style.left = `${left}px`;
+    //     document.body.appendChild(popup);
+    //     // Add a button to close the popup
+    //     const closeButton = document.createElement('button');
+    //     //closeButton.textContent = currentStep === steps.length - 1 ? 'Finish' : 'Skip Tutorial';
+    //     closeButton.textContent = currentStep === (tab_value === '' ? steps : Object.values(tabTableVisibility).some(category =>
+    //         Object.values(category).some(value => value === true)
+    //     ) ? steps3 : steps2).length - 1 ? 'Finish' : 'Skip Tutorial';
+    //     closeButton.style.marginRight = '40px';
+    //     closeButton.style.padding = '5px 10px';
+    //     closeButton.style.borderRadius = '5px';
+    //     closeButton.addEventListener('click', () => {
+    //         setTutorialActive(false);
+    //         setCurrentStep(0);
+    //         popup.remove();
+    //         targetElement.style.border = '';
+    //         targetElement.style.boxShadow = '';
+    //         showTutorial2();
+    //     });
+    //     popup.appendChild(closeButton);
+    //     const previousButton = document.createElement('button');
+    //     previousButton.textContent = 'Previous';
+    //     previousButton.style.padding = '5px 10px';
+    //     previousButton.style.marginRight = '5px';
+    //     previousButton.style.borderRadius = '5px';
+    //     previousButton.disabled = currentStep === 0; // Disable if first step
+    //     previousButton.style.backgroundColor = previousButton.disabled ? 'grey' : 'navy';
+    //     previousButton.addEventListener('click', () => {
+    //         popup.remove();
+    //         setCurrentStep(currentStep - 1); // Move to previous step
+    //         targetElement.style.border = '';
+    //         targetElement.style.boxShadow = '';
+    //     });
+    //     const nextButton = document.createElement('button');
+    //     nextButton.textContent = 'Next';
+    //     nextButton.style.padding = '5px 10px';
+    //     nextButton.style.borderRadius = '5px';
+    //     // nextButton.disabled = currentStep === steps.length - 1; // Disable if last step
+    //     nextButton.disabled = currentStep === (tab_value === '' ? steps : Object.values(tabTableVisibility).some(category =>
+    //         Object.values(category).some(value => value === true)
+    //     ) ? steps3 : steps2).length - 1; // Disable if last step
+    //     nextButton.style.backgroundColor = nextButton.disabled ? 'grey' : 'green';
+    //     nextButton.addEventListener('click', () => {
+    //         popup.remove();
+    //         setCurrentStep(currentStep + 1); // Move to next step
+    //         targetElement.style.border = '';
+    //         targetElement.style.boxShadow = '';
+    //     });
+    //     const buttons = document.createElement('div');
+    //     buttons.style.display = 'flex';
+    //     buttons.style.marginTop = '20px';
+    //     buttons.style.justifyContent = 'space-between';
+    //     buttons.style.width = '100%';
+    //     buttons.appendChild(closeButton);
+    //     const flexEndButtons = document.createElement('div');
+    //     flexEndButtons.style.display = 'flex';
+    //     flexEndButtons.appendChild(previousButton);
+    //     flexEndButtons.appendChild(nextButton);
+    //     buttons.appendChild(flexEndButtons);
+    //     popup.appendChild(buttons); // Insert the buttons after the text
+    // };
 
-    const handleStartTutorial = () => {
-        setTutorialActive(true);
-        setCurrentStep(0); // Start from the first step
-    };
+    // const handleStartTutorial = () => {
+    //     setTutorialActive(true);
+    //     setCurrentStep(0); // Start from the first step
+    // };
 
     // useEffect(() => {
     //     if (tutorialActive && currentStep < steps.length) {
     //         showTutorial(steps[currentStep]);
     //     }
     // }, [tutorialActive, currentStep]);
-    useEffect(() => {
-        if (tab_value === '') {
-            if (tutorialActive && currentStep < steps.length) {
-                showTutorial(steps[currentStep]);
-            }
-        }
-        else if (Object.values(tabTableVisibility).some(category =>
-            Object.values(category).some(value => value === true)
-        )) {
-            if (tutorialActive && currentStep < steps3.length) {
-                showTutorial(steps3[currentStep]);
-            }
-        }
-        else {
-            if (tutorialActive && currentStep < steps2.length) {
-                showTutorial(steps2[currentStep]);
-            }
-        }
-    }, [tutorialActive, currentStep]);
+    // useEffect(() => {
+    //     if (tab_value === '') {
+    //         if (tutorialActive && currentStep < steps.length) {
+    //             showTutorial(steps[currentStep]);
+    //         }
+    //     }
+    //     else if (Object.values(tabTableVisibility).some(category =>
+    //         Object.values(category).some(value => value === true)
+    //     )) {
+    //         if (tutorialActive && currentStep < steps3.length) {
+    //             showTutorial(steps3[currentStep]);
+    //         }
+    //     }
+    //     else {
+    //         if (tutorialActive && currentStep < steps2.length) {
+    //             showTutorial(steps2[currentStep]);
+    //         }
+    //     }
+    // }, [tutorialActive, currentStep]);
 
-    const steps = [
+    const startTour2 = () => {
+        const end = introJs();
+        end.setOptions({
+            steps: [
+                {
+                    element: '.start-tour-button',
+                    intro: 'You can click here to rewatch the tutorial.',
+                    position: 'left'
+                },
+            ],
+            showProgress: false, // Disable progress bar
+            showStepNumbers: false,
+            showBullets: false,
+            nextLabel: '', // Remove "Next" button label
+            prevLabel: '', // Remove "Previous" button label    
+            showButtons: false, // Disable default Next/Prev buttons
+        });
+
+        end.onafterchange(() => {
+            const tooltipContainer = document.querySelector('.introjs-tooltipbuttons');
+            const tooltip = document.querySelector('.introjs-tooltip');
+            const crossIcon = document.querySelector('.introjs-skipbutton')
+
+            if (crossIcon) {
+                Object.assign(crossIcon.style, {
+                    color: "red",
+                    padding: "2px",
+                    marginBottom: '0px'
+                })
+            }
+            // Remove any existing buttons in the tooltip
+            if (tooltipContainer) {
+                tooltipContainer.innerHTML = ''; // Clear all buttons
+            }
+
+            // Style the tooltip box
+            if (tooltip) {
+                Object.assign(tooltip.style, {
+                    backgroundColor: '#f9f9f9',
+                    color: '#333',
+                    whiteSpace: 'nowrap',
+                    borderRadius: '6px',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                    padding: "5px",
+                    maxWidth: '500px',
+                    fontSize: '14px',
+                    minWidth: '300px',
+                    textAlign: 'center',
+                });
+                tooltip.style.display = 'flex';
+                tooltip.style.flexDirection = 'column';
+                tooltip.style.justifyContent = 'space-between';
+            }
+        });
+        end.start();
+    };
+
+    // main tutorial
+    const startTour = () => {
+        const intro = introJs();
+        intro.setOptions({
+            steps: tab_value === null ? steps1 : Object.values(tabTableVisibility).some(category =>
+                Object.values(category).some(value => value === true)
+            ) ? steps3 : steps2,
+            showProgress: false, // Disable progress bar
+            showStepNumbers: false,
+            showBullets: false,
+            nextLabel: 'Next step',
+            prevLabel: 'Previous step',
+            doneLabel: 'Finished'
+        });
+
+        intro.onafterchange(() => {
+            const tooltipContainer = document.querySelector('.introjs-tooltipbuttons');
+            const nextButton = document.querySelector('.introjs-nextbutton');
+            const prevButton = document.querySelector('.introjs-prevbutton');
+            const tooltip = document.querySelector('.introjs-tooltip');
+            const totalSteps = intro._options.steps.length; // Get total number of steps
+            const currentStep = intro._currentStep; // Get current step index
+            console.log(currentStep)
+            console.log(totalSteps)
+
+            // Remove default close button
+            const crossIcon = document.querySelector('.introjs-skipbutton');
+            if (crossIcon) {
+                crossIcon.remove();
+            }
+
+            // Add a custom "Skip tutorial" button
+            let customSkipButton = document.querySelector('.custom-skip-button');
+            if (!customSkipButton) {
+                customSkipButton = document.createElement('button');
+                customSkipButton.className = 'custom-skip-button';
+                Object.assign(customSkipButton.style, {
+                    backgroundColor: 'red',
+                    fontSize: '12px',
+                    position: 'absolute',
+                    top: '10px',
+                    right: '10px',
+                    color: 'white',
+                    fontWeight: 'bold',
+                    textShadow: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    height: '20px',
+                    borderRadius: '5px',
+                });
+
+                customSkipButton.onclick = () => {
+                    intro.exit(); // End the current tour
+                    startTour2(); // Start the second tour
+                };
+
+                if (tooltipContainer && prevButton) {
+                    tooltipContainer.insertBefore(customSkipButton, prevButton.nextSibling);
+                }
+            }
+
+            // Update the custom "Skip tutorial" button text dynamically
+            if (currentStep === totalSteps - 1) {
+                customSkipButton.textContent = 'Close'; // Change Skip button text to "Close"
+            } else {
+                customSkipButton.textContent = 'Skip tutorial'; // Reset Skip button text
+            }
+
+            if (nextButton) {
+                if (currentStep === totalSteps - 1) {
+                    // Disable and style the Next button on the last step
+                    nextButton.disabled = true;
+                    Object.assign(nextButton.style, {
+                        position: 'absolute',
+                        bottom: '15px',
+                        right: '10px',
+                        backgroundColor: 'grey',
+                        color: 'white',
+                        cursor: 'not-allowed',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        textShadow: 'none',
+                        padding: '5px 10px',
+                        borderRadius: '5px',
+                        boxShadow: 'none',
+                    });
+                } else {
+                    // Enable and style the Next button for other steps
+                    nextButton.disabled = false;
+                    Object.assign(nextButton.style, {
+                        position: 'absolute',
+                        bottom: '15px',
+                        right: '10px',
+                        backgroundColor: 'green',
+                        color: 'white',
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        textShadow: 'none',
+                        padding: '5px 10px',
+                        borderRadius: '5px',
+                        boxShadow: 'none',
+                    });
+                }
+            }
+
+            // Style the Previous button
+            if (prevButton) {
+                if (currentStep === 0) {
+                    prevButton.disabled = true;
+                    Object.assign(prevButton.style, {
+                        backgroundColor: 'grey',
+                        fontSize: '12px',
+                        color: 'white',
+                        marginRight: '40px',
+                        fontWeight: 'bold',
+                        textShadow: 'none',
+                        borderRadius: '5px',
+                        padding: '5px 10px',
+                    });
+                }
+                else {
+                    Object.assign(prevButton.style, {
+                        backgroundColor: 'navy',
+                        fontSize: '12px',
+                        color: 'white',
+                        marginRight: '40px',
+                        fontWeight: 'bold',
+                        textShadow: 'none',
+                        borderRadius: '5px',
+                        padding: '5px 10px',
+                    })
+                }
+            }
+
+            // Style the tooltip box
+            if (tooltip) {
+                Object.assign(tooltip.style, {
+                    backgroundColor: '#f9f9f9',
+                    color: '#333',
+                    borderRadius: '6px',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                    padding: '5px',
+                    maxWidth: '500px',
+                    fontSize: '14px',
+                    minWidth: '300px',
+                    textAlign: 'center',
+                });
+            }
+        });
+
+        intro.start();
+    };
+
+    const steps1 = [
         {
-            index: 0,
-            target: '.tab-navigation',
-            content: 'Clicking here allows you to open the tab for a specific case.',
-            placement: 'bottom',
-        }
+            element: '.tab-navigation',
+            intro: 'Clicking here allows you to open the tab for a specific case.',
+            position: 'bottom',
+        },
+        {
+            element: '.analysis-button',
+            intro: 'Clicking here takes you to the analysis page.',
+            position: 'left',
+        },
+        {
+            element: '.preview-button',
+            intro: 'Clicking here allows you to see a previw of the data for the selected tab ',
+            position: 'left',
+        },
+        {
+            element: '.submit-button',
+            intro: 'Clicking here allows you to submit the created scenario',
+            position: 'bottom',
+        },
+        {
+            element: '.clearAll-button',
+            intro: 'Clicking here allows you to completely clear all data in tables',
+            position: 'bottom',
+        },
     ];
     const steps2 = [
         {
-            index: 0,
-            target: '.tab-navigation',
-            content: 'Clicking here allows you to open the tab for a specific case.',
-            placement: 'bottom',
+            element: '.tab-navigation',
+            intro: 'Clicking here allows you to open the tab for a specific case.',
+            position: 'bottom',
         },
         {
-            index: 1,
-            target: '.card-selection',
-            content: 'Clicking here allows you to display the data table asociated with that card.',
-            placement: 'right',
-        }
-
+            element: '.open-card-selection',
+            intro: 'Clicking here allows you to display the data table asociated with that card.',
+            position: 'right',
+        },
+        {
+            element: '.analysis-button',
+            intro: 'Clicking here takes you to the analysis page.',
+            position: 'left',
+        },
+        {
+            element: '.preview-button',
+            intro: 'Clicking here allows you to see a previw of the data for the selected tab ',
+            position: 'left',
+        },
+        {
+            element: '.submit-button',
+            intro: 'Clicking here allows you to submit the created scenario',
+            position: 'bottom',
+        },
+        {
+            element: '.clearAll-button',
+            intro: 'Clicking here allows you to completely clear all data in tables',
+            position: 'bottom',
+        },
     ];
     const steps3 = [
         {
-            index: 0,
-            target: '.tab-navigation',
-            content: 'Clicking here allows you to open the tab for a specific case.',
-            placement: 'bottom',
+            element: '.tab-navigation',
+            intro: 'Clicking here allows you to open the tab for a specific case.',
+            position: 'bottom',
         },
         {
-            index: 1,
-            target: '.open-card-selection',
-            content: 'Clicking here allows you to close the data table asociated with this card.',
-            placement: 'right',
+            element: '.close-card-selection',
+            intro: 'Clicking here allows you to close the data table asociated with this card.',
+            position: 'right',
         },
         {
-            index: 2,
-            target: '.info-button',
-            content: 'Click here to enter data source information',
-            placement: 'right',
+            element: '.info-button',
+            intro: 'Click here to enter data source information',
+            position: 'right',
         },
         {
-            index: 3,
-            target: '.data-input-button',
-            content: 'Clicking here allows you to choose options to add data to table rows using a particular method.',
-            placement: 'right',
+            element: '.data-input-button',
+            intro: 'Clicking here allows you to choose options to add data to table rows using a particular method.',
+            position: 'right',
         },
         {
-            index: 4,
-            target: '.edit-row-name',
-            content: 'Clicking here allows you to edit row name.',
-            placement: 'right',
+            element: '.edit-row-name',
+            intro: 'Clicking here allows you to edit row name.',
+            position: 'right',
         },
         {
-            index: 5,
-            target: '.add-row',
-            content: 'Clicking here allows you to add a row below.',
-            placement: 'right',
+            element: '.add-row',
+            intro: 'Clicking here allows you to add a row below.',
+            position: 'right',
         },
         {
-            index: 6,
-            target: '.insert-formula',
-            content: 'Clicking here allows you create and insert a formula.',
-            placement: 'right',
+            element: '.insert-formula',
+            intro: 'Clicking here allows you create and insert a formula.',
+            position: 'right',
         },
         {
-            index: 7,
-            target: '.delete-row',
-            content: 'Clicking here allows you to delete the currunt row.',
-            placement: 'right',
+            element: '.delete-row',
+            intro: 'Clicking here allows you to delete the currunt row.',
+            position: 'right',
         },
         {
-            index: 8,
-            target: '.manual-input',
-            content: 'Clicking here allows you to manually enter the data.',
-            placement: 'right',
+            element: '.manual-input',
+            intro: 'Clicking here allows you to manually enter the data.',
+            position: 'right',
         },
         {
-            index: 9,
-            target: '.date-table-header',
-            content: 'The column headers are dates that spanning the historical and forecast period.',
-            placement: 'right',
-        }
+            element: '.date-table-header',
+            intro: 'The column headers are dates that spanning the historical and forecast period.',
+            position: 'right',
+        },
+        {
+            element: '.analysis-button',
+            intro: 'Clicking here takes you to the analysis page.',
+            position: 'left',
+        },
+        {
+            element: '.preview-button',
+            intro: 'Clicking here allows you to see a previw of the data for the selected tab ',
+            position: 'left',
+        },
+        {
+            element: '.submit-button',
+            intro: 'Clicking here allows you to submit the created scenario',
+            position: 'bottom',
+        },
+        {
+            element: '.clearAll-button',
+            intro: 'Clicking here allows you to completely clear all data in tables',
+            position: 'bottom',
+        },
     ];
 
 
@@ -2525,17 +2782,19 @@ const Patient_Forecast = () => {
                 {/* Section displaying the greeting message */}
                 <div style={{ backgroundColor: 'white', padding: '0.5px', marginTop: '-25px', marginLeft: '10px' }}>
                     <Button
-                        className='tutorial-btn'
+                        //className='tutorial-btn'
                         variant="contained"
                         size='small'
                         sx={{ color: 'white', position: 'absolute', right: 0, cursor: 'pointer', mt: 3, mr: 2 }}
-                        onClick={() => handleStartTutorial()}
+                        // onClick={() => handleStartTutorial()}
+                        onClick={startTour} className="start-tour-button"
                     >
                         Show Tutorial
                     </Button>
                     <h2 style={{ textAlign: 'left' }}>{greeting}, Welcome to the Patient Based Forecasting Page!</h2> </div>
                 <div style={{ marginLeft: '10px', marginTop: '5px' }}>
                     <Button
+                        className='clearAll-button'
                         variant="contained"
                         color="primary"
                         onClick={() => {

@@ -1,5 +1,6 @@
-import { Bar, BarChart, XAxis, YAxis, CartesianGrid } from "recharts";
 import React, { useState, useEffect, useContext } from 'react';
+import introJs from 'intro.js';
+import { Bar, BarChart, XAxis, YAxis, CartesianGrid } from "recharts";
 import FormControl from '@mui/material/FormControl';
 import UploadIcon from '@mui/icons-material/Upload';
 import Select from '@mui/material/Select';
@@ -52,7 +53,7 @@ const WaterFall = () => {
     const { products, timePeriod, Formulas, fromHistoricalDate, toForecastDate, fromForecastDate, values, values2, values3 } = useContext(MyContext);
     const [Res, setRes] = useState({});
     const [Index, setIndex] = useState("");
-   
+
     const [buttonType, setButtonType] = useState("");
     const [editingFileToFill, setEditingFileToFill] = useState({});
     const [FileToFill, setFileToFill] = useState({});
@@ -772,21 +773,268 @@ const WaterFall = () => {
         setOpenInputMethodDialog(true);
     }
 
+    const startTour2 = () => {
+        const end = introJs();
+        end.setOptions({
+            steps: [
+                {
+                    element: '.start-tour-button',
+                    intro: 'You can click here to rewatch the tutorial.',
+                    position: 'left'
+                },
+            ],
+            showProgress: false, // Disable progress bar
+            showStepNumbers: false,
+            showBullets: false,
+            nextLabel: '', // Remove "Next" button label
+            prevLabel: '', // Remove "Previous" button label    
+            showButtons: false, // Disable default Next/Prev buttons
+        });
+
+        end.onafterchange(() => {
+            const tooltipContainer = document.querySelector('.introjs-tooltipbuttons');
+            const tooltip = document.querySelector('.introjs-tooltip');
+            const crossIcon = document.querySelector('.introjs-skipbutton')
+
+            if (crossIcon) {
+                Object.assign(crossIcon.style, {
+                    color: "red",
+                    padding: "2px",
+                    marginBottom: '0px'
+                })
+            }
+            // Remove any existing buttons in the tooltip
+            if (tooltipContainer) {
+                tooltipContainer.innerHTML = ''; // Clear all buttons
+            }
+
+            // Style the tooltip box
+            if (tooltip) {
+                Object.assign(tooltip.style, {
+                    backgroundColor: '#f9f9f9',
+                    color: '#333',
+                    whiteSpace: 'nowrap',
+                    borderRadius: '6px',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                    padding: "5px",
+                    maxWidth: '500px',
+                    fontSize: '14px',
+                    minWidth: '300px',
+                    textAlign: 'center',
+                });
+                tooltip.style.display = 'flex';
+                tooltip.style.flexDirection = 'column';
+                tooltip.style.justifyContent = 'space-between';
+            }
+        });
+        end.start();
+    };
+
+    // main tutorial
+    const startTour = () => {
+        const intro = introJs();
+        intro.setOptions({
+            steps: [
+                {
+                    element: '.dates',
+                    intro: `To choose the months for which you want to run sensitivity analysis.`,
+                    position: 'right',
+                },
+                {
+                    element: '.choose-case',
+                    intro: `To choose the case.`,
+                    position: 'right',
+                },
+                {
+                    element: '.choose-metric',
+                    intro: `To choose the product for which you want to run sensitivity analysis.`,
+                    position: 'right',
+                },
+                {
+                    element: '.choose-field',
+                    intro: `To choose the product for which you want to change the values and see resultant effect on the output metric.`,
+                    position: 'right',
+                },
+                {
+                    element: '.scenario-case',
+                    intro: `This is used to change(increase/ decrease) the value of field. There are many options to update the data: upload file, change by %, and many more.`,
+                    position: 'left',
+                },
+                {
+                    element: '.plus-button',
+                    intro: `Click here to add another field and its scenario case values. You will not be able to change output metric and case in the added row`,
+                    position: 'left',
+                },
+                {
+                    element: '.apply-button',
+                    intro: `This button enables once you have selected the required values and input data in high and low case. Clicking on this will generate a graph and output table`,
+                    position: 'right',
+                },
+            ],
+            showProgress: false, // Disable progress bar
+            showStepNumbers: false,
+            showBullets: false,
+            nextLabel: 'Next step',
+            prevLabel: 'Previous step',
+            doneLabel: 'Finished'
+        });
+
+        intro.onafterchange(() => {
+            const tooltipContainer = document.querySelector('.introjs-tooltipbuttons');
+            const nextButton = document.querySelector('.introjs-nextbutton');
+            const prevButton = document.querySelector('.introjs-prevbutton');
+            const tooltip = document.querySelector('.introjs-tooltip');
+            const totalSteps = intro._options.steps.length; // Get total number of steps
+            const currentStep = intro._currentStep; // Get current step index
+            console.log(currentStep)
+            console.log(totalSteps)
+
+            // Remove default close button
+            const crossIcon = document.querySelector('.introjs-skipbutton');
+            if (crossIcon) {
+                crossIcon.remove();
+            }
+
+            // Add a custom "Skip tutorial" button
+            let customSkipButton = document.querySelector('.custom-skip-button');
+            if (!customSkipButton) {
+                customSkipButton = document.createElement('button');
+                customSkipButton.className = 'custom-skip-button';
+                Object.assign(customSkipButton.style, {
+                    backgroundColor: 'red',
+                    fontSize: '12px',
+                    position: 'absolute',
+                    top: '10px',
+                    right: '10px',
+                    color: 'white',
+                    fontWeight: 'bold',
+                    textShadow: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    height: '20px',
+                    borderRadius: '5px',
+                });
+
+                customSkipButton.onclick = () => {
+                    intro.exit(); // End the current tour
+                    startTour2(); // Start the second tour
+                };
+
+                if (tooltipContainer && prevButton) {
+                    tooltipContainer.insertBefore(customSkipButton, prevButton.nextSibling);
+                }
+            }
+
+            // Update the custom "Skip tutorial" button text dynamically
+            if (currentStep === totalSteps - 1) {
+                customSkipButton.textContent = 'Close'; // Change Skip button text to "Close"
+            } else {
+                customSkipButton.textContent = 'Skip tutorial'; // Reset Skip button text
+            }
+
+            if (nextButton) {
+                if (currentStep === totalSteps - 1) {
+                    // Disable and style the Next button on the last step
+                    nextButton.disabled = true;
+                    Object.assign(nextButton.style, {
+                        position: 'absolute',
+                        bottom: '15px',
+                        right: '10px',
+                        backgroundColor: 'grey',
+                        color: 'white',
+                        cursor: 'not-allowed',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        textShadow: 'none',
+                        padding: '5px 10px',
+                        borderRadius: '5px',
+                        boxShadow: 'none',
+                    });
+                } else {
+                    // Enable and style the Next button for other steps
+                    nextButton.disabled = false;
+                    Object.assign(nextButton.style, {
+                        position: 'absolute',
+                        bottom: '15px',
+                        right: '10px',
+                        backgroundColor: 'green',
+                        color: 'white',
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        textShadow: 'none',
+                        padding: '5px 10px',
+                        borderRadius: '5px',
+                        boxShadow: 'none',
+                    });
+                }
+            }
+
+            // Style the Previous button
+            if (prevButton) {
+                if (currentStep === 0) {
+                    prevButton.disabled = true;
+                    Object.assign(prevButton.style, {
+                        backgroundColor: 'grey',
+                        fontSize: '12px',
+                        color: 'white',
+                        marginRight: '40px',
+                        fontWeight: 'bold',
+                        textShadow: 'none',
+                        borderRadius: '5px',
+                        padding: '5px 10px',
+                    });
+                }
+                else {
+                    Object.assign(prevButton.style, {
+                        backgroundColor: 'navy',
+                        fontSize: '12px',
+                        color: 'white',
+                        marginRight: '40px',
+                        fontWeight: 'bold',
+                        textShadow: 'none',
+                        borderRadius: '5px',
+                        padding: '5px 10px',
+                    })
+                }
+            }
+
+            // Style the tooltip box
+            if (tooltip) {
+                Object.assign(tooltip.style, {
+                    backgroundColor: '#f9f9f9',
+                    color: '#333',
+                    borderRadius: '6px',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                    padding: '5px',
+                    maxWidth: '500px',
+                    fontSize: '14px',
+                    minWidth: '300px',
+                    textAlign: 'center',
+                });
+            }
+        });
+
+        intro.start();
+    };
+
 
     return (
         <>
 
             <Button
-                className='tutorial-btn'
+                className="start-tour-button"
                 variant="contained"
                 size='small'
                 sx={{ color: 'white', position: 'absolute', right: 0, cursor: 'pointer', mt: -6.5, mr: 2 }}
+                onClick={startTour}
 
             >
                 Show Tutorial
             </Button>
             <Box display="flex" alignItems="center" gap="15px" ml={1} p={2} >
                 <Button
+                    className="apply-button"
                     variant="contained"
                     onClick={() => KPIAnalysis()}
                     disabled={dropdownGroups.length === 0 || dropdownGroups.some((row) => row.OutputMetric === "" || row.Field === "" || row.Case === "")}
@@ -794,28 +1042,30 @@ const WaterFall = () => {
                     Apply
                 </Button>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                        views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
-                        label={timePeriod === 'Monthly' ? 'Start Month' : 'Start Year'}
-                        value={fromDate}
-                        onChange={(newValue) => setFromDate(newValue)}
-                        format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
-                        slotProps={{ textField: { size: 'small' } }}
-                        sx={{ width: '200px' }}
-                        minDate={fromHistoricalDate}
-                        maxDate={toForecastDate}
-                    />
-                    <DatePicker
-                        views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
-                        label={timePeriod === 'Monthly' ? 'End Month' : 'End Year'}
-                        value={toDate}
-                        onChange={(newValue) => setToDate(newValue)}
-                        format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
-                        slotProps={{ textField: { size: 'small' } }}
-                        sx={{ width: '200px' }}
-                        minDate={fromDate}
-                        maxDate={toForecastDate}
-                    />
+                    <Box className='dates' display="flex" alignItems="center" gap="15px" >
+                        <DatePicker
+                            views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
+                            label={timePeriod === 'Monthly' ? 'Start Month' : 'Start Year'}
+                            value={fromDate}
+                            onChange={(newValue) => setFromDate(newValue)}
+                            format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
+                            slotProps={{ textField: { size: 'small' } }}
+                            sx={{ width: '200px' }}
+                            minDate={fromHistoricalDate}
+                            maxDate={toForecastDate}
+                        />
+                        <DatePicker
+                            views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
+                            label={timePeriod === 'Monthly' ? 'End Month' : 'End Year'}
+                            value={toDate}
+                            onChange={(newValue) => setToDate(newValue)}
+                            format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
+                            slotProps={{ textField: { size: 'small' } }}
+                            sx={{ width: '200px' }}
+                            minDate={fromDate}
+                            maxDate={toForecastDate}
+                        />
+                    </Box>
                 </LocalizationProvider>
             </Box >
             <Grid container spacing={2}>
@@ -833,11 +1083,10 @@ const WaterFall = () => {
                         <Table size="small" aria-label="dropdown table">
                             <TableHead>
                                 <TableRow>
-                                    <TableCell align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Case</TableCell>
-                                    <TableCell align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Output Metric</TableCell>
-                                    <TableCell align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Field</TableCell>
-
-                                    <TableCell align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Scenario Case</TableCell>
+                                    <TableCell className='choose-case' align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Case</TableCell>
+                                    <TableCell className='choose-metric' align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Output Metric</TableCell>
+                                    <TableCell className='choose-field' align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Field</TableCell>
+                                    <TableCell className= 'scenario-case' align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Scenario Case</TableCell>
 
                                 </TableRow>
                             </TableHead>
@@ -962,7 +1211,7 @@ const WaterFall = () => {
                                                             }
                                                         }}
                                                     >
-                                                        <AddIcon />
+                                                        <AddIcon className="plus-button" />
                                                     </IconButton>
                                                 )
                                             }
