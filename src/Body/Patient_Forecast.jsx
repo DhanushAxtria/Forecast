@@ -263,7 +263,7 @@ const Patient_Forecast = () => {
                                 )}
                                 {/* Toggle the visibility of table1 when the button is clicked */}
                                 <IconButton
-                                    
+
                                     aria-label='add'
                                     size="large"
                                     sx={{
@@ -536,6 +536,7 @@ const Patient_Forecast = () => {
     const renderTable = (tabKey, tableKey) => {
         const tableProducts = products[tabKey][tableKey]; // Get the correct products for this table
 
+
         return (
             <Box
                 sx={{
@@ -621,16 +622,33 @@ const Patient_Forecast = () => {
                                                 </IconButton>
                                             </>
                                         ) : (
+                                            console.log("Formula", Formulas[tabKey][tableKey][product.id]),
+                                            console.log("Product", product),        
+
                                             <>
-                                                <span
-                                                    style={{
-                                                        marginLeft: '8px',
-                                                        overflow: 'auto',
-                                                        whiteSpace: 'nowrap',
-                                                    }}
-                                                >
-                                                    {product.name}
-                                                </span>
+                                                <Tooltip title={
+                                                     Formulas[tabKey]?.[tableKey]?.[product.id]?.emptyArray?.length > 0 ? 
+                                                     '= ' + Formulas[tabKey][tableKey][product.id]?.emptyArray
+                                                           .map((value, index) =>                                                                
+                                                               // Combine emptyArray and plusArray
+                                                               `${Object.keys(products[tabKey]).map((tableKey) => products[tabKey][tableKey]
+                                                                .find((prod) => prod.id === value)?.name).join(' ')} ${Formulas[tabKey][tableKey][product.id]?.plusArray[index+1]||''}`
+                                                           )
+                                                           .join(' ') + ' '
+                                                     : 'No formula assigned'
+                                                } placement="top" >
+
+                                                    <span
+                                                        style={{
+                                                            marginLeft: '8px',
+                                                            overflow: 'auto',
+                                                            whiteSpace: 'nowrap',
+                                                        }}
+                                                    >
+
+                                                        {product.name.length > 20 ? `${product.name.slice(0, 20)}...` : product.name}
+                                                    </span>
+                                                </Tooltip>
 
                                                 <Tooltip title="Edit Row Name" placement="top" >
                                                     <IconButton onClick={() => handleEditClick(product.id, tabKey, tableKey)} style={{ marginLeft: '8px' }} className='edit-row-name'>
@@ -2249,165 +2267,6 @@ const Patient_Forecast = () => {
         setValues3({});
 
     };
-    // const handleActionClick = (action) => {
-    //     setSelectedAction(action); // Set the clicked action
-    //     if (action === 'savedTemplates') {
-
-    //     } else {
-
-    //     }
-    //   };
-    // const showTutorial2 = () => {
-    //     const step = {
-    //         index: 0,
-    //         target: '.tutorial-btn',
-    //         content: 'You can always see this tutorial by clicking on this button.',
-    //         placement: 'left',
-    //     };
-    //     const targetElement = document.querySelector(step.target);
-    //     const popup = document.createElement('div');
-    //     popup.classList.add('tutorial-popup', step.placement);
-    //     popup.textContent = step.content;
-    //     targetElement.style.boxShadow = '0px 0px 10px 0px rgba(0,0,0,0.75)';
-    //     targetElement.style.border = '3px solid navy';
-    //     // Position the popup based on the target element and placement
-    //     const rect = targetElement.getBoundingClientRect();
-    //     let top, left;
-    //     top = rect.top + rect.height / 2 - popup.offsetHeight / 2;
-    //     left = rect.left - 350;
-    //     popup.style.top = `${top}px`;
-    //     popup.style.left = `${left}px`;
-    //     document.body.appendChild(popup);
-    //     // Add a button to close the popup
-    //     const closeButton = document.createElement('button');
-    //     closeButton.textContent = 'Cancel';
-    //     closeButton.style.marginRight = '40px';
-    //     closeButton.style.padding = '5px 10px';
-    //     closeButton.style.borderRadius = '5px';
-    //     closeButton.addEventListener('click', () => {
-    //         setTutorialActive(false);
-    //         setCurrentStep(0);
-    //         popup.remove();
-    //         targetElement.style.border = '';
-    //         targetElement.style.boxShadow = '';
-    //     });
-    //     popup.appendChild(closeButton);
-    // };
-    // const showTutorial = (step) => {
-    //     const targetElement = document.querySelector(step.target);
-    //     const popup = document.createElement('div');
-    //     popup.classList.add('tutorial-popup', step.placement);
-    //     popup.textContent = step.content;
-    //     targetElement.style.boxShadow = '0px 0px 10px 0px rgba(0,0,0,0.75)';
-    //     targetElement.style.border = '3px solid navy';
-    //     // Position the popup based on the target element and placement
-    //     const rect = targetElement.getBoundingClientRect();
-    //     let top, left;
-    //     if (step.placement === 'top') {
-    //         top = rect.top + rect.height + rect.height - 5;
-    //         left = rect.left + rect.width / 2 - popup.offsetWidth / 2;
-    //     } else if (step.placement === 'bottom') {
-    //         top = rect.bottom + 10;
-    //         left = rect.left + rect.width / 2 - popup.offsetWidth / 2;
-    //     } else if (step.placement === 'left') {
-    //         top = rect.top + 475;
-    //         left = rect.left - 350;
-    //     } else if (step.placement === 'right') {
-    //         top = rect.top + rect.height - popup.offsetHeight / 2;
-    //         left = rect.right;
-    //     }
-    //     popup.style.top = `${top}px`;
-    //     popup.style.left = `${left}px`;
-    //     document.body.appendChild(popup);
-    //     // Add a button to close the popup
-    //     const closeButton = document.createElement('button');
-    //     //closeButton.textContent = currentStep === steps.length - 1 ? 'Finish' : 'Skip Tutorial';
-    //     closeButton.textContent = currentStep === (tab_value === '' ? steps : Object.values(tabTableVisibility).some(category =>
-    //         Object.values(category).some(value => value === true)
-    //     ) ? steps3 : steps2).length - 1 ? 'Finish' : 'Skip Tutorial';
-    //     closeButton.style.marginRight = '40px';
-    //     closeButton.style.padding = '5px 10px';
-    //     closeButton.style.borderRadius = '5px';
-    //     closeButton.addEventListener('click', () => {
-    //         setTutorialActive(false);
-    //         setCurrentStep(0);
-    //         popup.remove();
-    //         targetElement.style.border = '';
-    //         targetElement.style.boxShadow = '';
-    //         showTutorial2();
-    //     });
-    //     popup.appendChild(closeButton);
-    //     const previousButton = document.createElement('button');
-    //     previousButton.textContent = 'Previous';
-    //     previousButton.style.padding = '5px 10px';
-    //     previousButton.style.marginRight = '5px';
-    //     previousButton.style.borderRadius = '5px';
-    //     previousButton.disabled = currentStep === 0; // Disable if first step
-    //     previousButton.style.backgroundColor = previousButton.disabled ? 'grey' : 'navy';
-    //     previousButton.addEventListener('click', () => {
-    //         popup.remove();
-    //         setCurrentStep(currentStep - 1); // Move to previous step
-    //         targetElement.style.border = '';
-    //         targetElement.style.boxShadow = '';
-    //     });
-    //     const nextButton = document.createElement('button');
-    //     nextButton.textContent = 'Next';
-    //     nextButton.style.padding = '5px 10px';
-    //     nextButton.style.borderRadius = '5px';
-    //     // nextButton.disabled = currentStep === steps.length - 1; // Disable if last step
-    //     nextButton.disabled = currentStep === (tab_value === '' ? steps : Object.values(tabTableVisibility).some(category =>
-    //         Object.values(category).some(value => value === true)
-    //     ) ? steps3 : steps2).length - 1; // Disable if last step
-    //     nextButton.style.backgroundColor = nextButton.disabled ? 'grey' : 'green';
-    //     nextButton.addEventListener('click', () => {
-    //         popup.remove();
-    //         setCurrentStep(currentStep + 1); // Move to next step
-    //         targetElement.style.border = '';
-    //         targetElement.style.boxShadow = '';
-    //     });
-    //     const buttons = document.createElement('div');
-    //     buttons.style.display = 'flex';
-    //     buttons.style.marginTop = '20px';
-    //     buttons.style.justifyContent = 'space-between';
-    //     buttons.style.width = '100%';
-    //     buttons.appendChild(closeButton);
-    //     const flexEndButtons = document.createElement('div');
-    //     flexEndButtons.style.display = 'flex';
-    //     flexEndButtons.appendChild(previousButton);
-    //     flexEndButtons.appendChild(nextButton);
-    //     buttons.appendChild(flexEndButtons);
-    //     popup.appendChild(buttons); // Insert the buttons after the text
-    // };
-
-    // const handleStartTutorial = () => {
-    //     setTutorialActive(true);
-    //     setCurrentStep(0); // Start from the first step
-    // };
-
-    // useEffect(() => {
-    //     if (tutorialActive && currentStep < steps.length) {
-    //         showTutorial(steps[currentStep]);
-    //     }
-    // }, [tutorialActive, currentStep]);
-    // useEffect(() => {
-    //     if (tab_value === '') {
-    //         if (tutorialActive && currentStep < steps.length) {
-    //             showTutorial(steps[currentStep]);
-    //         }
-    //     }
-    //     else if (Object.values(tabTableVisibility).some(category =>
-    //         Object.values(category).some(value => value === true)
-    //     )) {
-    //         if (tutorialActive && currentStep < steps3.length) {
-    //             showTutorial(steps3[currentStep]);
-    //         }
-    //     }
-    //     else {
-    //         if (tutorialActive && currentStep < steps2.length) {
-    //             showTutorial(steps2[currentStep]);
-    //         }
-    //     }
-    // }, [tutorialActive, currentStep]);
 
     const startTour2 = () => {
         const end = introJs();
@@ -2476,8 +2335,8 @@ const Patient_Forecast = () => {
             showProgress: false, // Disable progress bar
             showStepNumbers: false,
             showBullets: false,
-            nextLabel: 'Next step',
-            prevLabel: 'Previous step',
+            nextLabel: 'Next Step',
+            prevLabel: 'Previous Step',
             doneLabel: 'Finished'
         });
 
@@ -2497,7 +2356,7 @@ const Patient_Forecast = () => {
                 crossIcon.remove();
             }
 
-            // Add a custom "Skip tutorial" button
+            // Add a custom "Skip Tutorial" button
             let customSkipButton = document.querySelector('.custom-skip-button');
             if (!customSkipButton) {
                 customSkipButton = document.createElement('button');
@@ -2527,11 +2386,11 @@ const Patient_Forecast = () => {
                 }
             }
 
-            // Update the custom "Skip tutorial" button text dynamically
+            // Update the custom "Skip Tutorial" button text dynamically
             if (currentStep === totalSteps - 1) {
                 customSkipButton.textContent = 'Close'; // Change Skip button text to "Close"
             } else {
-                customSkipButton.textContent = 'Skip tutorial'; // Reset Skip button text
+                customSkipButton.textContent = 'Skip Tutorial'; // Reset Skip button text
             }
 
             if (nextButton) {

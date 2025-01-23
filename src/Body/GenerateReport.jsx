@@ -267,8 +267,8 @@ export default function GenerateReport() {
           showProgress: false, // Disable progress bar
           showStepNumbers: false,
           showBullets: false,
-          nextLabel: 'Next step',
-          prevLabel: 'Previous step',
+          nextLabel: 'Next Step',
+          prevLabel: 'Previous Step',
           doneLabel: 'Finished'
         });
     
@@ -288,7 +288,7 @@ export default function GenerateReport() {
             crossIcon.remove();
           }
     
-          // Add a custom "Skip tutorial" button
+          // Add a custom "Skip Tutorial" button
           let customSkipButton = document.querySelector('.custom-skip-button');
           if (!customSkipButton) {
             customSkipButton = document.createElement('button');
@@ -318,11 +318,11 @@ export default function GenerateReport() {
             }
           }
     
-          // Update the custom "Skip tutorial" button text dynamically
+          // Update the custom "Skip Tutorial" button text dynamically
           if (currentStep === totalSteps - 1) {
             customSkipButton.textContent = 'Close'; // Change Skip button text to "Close"
           } else {
-            customSkipButton.textContent = 'Skip tutorial'; // Reset Skip button text
+            customSkipButton.textContent = 'Skip Tutorial'; // Reset Skip button text
           }
     
           if (nextButton) {

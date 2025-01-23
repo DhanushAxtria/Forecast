@@ -151,23 +151,23 @@ const Body = () => {
       steps: [
         {
           element: '.model-button',
-          intro: 'Click here to create a new model of two types: time series or epidemiology.',
+          intro: 'Click here to create a new model of two types: Time Series or Epidemiology.',
         },
         {
           element: '.existing-button',
-          intro: 'Click here to view and edit existing models.',
+          intro: 'Click here to view and edit Existing Models.',
         },
         {
           element: '.submission-template',
-          intro: 'Click here to track submitted models.',
+          intro: 'Click here to track Submitted Models.',
         },
         {
           element: '.report-button',
-          intro: 'Click here to create a standard report, data consolidation, or scenario/model comparison.',
+          intro: 'Click here to create a Standard Report, Data Consolidation, or Scenario/Model Comparison.',
         },
         {
           element: '.admin-button',
-          intro: 'Click here to access admin-level information.',
+          intro: 'Click here to access Admin-level information.',
         },
         {
           element: '.table-button',
@@ -177,8 +177,8 @@ const Body = () => {
       showProgress: false, // Disable progress bar
       showStepNumbers: false,
       showBullets: false,
-      nextLabel: 'Next step',
-      prevLabel: 'Previous step',
+      nextLabel: 'Next Step',
+      prevLabel: 'Previous Step',
       doneLabel: 'Finished'
     });
 
@@ -198,7 +198,7 @@ const Body = () => {
         crossIcon.remove();
       }
 
-      // Add a custom "Skip tutorial" button
+      // Add a custom "Skip Tutorial" button
       let customSkipButton = document.querySelector('.custom-skip-button');
       if (!customSkipButton) {
         customSkipButton = document.createElement('button');
@@ -228,11 +228,11 @@ const Body = () => {
         }
       }
 
-      // Update the custom "Skip tutorial" button text dynamically
+      // Update the custom "Skip Tutorial" button text dynamically
       if (currentStep === totalSteps - 1) {
         customSkipButton.textContent = 'Close'; // Change Skip button text to "Close"
       } else {
-        customSkipButton.textContent = 'Skip tutorial'; // Reset Skip button text
+        customSkipButton.textContent = 'Skip Tutorial'; // Reset Skip button text
       }
 
       if (nextButton) {
