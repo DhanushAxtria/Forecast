@@ -113,9 +113,6 @@ const Patient_Forecast = () => {
         base: { table1: false, table2: false, table3: false },
         upside: { table1: false, table2: false, table3: false },
     });
-    const [currentRow, setCurrentRow] = useState('');
-    const [currentTab, setCurrentTab] = useState('');
-    const [rowChanged, setRowChanged] = useState(false);
 
     const Preview = () => {
         return (
@@ -813,7 +810,7 @@ const Patient_Forecast = () => {
                             <Button onClick={() => handleCancelFormula(formulaDetails.tabKey, formulaDetails.tableKey, formulaDetails.productId)} color="secondary" variant="contained" sx={{ fontWeight: 'bold', borderRadius: '8px' }}>
                                 Cancel
                             </Button>
-                            <Button color="secondary" variant="contained" sx={{ fontWeight: 'bold', borderRadius: '8px' }} onClick={() => { handleApply(formulaDetails.tabKey, formulaDetails.tableKey, formulaDetails.productId); setRowChanged(!rowChanged); }}>
+                            <Button color="secondary" variant="contained" sx={{ fontWeight: 'bold', borderRadius: '8px' }} onClick={() => { handleApply(formulaDetails.tabKey, formulaDetails.tableKey, formulaDetails.productId); }}>
                                 Apply
                             </Button>
                         </DialogActions>
@@ -1761,96 +1758,10 @@ const Patient_Forecast = () => {
         }
     }, [timePeriod, fromHistoricalDate, toForecastDate]);
 
-    useEffect(() => {
-        if (currentRow !== '') {
-            // Create local proxies for the state variables
-            let tempValues = { ...values };
-            let tempValues2 = { ...values2 };
-            let tempValues3 = { ...values3 };
-
-            Object.entries(Formulas).forEach(([tabKey, tables]) => {
-                if (tabKey === currentTab) {
-                    Object.entries(tables).forEach(([tableKey, rows]) => {
-                        Object.keys(rows).forEach((row_id) => {
-                            if (row_id !== currentRow) {
-                                // Call handleApply with the local proxy states
-                                const newRes = handleApplyWithLocalState(
-                                    tabKey,
-                                    tableKey,
-                                    row_id,
-                                    tempValues,
-                                    tempValues2,
-                                    tempValues3
-                                );
-
-                                // Update the local proxies based on tabKey
-                                if (tabKey === 'downside') {
-                                    tempValues = { ...tempValues, [row_id]: newRes };
-                                } else if (tabKey === 'base') {
-                                    tempValues2 = { ...tempValues2, [row_id]: newRes };
-                                } else {
-                                    tempValues3 = { ...tempValues3, [row_id]: newRes };
-                                }
-                            }
-                        });
-                    });
-                }
-            });
-            // Update the actual state variables once at the end
-            setValues(tempValues);
-            setValues2(tempValues2);
-            setValues3(tempValues3);
-        }
-    }, [currentRow, rowChanged]);
-
-    // New helper function for handleApply with local state
-    const handleApplyWithLocalState = (tabKey, tableKey, row_id, tempValues, tempValues2, tempValues3) => {
-        const selectedIds = editingFormula[tabKey][tableKey][row_id].emptyArray;
-        const operatorsList = editingFormula[tabKey][tableKey][row_id].plusArray;
-        const operatorSliced = operatorsList.slice(1);
-
-        let res = {}; // Initialize local result
-
-        // Initialize `res` based on timePeriod
-        if (timePeriod === 'Monthly') {
-            for (let i = 0; i < dayjs(toForecastDate).diff(dayjs(fromHistoricalDate), 'month') + 1; i++) {
-                const month = dayjs(fromHistoricalDate).add(i, 'month').format('MMM-YYYY');
-                res[month] = 0;
-            }
-        } else {
-            for (let i = 0; i < dayjs(toForecastDate).diff(dayjs(fromHistoricalDate), 'year') + 1; i++) {
-                const year = dayjs(fromHistoricalDate).add(i, 'year').format('YYYY');
-                res[year] = 0;
-            }
-        }
-
-        // Process the selected product IDs
-        selectedIds.forEach((id, index) => {
-            const baseValues = tabKey === 'downside' ? tempValues : tabKey === 'base' ? tempValues2 : tempValues3;
-            const tempval = baseValues[id];
-            if (!tempval) return;
-
-            Object.keys(tempval).forEach((key) => {
-                const tempValue = parseFloat(tempval[key], 10) || 0;
-                if (index === 0) {
-                    res[key] = tempValue;
-                } else {
-                    const operator = operatorSliced[index - 1];
-                    if (operator === '+') res[key] = res[key] + tempValue;
-                    if (operator === '-') res[key] = res[key] - tempValue;
-                    if (operator === '*') res[key] = res[key] * tempValue;
-                    if (operator === '/') res[key] = res[key] / tempValue;
-                }
-            });
-        });
-
-        return res;
-    };
+    
+    
 
     const handleValueChange = (tabKey, productId, date, value) => {
-        setCurrentRow(productId);
-        setCurrentTab(tabKey);
-        setRowChanged(!rowChanged);
         if (tabKey === 'downside') {
             setValues((prevValues) => ({
                 ...prevValues,
@@ -1948,7 +1859,6 @@ const Patient_Forecast = () => {
             handleValueChange(tabKey, selectedRowId, date, distributed[date]);
         });
         setOpenStartEndDialog(false);
-        setRowChanged(!rowChanged);
     };
 
     /*
@@ -2126,7 +2036,6 @@ const Patient_Forecast = () => {
         }
         setOpenUploadDialog(false);
         setUploadedFileToFill(null);
-        setRowChanged(!rowChanged);
 
     };
     //Closes the upload dialog and resets the uploaded file state to null
@@ -2184,7 +2093,6 @@ const Patient_Forecast = () => {
             handleValueChange(tabKey, selectedRowId, date, distributedGrowthRates[date]);
         });
         setOpenGrowthRateDialog(false);
-        setRowChanged(!rowChanged);
 
     };
     /**
