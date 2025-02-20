@@ -114,6 +114,14 @@ const Patient_Forecast = () => {
         upside: { table1: false, table2: false, table3: false },
     });
 
+    const formatNumber = (num) => {
+        if (!num) return '';
+        return Number(num).toLocaleString('en-US', { maximumFractionDigits: 2 });
+    };
+
+    const parseNumber = (str) => {
+        return str.replace(/,/g, '');
+    };
     const Preview = () => {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 2 }}>
@@ -618,15 +626,15 @@ const Patient_Forecast = () => {
                                         ) : (
                                             <>
                                                 <Tooltip title={
-                                                     Formulas[tabKey]?.[tableKey]?.[product.id]?.emptyArray?.length > 0 ? 
-                                                     '= ' + Formulas[tabKey][tableKey][product.id]?.emptyArray
-                                                           .map((value, index) =>                                                                
-                                                               // Combine emptyArray and plusArray
-                                                               `${Object.keys(products[tabKey]).map((tableKey) => products[tabKey][tableKey]
-                                                                .find((prod) => prod.id === value)?.name).join(' ')} ${Formulas[tabKey][tableKey][product.id]?.plusArray[index+1]||''}`
-                                                           )
-                                                           .join(' ') + ' '
-                                                     : 'No formula assigned'
+                                                    Formulas[tabKey]?.[tableKey]?.[product.id]?.emptyArray?.[0] !== '' ?
+                                                        '= ' + Formulas[tabKey][tableKey][product.id]?.emptyArray
+                                                            .map((value, index) =>
+                                                                // Combine emptyArray and plusArray
+                                                                `${Object.keys(products[tabKey]).map((tableKey) => products[tabKey][tableKey]
+                                                                    .find((prod) => prod.id === value)?.name).join(' ')} ${Formulas[tabKey][tableKey][product.id]?.plusArray[index + 1] || ''}`
+                                                            )
+                                                            .join(' ') + ' '
+                                                        : 'No formula assigned'
                                                 } placement="top" >
 
                                                     <span
@@ -637,7 +645,7 @@ const Patient_Forecast = () => {
                                                         }}
                                                     >
 
-                                                        {product.name.length > 20 ? `${product.name.slice(0, 20)}...` : product.name}
+                                                        {product.type === '%' ? product.name  + " (%)" : product.name}
                                                     </span>
                                                 </Tooltip>
                                                 <Tooltip title="Edit Row Name" placement="top" >
@@ -670,7 +678,6 @@ const Patient_Forecast = () => {
                                                         <DeleteIcon fontSize="small" />
                                                     </IconButton>
                                                 </Tooltip>
-
                                             </>
                                         )}
                                     </div>
@@ -683,21 +690,21 @@ const Patient_Forecast = () => {
                                     <td key={date}>
                                         <TextField
                                             className='manual-input'
-                                            type="number"
+                                            type="text"
                                             value={
                                                 tabKey === 'downside'
-                                                    ? values[product.id]?.[date] || ''
+                                                    ? formatNumber(values[product.id]?.[date])
                                                     : tabKey === 'base'
-                                                        ? values2[product.id]?.[date] || ''
-                                                        : values3[product.id]?.[date] || ''
+                                                        ? formatNumber(values2[product.id]?.[date])
+                                                        : formatNumber(values3[product.id]?.[date])
                                             }
                                             onChange={(e) => {
-                                                handleValueChange(tabKey, product.id, date, e.target.value);
+                                                handleValueChange(tabKey, product.id, date, parseNumber(e.target.value));
                                             }}
                                             variant="outlined"
                                             size="small"
                                             placeholder="Enter value"
-                                            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                                            inputProps={{ inputMode: 'numeric', pattern: '[0-9,]*' }}
                                         />
                                     </td>
                                 ))}
@@ -1501,12 +1508,12 @@ const Patient_Forecast = () => {
             },
         }));
     };
-
     // Handle applying the selected formula(s)
     const handleApply = (tabKey, tableKey, row_id) => {
+        const prod = products[tabKey][tableKey];
+        const productType = prod.find((product) => product.id === row_id)?.type;
         const selectedIds = editingFormula[tabKey][tableKey][row_id].emptyArray
         const operatorsList = editingFormula[tabKey][tableKey][row_id].plusArray
-        console.log("operatorsList", operatorsList);
         // Slice the operators array to exclude the first element (which is the default "+")
         const operatorSliced = operatorsList.slice(1);
         let res = {}; // Object to store the results of the forecast calculation
@@ -1532,26 +1539,46 @@ const Patient_Forecast = () => {
         const idd = selectedIds[0];
         // Get the first selected product's values based on the current tabKey
         const val = tabKey === 'downside' ? values[idd] : tabKey === 'base' ? values2[idd] : values3[idd];
-        //console.log("val", val);
+        let typee = null;
+        Object.keys(products[tabKey]).forEach(table => {
+            const temp = products[tabKey][table].find((product) => product.id === idd)?.type;
+            if (temp !== undefined) {
+                typee = temp;
+            }
+        });
         // If the product has values, loop through its values and add them to the results object
         if (val !== undefined) {
             Object.keys(val).forEach((key) => {
-                res[key] = val[key];
+                if ( typee === '%') {
+                    res[key] = val[key] / 100;
+                }
+                else {
+                    res[key] = val[key];
+                }
             });
         }
-
         // Iterate over the selected product IDs starting from the second element
         for (let i = 1; i < selectedIds.length; i++) {
             const id = selectedIds[i];
             const tempval = tabKey === 'downside' ? values[id] : tabKey === 'base' ? values2[id] : values3[id];
-            //console.log("tempval", tempval);
-            // If the product values exist, perform calculations based on the selected operator
+            let temptype = null;
+            Object.keys(products[tabKey]).forEach(table => {
+                const temp = products[tabKey][table].find((product) => product.id === id)?.type;
+                if (temp !== undefined) {
+                    temptype = temp;
+                }
+            });
+            let tempValue = null;
             if (tempval !== undefined) {
                 Object.keys(tempval).forEach((key) => {
                     const currentOperator = operatorSliced[i - 1];
                     const resValue = parseFloat(res[key], 10);
-                    const tempValue = parseFloat(tempval[key], 10);
-
+                    if (temptype === '%') {
+                        tempValue = parseFloat(tempval[key] / 100, 10);
+                    }
+                    else {
+                        tempValue = parseFloat(tempval[key], 10);
+                    }
                     if (currentOperator === '+') {
                         res[key] = resValue + tempValue;
                     } else if (currentOperator === '-') {
@@ -1569,7 +1596,7 @@ const Patient_Forecast = () => {
             setValues((prevValues) => ({
                 ...prevValues,
                 [row_id]: Object.keys(res).reduce((acc, date) => {
-                    acc[date] = !res[date] || res[date] === 0 ? '0' : res[date];
+                    acc[date] = !res[date] || res[date] === 0 ? '0' : productType === '%' ? res[date] * 100 : res[date];
                     return acc;
                 }, {})
             }));
@@ -1578,7 +1605,7 @@ const Patient_Forecast = () => {
             setValues2((prevValues) => ({
                 ...prevValues,
                 [row_id]: Object.keys(res).reduce((acc, date) => {
-                    acc[date] = !res[date] || res[date] === 0 ? '0' : res[date];
+                    acc[date] = !res[date] || res[date] === 0 ? '0' : productType === '%' ? res[date] * 100 : res[date];
                     return acc;
                 }, {})
             }));
@@ -1587,7 +1614,7 @@ const Patient_Forecast = () => {
             setValues3((prevValues) => ({
                 ...prevValues,
                 [row_id]: Object.keys(res).reduce((acc, date) => {
-                    acc[date] = !res[date] || res[date] === 0 ? '0' : res[date];
+                    acc[date] = !res[date] || res[date] === 0 ? '0' : productType === '%' ? res[date] * 100 : res[date];
                     return acc;
                 }, {})
             }));
@@ -1758,8 +1785,8 @@ const Patient_Forecast = () => {
         }
     }, [timePeriod, fromHistoricalDate, toForecastDate]);
 
-    
-    
+
+
 
     const handleValueChange = (tabKey, productId, date, value) => {
         if (tabKey === 'downside') {

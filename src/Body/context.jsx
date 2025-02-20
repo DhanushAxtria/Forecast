@@ -1,31 +1,36 @@
 import React, { createContext, useState, useEffect } from 'react';
 import dayjs from 'dayjs';
-import { set } from 'date-fns';
 
 // Create a context with a default value
 const MyContext = createContext();
 const initialProducts1 = [
-  { id: 'T1-1', name: 'US Population(14-49)' },
-  { id: 'T1-2', name: 'Prevalence Rate' },
-  { id: 'T1-3', name: 'Diagonsis Rate (%)' },
-  { id: 'T1-4', name: 'Diagnosis GH Patients(%)' }
-
+  { id: 'T1-1', name: 'US Population(14-49)', type: 'value' },
+  { id: 'T1-2', name: 'Prevalence Rate', type: '%' },
+  { id: 'T1-3', name: 'Diagonsis Rate', type: '%' },
+  { id: 'T1-4', name: 'Diagnosis GH Patients', type: 'value' }
 ];
 const initialProducts2 = [
-  { id: 'T2-1', name: '% Patients on Chronic Therapy' },
-  { id: 'T2-2', name: '% Patients on Episodic Therapy ' },
-  { id: 'T2-3', name: 'Patients on Chronic Therapy' },
-  { id: 'T2-4', name: 'Patients on Episodic Therapy ' },
-  { id: 'T2-5', name: 'Total GH Patients ' },
-  { id: 'T2-6', name: 'Chronic Therapy' },
-  { id: 'T2-7', name: 'Episodic Therapy' }
+  { id: 'T2-1', name: 'Patients on Chronic Therapy', type: '%' },
+  { id: 'T2-2', name: 'Patients on Episodic Therapy', type: '%' },
+  { id: 'T2-3', name: 'Patients on Chronic Therapy', type: 'value' },
+  { id: 'T2-4', name: 'Patients on Episodic Therapy', type: 'value' },
+  { id: 'T2-5', name: 'Total GH Patients', type: 'value' },
+  { id: 'T2-6', name: 'Share assumptions across Chronic Therapy', type: '%' },
+  { id: 'T2-7', name: 'Share assumptions across Episodic Therapy', type: '%' }
 ];
 const initialProducts3 = [
-  { id: 'T3-1', name: 'Compliance' },
-  { id: 'T3-2', name: 'Payer Access' },
-  { id: 'T3-3', name: 'Patients on GS1179 (post Compliance) - Chronic Therapy' },
-  { id: 'T3-4', name: 'Revenue' }
-
+  { id: 'T3-1', name: 'Compliance - Chronic Therapy', type: '%' },
+  { id: 'T3-2', name: 'Payer Access - Chronic Therapy', type: '%' },
+  { id: 'T3-3', name: 'Patients on GS1179 (post Compliance) - Chronic Therapy', type: 'value' },
+  { id: 'T3-4', name: 'Compliance - Episodic Therapy', type: '%' },
+  { id: 'T3-5', name: 'Payer Access - Episodic Therapy', type: '%' },
+  { id: 'T3-6', name: 'Patients on GS1179 (post Compliance) - Episodic Therapy', type: 'value' },
+  { id: 'T3-7', name: 'Total Patients (Chronic + Episodic)', type: 'value' },
+  { id: 'T3-8', name: 'M-o-M Growth', type: '%' },
+  { id: 'T3-9', name: 'US Price', type: 'value' },
+  { id: 'T3-10', name: 'Revenue - Chronic Therapy', type: 'value' },
+  { id: 'T3-11', name: 'Revenue - Episodic Therapy', type: 'value' },
+  { id: 'T3-12', name: 'Total Revenue', type: 'value' }
 ];
 
 const initialProducts = {
@@ -33,9 +38,6 @@ const initialProducts = {
   base: { table1: initialProducts1, table2: initialProducts2, table3: initialProducts3 },
   upside: { table1: initialProducts1, table2: initialProducts2, table3: initialProducts3 },
 };
-
-
-
 const MyProvider = ({ children }) => {
   const [storeValues, setStoreValues] = useState({});
   const combinedProducts = [...initialProducts1, ...initialProducts2, ...initialProducts3];
@@ -102,8 +104,6 @@ const MyProvider = ({ children }) => {
     },
   ]);
 
-
-
   const [Formulas, setFormulas] = useState(() => {
     const formulas = {};
     Object.keys(products).forEach((tabKey) => {
@@ -138,21 +138,17 @@ const MyProvider = ({ children }) => {
     const formulasDemo = { ...Formulas };
     Object.keys(formulasDemo).forEach((tabKey) => {
       Object.keys(formulasDemo[tabKey]).forEach((tableKey) => {
-        formulasDemo[tabKey][tableKey]['T1-1'] = { emptyArray: ['T1-1'], plusArray: ['+'] };
-        formulasDemo[tabKey][tableKey]['T1-3'] = { emptyArray: ['T1-1', 'T1-2'], plusArray: ['+', '+'] };
-        formulasDemo[tabKey][tableKey]['T1-4'] = { emptyArray: ['T1-1', 'T1-2', 'T1-3'], plusArray: ['+', '+', '+'] };
-        formulasDemo[tabKey][tableKey]['T1-2'] = { emptyArray: ['T1-1'], plusArray: ['+'] };
-        formulasDemo[tabKey][tableKey]['T2-2'] = { emptyArray: ['T2-1'], plusArray: ['+'] };
-        formulasDemo[tabKey][tableKey]['T2-3'] = { emptyArray: ['T2-1', 'T2-2'], plusArray: ['+', '+'] };
-        formulasDemo[tabKey][tableKey]['T2-4'] = { emptyArray: ['T2-1', 'T2-2', 'T2-3'], plusArray: ['+', '+', '*'] };
-        formulasDemo[tabKey][tableKey]['T2-5'] = { emptyArray: ['T2-1', 'T2-2', 'T2-3', 'T2-4'], plusArray: ['+', '+', '+', '*'] };
-        formulasDemo[tabKey][tableKey]['T2-6'] = { emptyArray: ['T2-1', 'T2-2', 'T2-3', 'T2-4', 'T2-5'], plusArray: ['+', '+', '+', '*', '/'] };
-        formulasDemo[tabKey][tableKey]['T2-7'] = { emptyArray: ['T2-1', 'T2-2', 'T2-3', 'T2-4', 'T2-5'], plusArray: ['+', '+', '+', '*', '/'] };
-        formulasDemo[tabKey][tableKey]['T2-1'] = { emptyArray: ['T2-1'], plusArray: ['+'] };
-        formulasDemo[tabKey][tableKey]['T3-1'] = { emptyArray: ['T3-1'], plusArray: ['+'] };
-        formulasDemo[tabKey][tableKey]['T3-2'] = { emptyArray: ['T3-1', 'T3-1'], plusArray: ['+', '+'] };
-        formulasDemo[tabKey][tableKey]['T3-3'] = { emptyArray: ['T3-1', 'T3-2', 'T3-2'], plusArray: ['+', '+', '*'] };
-        formulasDemo[tabKey][tableKey]['T3-4'] = { emptyArray: ['T1-1', 'T1-2', 'T1-3', 'T1-4', 'T2-1', 'T2-2', 'T2-3', 'T2-4', 'T2-5', 'T2-6', 'T2-7', 'T3-1', 'T3-2', 'T3-3'], plusArray: ['+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+', '+'] };
+        formulasDemo[tabKey][tableKey]['T1-4'] = { emptyArray: ['T1-1', 'T1-2', 'T1-3'], plusArray: ['+', '*', '*'] };
+        formulasDemo[tabKey][tableKey]['T2-3'] = { emptyArray: ['T1-4', 'T2-1'], plusArray: ['+', '*'] };
+        formulasDemo[tabKey][tableKey]['T2-4'] = { emptyArray: ['T1-4', 'T2-2'], plusArray: ['+', '*'] };
+        formulasDemo[tabKey][tableKey]['T2-5'] = { emptyArray: ['T2-3', 'T2-4'], plusArray: ['+', '+'] };
+        formulasDemo[tabKey][tableKey]['T3-3'] = { emptyArray: ['T3-1', 'T3-2', 'T2-6', 'T2-3'], plusArray: ['+', '*', '*', '*'] };
+        formulasDemo[tabKey][tableKey]['T3-6'] = { emptyArray: ['T3-1', 'T3-2', 'T2-7', 'T2-4'], plusArray: ['+', '*', '*', '*'] };
+        formulasDemo[tabKey][tableKey]['T3-7'] = { emptyArray: ['T3-3', 'T3-6'], plusArray: ['+', '+'] };
+        formulasDemo[tabKey][tableKey]['T3-10'] = { emptyArray: ['T3-3', 'T3-9'], plusArray: ['+', '*'] };
+        formulasDemo[tabKey][tableKey]['T3-11'] = { emptyArray: ['T3-6', 'T3-9'], plusArray: ['+', '*'] };
+        formulasDemo[tabKey][tableKey]['T3-12'] = { emptyArray: ['T3-10', 'T3-11'], plusArray: ['+', '+'] };
+
       });
     });
     setFormulas(formulasDemo);
