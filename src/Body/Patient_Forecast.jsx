@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import introJs from 'intro.js';
 import CalculateIcon from '@mui/icons-material/Calculate';
 import FormControl from '@mui/material/FormControl';
+
 import UploadIcon from '@mui/icons-material/Upload';
 import { useNavigate } from 'react-router-dom';
 import produce from "immer";
@@ -27,7 +28,8 @@ import {
     Box,
     Tabs,
     Tab,
-    InputLabel
+    InputLabel,
+    Checkbox, FormControlLabel,
 } from '@mui/material';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { LocalizationProvider } from '@mui/x-date-pickers';
@@ -55,6 +57,12 @@ const Patient_Forecast = () => {
     const [formulaDetails, setFormulaDetails] = useState({ tableKey: null, tabKey: null, productId: null });
     const [editingProductId, setEditingProductId] = useState(null);
     const [editedProductName, setEditedProductName] = useState('');
+
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [productName, setProductName] = useState("");
+    const [productType, setProductType] = useState("value"); // Default selection
+    const [pendingAdd, setPendingAdd] = useState(null);
+
     const { Formulas, setFormulas } = useContext(MyContext);
     const [openInputMethodDialog, setOpenInputMethodDialog] = useState(false);
     const [openGrowthRateDialog, setOpenGrowthRateDialog] = useState(false);
@@ -645,7 +653,7 @@ const Patient_Forecast = () => {
                                                         }}
                                                     >
 
-                                                        {product.type === '%' ? product.name  + " (%)" : product.name}
+                                                        {product.type === '%' ? product.name + " (%)" : product.name}
                                                     </span>
                                                 </Tooltip>
                                                 <Tooltip title="Edit Row Name" placement="top" >
@@ -712,6 +720,97 @@ const Patient_Forecast = () => {
                         ))}
                     </tbody>
                 </table>
+
+                {isDialogOpen && (
+                    <Dialog
+                        open={isDialogOpen}
+                        onClose={() => setIsDialogOpen(false)}
+                        aria-labelledby="alert-dialog-title"
+                        aria-describedby="alert-dialog-description"
+                        fullWidth
+                        maxWidth="xs"
+                        BackdropProps={{
+                            style: {
+                                zIndex: 1400,
+                                backgroundColor: 'rgba(0,0,0,0.2)', // Slightly dark transparent backdrop
+                            },
+                        }}
+                        PaperProps={{
+                            sx: {
+                                zIndex: 1600,
+                                borderRadius: '12px',
+                                boxShadow: 4,
+                                overflow: 'hidden',
+                                //padding: '24px', // Adds padding for better spacing
+                            },
+                        }}
+                    >
+                        <DialogTitle
+                            sx={{
+                                textAlign: 'center',
+                                fontWeight: 'bold',
+                                fontSize: '1.8rem',
+                                color: '#1976d2',
+                                bgcolor: '#f0f4fa',
+                                padding: '20px',
+                                borderRadius: '12px 12px 0 0'
+                            }}
+                        >
+                            Add New Product
+                        </DialogTitle>
+                        <br></br>
+                        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                            {/* Product Name Input */}
+                            <TextField
+                                label="Product Name"
+                                fullWidth
+                                variant="outlined"
+                                size="small"
+                                InputProps={{
+                                    sx: {
+                                        fontSize: '1.1rem',
+                                        fontWeight: 'medium',
+                                        marginLeft: '10px'
+                                    },
+                                }}
+                                value={productName}
+                                onChange={(e) => setProductName(e.target.value)}
+                            />
+
+                            {/* Checkbox for Product Type with More Left Margin */}
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={productType === "%"}
+                                        onChange={(e) => setProductType(e.target.checked ? "%" : "value")}
+                                        color="primary"
+                                    />
+                                }
+                                label="Percentage (%)"
+                                sx={{ marginLeft: '2px' }} // Increased left margin
+                            />
+                        </DialogContent>
+
+                        <DialogActions sx={{ padding: '16px' }}>
+                            <Button onClick={handleDialogSubmit} color="primary" variant="contained">
+                                Submit
+                            </Button>
+                            <Button
+                                onClick={() => {
+                                    setIsDialogOpen(false);
+                                    setProductName("");
+                                    setProductType("value");
+                                }}
+                                 color="secondary"
+                                 variant="contained"
+                            >
+                                Cancel
+                            </Button>
+                           
+                        </DialogActions>
+                    </Dialog>
+                )}
+
 
                 {/* This is the formula dialog  which is displayed when the insert formula icon is clicked*/}
                 {showFormula && (
@@ -814,12 +913,13 @@ const Patient_Forecast = () => {
                         </DialogContent>
 
                         <DialogActions >
+                            <Button color="primary" variant="contained" sx={{ fontWeight: 'bold', borderRadius: '8px' }} onClick={() => { handleApply(formulaDetails.tabKey, formulaDetails.tableKey, formulaDetails.productId); }}>
+                                Apply
+                            </Button>
                             <Button onClick={() => handleCancelFormula(formulaDetails.tabKey, formulaDetails.tableKey, formulaDetails.productId)} color="secondary" variant="contained" sx={{ fontWeight: 'bold', borderRadius: '8px' }}>
                                 Cancel
                             </Button>
-                            <Button color="secondary" variant="contained" sx={{ fontWeight: 'bold', borderRadius: '8px' }} onClick={() => { handleApply(formulaDetails.tabKey, formulaDetails.tableKey, formulaDetails.productId); }}>
-                                Apply
-                            </Button>
+                            
                         </DialogActions>
                     </Dialog>
                 )}
@@ -1549,7 +1649,7 @@ const Patient_Forecast = () => {
         // If the product has values, loop through its values and add them to the results object
         if (val !== undefined) {
             Object.keys(val).forEach((key) => {
-                if ( typee === '%') {
+                if (typee === '%') {
                     res[key] = val[key] / 100;
                 }
                 else {
@@ -1663,36 +1763,48 @@ const Patient_Forecast = () => {
         setEditedProductName('');
     };
 
-    const handleAddRow = (tabKey, tableKey, productId) => {
-        const tableProducts = products[tabKey]?.[tableKey] || []; // Safeguard access
 
+
+    const handleAddRow = (tabKey, tableKey, productId) => {
+        setPendingAdd({ tabKey, tableKey, productId });
+        setIsDialogOpen(true); // Open dialog for input
+    };
+
+    const handleDialogSubmit = () => {
+        if (!productName) {
+            alert("Product name is required!");
+            return;
+        }
+
+        const { tabKey, tableKey, productId } = pendingAdd;
+        setIsDialogOpen(false);
+        const tableProducts = products[tabKey]?.[tableKey] || [];
         const index = tableProducts.findIndex((product) => product.id === productId);
         const generateUniqueId = () => `${tableKey}-${Date.now()}`;
 
         const newProduct = {
             id: generateUniqueId(),
-            name: `New Product ${Date.now()}`,
+            name: productName,
+            type: productType, // Add type to product
         };
 
         const updatedProducts =
             index === -1
-                ? [...tableProducts, newProduct] // Add to end if no valid index
+                ? [...tableProducts, newProduct]
                 : [
-                    ...tableProducts.slice(0, index + 1), // Insert below the clicked product
+                    ...tableProducts.slice(0, index + 1),
                     newProduct,
                     ...tableProducts.slice(index + 1),
                 ];
 
-        // Ensure products object is extensible
-        setProducts((prevProducts) => {
-            const newProducts = { ...prevProducts };
-            newProducts[tabKey] = {
-                ...newProducts[tabKey],
+        setProducts((prevProducts) => ({
+            ...prevProducts,
+            [tabKey]: {
+                ...prevProducts[tabKey],
                 [tableKey]: updatedProducts,
-            };
-            return newProducts;
-        });
-        // Update the formulas and editing formulas with the new row
+            },
+        }));
+
         setFormulas((prevFormulas) => ({
             ...prevFormulas,
             [tabKey]: {
@@ -1703,6 +1815,7 @@ const Patient_Forecast = () => {
                 }
             }
         }));
+
         setEditingFormula((prevEditingFormulas) => ({
             ...prevEditingFormulas,
             [tabKey]: {
@@ -1713,7 +1826,14 @@ const Patient_Forecast = () => {
                 }
             }
         }));
+
+        // Reset inputs
+        setProductName("");
+        setProductType("value");
+        setPendingAdd(null);
     };
+
+
     const handleDeleteRow = (productId, tabKey, tableKey) => {
         const tableProducts = products[tabKey][tableKey];  // Get the current list of products
 
@@ -1729,7 +1849,6 @@ const Patient_Forecast = () => {
             },
         }));
     };
-
 
 
 
