@@ -2,12 +2,10 @@ import React, { useState, useEffect, useContext } from 'react';
 import introJs from 'intro.js';
 import CalculateIcon from '@mui/icons-material/Calculate';
 import FormControl from '@mui/material/FormControl';
-
 import UploadIcon from '@mui/icons-material/Upload';
 import { useNavigate } from 'react-router-dom';
 import produce from "immer";
 import Select from '@mui/material/Select';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
 import {
     TextField,
@@ -39,7 +37,6 @@ import dayjs from 'dayjs';
 import EditIcon from '@mui/icons-material/Edit';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
-import SaveIcon from '@mui/icons-material/Save';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import InfoIcon from '@mui/icons-material/Info';
 import AddIcon from '@mui/icons-material/Add';
@@ -49,11 +46,10 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import AdjustIcon from '@mui/icons-material/Adjust';
 import './ProductListpage.scss';
 import { MyContext } from './context';
-import { ta } from 'date-fns/locale';
-import { tab } from '@testing-library/user-event/dist/tab';
 
 const Patient_Forecast = () => {
-    const { countries, setCountries, storeValues, setStoreValues, } = useContext(MyContext); // Multi-select for countries
+    const [lagBehind, setLagBehind] = useState(false);
+    const { storeValues } = useContext(MyContext); // Multi-select for countries
     const [formulaDetails, setFormulaDetails] = useState({ tableKey: null, tabKey: null, productId: null });
     const [editingProductId, setEditingProductId] = useState(null);
     const [editedProductName, setEditedProductName] = useState('');
@@ -77,24 +73,19 @@ const Patient_Forecast = () => {
     const { values3, setValues3 } = useContext(MyContext);
     const [UploadedFileToFill, setUploadedFileToFill] = useState(null);
     const [openUploadDialog, setOpenUploadDialog] = useState(false); // Dialog for file upload
-    const { fromHistoricalDate, setFromHistoricalDate, fromForecastDate, setFromForecastDate } = useContext(MyContext);
-    const { toForecastDate, setToForecastDate, } = useContext(MyContext);
-    const [manualEntry, setManualEntry] = useState(false);
+    const { fromHistoricalDate, fromForecastDate, } = useContext(MyContext);
+    const { toForecastDate, } = useContext(MyContext);
+    const [setManualEntry] = useState(false);
     const [growthRates, setGrowthRates] = useState([]);
     const [startingValue, setStartingValue] = useState('');
     const [selectedTab, setSelectedTab] = useState(null);
     const [initialGrowthRate, setInitialGrowthRate] = useState('');
     const [columns, setColumns] = useState([]);  // Column headers based on time period
-    const [showCard, setShowCard] = useState(false);
     const [openInfoMethodDialog, setOpenInfoMethodDialog] = useState(false);
     const [showFormula, setShowFormula] = useState(false);
-    const [formulaProductId, setFormulaProductId] = useState(null);
+    const [setFormulaProductId] = useState(null);
     const [tab_value, setTabValue] = useState(null);
-    const { showTabs, setShowTabs } = useContext(MyContext);
     const { products, setProducts } = useContext(MyContext);
-    const combinedProducts = useContext(MyContext);
-    const [selectedValues, setSelectedValues] = useState([combinedProducts[0]?.name]); // Start with one dropdown, default to first product
-    const [operators, setOperators] = useState(['+']); // State to store selected operators for each dropdown
     const [isCardEditing1, setIsCardEditing1] = useState(false);
     const [isCardEditing2, setIsCardEditing2] = useState(false);
     const [isCardEditing3, setIsCardEditing3] = useState(false);
@@ -112,16 +103,18 @@ const Patient_Forecast = () => {
     const [EditedCardBody3, setEditedCardBody3] = useState('Adjust conversion factors for accurate data representation.');
     const [text, setText] = useState({});
     const [text2, setText2] = useState({});
-    const [isEditing, setIsEditing] = useState(false);
+    const [setIsEditing] = useState(false);
     const [savedText, setSavedText] = useState({});
     const [savedText2, setSavedText2] = useState({});
-    const { editingFormula, setEditingFormula, rowsData, setRowsData } = useContext(MyContext);
+    const { editingFormula, setEditingFormula } = useContext(MyContext);
     const [tabTableVisibility, setTabTableVisibility] = useState({
         downside: { table1: false, table2: false, table3: false },
         base: { table1: false, table2: false, table3: false },
         upside: { table1: false, table2: false, table3: false },
     });
-
+    //const EXCEL_FILE_URL = "https://axtria-my.sharepoint.com/:x:/r/personal/a7949_axtria_com/_layouts/15/guestaccess.aspx?share=EVWU-ZrnQjlPnWIpYw8qAuMBCahgxnlmGxPJq2gLhIX_OQ&email=nimisha.yadav%40axtria.com&e=U2DyUG"; // Replace with your Excel file URL
+    //const EXCEL_FILE_URL = "C:/Users/A7949/Downloads/data.xlsx"
+    //const EXCEL_FILE_URL = "https://axtria-my.sharepoint.com/personal/a7949_axtria_com/_layouts/15/guestaccess.aspx?share=ET4APwly0aVDqqqiOHPODlABmu1kqKJkUuweiEjBqC1mAw&email=nimisha.yadav%40axtria.com&e=RxuDIl"
     const formatNumber = (num) => {
         if (!num) return '';
         return Number(num).toLocaleString('en-US', { maximumFractionDigits: 2 });
@@ -139,6 +132,12 @@ const Patient_Forecast = () => {
                         variant="contained"
                         color="primary"
                         sx={{ fontSize: '0.8rem' }}
+                        onClick={() => {
+                            const confirmSubmit = window.confirm('Do you really want to submit?');
+                            if (confirmSubmit) {
+                                // Submit logic here
+                            }
+                        }}
                     >
                         Submit
                     </Button>
@@ -707,7 +706,17 @@ const Patient_Forecast = () => {
                                                         : formatNumber(values3[product.id]?.[date])
                                             }
                                             onChange={(e) => {
-                                                handleValueChange(tabKey, product.id, date, parseNumber(e.target.value));
+                                                const newValue = parseNumber(e.target.value);
+                                                // Check if this row has an assigned formula
+                                                const hasFormula = Formulas[tabKey]?.[tableKey]?.[product.id]?.emptyArray[0] !== '';
+
+                                                if (hasFormula) {
+                                                    if (window.confirm('This cell has an assigned formula. If you change it, This will be no longer formula driven.')) {
+                                                        handleValueChange2(tabKey, tableKey, product.id, date, newValue);
+                                                    }
+                                                } else {
+                                                    handleValueChange2(tabKey, tableKey, product.id, date, newValue);
+                                                }
                                             }}
                                             variant="outlined"
                                             size="small"
@@ -801,12 +810,12 @@ const Patient_Forecast = () => {
                                     setProductName("");
                                     setProductType("value");
                                 }}
-                                 color="secondary"
-                                 variant="contained"
+                                color="secondary"
+                                variant="contained"
                             >
                                 Cancel
                             </Button>
-                           
+
                         </DialogActions>
                     </Dialog>
                 )}
@@ -919,7 +928,6 @@ const Patient_Forecast = () => {
                             <Button onClick={() => handleCancelFormula(formulaDetails.tabKey, formulaDetails.tableKey, formulaDetails.productId)} color="secondary" variant="contained" sx={{ fontWeight: 'bold', borderRadius: '8px' }}>
                                 Cancel
                             </Button>
-                            
                         </DialogActions>
                     </Dialog>
                 )}
@@ -1908,6 +1916,7 @@ const Patient_Forecast = () => {
 
 
     const handleValueChange = (tabKey, productId, date, value) => {
+
         if (tabKey === 'downside') {
             setValues((prevValues) => ({
                 ...prevValues,
@@ -1933,7 +1942,39 @@ const Patient_Forecast = () => {
                 },
             }));
         }
-
+        setLagBehind(true);
+    };
+    const handleValueChange2 = (tabKey, tableKey, productId, date, value) => {
+        if (Formulas[tabKey][tableKey][productId].emptyArray[0] !== '') {
+            Formulas[tabKey][tableKey][productId].emptyArray = [''];
+            Formulas[tabKey][tableKey][productId].plusArray = ['+'];
+        }
+        if (tabKey === 'downside') {
+            setValues((prevValues) => ({
+                ...prevValues,
+                [productId]: {
+                    ...prevValues[productId],
+                    [date]: value,
+                },
+            }));
+        } else if (tabKey === 'base') {
+            setValues2((prevValues) => ({
+                ...prevValues,
+                [productId]: {
+                    ...prevValues[productId],
+                    [date]: value,
+                },
+            }));
+        } else {
+            setValues3((prevValues) => ({
+                ...prevValues,
+                [productId]: {
+                    ...prevValues[productId],
+                    [date]: value,
+                },
+            }));
+        }
+        setLagBehind(true);
     };
 
     // Handles selecting an input method from the Data Input Method dialog.
@@ -2337,6 +2378,138 @@ const Patient_Forecast = () => {
         setValues2({});
         setValues3({});
     };
+
+    const handlesavechanges = (tabKey, tableKey, row_id, values, values2, values3) => {
+        const prod = products[tabKey][tableKey];
+        const productType = prod.find((product) => product.id === row_id)?.type;
+        const selectedIds = editingFormula[tabKey][tableKey][row_id].emptyArray
+        const operatorsList = editingFormula[tabKey][tableKey][row_id].plusArray
+        // Slice the operators array to exclude the first element (which is the default "+")
+        const operatorSliced = operatorsList.slice(1);
+        let res = {}; // Object to store the results of the forecast calculation
+        if (timePeriod === 'Monthly') {
+            // Loop through the months in the time period and create a key for each in the results object
+            // if the key doesn't already exist
+            for (let i = 0; i < dayjs(toForecastDate).diff(dayjs(fromHistoricalDate), 'month') + 1; i++) {
+                const month = dayjs(fromHistoricalDate).add(i, 'month').format('MMM-YYYY');
+                if (!res[month]) {
+                    res[month] = "0";
+                }
+            }
+        }
+        else {
+            for (let i = 0; i < dayjs(toForecastDate).diff(dayjs(fromHistoricalDate), 'year') + 1; i++) {
+                const year = dayjs(fromHistoricalDate).add(i, 'year').format('YYYY');
+                if (!res[year]) {
+                    res[year] = "0";
+                }
+            }
+        }
+        // Get the first selected product's id
+        const idd = selectedIds[0];
+        // Get the first selected product's values based on the current tabKey
+        const val = tabKey === 'downside' ? values[idd] : tabKey === 'base' ? values2[idd] : values3[idd];
+        let typee = null;
+        Object.keys(products[tabKey]).forEach(table => {
+            const temp = products[tabKey][table].find((product) => product.id === idd)?.type;
+            if (temp !== undefined) {
+                typee = temp;
+            }
+        });
+        // If the product has values, loop through its values and add them to the results object
+        if (val !== undefined) {
+            Object.keys(val).forEach((key) => {
+                if (typee === '%') {
+                    res[key] = val[key] / 100;
+                }
+                else {
+                    res[key] = val[key];
+                }
+            });
+        }
+        // Iterate over the selected product IDs starting from the second element
+        for (let i = 1; i < selectedIds.length; i++) {
+            const id = selectedIds[i];
+            const tempval = tabKey === 'downside' ? values[id] : tabKey === 'base' ? values2[id] : values3[id];
+            let temptype = null;
+            Object.keys(products[tabKey]).forEach(table => {
+                const temp = products[tabKey][table].find((product) => product.id === id)?.type;
+                if (temp !== undefined) {
+                    temptype = temp;
+                }
+            });
+            let tempValue = null;
+            if (tempval !== undefined) {
+                Object.keys(tempval).forEach((key) => {
+                    const currentOperator = operatorSliced[i - 1];
+                    const resValue = parseFloat(res[key], 10);
+                    if (temptype === '%') {
+                        tempValue = parseFloat(tempval[key] / 100, 10);
+                    }
+                    else {
+                        tempValue = parseFloat(tempval[key], 10);
+                    }
+                    if (currentOperator === '+') {
+                        res[key] = resValue + tempValue;
+                    } else if (currentOperator === '-') {
+                        res[key] = resValue - tempValue;
+                    } else if (currentOperator === '*') {
+                        res[key] = resValue * tempValue;
+                    } else if (currentOperator === '/') {
+                        res[key] = resValue / tempValue;
+                    }
+                });
+            }
+        }
+        return res;
+    };
+    const handleSaveLags = async () => {
+        let tempvalues = values;
+        let tempvalues2 = values2;
+        let tempvalues3 = values3;
+        let res = {};
+        for (const tabKey of Object.keys(Formulas)) {
+            for (const tableKey of Object.keys(Formulas[tabKey])) {
+                for (const row_id of Object.keys(Formulas[tabKey][tableKey])) {
+                    if (Formulas[tabKey][tableKey][row_id].emptyArray[0] !== '') {
+                        res = handlesavechanges(tabKey, tableKey, row_id, tempvalues, tempvalues2, tempvalues3);
+                        console.log(row_id, res);
+                        if (tabKey === 'downside') {
+                            tempvalues = {
+                                ...tempvalues,
+                                [row_id]: Object.keys(res).reduce((acc, date) => {
+                                    acc[date] = !res[date] || res[date] === 0 ? '0' : productType === '%' ? res[date] * 100 : res[date];
+                                    return acc;
+                                }, {})
+                            };
+                        }
+                        else if (tabKey === 'base') {
+                            tempvalues2 = {
+                                ...tempvalues2,
+                                [row_id]: Object.keys(res).reduce((acc, date) => {
+                                    acc[date] = !res[date] || res[date] === 0 ? '0' : productType === '%' ? res[date] * 100 : res[date];
+                                    return acc;
+                                }, {})
+                            };
+                        }
+                        else {
+                            tempvalues3 = {
+                                ...tempvalues3,
+                                [row_id]: Object.keys(res).reduce((acc, date) => {
+                                    acc[date] = !res[date] || res[date] === 0 ? '0' : productType === '%' ? res[date] * 100 : res[date];
+                                    return acc;
+                                }, {})
+                            };
+                        }
+                    }
+                }
+            }
+        }
+        setValues(tempvalues);
+        setValues2(tempvalues2);
+        setValues3(tempvalues3);
+        setLagBehind(false);
+    };
     const startTour2 = () => {
         const end = introJs();
         end.setOptions({
@@ -2703,7 +2876,7 @@ const Patient_Forecast = () => {
                         Show Tutorial
                     </Button>
                     <h2 style={{ textAlign: 'left' }}>{greeting}, Welcome to the Patient Based Forecasting Page!</h2> </div>
-                <div style={{ marginLeft: '10px', marginTop: '5px' }}>
+                <div style={{ marginLeft: '10px', marginTop: '5px', display: 'flex', gap: '10px' }}>
                     <Button
                         className='clearAll-button'
                         variant="contained"
@@ -2715,7 +2888,21 @@ const Patient_Forecast = () => {
                         }}>
                         Clear All Data
                     </Button>
+
+                    <Button
+                        className='saveAll-button'
+                        variant="contained"
+                        color={lagBehind ? "primary" : "grey"}
+                        disabled={!lagBehind}
+                        onClick={() => {
+                            if (window.confirm("Are you sure you want to save all data? This action cannot be undone.")) {
+                                handleSaveLags();
+                            }
+                        }}>
+                        Save changes
+                    </Button>
                 </div>
+
                 <Box
                     sx={{
                         maxWidth: '100%',   // Set width to contain horizontal scroll

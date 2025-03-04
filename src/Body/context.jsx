@@ -137,19 +137,16 @@ const MyProvider = ({ children }) => {
   useEffect(() => {
     const formulasDemo = { ...Formulas };
     Object.keys(formulasDemo).forEach((tabKey) => {
-      Object.keys(formulasDemo[tabKey]).forEach((tableKey) => {
-        formulasDemo[tabKey][tableKey]['T1-4'] = { emptyArray: ['T1-1', 'T1-2', 'T1-3'], plusArray: ['+', '*', '*'] };
-        formulasDemo[tabKey][tableKey]['T2-3'] = { emptyArray: ['T1-4', 'T2-1'], plusArray: ['+', '*'] };
-        formulasDemo[tabKey][tableKey]['T2-4'] = { emptyArray: ['T1-4', 'T2-2'], plusArray: ['+', '*'] };
-        formulasDemo[tabKey][tableKey]['T2-5'] = { emptyArray: ['T2-3', 'T2-4'], plusArray: ['+', '+'] };
-        formulasDemo[tabKey][tableKey]['T3-3'] = { emptyArray: ['T3-1', 'T3-2', 'T2-6', 'T2-3'], plusArray: ['+', '*', '*', '*'] };
-        formulasDemo[tabKey][tableKey]['T3-6'] = { emptyArray: ['T3-1', 'T3-2', 'T2-7', 'T2-4'], plusArray: ['+', '*', '*', '*'] };
-        formulasDemo[tabKey][tableKey]['T3-7'] = { emptyArray: ['T3-3', 'T3-6'], plusArray: ['+', '+'] };
-        formulasDemo[tabKey][tableKey]['T3-10'] = { emptyArray: ['T3-3', 'T3-9'], plusArray: ['+', '*'] };
-        formulasDemo[tabKey][tableKey]['T3-11'] = { emptyArray: ['T3-6', 'T3-9'], plusArray: ['+', '*'] };
-        formulasDemo[tabKey][tableKey]['T3-12'] = { emptyArray: ['T3-10', 'T3-11'], plusArray: ['+', '+'] };
-
-      });
+        formulasDemo[tabKey]["table1"]['T1-4'] = { emptyArray: ['T1-1', 'T1-2', 'T1-3'], plusArray: ['+', '*', '*'] };
+        formulasDemo[tabKey]["table2"]['T2-3'] = { emptyArray: ['T1-4', 'T2-1'], plusArray: ['+', '*'] };
+        formulasDemo[tabKey]["table2"]['T2-4'] = { emptyArray: ['T1-4', 'T2-2'], plusArray: ['+', '*'] };
+        formulasDemo[tabKey]["table2"]['T2-5'] = { emptyArray: ['T2-3', 'T2-4'], plusArray: ['+', '+'] };
+        formulasDemo[tabKey]["table3"]['T3-3'] = { emptyArray: ['T3-1', 'T3-2', 'T2-6', 'T2-3'], plusArray: ['+', '*', '*', '*'] };
+        formulasDemo[tabKey]["table3"]['T3-6'] = { emptyArray: ['T3-1', 'T3-2', 'T2-7', 'T2-4'], plusArray: ['+', '*', '*', '*'] };
+        formulasDemo[tabKey]["table3"]['T3-7'] = { emptyArray: ['T3-3', 'T3-6'], plusArray: ['+', '+'] };
+        formulasDemo[tabKey]["table3"]['T3-10'] = { emptyArray: ['T3-3', 'T3-9'], plusArray: ['+', '*'] };
+        formulasDemo[tabKey]["table3"]['T3-11'] = { emptyArray: ['T3-6', 'T3-9'], plusArray: ['+', '*'] };
+        formulasDemo[tabKey]["table3"]['T3-12'] = { emptyArray: ['T3-10', 'T3-11'], plusArray: ['+', '+'] };
     });
     setFormulas(formulasDemo);
     setEditingFormula(formulasDemo);
