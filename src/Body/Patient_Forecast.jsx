@@ -83,7 +83,7 @@ const Patient_Forecast = () => {
     const [columns, setColumns] = useState([]);  // Column headers based on time period
     const [openInfoMethodDialog, setOpenInfoMethodDialog] = useState(false);
     const [showFormula, setShowFormula] = useState(false);
-    const [setFormulaProductId] = useState(null);
+
     const [tab_value, setTabValue] = useState(null);
     const { products, setProducts } = useContext(MyContext);
     const [isCardEditing1, setIsCardEditing1] = useState(false);
@@ -673,7 +673,7 @@ const Patient_Forecast = () => {
                                                 )}
                                                 <Tooltip title="Insert Formula" placement="top" >
                                                     <IconButton className='insert-formula' onClick={() => {
-                                                        setFormulaDetails({ tableKey, tabKey, productId: product.id }); setFormulaProductId(product.id); setShowFormula(true);
+                                                        setFormulaDetails({ tableKey, tabKey, productId: product.id }); setShowFormula(true);
                                                     }} style={{ marginLeft: '4px' }}
                                                     >
                                                         <CalculateIcon fontSize="small" />
@@ -689,10 +689,6 @@ const Patient_Forecast = () => {
                                         )}
                                     </div>
                                 </td>
-                                {/* Render table cells for each date column, with a TextField for inputting values. 
-                                    The value is retrieved from the state based on the tabKey and productId. 
-                                    When the value changes, the handleValueChange function is called to update the state. 
-                                */}
                                 {columns.map((date) => (
                                     <td key={date}>
                                         <TextField
@@ -1942,7 +1938,7 @@ const Patient_Forecast = () => {
                 },
             }));
         }
-        setLagBehind(true);
+        setLagBehind(!lagBehind);
     };
     const handleValueChange2 = (tabKey, tableKey, productId, date, value) => {
         if (Formulas[tabKey][tableKey][productId].emptyArray[0] !== '') {
@@ -1974,7 +1970,8 @@ const Patient_Forecast = () => {
                 },
             }));
         }
-        setLagBehind(true);
+    
+        setLagBehind(!lagBehind);
     };
 
     // Handles selecting an input method from the Data Input Method dialog.
@@ -2463,53 +2460,54 @@ const Patient_Forecast = () => {
         }
         return res;
     };
-    const handleSaveLags = async () => {
-        let tempvalues = values;
-        let tempvalues2 = values2;
-        let tempvalues3 = values3;
-        let res = {};
-        for (const tabKey of Object.keys(Formulas)) {
-            for (const tableKey of Object.keys(Formulas[tabKey])) {
-                for (const row_id of Object.keys(Formulas[tabKey][tableKey])) {
-                    if (Formulas[tabKey][tableKey][row_id].emptyArray[0] !== '') {
-                        res = handlesavechanges(tabKey, tableKey, row_id, tempvalues, tempvalues2, tempvalues3);
-                        console.log(row_id, res);
-                        if (tabKey === 'downside') {
-                            tempvalues = {
-                                ...tempvalues,
-                                [row_id]: Object.keys(res).reduce((acc, date) => {
-                                    acc[date] = !res[date] || res[date] === 0 ? '0' : productType === '%' ? res[date] * 100 : res[date];
-                                    return acc;
-                                }, {})
-                            };
-                        }
-                        else if (tabKey === 'base') {
-                            tempvalues2 = {
-                                ...tempvalues2,
-                                [row_id]: Object.keys(res).reduce((acc, date) => {
-                                    acc[date] = !res[date] || res[date] === 0 ? '0' : productType === '%' ? res[date] * 100 : res[date];
-                                    return acc;
-                                }, {})
-                            };
-                        }
-                        else {
-                            tempvalues3 = {
-                                ...tempvalues3,
-                                [row_id]: Object.keys(res).reduce((acc, date) => {
-                                    acc[date] = !res[date] || res[date] === 0 ? '0' : productType === '%' ? res[date] * 100 : res[date];
-                                    return acc;
-                                }, {})
-                            };
+    useEffect(() => {
+        
+            let tempvalues = values;
+            let tempvalues2 = values2;
+            let tempvalues3 = values3;
+            let res = {};
+            for (const tabKey of Object.keys(Formulas)) {
+                for (const tableKey of Object.keys(Formulas[tabKey])) {
+                    for (const row_id of Object.keys(Formulas[tabKey][tableKey])) {
+                        if (Formulas[tabKey][tableKey][row_id].emptyArray[0] !== '') {
+                            res = handlesavechanges(tabKey, tableKey, row_id, tempvalues, tempvalues2, tempvalues3);
+                            if (tabKey === 'downside') {
+                                tempvalues = {
+                                    ...tempvalues,
+                                    [row_id]: Object.keys(res).reduce((acc, date) => {
+                                        acc[date] = !res[date] || res[date] === 0 ? '0' : productType === '%' ? res[date] * 100 : res[date];
+                                        return acc;
+                                    }, {})
+                                };
+                            }
+                            else if (tabKey === 'base') {
+                                tempvalues2 = {
+                                    ...tempvalues2,
+                                    [row_id]: Object.keys(res).reduce((acc, date) => {
+                                        acc[date] = !res[date] || res[date] === 0 ? '0' : productType === '%' ? res[date] * 100 : res[date];
+                                        return acc;
+                                    }, {})
+                                };
+                            }
+                            else {
+                                tempvalues3 = {
+                                    ...tempvalues3,
+                                    [row_id]: Object.keys(res).reduce((acc, date) => {
+                                        acc[date] = !res[date] || res[date] === 0 ? '0' : productType === '%' ? res[date] * 100 : res[date];
+                                        return acc;
+                                    }, {})
+                                };
+                            }
                         }
                     }
                 }
-            }
+            
+            setValues(tempvalues);
+            setValues2(tempvalues2);
+            setValues3(tempvalues3);
         }
-        setValues(tempvalues);
-        setValues2(tempvalues2);
-        setValues3(tempvalues3);
-        setLagBehind(false);
-    };
+    }, [lagBehind]);
+
     const startTour2 = () => {
         const end = introJs();
         end.setOptions({
@@ -2889,7 +2887,7 @@ const Patient_Forecast = () => {
                         Clear All Data
                     </Button>
 
-                    <Button
+                    {/* <Button
                         className='saveAll-button'
                         variant="contained"
                         color={lagBehind ? "primary" : "grey"}
@@ -2900,7 +2898,7 @@ const Patient_Forecast = () => {
                             }
                         }}>
                         Save changes
-                    </Button>
+                    </Button> */}
                 </div>
 
                 <Box

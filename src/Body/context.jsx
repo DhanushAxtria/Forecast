@@ -142,7 +142,7 @@ const MyProvider = ({ children }) => {
         formulasDemo[tabKey]["table2"]['T2-4'] = { emptyArray: ['T1-4', 'T2-2'], plusArray: ['+', '*'] };
         formulasDemo[tabKey]["table2"]['T2-5'] = { emptyArray: ['T2-3', 'T2-4'], plusArray: ['+', '+'] };
         formulasDemo[tabKey]["table3"]['T3-3'] = { emptyArray: ['T3-1', 'T3-2', 'T2-6', 'T2-3'], plusArray: ['+', '*', '*', '*'] };
-        formulasDemo[tabKey]["table3"]['T3-6'] = { emptyArray: ['T3-1', 'T3-2', 'T2-7', 'T2-4'], plusArray: ['+', '*', '*', '*'] };
+        formulasDemo[tabKey]["table3"]['T3-6'] = { emptyArray: ['T3-4', 'T3-5', 'T2-7', 'T2-4'], plusArray: ['+', '*', '*', '*'] };
         formulasDemo[tabKey]["table3"]['T3-7'] = { emptyArray: ['T3-3', 'T3-6'], plusArray: ['+', '+'] };
         formulasDemo[tabKey]["table3"]['T3-10'] = { emptyArray: ['T3-3', 'T3-9'], plusArray: ['+', '*'] };
         formulasDemo[tabKey]["table3"]['T3-11'] = { emptyArray: ['T3-6', 'T3-9'], plusArray: ['+', '*'] };
