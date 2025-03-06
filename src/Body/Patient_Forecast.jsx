@@ -1942,8 +1942,34 @@ const Patient_Forecast = () => {
     };
     const handleValueChange2 = (tabKey, tableKey, productId, date, value) => {
         if (Formulas[tabKey][tableKey][productId].emptyArray[0] !== '') {
-            Formulas[tabKey][tableKey][productId].emptyArray = [''];
-            Formulas[tabKey][tableKey][productId].plusArray = ['+'];
+            setFormulas((prevFormulas) => ({
+                ...prevFormulas,
+                [tabKey]: {
+                    ...prevFormulas[tabKey],
+                    [tableKey]: {
+                        ...prevFormulas[tabKey][tableKey],
+                        [productId]: {
+                            ...prevFormulas[tabKey][tableKey][productId],
+                            emptyArray: [""],
+                            plusArray: ["+"]
+                        }
+                    }
+                }
+            }));
+            setEditingFormula((prevFormulas) => ({
+                ...prevFormulas,
+                [tabKey]: {
+                    ...prevFormulas[tabKey],
+                    [tableKey]: {
+                        ...prevFormulas[tabKey][tableKey],
+                        [productId]: {
+                            ...prevFormulas[tabKey][tableKey][productId],
+                            emptyArray: [""],
+                            plusArray: ["+"]
+                        }
+                    }
+                }
+            }));
         }
         if (tabKey === 'downside') {
             setValues((prevValues) => ({
@@ -1970,7 +1996,7 @@ const Patient_Forecast = () => {
                 },
             }));
         }
-    
+
         setLagBehind(!lagBehind);
     };
 
@@ -2098,7 +2124,6 @@ const Patient_Forecast = () => {
                             if (monthIndex !== -1) {
                                 // Get the value at the index from the first row of the CSV file
                                 const val = firstRow[monthIndex];
-                                console.log(val);
                                 // Update the values in the state
                                 setValues((prevValues) => ({
                                     ...prevValues,
@@ -2109,7 +2134,6 @@ const Patient_Forecast = () => {
                                     }
                                 }));
                             }
-                            console.log(monthIndex);
                         }
                     }
                     else if (tabKey === 'base') { //doing the same for base tab as downside tab
@@ -2118,7 +2142,6 @@ const Patient_Forecast = () => {
                             const monthIndex = dateHeaders.indexOf(month);
                             if (monthIndex !== -1) {
                                 const val = firstRow[monthIndex];
-                                console.log(val);
                                 setValues2((prevValues) => ({
                                     ...prevValues,
                                     [rowID]: {
@@ -2127,7 +2150,6 @@ const Patient_Forecast = () => {
                                     }
                                 }));
                             }
-                            console.log(monthIndex);
                         }
                     }
                     else { //doing the same for upside tab as downside tab
@@ -2136,7 +2158,6 @@ const Patient_Forecast = () => {
                             const monthIndex = dateHeaders.indexOf(month);
                             if (monthIndex !== -1) {
                                 const val = firstRow[monthIndex];
-                                console.log(val);
                                 setValues3((prevValues) => ({
                                     ...prevValues,
                                     [rowID]: {
@@ -2145,7 +2166,6 @@ const Patient_Forecast = () => {
                                     }
                                 }));
                             }
-                            console.log(monthIndex);
                         }
 
                     }
@@ -2163,7 +2183,6 @@ const Patient_Forecast = () => {
                         const parsedDate = dayjs(header, ["YY", "YYYY"], true); // strict parsing
                         return parsedDate.isValid() ? parsedDate.format('YYYY') : 'Invalid Date';
                     });
-                    console.log(dateHeaders);
                     if (tabKey === 'downside') {
                         for (let i = 0; i < dayjs(toForecastDate).diff(dayjs(fromHistoricalDate), 'year') + 1; i++) {
                             const month = dayjs(fromHistoricalDate).add(i, 'year').format('YYYY');
@@ -2461,47 +2480,47 @@ const Patient_Forecast = () => {
         return res;
     };
     useEffect(() => {
-        
-            let tempvalues = values;
-            let tempvalues2 = values2;
-            let tempvalues3 = values3;
-            let res = {};
-            for (const tabKey of Object.keys(Formulas)) {
-                for (const tableKey of Object.keys(Formulas[tabKey])) {
-                    for (const row_id of Object.keys(Formulas[tabKey][tableKey])) {
-                        if (Formulas[tabKey][tableKey][row_id].emptyArray[0] !== '') {
-                            res = handlesavechanges(tabKey, tableKey, row_id, tempvalues, tempvalues2, tempvalues3);
-                            if (tabKey === 'downside') {
-                                tempvalues = {
-                                    ...tempvalues,
-                                    [row_id]: Object.keys(res).reduce((acc, date) => {
-                                        acc[date] = !res[date] || res[date] === 0 ? '0' : productType === '%' ? res[date] * 100 : res[date];
-                                        return acc;
-                                    }, {})
-                                };
-                            }
-                            else if (tabKey === 'base') {
-                                tempvalues2 = {
-                                    ...tempvalues2,
-                                    [row_id]: Object.keys(res).reduce((acc, date) => {
-                                        acc[date] = !res[date] || res[date] === 0 ? '0' : productType === '%' ? res[date] * 100 : res[date];
-                                        return acc;
-                                    }, {})
-                                };
-                            }
-                            else {
-                                tempvalues3 = {
-                                    ...tempvalues3,
-                                    [row_id]: Object.keys(res).reduce((acc, date) => {
-                                        acc[date] = !res[date] || res[date] === 0 ? '0' : productType === '%' ? res[date] * 100 : res[date];
-                                        return acc;
-                                    }, {})
-                                };
-                            }
+
+        let tempvalues = values;
+        let tempvalues2 = values2;
+        let tempvalues3 = values3;
+        let res = {};
+        for (const tabKey of Object.keys(Formulas)) {
+            for (const tableKey of Object.keys(Formulas[tabKey])) {
+                for (const row_id of Object.keys(Formulas[tabKey][tableKey])) {
+                    if (Formulas[tabKey][tableKey][row_id].emptyArray[0] !== '') {
+                        res = handlesavechanges(tabKey, tableKey, row_id, tempvalues, tempvalues2, tempvalues3);
+                        if (tabKey === 'downside') {
+                            tempvalues = {
+                                ...tempvalues,
+                                [row_id]: Object.keys(res).reduce((acc, date) => {
+                                    acc[date] = !res[date] || res[date] === 0 ? '0' : productType === '%' ? res[date] * 100 : res[date];
+                                    return acc;
+                                }, {})
+                            };
+                        }
+                        else if (tabKey === 'base') {
+                            tempvalues2 = {
+                                ...tempvalues2,
+                                [row_id]: Object.keys(res).reduce((acc, date) => {
+                                    acc[date] = !res[date] || res[date] === 0 ? '0' : productType === '%' ? res[date] * 100 : res[date];
+                                    return acc;
+                                }, {})
+                            };
+                        }
+                        else {
+                            tempvalues3 = {
+                                ...tempvalues3,
+                                [row_id]: Object.keys(res).reduce((acc, date) => {
+                                    acc[date] = !res[date] || res[date] === 0 ? '0' : productType === '%' ? res[date] * 100 : res[date];
+                                    return acc;
+                                }, {})
+                            };
                         }
                     }
                 }
-            
+            }
+
             setValues(tempvalues);
             setValues2(tempvalues2);
             setValues3(tempvalues3);
