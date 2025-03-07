@@ -4,6 +4,7 @@ import { Bar, BarChart, XAxis, YAxis, CartesianGrid } from "recharts";
 import FormControl from '@mui/material/FormControl';
 import UploadIcon from '@mui/icons-material/Upload';
 import Select from '@mui/material/Select';
+import { useNavigate } from 'react-router-dom';
 import {
     TextField,
     IconButton,
@@ -49,6 +50,7 @@ import {
 } from 'recharts';
 
 const WaterFall = () => {
+    const navigate = useNavigate();
     const [applyClicked, setApplyClicked] = useState(true);
     const { products, timePeriod, Formulas, fromHistoricalDate, toForecastDate, fromForecastDate, values, values2, values3 } = useContext(MyContext);
     const [Res, setRes] = useState({});
@@ -57,7 +59,10 @@ const WaterFall = () => {
     const [buttonType, setButtonType] = useState("");
     const [editingFileToFill, setEditingFileToFill] = useState({});
     const [FileToFill, setFileToFill] = useState({});
-    const [MethodForRow, setMethodForRow] = useState({});
+    const [MethodForRow, setMethodForRow] = useState({
+        "0": "%",
+        "1": "%",
+    });
     const [openInputMethodDialog, setOpenInputMethodDialog] = useState(false);
     const [openStartEndDialog, setOpenStartEndDialog] = useState(false);
     const [openUploadDialog, setOpenUploadDialog] = useState(false);
@@ -66,7 +71,8 @@ const WaterFall = () => {
     const [StartValue, setStartValue] = useState({}); // Saved  Case Start Values
     const [EndValue, setEndValue] = useState({}); // Saved  Case End Values
     const [dropdownGroups, setDropdownGroups] = useState([
-        { Case: "", OutputMetric: "", Field: "" },
+        { Case: "base", OutputMetric: "T3-12", Field: "T3-10" },
+        { Case: "base", OutputMetric: "T3-12", Field: "T3-11" },
     ]);
     const [openGrowthRateDialog, setOpenGrowthRateDialog] = useState(false);
     const [GrowthRates, setGrowthRates] = useState({});
@@ -82,7 +88,10 @@ const WaterFall = () => {
     const [CaseData, setCaseData] = useState([]);
     const [openChangeDialog, setOpenChangeDialog] = useState(false);
     const [editingPercentVal, setEditingPercentVal] = useState({});
-    const [PercentVal, setPercentVal] = useState({});
+    const [PercentVal, setPercentVal] = useState({
+        "0": 50,
+        "1": -90,
+    });
     const [AbsoluteVal, setAbsoluteVal] = useState({});
     const [editingAbsoluteVal, setEditingAbsoluteVal] = useState({});
     const [openAbsoluteVal, setOpenAbsoluteVal] = useState(false);
@@ -93,9 +102,6 @@ const WaterFall = () => {
     const [columns, setColumns] = useState([]) // Initialize with an empty array of columns
     const [fromDate, setFromDate] = useState(dayjs(fromHistoricalDate));
     const [toDate, setToDate] = useState(dayjs(toForecastDate));
-
-
-
     const labels = dropdownGroups
         .map((group) => {
             if (group?.Field && products[group?.Case]) {
@@ -112,7 +118,6 @@ const WaterFall = () => {
             return [];
         })
         .flat();
-
     const scenarioValue = dropdownGroups.map((group, index) => (
         console.log("changeInValue?.[index]", changeInValue?.[index]),
         Number(mainresult?.[0] || 0) + (changeInValue?.[index] || 0)
@@ -745,10 +750,8 @@ const WaterFall = () => {
         setOpenInputMethodDialog(true);
     }
     const handleSavePercent = () => {
-
         setMethodForRow(prev => ({ ...prev, [Index]: "%" }));
         setPercentVal(editingPercentVal);
-
         setOpenChangeDialog(false);
     }
     const handleCancelPercent = () => {
@@ -1086,7 +1089,7 @@ const WaterFall = () => {
                                     <TableCell className='choose-case' align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Case</TableCell>
                                     <TableCell className='choose-metric' align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Output Metric</TableCell>
                                     <TableCell className='choose-field' align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Field</TableCell>
-                                    <TableCell className= 'scenario-case' align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Scenario Case</TableCell>
+                                    <TableCell className='scenario-case' align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Scenario Case</TableCell>
 
                                 </TableRow>
                             </TableHead>
@@ -1231,8 +1234,13 @@ const WaterFall = () => {
                         >
                             <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
                             <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                            <YAxis tick={{ fontSize: 12 }} />
-                            <Tooltip />
+                            <YAxis
+                                tickFormatter={(tick) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(tick)}
+                                tick={{ fontSize: 12 }}
+                            />
+                            <Tooltip
+                                formatter={(value) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value)}
+                            />
                             <Bar
                                 dataKey="start"
                                 stackId="a"
@@ -1247,6 +1255,7 @@ const WaterFall = () => {
                                     dataKey="value"
                                     position="top"
                                     style={{ fontSize: 14, fill: "#000", fontWeight: "bold" }}
+                                    formatter={(value) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value)}
                                 />
                             </Bar>
                         </BarChart>
@@ -1769,6 +1778,38 @@ const WaterFall = () => {
                     </DialogActions>
                 </Dialog>
             }
+            <Box sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                position: 'fixed',
+                bottom: 0,
+                right: 10,
+                padding: '10px',
+                zIndex: 10,
+                gap: '10px'
+            }}>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    className="save-continue" // Apply the custom CSS class
+                    onClick={() => {
+                        if (window.confirm("Are you sure you want to save this view?")) {
+                            alert("View is saved");
+                        }
+                    }}
+                >
+                    Save View
+                </Button>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    className="save-continue" // Apply the custom CSS class
+                    onClick={() => navigate('/new-model/epidemiology-model/scenario-details/forecastdeepdive/analysis/saved-views-waterfall')} // Navigate to the patient forecast page
+
+                >
+                    Show Saved Views
+                </Button>
+            </Box>
         </>
     );
 };

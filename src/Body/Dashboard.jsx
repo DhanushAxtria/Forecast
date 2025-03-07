@@ -9,6 +9,8 @@ import Switch from '@mui/material/Switch';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from "@mui/icons-material/Delete";
 import dayjs from 'dayjs';
+import { LabelList } from 'recharts';
+import { useNavigate } from 'react-router-dom';
 import {
     ResponsiveContainer,
     LineChart,
@@ -44,6 +46,7 @@ const generateMonthlyColumns = (start, end) => {
     }
     return months;
 };
+
 
 /**
  * Generates an array of strings representing the years from the given start date to the given end date, inclusive.
@@ -107,9 +110,8 @@ const Dashboard = () => {
     const { values, values2, values3, setDropdownGroups, dropdownGroups } = useContext(MyContext); // values, values2, values3 are table values.
     const { cardTitle1, cardTitle2, cardTitle3 } = useContext(MyContext);
     const { timePeriod } = useContext(MyContext);
-    const { fromHistoricalDate, setFromHistoricalDate } = useContext(MyContext);
-    const { fromForecastDate, setFromForecastDate } = useContext(MyContext);
-    const { toForecastDate, setToForecastDate } = useContext(MyContext);
+    const { fromHistoricalDate } = useContext(MyContext);
+    const { toForecastDate } = useContext(MyContext);
     // Generate columns based on timePeriod
     const months = timePeriod === 'Monthly' ? generateMonthlyColumns(fromHistoricalDate, toForecastDate) : generateYearlyColumns(fromHistoricalDate, toForecastDate);
     // Colors for the charts
@@ -123,6 +125,7 @@ const Dashboard = () => {
             });
         });
     });
+    const navigate = useNavigate();
     const chartData = months.map((month) => {
         const dataPoint = { month };
         dropdownGroups.forEach(({ Case, SelectedRow }) => {
@@ -149,6 +152,7 @@ const Dashboard = () => {
             },
         ]);
     };
+
     const handleDeleteDropdownGroup = (index) => {
         const updatedGroups = dropdownGroups.filter((_, i) => i !== index);
         setDropdownGroups(updatedGroups);
@@ -271,8 +275,6 @@ const Dashboard = () => {
             const tooltip = document.querySelector('.introjs-tooltip');
             const totalSteps = intro._options.steps.length; // Get total number of steps
             const currentStep = intro._currentStep; // Get current step index
-            console.log(currentStep)
-            console.log(totalSteps)
 
             // Remove default close button
             const crossIcon = document.querySelector('.introjs-skipbutton');
@@ -403,10 +405,13 @@ const Dashboard = () => {
         intro.start();
     };
 
-
+    useEffect(() => {
+      console.log("chartData", chartData);
+    }, [chartData])
+    
     return (
         <>
-            <Button              
+            <Button
                 variant="contained"
                 size='small'
                 sx={{ color: 'white', position: 'absolute', right: 0, cursor: 'pointer', mt: -9.5, mr: 2 }}
@@ -520,26 +525,31 @@ const Dashboard = () => {
                 <Android12Switch className='toggle' checked={chartType === "bar"} onChange={toggleChartType} />
             </Box>
             <ResponsiveContainer width={1300}
-                height={400}
-                margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                height={400}>
                 {chartType === "line" ? (
-                    <LineChart data={chartData}>
+                    <LineChart data={chartData} margin={{ left: 50, right: 50 }}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="month" />
                         <YAxis />
-                        <Tooltip />
-                        <Legend wrapperStyle={{ fontWeight: 'bold' }} />
-                        {/* 
-                            loop through the dropdownGroups and create a line for each group
-                        */}
+                        <Tooltip
+                            formatter={(value) =>
+                                typeof value === "number"
+                                    ? value.toLocaleString("en-US", {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2,
+                                    })
+                                    : value
+                            }
+                        />
+                        <Legend wrapperStyle={{ fontWeight: "bold" }} />
                         {dropdownGroups.map(({ Case, SelectedRow }, index) => {
                             const lineKey = `${Case}-${idToNameMap[SelectedRow]}`;
                             return (
                                 <Line
                                     key={index}
                                     type="monotone"
-                                    dataKey={lineKey} // Combines Case and item.name
-                                    name={lineKey}   // Displays Case-item.name in legend
+                                    dataKey={lineKey}
+                                    name={lineKey}
                                     stroke={colors[index]}
                                     strokeWidth={3}
                                 />
@@ -547,22 +557,28 @@ const Dashboard = () => {
                         })}
                     </LineChart>
                 ) : (
-                    <BarChart data={chartData}>
+                    <BarChart data={chartData} margin={{ left: 50, right: 50 }}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="month" />
                         <YAxis />
-                        <Tooltip />
-                        <Legend wrapperStyle={{ fontWeight: 'bold' }} />
-                        {/* 
-                            loop through the dropdownGroups and create a bar for each group
-                        */}
+                        <Tooltip
+                            formatter={(value) =>
+                                typeof value === "number"
+                                    ? value.toLocaleString("en-US", {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2,
+                                    })
+                                    : value
+                            }
+                        />
+                        <Legend wrapperStyle={{ fontWeight: "bold" }} />
                         {dropdownGroups.map(({ Case, SelectedRow }, index) => {
                             const barKey = `${Case}-${idToNameMap[SelectedRow]}`;
                             return (
                                 <Bar
                                     key={index}
                                     dataKey={barKey}
-                                    name={barKey} // Display Case-item.name in legend
+                                    name={barKey}
                                     stackId="a"
                                     fill={colors[index]}
                                 />
@@ -571,6 +587,38 @@ const Dashboard = () => {
                     </BarChart>
                 )}
             </ResponsiveContainer>
+            <Box sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                position: 'fixed',
+                bottom: 0,
+                right: 10,
+                padding: '10px',
+                zIndex: 10,
+                gap: '10px'
+            }}>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    className="save-continue" // Apply the custom CSS class
+                    onClick={() => {
+                        if (window.confirm("Are you sure you want to save this view?")) {
+                            alert("View is saved");
+                        }
+                    }}
+                >
+                    Save View
+                </Button>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    className="save-continue" // Apply the custom CSS class
+                    onClick={() => navigate('/new-model/epidemiology-model/scenario-details/forecastdeepdive/analysis/saved-views-dashboard')} // Navigate to the patient forecast page
+                >
+                    Show Saved Views
+                </Button>
+            </Box>
+
         </>
     );
 };

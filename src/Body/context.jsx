@@ -62,7 +62,9 @@ const MyProvider = ({ children }) => {
   const [cardTitle2, setCardTitle2] = useState('Total GH Patients');
   const [cardTitle3, setCardTitle3] = useState('Conversion Parameter');
   const [dropdownGroups, setDropdownGroups] = useState([
-    { Case: "", SelectedCard: "", SelectedRow: "" },
+    { Case: "base", SelectedCard: "table3", SelectedRow: "T3-10" },
+    { Case: "base", SelectedCard: "table3", SelectedRow: "T3-11" },
+    { Case: "base", SelectedCard: "table3", SelectedRow: "T3-12" },
   ]);
   
   const [showTabs, setShowTabs] = useState(false);

@@ -43,7 +43,7 @@ const Forecastpage = () => {
     const [snackbarOpen, setSnackbarOpen] = useState(false); // Whether the snackbar is open or not
     const [snackbarMessage, setSnackbarMessage] = useState(''); // Message to display in the snackbar
     const { setIsCol } = useContext(MyContext); // Whether the data is in column view or row view
-
+    const completedModels = ['Linear Regression']
 
     // Reset button
     const handleResetAll = () => {
@@ -459,7 +459,7 @@ const Forecastpage = () => {
                                                     <Typography
                                                         sx={{
                                                             fontSize: '0.8125rem',
-                                                            color: getColorForSheet(index),
+                                                            color: completedModels.includes(sheet) ? 'blue' : 'grey',
                                                         }}
                                                     >
                                                         {sheet}

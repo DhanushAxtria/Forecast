@@ -231,7 +231,6 @@ const Patient_Forecast_Input = () => {
             },
         }));
     };
-
     // Handles initiating the edit of a product name
     const handleEditClick = (productId) => {
         const product = rows.find((row) => row.id === productId);

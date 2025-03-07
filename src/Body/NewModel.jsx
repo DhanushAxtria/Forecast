@@ -8,16 +8,16 @@ const NewModel = () => {
     const navigate = useNavigate();
     const models = [
         {
-            title: 'Time Series Model',
-            description: 'Analyze trends over time and forecast future outcomes.',
-            icon: <Timeline sx={{ fontSize: 50, color: '#4caf50' }} />,
-            path: "/new-model/time-series-model",
-        },
-        {
             title: 'Epidemiology Model',
             description: 'Model the spread and impact of diseases.',
             icon: <HealthAndSafety sx={{ fontSize: 50, color: '#ff5722' }} />,
             path: "/new-model/epidemiology-model",
+        },
+        {
+            title: 'Time Series Model',
+            description: 'Analyze trends over time and forecast future outcomes.',
+            icon: <Timeline sx={{ fontSize: 50, color: '#4caf50' }} />,
+            path: "/new-model/time-series-model",
         },
     ];
 
