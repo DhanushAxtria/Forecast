@@ -51,7 +51,7 @@ import { MyContext } from './context';
 
 
 const Patient_Forecast_Input = () => {
-    
+
     const { storeValues, setStoreValues } = useContext(MyContext);
     const { fromHistoricalDate, setFromHistoricalDate, fromForecastDate, setFromForecastDate, toForecastDate, setToForecastDate, timePeriod, setTimePeriod } = useContext(MyContext);
     const { combinedProducts } = useContext(MyContext);
@@ -86,19 +86,19 @@ const Patient_Forecast_Input = () => {
     const [startingValue, setStartingValue] = useState('');
     const [initialGrowthRate, setInitialGrowthRate] = useState('');
     const [selectedRowId, setSelectedRowId] = useState(null);
-    const toHistoricalDate = fromForecastDate 
-    ? (timePeriod === 'Yearly' 
-        ? dayjs(fromForecastDate).subtract(1, 'year')
-        : dayjs(fromForecastDate).subtract(1, 'month'))
-    : null;
+    const toHistoricalDate = fromForecastDate
+        ? (timePeriod === 'Yearly'
+            ? dayjs(fromForecastDate).subtract(1, 'year')
+            : dayjs(fromForecastDate).subtract(1, 'month'))
+        : null;
 
     const [text, setText] = useState({});
     const [text2, setText2] = useState({});
     const [isEditing, setIsEditing] = useState(false);
     const [savedText, setSavedText] = useState({});
-    const [savedText2, setSavedText2] = useState({});   
-    const {ForecastedValue, setForecastValue } = useContext(MyContext);
-    const {ParsedData, setParsedData } = useContext(MyContext);
+    const [savedText2, setSavedText2] = useState({});
+    const { ForecastedValue, setForecastValue } = useContext(MyContext);
+    const { ParsedData, setParsedData } = useContext(MyContext);
     const [combinedData, setCombinedData] = useState(null);
 
     const workbooks = [
@@ -155,73 +155,79 @@ const Patient_Forecast_Input = () => {
             alert('All parameters have been added!');
         }
     };
-
-    // useEffect(() => {
-    //     if (fromHistoricalDate && toForecastDate) {
-    //         if (timePeriod === 'Monthly') {
-    //             setColumns(generateMonthlyColumns(fromHistoricalDate, toForecastDate));
-    //         } else if (timePeriod === 'Yearly') {
-    //             setColumns(generateYearlyColumns(fromHistoricalDate, toForecastDate));
-    //         }
-    //     }
-    // }, [timePeriod, fromHistoricalDate, toForecastDate]);
-
     const handletimeseriesanalysis = async (selectedSheet, historyFromDate, historyToDate, selectedFromDate, selectedToDate, selectedFile) => {
+        const formatDateUTC = (date) => {
+            if (!date) return null;
+            const d = new Date(date);
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        };
+
         const formData = new FormData();
-        // Append necessary data to the form, including the selected file and parameters
         formData.append('file', selectedFile);
         formData.append('selectedSheet', selectedSheet);
-        formData.append('historyFromDate', historyFromDate);
-        formData.append('historyToDate', historyToDate);
-        formData.append('selectedFromDate', selectedFromDate);
-        formData.append('selectedToDate', selectedToDate);
+        formData.append('historyFromDate', formatDateUTC(historyFromDate));
+        formData.append('historyToDate', formatDateUTC(historyToDate));
+        formData.append('selectedFromDate', formatDateUTC(selectedFromDate));
+        formData.append('selectedToDate', formatDateUTC(selectedToDate));
         formData.append('modelType', "Normal");
         formData.append('lassoAlpha', 0.1);
         formData.append('ridgeAlpha', 0.1);
         formData.append('maxiter', 500);
 
-        try {
-            // Post the formData to the backend API
-            const response = await axios.post('https://fast-api-forecast.onrender.com/upload', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
+        console.log("Formatted Dates Before Sending:");
+        console.log("historyFromDate:", formatDateUTC(historyFromDate));
+        console.log("historyToDate:", formatDateUTC(historyToDate));
+        console.log("selectedFromDate:", formatDateUTC(selectedFromDate));
+        console.log("selectedToDate:", formatDateUTC(selectedToDate));
 
-            const forecastedData = response.data.forecast?.months?.map((month, index) => ({
-                month,
-                forecasted: response.data.forecast?.[0]?.[index] ?? null,
-            })) ?? [];
-            
-            const historicalData = response.data.dt?.months?.map((month, index) => ({
-                month,
-                historical: response.data.dt?.[0]?.[index] ?? null,
-            })) ?? [];
-            
-            const combined = [
-                ...(historicalData.length > 0 ? historicalData.map((historicalData) => ({
-                    month: historicalData.month,
-                    forecasted: null,
-                    historical: historicalData.historical,
-                })) : []),
-                ...(forecastedData.length > 0 ? forecastedData.map((forecastData) => ({
-                    month: forecastData.month,
-                    forecasted: forecastData.forecasted,
-                    historical: null,
-                })) : []),
-            ];
-
-            // Update state with the API response data
-            setForecastValue(response.data.forecast);
-            setParsedData(response.data.dt);
-            setCombinedData(combined);
-            
-        } catch (error) {
-            alert("Please upload the correct data"); // Alert the user if there's an error
-            console.error('Error uploading file:', error); // Log the error for debugging
+        console.log("FormData Contents:");
+        for (let pair of formData.entries()) {
+            console.log(pair[0], pair[1]);
         }
 
+        try {
+            const response = await axios.post('http://127.0.0.1:8000/upload', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+
+            const formatMonth = (month) => {
+                const [shortMonth, year] = month.split("-");
+                const fullYear = `20${year}`; // Convert "24" to "2024"
+                return `${shortMonth}-${fullYear}`;
+            };
+
+            const forecastedData = response.data.forecast?.months?.map((month, index) => ({
+                month: formatMonth(month),
+                forecasted: response.data.forecast?.[0]?.[index] ?? null,
+            })) ?? [];
+
+            const historicalData = response.data.dt?.months?.map((month, index) => ({
+                month: formatMonth(month),
+                historical: response.data.dt?.[0]?.[index] ?? null,
+            })) ?? [];
+
+            // Sorting based on actual date values
+            const combined = [...historicalData, ...forecastedData].sort((a, b) =>
+                new Date(`01-${a.month}`) - new Date(`01-${b.month}`)
+            );
+
+            setStoreValues((prevValues) => ({
+                ...prevValues,
+                [selectedRowId]: combined.reduce((obj, item) => {
+                    obj[item.month] = item.forecasted ?? item.historical ?? null;
+                    return obj;
+                }, {}),
+            }));
+            setOpenInputMethodDialog(false);
+            setOpenTimeSeriesDialog(false);
+
+
+        } catch (error) {
+            alert("Please upload the correct data");
+            console.error('Error uploading file:', error);
+        }
     };
+
     const handleValueChange = (rowID, date, value) => {
         setStoreValues((prevValues) => ({
             ...prevValues,
@@ -438,7 +444,7 @@ const Patient_Forecast_Input = () => {
                                             <td key={date}>
                                                 <TextField
                                                     type="number"
-                                                    value={storeValues[rowKey]?.[date] || ''}
+                                                    value={storeValues[rowKey]?.[date] ? parseFloat(storeValues[rowKey][date]).toFixed(2) : ''}
                                                     onChange={(e) =>
                                                         handleValueChange(rowKey, date, e.target.value)
                                                     }
@@ -839,6 +845,7 @@ const Patient_Forecast_Input = () => {
                         <ListItem
                             button
                             onClick={() => {
+                                console.log(selectedRowId);
                                 setOpenTimeSeriesDialog(true);
                                 setOpenInputMethodDialog(false);
                             }}
@@ -1352,22 +1359,22 @@ const Patient_Forecast_Input = () => {
                         </LocalizationProvider>
                     </Box>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                        <FormControl sx={{ mt: 3, width: '200px'}}>
+                        <FormControl sx={{ mt: 3, width: '200px' }}>
                             <InputLabel id="workbook-select-label"
-                             sx={{ fontSize: '0.9rem', top: '-6px', color: '#333' }}>
+                                sx={{ fontSize: '0.9rem', top: '-6px', color: '#333' }}>
                                 Select Model Type</InputLabel>
                             <Select
                                 value={selectedWorkbook}
                                 label="Model"
                                 onChange={(e) => setSelectedWorkbook(e.target.value)}
                                 sx={{
-                                    fontSize: '0.9rem', 
-                                    height: '40px', 
+                                    fontSize: '0.9rem',
+                                    height: '40px',
                                 }}
                             >
                                 {workbooks.map((workbook) => (
                                     <MenuItem key={workbook} value={workbook}
-                                    sx={{ fontSize: '0.9rem' }}>{workbook}</MenuItem>
+                                        sx={{ fontSize: '0.9rem' }}>{workbook}</MenuItem>
                                 ))}
                             </Select>
                         </FormControl>

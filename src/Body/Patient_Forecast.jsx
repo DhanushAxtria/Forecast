@@ -586,7 +586,7 @@ const Patient_Forecast = () => {
                                     ? !dayjs(column).isBefore(dayjs(fromForecastDate), 'year')
                                     : !dayjs(column).isBefore(dayjs(fromForecastDate), 'month')
                             ).length}
-                                style={{ textAlign: 'center', backgroundColor: '#FFFFE0', fontWeight: 'bold',width: '50px' }}>
+                                style={{ textAlign: 'center', backgroundColor: '#FFFFE0', fontWeight: 'bold', width: '50px' }}>
                                 Forecasted {timePeriod === 'Year' ? 'Years' : 'Months'}
                             </th>
                         </tr>
@@ -746,7 +746,7 @@ const Patient_Forecast = () => {
                                                     let newValue = parseNumber(e.target.value);
                                                     handleValueChange2(tabKey, tableKey, product.id, date, newValue);
                                                 }}
-                                                
+
                                                 variant="outlined"
                                                 size="small"
                                                 placeholder="Enter value"
@@ -757,7 +757,7 @@ const Patient_Forecast = () => {
                                                         <InputAdornment position="end">%</InputAdornment>
                                                     ) : null
                                                 }}
-                                                
+
                                             />
                                         </td>
                                     );
@@ -2429,7 +2429,17 @@ const Patient_Forecast = () => {
     };
     const rowKey = `${selectedRowId}.${selectedTab}`;
     const handleCopyFromInputPage = () => {
-        console.log(rowKey);
+        if (storeValues[rowKey] && typeof storeValues[rowKey] === 'object') {
+            Object.keys(storeValues[rowKey]).forEach((date) => {
+                console.log('storeValues[rowKey][date]:', storeValues[rowKey][date]);
+                handleValueChange(selectedTab, selectedRowId, date, storeValues[rowKey][date]);
+            });
+        } else if (storeValues[rowKey] === null || storeValues[rowKey] === undefined) {
+            alert('No data found');
+        } else {
+            console.warn('storeValues[rowKey] is not a valid object:', storeValues[rowKey]);
+        }
+        setOpenInputMethodDialog(false);
     };
     {/* Reset all the states to their initial values when clear all data button is clicked*/ }
     const handleReset = () => {
