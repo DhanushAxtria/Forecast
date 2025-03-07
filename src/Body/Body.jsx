@@ -29,16 +29,23 @@ import { MyContext } from './context';
 
 
 const demo_data = [
-  { scenario: 'Main Submission', cycle: '2024 H2', country: 'Norway', area: 'HIV', modified: '30 Sep 2024', user: 'John Doe' },
-  { scenario: 'Draft 1', cycle: '2024 H2', country: 'Norway', area: 'Oncology', modified: '29 Sep 2024', user: 'John Doe' },
-  { scenario: 'Draft 2', cycle: '2024 H2', country: 'Norway', area: 'Oncology', modified: '28 Sep 2024', user: 'John Doe' },
-  { scenario: 'Main Submission', cycle: '2024 H2', country: 'Finland', area: 'HIV', modified: '27 Sep 2024', user: 'John Doe' },
+  { scenario: 'Main Submission', cycle: '2024 H2', country: 'Norway', area: 'HIV', modified: '30 Nov 2024', user: 'John Doe' },
+  { scenario: 'Draft 1', cycle: '2024 H2', country: 'USA', area: 'Cardiology', modified: '29 Sep 2024', user: 'John Doe' },
+  { scenario: 'Draft 2', cycle: '2024 H1', country: 'Norway', area: 'Oncology', modified: '28 May 2024', user: 'John Doe' },
+  { scenario: 'Main Submission', cycle: '2024 H1', country: 'Finland', area: 'HIV', modified: '27 Mar 2024', user: 'John Doe' },
+];
+
+const demo_data1 = [
+  { scenario: 'Main Submission', cycle: '2024 H2', country: 'Norway', area: 'HIV', modified: '30 Nov 2024', user: 'John Doe' },
+  { scenario: 'Draft 2', cycle: '2024 H1', country: 'Norway', area: 'Oncology', modified: '28 May 2024', user: 'John Doe' },
+  { scenario: 'Draft 3', cycle: '2023 H2', country: 'Denmark', area: 'Oncology', modified: '15 Sep 2023', user: 'Chris Jones' },
+  { scenario: 'Main Submission', cycle: '2023 H1', country: 'Finland', area: 'HIV', modified: '22 Jun 2023', user: 'Emma Clark' },
 ];
 const demo_data2 = [
-  { scenario: 'Main Submission', cycle: '2024 H2', country: 'Norway', area: 'HIV', modified: '30 Sep 2024', user: 'MIcheal' },
-  { scenario: 'Draft 3', cycle: '2023 H2', country: 'Norway', area: 'Oncology', modified: '29 Sep 2024', user: 'MIcheal' },
-  { scenario: 'Draft 4', cycle: '2024 H2', country: 'Norway', area: 'Oncology', modified: '28 Sep 2024', user: 'MIcheal' },
-  { scenario: 'Main Submission', cycle: '2023 H2', country: 'Finland', area: 'HIV', modified: '27 Sep 2024', user: 'MIcheal' },
+  { scenario: 'Main Submission', cycle: '2024 H1', country: 'Norway', area: 'HIV', modified: '30 Sep 2024', user: '' },
+  { scenario: 'Draft 3', cycle: '2023 H2', country: 'Denmark', area: 'Oncology', modified: '15 Sep 2023', user: '' },
+  { scenario: 'Draft 4', cycle: '2023 H1', country: 'Sweden', area: 'Oncology', modified: '22 Jun 2023', user: '' },
+  { scenario: 'Main Submission', cycle: '2023 H1', country: 'Finland', area: 'HIV', modified: '21 Jun 2023', user: '' },
 ];
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -69,7 +76,7 @@ function a11yProps(index) {
 const Body = () => {
   const navigate = useNavigate();
   const [value, setValue] = useState(0);
-  const {tutHome, setTutHome} = useContext(MyContext);
+  const { tutHome, setTutHome } = useContext(MyContext);
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
@@ -441,56 +448,98 @@ const Body = () => {
           ))}
         </Box>
       </Box>
-      <Box sx={{ width: '100%' }}>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <Tabs className="table-button" value={value} onChange={handleChange} aria-label="basic tabs example">
-            <Tab label="Recent" {...a11yProps(0)} />
-            <Tab label="Pinned" {...a11yProps(1)} />
-            <Tab label="Shared with me" {...a11yProps(2)} />
+      <Box sx={{ width: '100%', display: 'flex', justifyContent: 'left' }}>
+        <Box sx={{ borderBottom: 1, borderColor: 'divider', maxWidth: '80%' }}>
+          <Tabs
+            className="table-button"
+            value={value}
+            onChange={handleChange}
+            aria-label="basic tabs example"
+            sx={{
+              '& .MuiTab-root': { borderRadius: '8px', transition: '0.3s' }, // Smooth transitions
+            }}
+          >
+            <Tab
+              label="Recent"
+              {...a11yProps(0)}
+              sx={{
+                backgroundColor: value === 0 ? 'grey.200' : 'transparent',
+                color: value === 0 ? 'white' : 'black',
+                fontWeight: value === 0 ? 'bold' : 'normal',
+                
+              }}
+            />
+            <Tab
+              label="Pinned"
+              {...a11yProps(1)}
+              sx={{
+                backgroundColor: value === 1 ? 'grey.200' : 'transparent',
+                color: value === 1 ? 'white' : 'black',
+                fontWeight: value === 1 ? 'bold' : 'normal',
+                
+              }}
+            />
+            <Tab
+              label="Shared with me"
+              {...a11yProps(2)}
+              sx={{
+                backgroundColor: value === 2 ? 'grey.200' : 'transparent',
+                color: value === 2 ? 'white' : 'black',
+                fontWeight: value === 2 ? 'bold' : 'normal',
+                
+              }}
+            />
           </Tabs>
         </Box>
       </Box>
+
+
+
       {(
-        <TableContainer component={Paper} sx={{ maxWidth: '100%' }}>
-          <Table aria-label="submission scenarios table" size="medium">
-            <TableHead>
-              <TableRow sx={{ backgroundColor: '#1976d2' }}>
-                {/* Scenario Name */}
-                <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Scenario Name</TableCell>
-                {/* Forecast Cycle */}
-                <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Forecast Cycle</TableCell>
-                {/* Country */}
-                <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Country</TableCell>
-                {/* Therapeutic Area */}
-                <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Therapeutic Area</TableCell>
-                {/* Last Modified Date */}
-                <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Last Modified</TableCell>
-                {/* Submitted by */}
-                <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Submitted by</TableCell>
-                {/* Actions */}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {(value === 2 ? demo_data2 : demo_data).map((row, index) => (
-                <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? '#e5f1fb' : 'white' }}>
+        <Box display="flex" justifyContent="center">
+          <TableContainer component={Paper} sx={{ maxWidth: '100%' }}>
+            <Table aria-label="submission scenarios table" size="medium">
+              <TableHead>
+                <TableRow sx={{ backgroundColor: '#1976d2' }}>
                   {/* Scenario Name */}
-                  <TableCell align="center" sx={{ minWidth: '150px' }}>{row.scenario}</TableCell>
+                  <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Model Name</TableCell>
                   {/* Forecast Cycle */}
-                  <TableCell align="center" sx={{ minWidth: '150px' }}>{row.cycle}</TableCell>
+                  <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Forecast Cycle</TableCell>
                   {/* Country */}
-                  <TableCell align="center" sx={{ minWidth: '150px' }}>{row.country}</TableCell>
+                  <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Country</TableCell>
                   {/* Therapeutic Area */}
-                  <TableCell align="center" sx={{ minWidth: '150px' }}>{row.area}</TableCell>
+                  <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Therapeutic Area</TableCell>
                   {/* Last Modified Date */}
-                  <TableCell align="center" sx={{ minWidth: '150px' }}>{row.modified}</TableCell>
+                  <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Last Modified</TableCell>
                   {/* Submitted by */}
-                  <TableCell align="center" sx={{ minWidth: '150px' }}>{value === 0 ? "john Doe" : value === 1 ? "john Doe" : "Michel"}</TableCell>
+                  <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Submitted by</TableCell>
                   {/* Actions */}
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+              </TableHead>
+              <TableBody>
+                {(value === 0 ? demo_data : value === 1 ? demo_data1 : demo_data2).map((row, index) => (
+                  <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? '#e5f1fb' : 'white' }}>
+                    {/* Scenario Name */}
+                    <TableCell align="center" sx={{ minWidth: '100px' }}>{row.scenario}</TableCell>
+                    {/* Forecast Cycle */}
+                    <TableCell align="center" sx={{ minWidth: '100px' }}>{row.cycle}</TableCell>
+                    {/* Country */}
+                    <TableCell align="center" sx={{ minWidth: '100px' }}>{row.country}</TableCell>
+                    {/* Therapeutic Area */}
+                    <TableCell align="center" sx={{ minWidth: '100px' }}>{row.area}</TableCell>
+                    {/* Last Modified Date */}
+                    <TableCell align="center" sx={{ minWidth: '100px' }}>{row.modified}</TableCell>
+                    {/* Submitted by */}
+                    <TableCell align="center" sx={{ minWidth: '100px' }}>
+                      {value === 0 ? demo_data[index].user : value === 1 ? demo_data1[index].user : ["Michael Wang", "Chris Jones", "Jane Smith", "Emma Clark"][index]}
+                    </TableCell>
+                    {/* Actions */}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
       )}
     </>
   );

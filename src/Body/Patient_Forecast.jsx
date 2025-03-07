@@ -6,6 +6,7 @@ import UploadIcon from '@mui/icons-material/Upload';
 import { useNavigate } from 'react-router-dom';
 import produce from "immer";
 import Select from '@mui/material/Select';
+import InputAdornment from '@mui/material/InputAdornment';
 
 import {
     TextField,
@@ -46,6 +47,8 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import AdjustIcon from '@mui/icons-material/Adjust';
 import './ProductListpage.scss';
 import { MyContext } from './context';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import ToggleButton from '@mui/material/ToggleButton';
 
 const Patient_Forecast = () => {
     const [lagBehind, setLagBehind] = useState(false);
@@ -689,38 +692,49 @@ const Patient_Forecast = () => {
                                         )}
                                     </div>
                                 </td>
-                                {columns.map((date) => (
-                                    <td key={date}>
-                                        <TextField
-                                            className='manual-input'
-                                            type="text"
-                                            value={
-                                                tabKey === 'downside'
-                                                    ? formatNumber(values[product.id]?.[date])
-                                                    : tabKey === 'base'
-                                                        ? formatNumber(values2[product.id]?.[date])
-                                                        : formatNumber(values3[product.id]?.[date])
-                                            }
-                                            onChange={(e) => {
-                                                const newValue = parseNumber(e.target.value);
-                                                // Check if this row has an assigned formula
-                                                const hasFormula = Formulas[tabKey]?.[tableKey]?.[product.id]?.emptyArray[0] !== '';
+                                {columns.map((date) => {
+                                    // Get the correct value based on tabKey
+                                    const rawValue =
+                                        tabKey === 'downside'
+                                            ? values[product.id]?.[date] ?? ''
+                                            : tabKey === 'base'
+                                                ? values2[product.id]?.[date] ?? ''
+                                                : values3[product.id]?.[date] ?? '';
 
-                                                if (hasFormula) {
-                                                    if (window.confirm('This cell has an assigned formula. If you change it, This will be no longer formula driven.')) {
-                                                        handleValueChange2(tabKey, tableKey, product.id, date, newValue);
+                                    // Format the value and append % if productType is "%"
+                                    const formattedValue = formatNumber(rawValue);
+                                    const hasFormula = Formulas[tabKey]?.[tableKey]?.[product.id]?.emptyArray?.[0] !== '';
+                                    return (
+                                        <td key={date}>
+                                            <TextField
+                                                className="manual-input"
+                                                type="text"
+                                                value={formattedValue}
+                                                onChange={(e) => {
+                                                    if (hasFormula) {
+                                                        alert("This cell has a formula and cannot be edited."); // Show alert
+                                                        return; // Prevent editing
                                                     }
-                                                } else {
+
+                                                    let newValue = parseNumber(e.target.value);
                                                     handleValueChange2(tabKey, tableKey, product.id, date, newValue);
-                                                }
-                                            }}
-                                            variant="outlined"
-                                            size="small"
-                                            placeholder="Enter value"
-                                            inputProps={{ inputMode: 'numeric', pattern: '[0-9,]*' }}
-                                        />
-                                    </td>
-                                ))}
+                                                }}
+                                                
+                                                variant="outlined"
+                                                size="small"
+                                                placeholder="Enter value"
+                                                inputProps={{ inputMode: 'numeric', pattern: '[0-9,]*' }}
+                                                sx={{ minWidth: '80px' }} // Optional: Adjust width if needed
+                                                InputProps={{
+                                                    endAdornment: product.type === "%" ? (
+                                                        <InputAdornment position="end">%</InputAdornment>
+                                                    ) : null
+                                                }}
+                                                
+                                            />
+                                        </td>
+                                    );
+                                })}
                             </tr>
                         ))}
                     </tbody>
@@ -761,16 +775,19 @@ const Patient_Forecast = () => {
                                 borderRadius: '12px 12px 0 0'
                             }}
                         >
-                            Add New Product
+                            Add New Field
                         </DialogTitle>
                         <br></br>
                         <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                             {/* Product Name Input */}
                             <TextField
-                                label="Product Name"
+                                label="Field Name"
                                 fullWidth
                                 variant="outlined"
                                 size="small"
+                                InputLabelProps={{
+                                    sx: { paddingLeft: '10px' } // Adds space to the left of the label
+                                }}
                                 InputProps={{
                                     sx: {
                                         fontSize: '1.1rem',
@@ -783,17 +800,44 @@ const Patient_Forecast = () => {
                             />
 
                             {/* Checkbox for Product Type with More Left Margin */}
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        checked={productType === "%"}
-                                        onChange={(e) => setProductType(e.target.checked ? "%" : "value")}
-                                        color="primary"
-                                    />
-                                }
-                                label="Percentage (%)"
-                                sx={{ marginLeft: '2px' }} // Increased left margin
-                            />
+                            <ToggleButtonGroup
+                                orientation="horizontal"
+                                exclusive
+                                value={productType}
+                                onChange={(e, newValue) => setProductType(newValue)}
+                                sx={{ marginLeft: '8px' }}
+                            >
+                                <ToggleButton
+                                    value="value"
+                                    sx={(theme) => ({
+                                        fontSize: '0.8rem',
+                                        padding: '4px 8px',
+                                        '&.Mui-selected': {
+                                            bgcolor: theme.palette.primary.main,  // Primary theme color
+                                            color: theme.palette.primary.contrastText, // Ensure text contrast
+                                            '&:hover': { bgcolor: theme.palette.primary.dark } // Darker on hover
+                                        }
+                                    })}
+                                >
+                                    Value
+                                </ToggleButton>
+                                <ToggleButton
+                                    value="%"
+                                    sx={(theme) => ({
+                                        fontSize: '0.8rem',
+                                        padding: '4px 8px',
+                                        '&.Mui-selected': {
+                                            bgcolor: theme.palette.primary.main,
+                                            color: theme.palette.primary.contrastText,
+                                            '&:hover': { bgcolor: theme.palette.primary.dark }
+                                        }
+                                    })}
+                                >
+                                    %
+                                </ToggleButton>
+                            </ToggleButtonGroup>
+
+
                         </DialogContent>
 
                         <DialogActions sx={{ padding: '16px' }}>
@@ -1466,7 +1510,6 @@ const Patient_Forecast = () => {
             </Box >
         );
     };
-
 
     const handleTabChange = (event, newValue) => {
         setTabValue(newValue);

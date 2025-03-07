@@ -328,7 +328,7 @@ export default function SavedScenario() {
                 Show Tutorial
             </Button>
             <h2>{getGreetingMessage()}, Welcome to the Saved Scenario Page!</h2>
-            <h4>Please select a Scenario to Continue</h4>
+            <h4>Please select a scenario to continue</h4>
             <Box display="flex" gap={2} mb={6} sx={{ width: '100%' }}>
                 {/* Forecast Cycle Dropdown */}
                 <Autocomplete

@@ -567,7 +567,7 @@ export default function NewScenario({ username = "User" }) {
       <h2>{getGreetingMessage()}, Please provide details for New Scenario Configuration</h2>
 
       {/* Add the three buttons with background colors */}
-      <h4>Choose an option to build Scenario</h4>
+      <h4>Choose an option to build scenario</h4>
 
       <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
         <Button
@@ -581,7 +581,7 @@ export default function NewScenario({ username = "User" }) {
           //disabled={selectedAction && selectedAction !== 'copySubmission'}
           onClick={() => handleActionClick('copySubmission')}
         >
-          Copy from Submission Scenarios
+          Copy from Submitted Models
         </Button>
         <Button
           className='saved-button'
@@ -594,7 +594,7 @@ export default function NewScenario({ username = "User" }) {
           //disabled={selectedAction && selectedAction !== 'copySaved'}
           onClick={() => handleActionClick('copySaved')}
         >
-          Copy from Saved Scenarios
+          Copy from Saved Models
         </Button>
         <Button
           className='saved-template'
@@ -611,7 +611,7 @@ export default function NewScenario({ username = "User" }) {
         </Button>
 
       </div>
-      <h4>Please select a Scenario to Continue</h4>
+      <h4>Please select a scenario to continue</h4>
       <Box display="flex" gap={2} mb={6} sx={{ width: '100%' }}>
         {/* Autocomplete with Checkboxes for Forecast Cycle */}
         <Autocomplete
@@ -694,7 +694,7 @@ export default function NewScenario({ username = "User" }) {
           <Table aria-label="submission scenarios table" size="small">
             <TableHead>
               <TableRow sx={{ backgroundColor: '#1976d2' }}>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Scenario</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Model Name</TableCell>
                 <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Forecast Cycle</TableCell>
                 <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Country</TableCell>
                 <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Therapeutic Area</TableCell>
@@ -778,7 +778,7 @@ export default function NewScenario({ username = "User" }) {
           <Table aria-label="saved scenarios table" size="small">
             <TableHead>
               <TableRow sx={{ backgroundColor: '#1976d2' }}>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Scenario</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Model Name</TableCell>
                 <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Forecast Cycle</TableCell>
                 <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Country</TableCell>
                 <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Therapeutic Area</TableCell>

@@ -4,6 +4,7 @@ import FormControl from '@mui/material/FormControl';
 import UploadIcon from '@mui/icons-material/Upload';
 import { useNavigate } from 'react-router-dom';
 import Select from '@mui/material/Select';
+import ClearIcon from '@mui/icons-material/Clear';
 import {
     TextField,
     IconButton,
@@ -28,6 +29,7 @@ import {
 import RemoveIcon from '@mui/icons-material/Remove';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DatePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 import EditIcon from '@mui/icons-material/Edit';
@@ -42,17 +44,19 @@ import UploadFileIcon from '@mui/icons-material/UploadFile';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import AdjustIcon from '@mui/icons-material/Adjust';
 import './ProductListpage.scss';
+import axios from 'axios';
 
 import { MyContext } from './context';
 
 
 
 const Patient_Forecast_Input = () => {
-
+    
     const { storeValues, setStoreValues } = useContext(MyContext);
     const { fromHistoricalDate, setFromHistoricalDate, fromForecastDate, setFromForecastDate, toForecastDate, setToForecastDate, timePeriod, setTimePeriod } = useContext(MyContext);
     const { combinedProducts } = useContext(MyContext);
-
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [selectedWorkbook, setSelectedWorkbook] = useState("");
     const [columns, setColumns] = useState([]); // Column headers based on time period
     const [rows, setRows] = useState([]); // State to track table rows
     const [showTable, setShowTable] = useState(false); // Controls table visibility
@@ -73,6 +77,7 @@ const Patient_Forecast_Input = () => {
     const [endValue, setEndValue] = useState(''); // End value for Specify Start and Target Values
     const [UploadedFileToFill, setUploadedFileToFill] = useState(null);
     const [openUploadDialog, setOpenUploadDialog] = useState(false); // Dialog for file upload
+    const [openTimeSeriesDialog, setOpenTimeSeriesDialog] = useState(false);
 
     const [openCopyFromDialog, setOpenCopyFromDialog] = useState(false);
     const [selectedCaseOption, setSelectedCaseOption] = useState(null); // Track selected option for case
@@ -81,12 +86,30 @@ const Patient_Forecast_Input = () => {
     const [startingValue, setStartingValue] = useState('');
     const [initialGrowthRate, setInitialGrowthRate] = useState('');
     const [selectedRowId, setSelectedRowId] = useState(null);
+    const toHistoricalDate = fromForecastDate 
+    ? (timePeriod === 'Yearly' 
+        ? dayjs(fromForecastDate).subtract(1, 'year')
+        : dayjs(fromForecastDate).subtract(1, 'month'))
+    : null;
 
     const [text, setText] = useState({});
     const [text2, setText2] = useState({});
     const [isEditing, setIsEditing] = useState(false);
     const [savedText, setSavedText] = useState({});
-    const [savedText2, setSavedText2] = useState({});
+    const [savedText2, setSavedText2] = useState({});   
+    const {ForecastedValue, setForecastValue } = useContext(MyContext);
+    const {ParsedData, setParsedData } = useContext(MyContext);
+    const [combinedData, setCombinedData] = useState(null);
+
+    const workbooks = [
+        'Linear Regression',
+        'Log Linear Regression',
+        'Naive',
+        'Seasonal Naive',
+        'Holt',
+        'Damped Holt',
+        'Average'
+    ];
 
     const generateMonthlyColumns = (start, end) => {
         const months = [];
@@ -133,6 +156,72 @@ const Patient_Forecast_Input = () => {
         }
     };
 
+    // useEffect(() => {
+    //     if (fromHistoricalDate && toForecastDate) {
+    //         if (timePeriod === 'Monthly') {
+    //             setColumns(generateMonthlyColumns(fromHistoricalDate, toForecastDate));
+    //         } else if (timePeriod === 'Yearly') {
+    //             setColumns(generateYearlyColumns(fromHistoricalDate, toForecastDate));
+    //         }
+    //     }
+    // }, [timePeriod, fromHistoricalDate, toForecastDate]);
+
+    const handletimeseriesanalysis = async (selectedSheet, historyFromDate, historyToDate, selectedFromDate, selectedToDate, selectedFile) => {
+        const formData = new FormData();
+        // Append necessary data to the form, including the selected file and parameters
+        formData.append('file', selectedFile);
+        formData.append('selectedSheet', selectedSheet);
+        formData.append('historyFromDate', historyFromDate);
+        formData.append('historyToDate', historyToDate);
+        formData.append('selectedFromDate', selectedFromDate);
+        formData.append('selectedToDate', selectedToDate);
+        formData.append('modelType', "Normal");
+        formData.append('lassoAlpha', 0.1);
+        formData.append('ridgeAlpha', 0.1);
+        formData.append('maxiter', 500);
+
+        try {
+            // Post the formData to the backend API
+            const response = await axios.post('https://fast-api-forecast.onrender.com/upload', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            const forecastedData = response.data.forecast?.months?.map((month, index) => ({
+                month,
+                forecasted: response.data.forecast?.[0]?.[index] ?? null,
+            })) ?? [];
+            
+            const historicalData = response.data.dt?.months?.map((month, index) => ({
+                month,
+                historical: response.data.dt?.[0]?.[index] ?? null,
+            })) ?? [];
+            
+            const combined = [
+                ...(historicalData.length > 0 ? historicalData.map((historicalData) => ({
+                    month: historicalData.month,
+                    forecasted: null,
+                    historical: historicalData.historical,
+                })) : []),
+                ...(forecastedData.length > 0 ? forecastedData.map((forecastData) => ({
+                    month: forecastData.month,
+                    forecasted: forecastData.forecasted,
+                    historical: null,
+                })) : []),
+            ];
+
+            // Update state with the API response data
+            setForecastValue(response.data.forecast);
+            setParsedData(response.data.dt);
+            setCombinedData(combined);
+            
+        } catch (error) {
+            alert("Please upload the correct data"); // Alert the user if there's an error
+            console.error('Error uploading file:', error); // Log the error for debugging
+        }
+
+    };
     const handleValueChange = (rowID, date, value) => {
         setStoreValues((prevValues) => ({
             ...prevValues,
@@ -207,6 +296,9 @@ const Patient_Forecast_Input = () => {
         }));
         setOpenInfoMethodDialog(false);
         setIsEditing(false);
+    };
+    const handleRemoveFile = () => {
+        setSelectedFile(null);
     };
 
 
@@ -342,7 +434,7 @@ const Patient_Forecast_Input = () => {
                                                 )}
                                             </div>
                                         </td>
-                                        <td>{product.caseType}</td>
+                                        <td>{product.caseType === 'base' ? 'Base' : product.caseType === 'downside' ? 'Downside' : 'Upside'}</td>
                                         {columns.map((date) => (
                                             <td key={date}>
                                                 <TextField
@@ -744,6 +836,31 @@ const Patient_Forecast_Input = () => {
                             <AdjustIcon color="primary" sx={{ marginRight: '12px' }} />
                             <ListItemText primary="Copy from another case" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
                         </ListItem>
+
+                        <ListItem
+                            button
+                            onClick={() => {
+                                setOpenTimeSeriesDialog(true);
+                                setOpenInputMethodDialog(false);
+                            }}
+                            sx={{
+                                padding: '18px',
+                                borderRadius: '8px',
+                                marginBottom: '12px',
+                                cursor: 'pointer', // Adds hand cursor on hover
+                                '&:hover': {
+                                    backgroundColor: '#e3f2fd',
+                                    transform: 'scale(1.02)',
+                                    transition: 'transform 0.2s',
+                                },
+                            }}
+                        >
+                            <Typography variant="h6" color="primary" sx={{ marginRight: '12px', fontWeight: 'bold' }}>
+                                6.
+                            </Typography>
+                            <AdjustIcon color="primary" sx={{ marginRight: '12px' }} />
+                            <ListItemText primary="Run Time Series" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
+                        </ListItem>
                     </List>
                 </DialogContent>
                 <DialogActions sx={{ padding: '16px', backgroundColor: '#f0f4fa' }}>
@@ -989,6 +1106,7 @@ const Patient_Forecast_Input = () => {
 
     const handleCancelAndOpenInputMethodDialog = () => {
         setOpenGrowthRateDialog(false);
+        setOpenTimeSeriesDialog(false);
         setOpenStartEndDialog(false);
         setOpenUploadDialog(false);
         setOpenCopyFromDialog(false);
@@ -1079,7 +1197,6 @@ const Patient_Forecast_Input = () => {
                             <IconButton onClick={handleAddGrowthRate} color="primary">
                                 <AddIcon />
                             </IconButton>
-
                         </Box>
                         {/* Show all the growth rate entries. Each entry is a Box with a DatePicker, TextField, and Remove button. */}
                         {growthRates.map((entry, index) => (
@@ -1126,6 +1243,151 @@ const Patient_Forecast_Input = () => {
             </LocalizationProvider>
         )
     }
+    const handleFileChange = (event) => {
+        const file = event.target.files[0]; // Get the first file
+        if (file) {
+            setSelectedFile(file);
+        }
+    };
+
+    const renderTimeSeriesDialog = () => {
+        return (
+            <Dialog open={openTimeSeriesDialog} onClose={() => { setOpenTimeSeriesDialog(false); }} maxWidth="sm" fullWidth>
+                <DialogTitle>Time Period Selection</DialogTitle>
+                <DialogContent>
+                    <Box sx={{ display: 'flex', gap: 2, marginTop: '10px', alignItems: 'center' }}>
+
+                        {/* Upload button with hidden input field */}
+                        <Button
+                            className='upload-btn'
+                            variant="contained"
+                            color="primary"
+                            component="label"
+                            sx={{
+
+                                borderRadius: 1,
+                                marginRight: '10px',
+                                marginBottom: '5px'
+                            }}
+                            startIcon={<UploadIcon />}
+                        >
+                            <Typography variant="caption" sx={{ fontSize: '0.78rem' }}>Upload file</Typography>
+                            <input
+                                type="file"
+                                accept=".csv"
+                                hidden
+                                onChange={(event) => handleFileChange(event)}
+                            />
+                        </Button>
+
+
+                        {/* Display uploaded file name and clear button */}
+                        {selectedFile && (
+                            <Typography variant="body2" component="span" fontWeight="bold">
+                                <span style={{ color: 'black' }}>Uploaded file: </span>
+                                <span style={{ color: 'red' }}>{selectedFile.name}</span>
+                            </Typography>
+                        )}
+                        {selectedFile && <IconButton
+                            onClick={handleRemoveFile}
+                            sx={{ ml: 1 }}
+                        >
+                            <ClearIcon />
+                        </IconButton>}
+                    </Box>
+                    {/* Historical Time Period Section */}
+                    <Box className='hist-dates-btn' sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2, mt: 2 }}>
+                        <Typography variant="subtitle2" sx={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
+                            Historical Time Period
+                        </Typography>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <Box sx={{ display: 'flex', gap: 2 }}>
+                                <DatePicker
+                                    label="From"
+                                    value={fromHistoricalDate}
+                                    disabled
+                                    format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
+                                    slotProps={{ textField: { size: 'small' } }}
+                                    sx={{ width: '200px', mr: 2 }}
+                                    maxDate={toForecastDate}
+                                />
+                                <DatePicker
+                                    label="To"
+                                    value={toHistoricalDate}
+                                    disabled
+                                    format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
+                                    slotProps={{ textField: { size: 'small' } }}
+                                    sx={{ width: '200px', mr: 2 }}
+                                    minDate={fromHistoricalDate}
+                                />
+                            </Box>
+                        </LocalizationProvider>
+                    </Box>
+
+                    {/* Forecast Time Period Section */}
+                    <Box className='forecast-dates-btn' sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                        <Typography variant="subtitle2" sx={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
+                            Forecast Time Period
+                        </Typography>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <Box sx={{ display: 'flex', gap: 2 }}>
+                                <DatePicker
+                                    label="From"
+                                    value={fromForecastDate}
+                                    disabled
+                                    format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
+                                    slotProps={{ textField: { size: 'small' } }}
+                                    sx={{ width: '200px', mr: 2 }}
+                                    minDate={fromHistoricalDate}
+                                />
+                                <DatePicker
+                                    label="To"
+                                    value={toForecastDate}
+                                    disabled
+                                    format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
+                                    slotProps={{ textField: { size: 'small' } }}
+                                    sx={{ width: '200px' }}
+                                    minDate={fromForecastDate}
+                                />
+                            </Box>
+                        </LocalizationProvider>
+                    </Box>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                        <FormControl sx={{ mt: 3, width: '200px'}}>
+                            <InputLabel id="workbook-select-label"
+                             sx={{ fontSize: '0.9rem', top: '-6px', color: '#333' }}>
+                                Select Model Type</InputLabel>
+                            <Select
+                                value={selectedWorkbook}
+                                label="Model"
+                                onChange={(e) => setSelectedWorkbook(e.target.value)}
+                                sx={{
+                                    fontSize: '0.9rem', 
+                                    height: '40px', 
+                                }}
+                            >
+                                {workbooks.map((workbook) => (
+                                    <MenuItem key={workbook} value={workbook}
+                                    sx={{ fontSize: '0.9rem' }}>{workbook}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Box>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCancelAndOpenInputMethodDialog} color="secondary">
+                        Cancel
+                    </Button>
+                    <Button onClick={() => { handletimeseriesanalysis(selectedWorkbook, fromHistoricalDate, toHistoricalDate, fromForecastDate, toForecastDate, selectedFile) }} color="primary">
+                        Save
+                    </Button>
+                    <Button onClick={() => { setOpenTimeSeriesDialog(false); }} color="primary">
+                        Close
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        );
+    };
 
     const handleAddGrowthRate = () => {
         setGrowthRates([...growthRates, { startDate: dayjs(), growthRate: 0 }]);
@@ -1187,21 +1449,15 @@ const Patient_Forecast_Input = () => {
         // Calculate the storeValues for the initial growth rate for the entire period (Month or Year)
         for (let i = 1; i <= columnIndexEndDate; i++) {
             console.log("i", i);
-
             currentValue *= (1 + (initialGR / 100))
             console.log(currentValue);
-
-
-
             const dateKey = timePeriod === 'Monthly'
                 ? startDate.add(i, 'month').format('MMM-YYYY')
                 : startDate.add(i, 'year').format('YYYY');
             console.log(dateKey)
             // Set the calculated value for the specific period
             newValues[dateKey] = currentValue.toFixed(2);
-            console.log(newValues);
         }
-
         // Sort the growth rates based on the date and apply them when needed
         const sortedGrowthRates = [
             { startDate: startDate, growthRate: initialGR }, // Include initial growth rate
@@ -1210,7 +1466,6 @@ const Patient_Forecast_Input = () => {
                 growthRate: parseFloat(entry.growthRate),
             })),
         ].sort((a, b) => a.startDate?.isBefore(b.startDate) ? -1 : 1); // Sort by startDate
-
         // Now, reapply growth rates for each period (from sorted growth rates)
         sortedGrowthRates.forEach((entry, index) => {
             if (entry.startDate && !entry.startDate.isSame(startDate)) {
@@ -1235,7 +1490,7 @@ const Patient_Forecast_Input = () => {
                         ? currentDate.format('MMM-YYYY')
                         : currentDate.format('YYYY');
                     newValues[dateKey] = currentValue.toFixed(2);
-                    console.log(newValues);
+
                 }
             }
         });
@@ -1281,8 +1536,8 @@ const Patient_Forecast_Input = () => {
             {openGrowthRateDialog && renderGrowthRateDialog()}
             {openUploadDialog && renderUploadFromFileDialog()}
             {openCopyFromDialog && renderCopyFromDialog()}
+            {openTimeSeriesDialog && renderTimeSeriesDialog()}
         </div>
     );
 };
-
 export default Patient_Forecast_Input;

@@ -69,18 +69,24 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 }));
 
 const breadcrumbNameMap = {
+  '/new-model': 'New Model',
   '/new-model/epidemiology-model': 'New Scenario',
   '/new-model/epidemiology-model/scenario-details': 'Scenario Details',
   '/scenario-details': 'New Scenario / Scenario Details',
   '/new-model/epidemiology-model/scenario-details/Inputpage': 'Input page',
+  '/new-model/epidemiology-model/model1/analysis' : 'Model 1 Analysis',
+  '/new-model/epidemiology-model/model1': 'Model 1',
   '/Inputpage': 'New Scenario / Scenario Details / Input page',
-  '/saved-scenario': 'Saved Scenario',
+  '/saved-scenario': 'Existing Models',
   '/data-consolidation': 'Data Consolidation',
   '/scenario-comparison': 'Scenario Comparison',
   '/forecast-deep-dive': 'Time Series Methods',
+  '/new-model/epidemiology-model/scenario-details/forecastdeepdive': 'Patient Based Forecasting',
+  '/new-model/epidemiology-model/scenario-details/forecastdeepdive/analysis':'Analysis',
   '/admin': 'Admin',
   '/generate-report': 'Generate Report',
-  '/submission-tracking': 'Submissions Tracker',
+  '/submissions-tracker': 'Submissions Tracker',
+  '/new-model/time-series-model': 'Time Series Model'
 };
 
 // Component for dynamic breadcrumbs

@@ -428,14 +428,15 @@ const Dashboard = () => {
                 >
                     {/* Case Dropdown */}
                     <FormControl className='filter-case' sx={{ ml: 1 }}>
-                        <InputLabel id={`case-select-label-${index}`}>Case</InputLabel>
+                        <InputLabel id={`case-select-label-${index}`}
+                        sx={{ fontSize: '0.9rem', top: '-6px', color: '#333' }}>Case</InputLabel>
                         <Select
                             labelId={`case-select-label-${index}`}
                             id={`case-select-${index}`}
                             value={group.Case}
                             label="Case"
                             onChange={(e) => handleDropdownChange(index, "Case", e.target.value)}
-                            sx={{ fontSize: "0.9rem", minWidth: "10rem", width: "10rem", height: "3rem" }}
+                            sx={{ fontSize: "0.9rem", minWidth: "10rem", width: "10rem", height: "2.5rem" }}
                         >
                             <MenuItem value="downside">Downside</MenuItem>
                             <MenuItem value="base">Base</MenuItem>
@@ -445,14 +446,15 @@ const Dashboard = () => {
 
                     {/* Card Dropdown */}
                     <FormControl className='filter-card' sx={{ m: 1 }}>
-                        <InputLabel id={`card-select-label-${index}`}>Card Name</InputLabel>
+                        <InputLabel id={`card-select-label-${index}`}
+                        sx={{ fontSize: '0.9rem', top: '-6px', color: '#333' }}>Card Name</InputLabel>
                         <Select
                             labelId={`card-select-label-${index}`}
                             id={`card-select-${index}`}
                             value={group.SelectedCard}
                             label="Card Name"
                             onChange={(e) => handleDropdownChange(index, "SelectedCard", e.target.value)}
-                            sx={{ fontSize: "0.9rem", minWidth: "10rem", width: "auto", height: "3rem" }}
+                            sx={{ fontSize: "0.9rem", minWidth: "10rem", width: "auto", height: "2.5rem" }}
                         >
                             <MenuItem value="table1">{cardTitle1}</MenuItem>
                             <MenuItem value="table2">{cardTitle2}</MenuItem>
@@ -462,14 +464,15 @@ const Dashboard = () => {
 
                     {/* Parameter Dropdown */}
                     <FormControl className='filter-product' sx={{ mr: 1 }}>
-                        <InputLabel id={`parameter-select-label-${index}`}>Parameter Name</InputLabel>
+                        <InputLabel id={`parameter-select-label-${index}`}
+                        sx={{ fontSize: '0.9rem', top: '-6px', color: '#333' }}>Parameter Name</InputLabel>
                         <Select
                             labelId={`parameter-select-label-${index}`}
                             id={`parameter-select-${index}`}
                             value={group.SelectedRow}
                             label="Parameter Name"
                             onChange={(e) => handleDropdownChange(index, "SelectedRow", e.target.value)}
-                            sx={{ fontSize: "0.9rem", minWidth: "10rem", width: "auto", height: "3rem" }}
+                            sx={{ fontSize: "0.9rem", minWidth: "10rem", width: "auto", height: "2.5rem" }}
                         >
                             {products[group.Case]?.[group.SelectedCard]?.map((item) => (
                                 <MenuItem key={item.name} value={item.id}>

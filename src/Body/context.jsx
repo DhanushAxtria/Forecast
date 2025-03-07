@@ -64,6 +64,7 @@ const MyProvider = ({ children }) => {
   const [dropdownGroups, setDropdownGroups] = useState([
     { Case: "", SelectedCard: "", SelectedRow: "" },
   ]);
+  
   const [showTabs, setShowTabs] = useState(false);
   const [timePeriod, setTimePeriod] = useState('Monthly');
   const [countries, setCountries] = React.useState([]);
@@ -79,7 +80,7 @@ const MyProvider = ({ children }) => {
       forecastScenario: "H2 - 2023",
       forecastStarted: "2024-11-10",
       therapeuticArea: "Cardiology",
-      username: "michael_wang",
+      username: "Michael Wang",
       worksheet: "Output Sheet",
     },
     {
@@ -89,7 +90,7 @@ const MyProvider = ({ children }) => {
       forecastScenario: "H1 - 2023",
       forecastStarted: "2024-04-25",
       therapeuticArea: "HIV",
-      username: "john_doe",
+      username: "John Doe",
       worksheet: "Output Sheet",
     },
     {
@@ -99,7 +100,7 @@ const MyProvider = ({ children }) => {
       forecastScenario: "H2 - 2024",
       forecastStarted: "2024-09-08",
       therapeuticArea: "Cardiology",
-      username: "john_wick",
+      username: "Jane Smith",
       worksheet: "Output Sheet",
     },
   ]);
