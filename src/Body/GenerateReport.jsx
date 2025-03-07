@@ -26,36 +26,37 @@ import introJs from 'intro.js';
 
 // demo data for the table
 const demo_data = [
-    { scenario: 'Main Submission', cycle: '2024 H2', country: 'Norway', area: 'TA 1', modified: '30 Sep 2024', user: 'User 1' },
-    { scenario: 'Draft 1', cycle: '2024 H2', country: 'Norway', area: 'TA 1', modified: '29 Sep 2024', user: 'User 1' },
-    { scenario: 'Draft 2', cycle: '2024 H2', country: 'Norway', area: 'TA 1', modified: '30 Sep 2024', user: 'User 1' },
-    { scenario: 'Main Submission', cycle: '2024 H2', country: 'Finland', area: 'TA 1', modified: '29 Sep 2024', user: 'User 1' },
-    { scenario: 'Draft 1', cycle: '2024 H2', country: 'Finland', area: 'TA 1', modified: '28 Sep 2024', user: 'User 1' },
-    { scenario: 'Draft 3', cycle: '2013-H1', country: 'USA', area: 'Cardiology', modified: '10 Jan 2013', user: 'User 2' },
-    { scenario: 'Main Submission', cycle: '2013-H2', country: 'Canada', area: 'Oncology', modified: '20 Aug 2013', user: 'User 3' },
-    { scenario: 'Draft 1', cycle: '2014-H1', country: 'Germany', area: 'Neurology', modified: '15 Apr 2014', user: 'User 4' },
-    { scenario: 'Draft 2', cycle: '2014-H2', country: 'India', area: 'Diabetes', modified: '10 Dec 2014', user: 'User 5' },
-    { scenario: 'Main Submission', cycle: '2024 H2', country: 'Norway', area: 'Cardiology', modified: '30 Sep 2024', user: 'User 1' },
-    { scenario: 'Draft 1', cycle: '2013-H1', country: 'USA', area: 'Oncology', modified: '15 Jan 2013', user: 'User 2' },
-    { scenario: 'Main Submission', cycle: '2013-H2', country: 'Canada', area: 'Neurology', modified: '20 Jul 2013', user: 'User 3' },
-    { scenario: 'Draft 3', cycle: '2014-H1', country: 'Germany', area: 'Diabetes', modified: '01 Apr 2014', user: 'User 4' },
-    { scenario: 'Main Submission', cycle: '2014-H2', country: 'India', area: 'TA 1', modified: '12 Dec 2014', user: 'User 5' },
-    { scenario: 'Draft 2', cycle: '2024 H2', country: 'Norway', area: 'Cardiology', modified: '01 Oct 2024', user: 'User 1' },
-    { scenario: 'Draft 3', cycle: '2013-H1', country: 'USA', area: 'Oncology', modified: '25 Feb 2013', user: 'User 2' },
-    { scenario: 'Main Submission', cycle: '2013-H2', country: 'Canada', area: 'Neurology', modified: '30 Aug 2013', user: 'User 3' },
-    { scenario: 'Draft 1', cycle: '2014-H1', country: 'Germany', area: 'Diabetes', modified: '25 May 2014', user: 'User 4' },
-    { scenario: 'Main Submission', cycle: '2014-H2', country: 'India', area: 'Cardiology', modified: '18 Dec 2014', user: 'User 5' },
-    { scenario: 'Draft 1', cycle: '2024 H2', country: 'Norway', area: 'Neurology', modified: '02 Oct 2024', user: 'User 1' },
-    { scenario: 'Draft 3', cycle: '2013-H1', country: 'USA', area: 'TA 1', modified: '10 Mar 2013', user: 'User 2' },
-    { scenario: 'Main Submission', cycle: '2013-H2', country: 'Canada', area: 'Diabetes', modified: '22 Sep 2013', user: 'User 3' },
-    { scenario: 'Draft 1', cycle: '2014-H1', country: 'Germany', area: 'TA 1', modified: '15 Jun 2014', user: 'User 4' },
-    { scenario: 'Draft 2', cycle: '2014-H2', country: 'India', area: 'Oncology', modified: '01 Jan 2015', user: 'User 5' },
-    { scenario: 'Main Submission', cycle: '2024 H2', country: 'Norway', area: 'Neurology', modified: '04 Oct 2024', user: 'User 1' },
-    { scenario: 'Draft 3', cycle: '2013-H1', country: 'USA', area: 'Cardiology', modified: '15 Apr 2013', user: 'User 2' },
-    { scenario: 'Main Submission', cycle: '2013-H2', country: 'Canada', area: 'Oncology', modified: '01 Nov 2013', user: 'User 3' },
-    { scenario: 'Draft 1', cycle: '2014-H1', country: 'Germany', area: 'Diabetes', modified: '30 Jul 2014', user: 'User 4' },
-    { scenario: 'Draft 2', cycle: '2014-H2', country: 'India', area: 'TA 1', modified: '20 Jan 2015', user: 'User 5' },
-    { scenario: 'Main Submission', cycle: '2024 H2', country: 'Norway', area: 'Cardiology', modified: '06 Oct 2024', user: 'User 1' }
+    { scenario: 'Main Submission', cycle: '2024 H2', country: 'Norway', area: 'Immunology', modified: '30 Dec 2024', user: 'John Doe' },
+    { scenario: 'Draft 1', cycle: '2024 H2', country: 'Norway', area: 'Immunology', modified: '29 Nov 2024', user: 'John Doe' },
+    { scenario: 'Draft 2', cycle: '2024 H2', country: 'Norway', area: 'Immunology', modified: '28 Oct 2024', user: 'John Doe' },
+    { scenario: 'Main Submission', cycle: '2024 H2', country: 'Finland', area: 'Immunology', modified: '28 Sep 2024', user: 'John Doe' },
+    { scenario: 'Draft 1', cycle: '2024 H2', country: 'Finland', area: 'Immunology', modified: '28 Sep 2024', user: 'John Doe' },
+    { scenario: 'Draft 1', cycle: '2024 H1', country: 'Germany', area: 'Diabetes', modified: '25 May 2014', user: 'Michael Wang' },
+    { scenario: 'Main Submission', cycle: '2024 H1', country: 'Norway', area: 'Cardiology', modified: '06 May 2024', user: 'John Doe' },
+    { scenario: 'Draft 3', cycle: '2023 H2', country: 'USA', area: 'Cardiology', modified: '10 Aug 2023', user: 'Emma Clark' },
+    { scenario: 'Main Submission', cycle: '2023 H2', country: 'Canada', area: 'Oncology', modified: '20 Aug 2023', user: 'Chris Jones' },
+    { scenario: 'Draft 1', cycle: '2023 H2', country: 'Germany', area: 'Neurology', modified: '15 Aug 2023', user: 'Michael Wang' },
+    { scenario: 'Draft 2', cycle: '2023 H2', country: 'Denmark', area: 'Diabetes', modified: '10 Oct 2023', user: 'Jane Smith' },
+    { scenario: 'Main Submission', cycle: '2023 H1', country: 'Norway', area: 'Cardiology', modified: '30 Sep 2023', user: 'John Doe' },
+    { scenario: 'Draft 1', cycle: '2023 H1', country: 'USA', area: 'Oncology', modified: '15 May 2023', user: 'Emma Clark' },
+    { scenario: 'Main Submission', cycle: '2023 H1', country: 'Canada', area: 'Neurology', modified: '20 Apr 2013', user: 'Chris Jones' },
+    { scenario: 'Draft 3', cycle: '2023 H1', country: 'Germany', area: 'Diabetes', modified: '01 Apr 2023', user: 'Michael Wang' },
+    { scenario: 'Main Submission', cycle: '2023 H1', country: 'Denmark', area: 'Immunology', modified: '12 Mar 2023', user: 'Jane Smith' },
+    { scenario: 'Draft 2', cycle: '2023 H1', country: 'Norway', area: 'Cardiology', modified: '01 Mar 2023', user: 'John Doe' },
+    { scenario: 'Draft 3', cycle: '2023 H1', country: 'USA', area: 'Oncology', modified: '25 Feb 2013', user: 'Emma Clark' },
+    { scenario: 'Main Submission', cycle: '2023 H1', country: 'Canada', area: 'Neurology', modified: '01 Feb 2013', user: 'Chris Jones' },
+    { scenario: 'Main Submission', cycle: '2023 H1', country: 'Denmark', area: 'Cardiology', modified: '18 Jan 2014', user: 'Jane Smith' },
+    { scenario: 'Draft 1', cycle: '2022 H2', country: 'Norway', area: 'Neurology', modified: '02 Oct 2022', user: 'John Doe' },
+    { scenario: 'Draft 3', cycle: '2022 H2', country: 'USA', area: 'Immunology', modified: '29 Sep 2022', user: 'Emma Clark' },
+    { scenario: 'Main Submission', cycle: '2022 H2', country: 'Canada', area: 'Diabetes', modified: '22 Sep 2022', user: 'Chris Jones' },
+    { scenario: 'Draft 1', cycle: '2022 H1', country: 'Germany', area: 'Immunology', modified: '15 Jun 2022', user: 'Michael Wang' },
+    { scenario: 'Draft 2', cycle: '2022 H2', country: 'Denmark', area: 'Oncology', modified: '01 Jan 2022', user: 'Jane Smith' },
+    { scenario: 'Main Submission', cycle: '2021 H2', country: 'Norway', area: 'Neurology', modified: '04 Oct 2021', user: 'John Doe' },
+    { scenario: 'Draft 3', cycle: '2021 H1', country: 'USA', area: 'Cardiology', modified: '15 Sep 2021', user: 'Emma Clark' },
+    { scenario: 'Main Submission', cycle: '2021 H2', country: 'Canada', area: 'Oncology', modified: '01 Sep 2021', user: 'Chris Jones' },
+    { scenario: 'Draft 1', cycle: '2021 H1', country: 'Germany', area: 'Diabetes', modified: '30 Jun 2021', user: 'Michael Wang' },
+    { scenario: 'Draft 2', cycle: '2021 H1', country: 'Denmark', area: 'Immunology', modified: '20 Jan 2021', user: 'Jane Smith' },
+    
 ];
 
 const reportCategories = [
@@ -127,8 +128,8 @@ export default function GenerateReport() {
     const [tutorialActive, setTutorialActive] = useState(false);
     const [currentStep, setCurrentStep] = useState(0); // Track the current step in the tutorial
     // dropdown values
-    const countryOptions = ['All', 'USA', 'Canada', 'Germany', 'India', 'Norway', 'Finland'];
-    const therapeuticAreaOptions = ['All', 'Cardiology', 'Oncology', 'Neurology', 'Diabetes', 'TA 1'];
+    const countryOptions = ['All', 'USA', 'Canada', 'Germany', 'Denmark', 'Norway', 'Finland'];
+    const therapeuticAreaOptions = ['All', 'Cardiology', 'Oncology', 'Neurology', 'Diabetes', 'Immunology'];
     const forecastCycleOptions = ['All', '2024 H2', '2013-H1', '2013-H2', '2014-H1', '2014-H2'];
     const navigate = useNavigate();
 
