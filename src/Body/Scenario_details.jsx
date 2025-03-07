@@ -100,7 +100,7 @@ const ForecastAndFlowDiagram = (props) => {
     const [historicalStartMonth, setHistoricalStartMonth] = useState(dayjs('2015-01-01'));
     const [forecastStartMonth, setForecastStartMonth] = useState(dayjs());
     const [forecastMetric, setForecastMetric] = useState('Patients');
-    const [currency, setCurrency] = useState('EUR');
+    const [currency, setCurrency] = useState('USD');
     const [forecastCycle, setForecastCycle] = useState(scenario?.forecastScenario ? scenario.forecastScenario : '');
     const [country, setCountry] = useState(scenario?.country ? scenario.country : '');
     const [isProductTableCollapsed, setIsProductTableCollapsed] = useState(false);
@@ -144,6 +144,18 @@ const ForecastAndFlowDiagram = (props) => {
     const predefinedScenarioNames = ['Scenario 1', 'Scenario 2', 'Scenario 3'];
     const therapeuticAreaOptions = ['Cardiology', 'Oncology', 'Neurology', 'Immunology', 'Dermatology', 'HIV'];
     const countryOptions = ['Iceland', 'Germany', 'UK', 'Finland', 'France', 'Italy', 'Spain', 'Denmark', 'Norway', 'Sweden'];
+    const currencies = {
+        "Iceland": "ISK",
+        "Germany": "EUR",
+        "UK": "GBP",
+        "Finland": "EUR",
+        "France": "EUR",
+        "Italy": "EUR",
+        "Spain": "EUR",
+        "Denmark": "DKK",
+        "Norway": "NOK",
+        "Sweden": "SEK"
+    }    
     const forecastCycleOptions = ['H1 - 2023', 'H2 - 2023', 'H1 - 2024', 'H2 - 2024'];
     // State to control visibility of calendars for each product
     const [openCalendars, setOpenCalendars] = useState({});
@@ -843,22 +855,20 @@ const ForecastAndFlowDiagram = (props) => {
                                     sx={{ width: '200px' }}
                                     value={currency}
                                     onChange={(e) => setCurrency(e.target.value)}
-                                    label="Local Currency"
+                                    label="Currency"
                                     variant="outlined"
-                                >
-                                    <MenuItem value="EUR">EUR</MenuItem>
+                                >    
+                                    <MenuItem value="local">{currencies[country]}</MenuItem>
                                     <MenuItem value="USD">USD</MenuItem>
-                                    <MenuItem value="GBP">GBP</MenuItem>
+                                    
                                 </TextField>
 
                             </Box>
                         </Grid>
                         <Grid container spacing={2} >
-                            <Grid item xs={12}>
-                                <h2>Time Period</h2>
-                            </Grid>
+                           
 
-                            <Box display="flex" alignItems="center" ml={2} p={2} className="time-period-button" >
+                            <Box display="flex" alignItems="center" mt = {2} ml={2} p={2} className="time-period-button" >
                                 <TextField
                                     select
                                     label="Time Period"

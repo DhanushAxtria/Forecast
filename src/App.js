@@ -11,7 +11,6 @@ import ScenarioDetails from './Body/Scenario_details'
 import ReviewScenario from './Body/ReviewScenario'
 import SummaryScenario from './Body/SummaryScenario'
 import Submission_Tracker from './Body/Submission_Tracker'
-import Inputpage from './Body/Inputpage'
 import SavedScenario from './Body/SavedScenario'
 import Forecastpage from './Body/TimeSeriesMethods'
 import Patient_Forecast from './Body/Patient_Forecast'
@@ -19,11 +18,13 @@ import Patient_Forecast_Input from './Body/Patient_Forecast_Input';
 import Forecasted_Results from './Body/forecastedresults';
 import Dashboard from './Body/Dashboard'
 import Admin from './Body/Admin'
-import GenerateReport from './Body/GenerateReport';
 import Model1 from './Body/Model1'
 import Analysis from './Body/Analysis';
 import NewModel from './Body/NewModel';
 import ReportTabs from './Body/Reports';
+import SavedViewsDashboard from './Body/SavedViewsDashboard';
+import SavedViewsKPI from './Body/SavedViewsKPI';
+import SavedViewsWaterfall from './Body/SavedViewsWaterfall';
 function App() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false); // Initialize the state
   return (
@@ -66,7 +67,9 @@ function App() {
           <Route path="/new-model/epidemiology-model/model1" element={<Model1 />} />
           <Route path="/new-model/epidemiology-model/model1/analysis" element={<Analysis />} />
           <Route path="/new-model" element={<NewModel />} />
-
+          <Route path="/new-model/epidemiology-model/scenario-details/forecastdeepdive/analysis/saved-views-dashboard" element={<SavedViewsDashboard />} />
+          <Route path="/new-model/epidemiology-model/scenario-details/forecastdeepdive/analysis/saved-views-kpi" element={<SavedViewsKPI />} />
+          <Route path="/new-model/epidemiology-model/scenario-details/forecastdeepdive/analysis/saved-views-waterfall" element={<SavedViewsWaterfall />} />
 
           {/* Add more routes as needed */}
         </Routes>

@@ -142,7 +142,6 @@ const Patient_Forecast_Input = () => {
             },
         }));
     };
-
     // Handles initiating the edit of a product name
     const handleEditClick = (productId) => {
         const product = rows.find((row) => row.id === productId);
@@ -342,7 +341,7 @@ const Patient_Forecast_Input = () => {
                                                 )}
                                             </div>
                                         </td>
-                                        <td>{product.caseType}</td>
+                                        <td>{product.caseType.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</td>
                                         {columns.map((date) => (
                                             <td key={date}>
                                                 <TextField

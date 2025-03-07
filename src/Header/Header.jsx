@@ -280,13 +280,10 @@ export default function PersistentDrawerLeft(props) {
 
         <List sx={{ width: '100', bgcolor: 'background.paper', borderRadius: '10px', overflow: 'auto' }}>
           {[
-            { text: 'New Scenario', icon: <Assessment />, path: '/new-model/epidemiology-model' },
-            { text: 'Saved Scenario', icon: <SaveAlt />, path: '/saved-scenario' },
-            { text: 'Data Consolidation', icon: <FilePresent />, path: '/data-consolidation' },
-            { text: 'Scenario Comparison', icon: <CompareArrows />, path: '/scenario-comparison' },
-            { text: 'Forecast Deep-dive', icon: <Insights />, path: '/forecast-deep-dive' },
+            { text: 'New Model', icon: <Assessment />, path: '/new-model/epidemiology-model' },
+            { text: 'Existing Model', icon: <SaveAlt />, path: '/saved-scenario' },
+            { text: 'Submissions Tracker', icon: <TrackChanges />, path: '/submissions-tracker' },
             { text: 'Generate Report', icon: <Summarize />, path: '/generate-report' },
-            { text: 'Submissions Tracker', icon: <TrackChanges />, path: '/submission-tracking' },
             { text: 'Admin', icon: <Security />, path: '/admin' }
           ].map((item) => (
             <ListItem key={item.text} disablePadding sx={{ '&:hover': { bgcolor: '#f5f5f5' } }}>

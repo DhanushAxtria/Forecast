@@ -559,15 +559,37 @@ const Patient_Forecast = () => {
             >
                 <table className="product-table" >
                     <thead>
+                        {/* Merged Header Row */}
                         <tr>
                             <th
                                 style={{
-                                    //position: 'sticky',
                                     left: 0,
                                     backgroundColor: 'red',
                                     zIndex: 2,
-                                    width: '600px'
-                                }}></th>
+                                    width: '50px'
+                                }}
+                                rowSpan={2} // Ensure the first column spans both header rows
+                            ></th>
+                            <th colSpan={columns.filter(column =>
+                                timePeriod === 'Year'
+                                    ? dayjs(column).isBefore(dayjs(fromForecastDate), 'year')
+                                    : dayjs(column).isBefore(dayjs(fromForecastDate), 'month')
+                            ).length}
+                                style={{ textAlign: 'center', backgroundColor: '#C6F4D6', fontWeight: 'bold', width: '50px' }}>
+                                Historical {timePeriod === 'Year' ? 'Years' : 'Months'}
+                            </th>
+                            <th colSpan={columns.filter(column =>
+                                timePeriod === 'Year'
+                                    ? !dayjs(column).isBefore(dayjs(fromForecastDate), 'year')
+                                    : !dayjs(column).isBefore(dayjs(fromForecastDate), 'month')
+                            ).length}
+                                style={{ textAlign: 'center', backgroundColor: '#FFFFE0', fontWeight: 'bold',width: '50px' }}>
+                                Forecasted {timePeriod === 'Year' ? 'Years' : 'Months'}
+                            </th>
+                        </tr>
+
+                        {/* Main Header Row */}
+                        <tr>
                             {columns.map((column) => (
                                 <th className='date-table-header'
                                     style={{
@@ -576,9 +598,14 @@ const Patient_Forecast = () => {
                                             timePeriod === 'Year'
                                                 ? dayjs(column).isBefore(dayjs(fromForecastDate), 'year')
                                                 : dayjs(column).isBefore(dayjs(fromForecastDate), 'month')
-                                                    ? '#C6F4D6' // Light green for columns between fromHistorical and fromForecast
-                                                    : '#FFFFE0', // Light yellow for all other columns
+                                                    ? '#C6F4D6'
+                                                    : '#FFFFE0',
                                     }}
+                                    title={timePeriod === 'Year'
+                                        ? dayjs(column).isBefore(dayjs(fromForecastDate), 'year')
+                                        : dayjs(column).isBefore(dayjs(fromForecastDate), 'month')
+                                            ? 'Historical Date'
+                                            : 'Forecasted Date'}
                                 >
                                     {column}
                                 </th>
@@ -2359,17 +2386,7 @@ const Patient_Forecast = () => {
     };
     const rowKey = `${selectedRowId}.${selectedTab}`;
     const handleCopyFromInputPage = () => {
-        if (storeValues[rowKey] && typeof storeValues[rowKey] === 'object') {
-            Object.keys(storeValues[rowKey]).forEach((date) => {
-                console.log('storeValues[rowKey][date]:', storeValues[rowKey][date]);
-                handleValueChange(selectedTab, selectedRowId, date, storeValues[rowKey][date]);
-            });
-        } else if (storeValues[rowKey] === null || storeValues[rowKey] === undefined) {
-            alert('No data found');
-        } else {
-            console.warn('storeValues[rowKey] is not a valid object:', storeValues[rowKey]);
-        }
-        setOpenInputMethodDialog(false);
+        console.log(rowKey);
     };
     {/* Reset all the states to their initial values when clear all data button is clicked*/ }
     const handleReset = () => {
