@@ -2560,6 +2560,8 @@ const Patient_Forecast = () => {
                 for (const row_id of Object.keys(Formulas[tabKey][tableKey])) {
                     if (Formulas[tabKey][tableKey][row_id].emptyArray[0] !== '') {
                         res = handlesavechanges(tabKey, tableKey, row_id, tempvalues, tempvalues2, tempvalues3);
+                        const prod = products[tabKey][tableKey];
+                        const productType = prod.find((product) => product.id === row_id)?.type;
                         if (tabKey === 'downside') {
                             tempvalues = {
                                 ...tempvalues,

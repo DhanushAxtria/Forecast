@@ -45,31 +45,21 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import AdjustIcon from '@mui/icons-material/Adjust';
 import './ProductListpage.scss';
 import axios from 'axios';
-
 import { MyContext } from './context';
-
-
 
 const Patient_Forecast_Input = () => {
 
-    const { storeValues, setStoreValues } = useContext(MyContext);
+    const { storeValues, setStoreValues, rows, setRows, showTable, setShowTable } = useContext(MyContext);
     const { fromHistoricalDate, setFromHistoricalDate, fromForecastDate, setFromForecastDate, toForecastDate, setToForecastDate, timePeriod, setTimePeriod } = useContext(MyContext);
     const { combinedProducts } = useContext(MyContext);
     const [selectedFile, setSelectedFile] = useState(null);
     const [selectedWorkbook, setSelectedWorkbook] = useState("");
     const [columns, setColumns] = useState([]); // Column headers based on time period
-    const [rows, setRows] = useState([]); // State to track table rows
-    const [showTable, setShowTable] = useState(false); // Controls table visibility
-
-    const [showAddParameter, setShowAddParameter] = useState(false);
     const [greeting, setGreeting] = useState('');
-    const [productIndex, setProductIndex] = useState(0); // Tracks which product to add rows for
-
+    const [selectedProductId, setSelectedProductId] = useState("");
     const [editingProductId, setEditingProductId] = useState(null);
     const [editedProductName, setEditedProductName] = useState('');
-
     const [openInfoMethodDialog, setOpenInfoMethodDialog] = useState(false);// for info dialog
-
     const [openInputMethodDialog, setOpenInputMethodDialog] = useState(false);// for input method dialog
     const [openGrowthRateDialog, setOpenGrowthRateDialog] = useState(false);
     const [openStartEndDialog, setOpenStartEndDialog] = useState(false); // Dialog for Start and End values
@@ -139,22 +129,23 @@ const Patient_Forecast_Input = () => {
         }
     }, [timePeriod, fromHistoricalDate, toForecastDate]);
 
-    const handleAddParameter = () => {
-        if (productIndex < combinedProducts.length) {
-            const product = combinedProducts[productIndex];
+   
+
+    const handleSelectParameter = (productId) => {
+        const product = combinedProducts.find((p) => p.id === productId);
+        if (product) {
             const newRows = [
-                { ...product, caseType: 'base' },
-                { ...product, caseType: 'downside' },
-                { ...product, caseType: 'upside' },
+                { ...product, caseType: "base" },
+                { ...product, caseType: "downside" },
+                { ...product, caseType: "upside" },
             ];
 
             setRows((prevRows) => [...prevRows, ...newRows]);
             setShowTable(true);
-            setProductIndex(productIndex + 1); // Move to the next product
-        } else {
-            alert('All parameters have been added!');
+            setSelectedProductId(""); // Reset selection after adding
         }
     };
+
     const handletimeseriesanalysis = async (selectedSheet, historyFromDate, historyToDate, selectedFromDate, selectedToDate, selectedFile) => {
         const formatDateUTC = (date) => {
             if (!date) return null;
@@ -1514,27 +1505,27 @@ const Patient_Forecast_Input = () => {
         dayjs(fromHistoricalDate).isSame(toForecastDate, timePeriod === 'Monthly' ? 'month' : 'year');
 
     return (
-        <div className="product-list-page" style={{ marginLeft: '10px' }}>
-            <Box
-                sx={{
-                    maxWidth: '100%',
-                    overflowY: 'auto',
-                    marginBottom: '15px',
-                    textAlign: 'left',
-                }}
-            >
+        <div className="product-list-page" style={{ marginLeft: '10px' }}>            
 
-                <Button
-                    startIcon={<AddIcon />}
-                    variant="contained"
-                    color="primary"
-                    onClick={handleAddParameter}
-                    sx={{ marginLeft: '12px' }}
-                    disabled={!isButtonEnabled}
+                <TextField
+                    select
+                    size="small"
+                    sx={{ width: "200px", mr: 2, ml: 1 }}   
+                    value={selectedProductId}
+                    onChange={(e) => handleSelectParameter(e.target.value)}
+                    label="Add Parameter"
+                    variant="outlined"
                 >
-                    Add Parameter
-                </Button>
-            </Box>
+                    <MenuItem value="" disabled>Select a parameter</MenuItem>
+                    {combinedProducts
+                        .filter((product) => !rows.some((row) => row.id === product.id)) // Filter out already added items
+                        .map((product) => (
+                            <MenuItem key={product.id} value={product.id}>
+                                {product.name}
+                            </MenuItem>
+                        ))}
+                </TextField>
+            
             {showTable && renderTable()}
             {openInfoMethodDialog && renderInfoMethodDialog()}
             {openInputMethodDialog && renderInputMethodDialog()}

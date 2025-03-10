@@ -39,6 +39,8 @@ const initialProducts = {
   upside: { table1: initialProducts1, table2: initialProducts2, table3: initialProducts3 },
 };
 const MyProvider = ({ children }) => {
+  const [rows, setRows] = useState([]); // State to track table rows
+  const [showTable, setShowTable] = useState(false); // Controls table visibility
   const [storeValues, setStoreValues] = useState({});
   const combinedProducts = [...initialProducts1, ...initialProducts2, ...initialProducts3];
   const [selectedSheet, setSelectedSheet] = useState(null);
@@ -66,7 +68,7 @@ const MyProvider = ({ children }) => {
     { Case: "base", SelectedCard: "table3", SelectedRow: "T3-11" },
     { Case: "base", SelectedCard: "table3", SelectedRow: "T3-12" },
   ]);
-  
+
   const [showTabs, setShowTabs] = useState(false);
   const [timePeriod, setTimePeriod] = useState('Monthly');
   const [countries, setCountries] = React.useState([]);
@@ -140,16 +142,16 @@ const MyProvider = ({ children }) => {
   useEffect(() => {
     const formulasDemo = { ...Formulas };
     Object.keys(formulasDemo).forEach((tabKey) => {
-        formulasDemo[tabKey]["table1"]['T1-4'] = { emptyArray: ['T1-1', 'T1-2', 'T1-3'], plusArray: ['+', '*', '*'] };
-        formulasDemo[tabKey]["table2"]['T2-3'] = { emptyArray: ['T1-4', 'T2-1'], plusArray: ['+', '*'] };
-        formulasDemo[tabKey]["table2"]['T2-4'] = { emptyArray: ['T1-4', 'T2-2'], plusArray: ['+', '*'] };
-        formulasDemo[tabKey]["table2"]['T2-5'] = { emptyArray: ['T2-3', 'T2-4'], plusArray: ['+', '+'] };
-        formulasDemo[tabKey]["table3"]['T3-3'] = { emptyArray: ['T3-1', 'T3-2', 'T2-6', 'T2-3'], plusArray: ['+', '*', '*', '*'] };
-        formulasDemo[tabKey]["table3"]['T3-6'] = { emptyArray: ['T3-4', 'T3-5', 'T2-7', 'T2-4'], plusArray: ['+', '*', '*', '*'] };
-        formulasDemo[tabKey]["table3"]['T3-7'] = { emptyArray: ['T3-3', 'T3-6'], plusArray: ['+', '+'] };
-        formulasDemo[tabKey]["table3"]['T3-10'] = { emptyArray: ['T3-3', 'T3-9'], plusArray: ['+', '*'] };
-        formulasDemo[tabKey]["table3"]['T3-11'] = { emptyArray: ['T3-6', 'T3-9'], plusArray: ['+', '*'] };
-        formulasDemo[tabKey]["table3"]['T3-12'] = { emptyArray: ['T3-10', 'T3-11'], plusArray: ['+', '+'] };
+      formulasDemo[tabKey]["table1"]['T1-4'] = { emptyArray: ['T1-1', 'T1-2', 'T1-3'], plusArray: ['+', '*', '*'] };
+      formulasDemo[tabKey]["table2"]['T2-3'] = { emptyArray: ['T1-4', 'T2-1'], plusArray: ['+', '*'] };
+      formulasDemo[tabKey]["table2"]['T2-4'] = { emptyArray: ['T1-4', 'T2-2'], plusArray: ['+', '*'] };
+      formulasDemo[tabKey]["table2"]['T2-5'] = { emptyArray: ['T2-3', 'T2-4'], plusArray: ['+', '+'] };
+      formulasDemo[tabKey]["table3"]['T3-3'] = { emptyArray: ['T3-1', 'T3-2', 'T2-6', 'T2-3'], plusArray: ['+', '*', '*', '*'] };
+      formulasDemo[tabKey]["table3"]['T3-6'] = { emptyArray: ['T3-4', 'T3-5', 'T2-7', 'T2-4'], plusArray: ['+', '*', '*', '*'] };
+      formulasDemo[tabKey]["table3"]['T3-7'] = { emptyArray: ['T3-3', 'T3-6'], plusArray: ['+', '+'] };
+      formulasDemo[tabKey]["table3"]['T3-10'] = { emptyArray: ['T3-3', 'T3-9'], plusArray: ['+', '*'] };
+      formulasDemo[tabKey]["table3"]['T3-11'] = { emptyArray: ['T3-6', 'T3-9'], plusArray: ['+', '*'] };
+      formulasDemo[tabKey]["table3"]['T3-12'] = { emptyArray: ['T3-10', 'T3-11'], plusArray: ['+', '+'] };
     });
     setFormulas(formulasDemo);
     setEditingFormula(formulasDemo);
@@ -190,6 +192,8 @@ const MyProvider = ({ children }) => {
       rowsData, setRowsData,
       storeValues, setStoreValues,
       tutHome, setTutHome,
+      rows, setRows,
+      showTable, setShowTable,
     }}>
       {children}
     </MyContext.Provider>

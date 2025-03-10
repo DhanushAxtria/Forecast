@@ -79,8 +79,8 @@ const KPI = () => {
     const [lowStartValue, setLowStartValue] = useState({}); // Saved Low Case Start Values
     const [lowEndValue, setLowEndValue] = useState({}); // Saved Low Case End Values
     const [dropdownGroups, setDropdownGroups] = useState([
-        { Case: "base", OutputMetric: "T3-12", Field: "T3-10" },
-        { Case: "base", OutputMetric: "T3-12", Field: "T3-11" },
+        { Case: "base", OutputMetric: "T3-12", Field: "T1-3" },
+        { Case: "base", OutputMetric: "T3-12", Field: "T3-9" },
     ]);
     const [openGrowthRateDialog, setOpenGrowthRateDialog] = useState(false);
     const [highGrowthRates, setHighGrowthRates] = useState({});
@@ -105,11 +105,11 @@ const KPI = () => {
     const [highCaseData, setHighCaseData] = useState([]);
     const [openChangeDialog, setOpenChangeDialog] = useState(false);
     const [editingHighPercentVal, setEditingHighPercentVal] = useState({
-        "0": 20,
+        "0": 40,
         "1": 30,
     });
     const [editingLowPercentVal, setEditingLowPercentVal] = useState({
-        "0": -15,
+        "0": -35,
         "1": -25,
     });
     const [HighPercentVal, setHighPercentVal] = useState({
@@ -177,7 +177,7 @@ const KPI = () => {
         lowCase: lowCaseData[index],
         highCase: highCaseData[index],
     }));
-    
+
     const handleAddDropdownGroup = (index) => {
         setDropdownGroups([...dropdownGroups, { Case: dropdownGroups[index].Case, OutputMetric: dropdownGroups[index].OutputMetric, Field: "" }]);
         setCurrentCase(prev => ({
@@ -385,7 +385,7 @@ const KPI = () => {
         }
     }, [toDate, fromDate, timePeriod, fromHistoricalDate, toForecastDate]);
 
-    
+
     const calculateGrowthRateValues = (startingValue, initialGrowthRate, growthRates) => {
         const newValues = {};
         const startDate = dayjs(fromHistoricalDate); // Start date of the calculation period
@@ -467,7 +467,6 @@ const KPI = () => {
         else if (method === 'file') {
             const file = buttontype === "High" ? highFileToFill[index] : lowFileToFill[index];
             if (file) {
-                console.log(file);
                 if (timePeriod === 'Monthly') {
                     // Create a new FileReader instance to read the file
                     const reader = new FileReader();
@@ -572,9 +571,11 @@ const KPI = () => {
         else if (method === '%') {
             const gp = dropdownGroups[index];
             const temp = gp.Case === 'downside' ? values[gp.Field] : gp.Case === 'base' ? values2[gp.Field] : values3[gp.Field];
+            console.log("temp", temp);
+            console.log("edd", HighPercentVal[index]);
             Object.keys(temp).forEach((key) => {
                 const tmp = buttontype === 'High' ? parseFloat(HighPercentVal[index]) / 100 : parseFloat(LowPercentVal[index]) / 100;
-                buttontype === 'High' ? res[key] = ((1 + tmp) * temp[key]).toFixed(2) : res[key] = ((1 + tmp) * temp[key]).toFixed(2);
+                res[key] = ((1 + tmp) * temp[key]).toFixed(2);
             });
             console.log("res", res);
             return res;
@@ -606,8 +607,13 @@ const KPI = () => {
         }
         return {}
     }
-    const handleApplyFormula = (selectedIds, tabKey, operators, row_id, method, buttontype, index) => {
-
+    const handlesavechanges = (tabKey, tableKey, row_id, values) => {
+        const prod = products[tabKey][tableKey];
+        const productType = prod.find((product) => product.id === row_id)?.type;
+        const selectedIds = Formulas[tabKey][tableKey][row_id].emptyArray;
+        const operatorsList = Formulas[tabKey][tableKey][row_id].plusArray;
+        // Slice the operators array to exclude the first element (which is the default "+")
+        const operatorSliced = operatorsList.slice(1);
         let res = {}; // Object to store the results of the forecast calculation
         if (timePeriod === 'Monthly') {
             // Loop through the months in the time period and create a key for each in the results object
@@ -627,51 +633,57 @@ const KPI = () => {
                 }
             }
         }
-        let idd = null;
-        let val = null;
-        if (row_id === selectedIds[0]) {
-            idd = selectedIds[0];
-            val = findVal(method, buttontype, index);
-
-        }
-        else {
-            idd = selectedIds[0];
-            val = tabKey === 'downside' ? values[idd] : tabKey === 'base' ? values2[idd] : values3[idd];
-        }
+        // Get the first selected product's id
+        const idd = selectedIds[0];
+        // Get the first selected product's values based on the current tabKey
+        const val = values[idd];
+        let typee = null;
+        Object.keys(products[tabKey]).forEach(table => {
+            const temp = products[tabKey][table].find((product) => product.id === idd)?.type;
+            if (temp !== undefined) {
+                typee = temp;
+            }
+        });
         // If the product has values, loop through its values and add them to the results object
         if (val !== undefined) {
             Object.keys(val).forEach((key) => {
-                res[key] = val[key];
+                if (typee === '%') {
+                    res[key] = val[key] / 100;
+                }
+                else {
+                    res[key] = val[key];
+                }
             });
         }
         // Iterate over the selected product IDs starting from the second element
         for (let i = 1; i < selectedIds.length; i++) {
-            let id = null;
-            let tempval = null;
-            if (selectedIds[i] === row_id) {
-                id = selectedIds[i];
-                tempval = findVal(method, buttontype, index);
-                console.log("tempval", tempval);
-            }
-            else {
-                id = selectedIds[i];
-                tempval = tabKey === 'downside' ? values[id] : tabKey === 'base' ? values2[id] : values3[id];
-            }
-
-            // If the product values exist, perform calculations based on the selected operator
+            const id = selectedIds[i];
+            const tempval = values[id];
+            let temptype = null;
+            Object.keys(products[tabKey]).forEach(table => {
+                const temp = products[tabKey][table].find((product) => product.id === id)?.type;
+                if (temp !== undefined) {
+                    temptype = temp;
+                }
+            });
+            let tempValue = null;
             if (tempval !== undefined) {
                 Object.keys(tempval).forEach((key) => {
-                    const currentOperator = operators[i - 1];
+                    const currentOperator = operatorSliced[i - 1];
                     const resValue = parseFloat(res[key], 10);
-                    const tempValue = parseFloat(tempval[key], 10);
-
-                    if (currentOperator == '+') {
+                    if (temptype === '%') {
+                        tempValue = parseFloat(tempval[key] / 100, 10);
+                    }
+                    else {
+                        tempValue = parseFloat(tempval[key], 10);
+                    }
+                    if (currentOperator === '+') {
                         res[key] = resValue + tempValue;
-                    } else if (currentOperator == '-') {
+                    } else if (currentOperator === '-') {
                         res[key] = resValue - tempValue;
-                    } else if (currentOperator == '*') {
+                    } else if (currentOperator === '*') {
                         res[key] = resValue * tempValue;
-                    } else if (currentOperator == '/') {
+                    } else if (currentOperator === '/') {
                         res[key] = resValue / tempValue;
                     }
                 });
@@ -679,8 +691,10 @@ const KPI = () => {
         }
         return res;
     };
+
     const KPIAnalysis = () => {
         const dates = timePeriod === 'Monthly' ? generateMonthlyColumns(fromDate, toDate) : generateYearlyColumns(fromDate, toDate);
+        console.log("dates", dates);
         // Use local arrays to manage the data
         const newLowCaseData = [];
         const newHighCaseData = [];
@@ -689,74 +703,88 @@ const KPI = () => {
         const mainResDict = {};
         const highResSum = {};
         const lowResSum = {};
-
         dropdownGroups.forEach((row, index) => {
-            const formulaCase = Formulas[row.Case];
-            let formula = null;
-            let operators = null;
-
-            if (formulaCase) {
-                Object.keys(formulaCase).forEach((key) => {
-                    if (formulaCase[key][row.OutputMetric]) {
-                        formula = formulaCase[key][row.OutputMetric].emptyArray;
-                        operators = formulaCase[key][row.OutputMetric].plusArray;
-                        operators = operators.slice(1);
-                    }
-                });
-            }
-
-            const row_id = row.Field;
-            const highmethod = highMethodForRow[index];
-            const lowmethod = lowMethodForRow[index];
-            const temphighres = handleApplyFormula(formula, row.Case, operators, row_id, highmethod, "High", index);
-            const Highres = {};
-            dates.forEach((date) => {
-                if (temphighres[date]) {
-                    Highres[date] = temphighres[date];
-                }
-            });
-            highResDict[index] = Highres;
-
-            const templowres = handleApplyFormula(formula, row.Case, operators, row_id, lowmethod, "Low", index);
-            const Lowres = {}
-            dates.forEach((date) => {
-                if (templowres[date]) {
-                    Lowres[date] = templowres[date];
-                }
-            });
-            lowResDict[index] = Lowres;
-
+            let valuesHigh = { ... (row.Case === 'downside' ? values : row.Case === 'base' ? values2 : values3) };
+            let valuesLow = { ... (row.Case === 'downside' ? values : row.Case === 'base' ? values2 : values3) };
             const temppreval = row.Case === 'downside' ? values[row.OutputMetric] : row.Case === 'base' ? values2[row.OutputMetric] : values3[row.OutputMetric];
-            const presentval = {}
+            const presentval = {};
             dates.forEach((date) => {
                 if (temppreval[date]) {
-                    presentval[date] = temppreval[date];
+                    presentval[date] = parseFloat(temppreval[date]).toFixed(2) || temppreval[date];
                 }
             });
             mainResDict[index] = presentval;
+            const presentSum = Object.keys(presentval).reduce((prev, curr) => prev + parseFloat(presentval[curr] || 0, 10), 0).toFixed(2);
+            setBaseRev(presentSum);
+            let highres = findVal(highMethodForRow[index], "High", index);
+            let lowres = findVal(lowMethodForRow[index], "Low", index);
+            valuesHigh = { ...valuesHigh, [row.Field]: highres };
+            valuesLow = { ...valuesLow, [row.Field]: lowres };
+            let tabKey = row.Case;
+            let resHigh = {};
+            let resLow = {};
+            // update the rows
+            for (const tableKey of Object.keys(Formulas[tabKey])) {
+                for (const row_id of Object.keys(Formulas[tabKey][tableKey])) {
+                    if (Formulas[tabKey][tableKey][row_id].emptyArray[0] !== '' && row_id !== row.Field) {
+                        resHigh = handlesavechanges(tabKey, tableKey, row_id, valuesHigh);
+                        resLow = handlesavechanges(tabKey, tableKey, row_id, valuesLow);
+                        const prod = products[tabKey][tableKey];
+                        const productType = prod.find((product) => product.id === row_id)?.type;
+                        valuesHigh = {
+                            ...valuesHigh,
+                            [row_id]: Object.keys(resHigh).reduce((acc, date) => {
+                                acc[date] = !resHigh[date] || resHigh[date] === 0 ? '0' : productType === '%' ? resHigh[date] * 100 : resHigh[date];
+                                return acc;
+                            }, {})
+                        };
+                        valuesLow = {
+                            ...valuesLow,
+                            [row_id]: Object.keys(resLow).reduce((acc, date) => {
+                                acc[date] = !resLow[date] || resLow[date] === 0 ? '0' : productType === '%' ? resLow[date] * 100 : resLow[date];
+                                return acc;
+                            }, {})
+                        };
 
-            const presentSum = Object.keys(presentval).reduce((prev, curr) => prev + parseFloat(presentval[curr], 10), 0).toFixed(2);
-            const HighresSum = Object.keys(Highres).reduce((prev, curr) => prev + parseFloat(Highres[curr], 10), 0).toFixed(2);
+                    }
+                }
+            }
+            const Highres = {};
+            dates.forEach((date) => {
+                if (valuesHigh[row.OutputMetric][date]) {
+                    Highres[date] = valuesHigh[row.OutputMetric][date];
+                }
+            });
+            highResDict[index] = Highres;
+            const Lowres = {}
+            dates.forEach((date) => {
+                if (valuesLow[row.OutputMetric][date]) {
+                    Lowres[date] = valuesLow[row.OutputMetric][date];
+                }
+            });
+            lowResDict[index] = Lowres;
+            const HighresSum = Object.keys(valuesHigh[row.OutputMetric]).filter(date => dates.includes(date)).reduce((prev, curr) => prev + parseFloat(valuesHigh[row.OutputMetric][curr], 10), 0).toFixed(2);
             highResSum[index] = HighresSum;
 
-            const LowresSum = Object.keys(Lowres).reduce((prev, curr) => prev + parseFloat(Lowres[curr], 10), 0).toFixed(2);
+            const LowresSum = Object.keys(valuesLow[row.OutputMetric])
+                .filter(date => dates.includes(date))
+                .reduce((prev, curr) => prev + parseFloat(valuesLow[row.OutputMetric][curr], 10), 0)
+                .toFixed(2);
             lowResSum[index] = LowresSum;
-
             const highdiff = HighresSum - presentSum;
             const lowdiff = LowresSum - presentSum;
             newLowCaseData.push(lowdiff !== undefined ? lowdiff : 0);
             newHighCaseData.push(highdiff !== undefined ? highdiff : 0);
-            setBaseRev(presentSum);
-
+            setLowCaseData(newLowCaseData);
+            setHighCaseData(newHighCaseData);
+            setHighResult(highResDict);
+            setLowResult(lowResDict);
+            setMainResult(mainResDict)
+            setHighResSum(highResSum);
+            setLowResSum(lowResSum);
+            setApplyClicked(true);
         });
-        setLowCaseData(newLowCaseData);
-        setHighCaseData(newHighCaseData);
-        setHighResult(highResDict);
-        setLowResult(lowResDict);
-        setMainResult(mainResDict)
-        setHighResSum(highResSum);
-        setLowResSum(lowResSum);
-        setApplyClicked(true);
+        
     };
 
     const handleAddGrowthRate = () => {
@@ -1158,14 +1186,16 @@ const KPI = () => {
 
 
     useEffect(() => {
-     console.log("1", columns2);
-     console.log("2", mainresult);
-     console.log("3", lowresult);
-     console.log("4", highresSum);
-     console.log("5", lowresSum);
-     console.log("6", highresult);
-    });
-    
+        console.log("1", columns2);
+        console.log("2", mainresult);
+        console.log("3", lowresult);
+        console.log("4", highresSum);
+        console.log("5", lowresSum);
+        console.log("6", highresult);
+
+    }, [lowresSum]);
+
+
     const currentPercentVal = buttonType === 'High' ? editingHighPercentVal[Index] : editingLowPercentVal[Index];
     return (
         <>

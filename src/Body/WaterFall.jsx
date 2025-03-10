@@ -62,6 +62,7 @@ const WaterFall = () => {
     const [MethodForRow, setMethodForRow] = useState({
         "0": "%",
         "1": "%",
+        "2": "%",
     });
     const [openInputMethodDialog, setOpenInputMethodDialog] = useState(false);
     const [openStartEndDialog, setOpenStartEndDialog] = useState(false);
@@ -71,8 +72,10 @@ const WaterFall = () => {
     const [StartValue, setStartValue] = useState({}); // Saved  Case Start Values
     const [EndValue, setEndValue] = useState({}); // Saved  Case End Values
     const [dropdownGroups, setDropdownGroups] = useState([
-        { Case: "base", OutputMetric: "T3-12", Field: "T3-10" },
-        { Case: "base", OutputMetric: "T3-12", Field: "T3-11" },
+        { Case: "base", OutputMetric: "T3-12", Field: "T3-9" },
+        { Case: "base", OutputMetric: "T3-12", Field: "T1-2" },
+        { Case: "base", OutputMetric: "T3-12", Field: "T1-3" },
+
     ]);
     const [openGrowthRateDialog, setOpenGrowthRateDialog] = useState(false);
     const [GrowthRates, setGrowthRates] = useState({});
@@ -87,10 +90,15 @@ const WaterFall = () => {
     const [currentCase, setCurrentCase] = useState({});
     const [CaseData, setCaseData] = useState([]);
     const [openChangeDialog, setOpenChangeDialog] = useState(false);
-    const [editingPercentVal, setEditingPercentVal] = useState({});
+    const [editingPercentVal, setEditingPercentVal] = useState({
+        "0": 50,
+        "1": -90,
+        "2": 40,
+    });
     const [PercentVal, setPercentVal] = useState({
         "0": 50,
         "1": -90,
+        "2": 40,
     });
     const [AbsoluteVal, setAbsoluteVal] = useState({});
     const [editingAbsoluteVal, setEditingAbsoluteVal] = useState({});
@@ -134,7 +142,6 @@ const WaterFall = () => {
         return scenarioValue; // Return the final value after the loop
     };
 
-    console.log("scenarioValue", scenarioValue);
 
     // Sample data
     const rawData = [
@@ -168,6 +175,9 @@ const WaterFall = () => {
         });
     };
     const data = processWaterfallData(rawData);
+    useEffect(() => {
+        console.log("cahrt", data);
+    }, [data]);
     // Chart Options
     const options = {
         indexAxis: 'y', // Horizontal bar
@@ -551,7 +561,13 @@ const WaterFall = () => {
         }
         return {}
     }
-    const handleApplyFormula = (selectedIds, tabKey, operators, row_id, method, buttontype, index) => {
+    const handlesavechanges = (tabKey, tableKey, row_id, values) => {
+        const prod = products[tabKey][tableKey];
+        const productType = prod.find((product) => product.id === row_id)?.type;
+        const selectedIds = Formulas[tabKey][tableKey][row_id].emptyArray;
+        const operatorsList = Formulas[tabKey][tableKey][row_id].plusArray;
+        // Slice the operators array to exclude the first element (which is the default "+")
+        const operatorSliced = operatorsList.slice(1);
         let res = {}; // Object to store the results of the forecast calculation
         if (timePeriod === 'Monthly') {
             // Loop through the months in the time period and create a key for each in the results object
@@ -571,49 +587,57 @@ const WaterFall = () => {
                 }
             }
         }
-        let idd = null;
-        let val = null;
-        if (row_id === selectedIds[0]) {
-            idd = selectedIds[0];
-            val = findVal(method, buttontype, index);
-        }
-        else {
-            idd = selectedIds[0];
-            val = tabKey === 'downside' ? values[idd] : tabKey === 'base' ? values2[idd] : values3[idd];
-        }
+        // Get the first selected product's id
+        const idd = selectedIds[0];
+        // Get the first selected product's values based on the current tabKey
+        const val = values[idd];
+        let typee = null;
+        Object.keys(products[tabKey]).forEach(table => {
+            const temp = products[tabKey][table].find((product) => product.id === idd)?.type;
+            if (temp !== undefined) {
+                typee = temp;
+            }
+        });
         // If the product has values, loop through its values and add them to the results object
         if (val !== undefined) {
             Object.keys(val).forEach((key) => {
-                res[key] = val[key];
+                if (typee === '%') {
+                    res[key] = val[key] / 100;
+                }
+                else {
+                    res[key] = val[key];
+                }
             });
         }
         // Iterate over the selected product IDs starting from the second element
         for (let i = 1; i < selectedIds.length; i++) {
-            let id = null;
-            let tempval = null;
-            if (selectedIds[i] === row_id) {
-                id = selectedIds[i];
-                tempval = findVal(method, buttontype, index);
-            }
-            else {
-                id = selectedIds[i];
-                tempval = tabKey === 'downside' ? values[id] : tabKey === 'base' ? values2[id] : values3[id];
-            }
-
-            // If the product values exist, perform calculations based on the selected operator
+            const id = selectedIds[i];
+            const tempval = values[id];
+            let temptype = null;
+            Object.keys(products[tabKey]).forEach(table => {
+                const temp = products[tabKey][table].find((product) => product.id === id)?.type;
+                if (temp !== undefined) {
+                    temptype = temp;
+                }
+            });
+            let tempValue = null;
             if (tempval !== undefined) {
                 Object.keys(tempval).forEach((key) => {
-                    const currentOperator = operators[i - 1];
+                    const currentOperator = operatorSliced[i - 1];
                     const resValue = parseFloat(res[key], 10);
-                    const tempValue = parseFloat(tempval[key], 10);
-
-                    if (currentOperator == '+') {
+                    if (temptype === '%') {
+                        tempValue = parseFloat(tempval[key] / 100, 10);
+                    }
+                    else {
+                        tempValue = parseFloat(tempval[key], 10);
+                    }
+                    if (currentOperator === '+') {
                         res[key] = resValue + tempValue;
-                    } else if (currentOperator == '-') {
+                    } else if (currentOperator === '-') {
                         res[key] = resValue - tempValue;
-                    } else if (currentOperator == '*') {
+                    } else if (currentOperator === '*') {
                         res[key] = resValue * tempValue;
-                    } else if (currentOperator == '/') {
+                    } else if (currentOperator === '/') {
                         res[key] = resValue / tempValue;
                     }
                 });
@@ -626,60 +650,60 @@ const WaterFall = () => {
         // Use local arrays to manage the data
         const newCaseData = [];
         const ResDict = {};
-
         const OriginalSum = {};
         const ChangedValue = {};
         const Change = {};
-
         dropdownGroups.forEach((row, index) => {
-            const formulaCase = Formulas[row.Case];
-            let formula = null;
-            let operators = null;
-
-            if (formulaCase) {
-                Object.keys(formulaCase).forEach((key) => {
-                    if (formulaCase[key][row.OutputMetric]) {
-                        formula = formulaCase[key][row.OutputMetric].emptyArray;
-                        operators = formulaCase[key][row.OutputMetric].plusArray;
-                        operators = operators.slice(1);
+            let valuess = { ... (row.Case === 'downside' ? values : row.Case === 'base' ? values2 : values3) };
+            const temppreval = row.Case === 'downside' ? values[row.OutputMetric] : row.Case === 'base' ? values2[row.OutputMetric] : values3[row.OutputMetric];
+            const presentval = {};
+            dates.forEach((date) => {
+                if (temppreval[date]) {
+                    presentval[date] = parseFloat(temppreval[date]).toFixed(2) || temppreval[date];
+                }
+            });
+            const presentSum = Object.keys(presentval).reduce((prev, curr) => prev + parseFloat(presentval[curr] || 0, 10), 0).toFixed(2);
+            OriginalSum[index] = presentSum;
+            let highres = findVal(MethodForRow[index], "", index);
+            valuess = { ...valuess, [row.Field]: highres };
+            let tabKey = row.Case;
+            let resHigh = {};
+            // update the rows
+            for (const tableKey of Object.keys(Formulas[tabKey])) {
+                for (const row_id of Object.keys(Formulas[tabKey][tableKey])) {
+                    if (Formulas[tabKey][tableKey][row_id].emptyArray[0] !== '' && row_id !== row.Field) {
+                        resHigh = handlesavechanges(tabKey, tableKey, row_id, valuess);
+                        const prod = products[tabKey][tableKey];
+                        const productType = prod.find((product) => product.id === row_id)?.type;
+                        valuess = {
+                            ...valuess,
+                            [row_id]: Object.keys(resHigh).reduce((acc, date) => {
+                                acc[date] = !resHigh[date] || resHigh[date] === 0 ? '0' : productType === '%' ? resHigh[date] * 100 : resHigh[date];
+                                return acc;
+                            }, {})
+                        };
                     }
-                });
+                }
             }
-
-            const row_id = row.Field;
-            const method = MethodForRow[index];
-
-
-            const tempres = handleApplyFormula(formula, row.Case, operators, row_id, method, "", index);
-            const res = {};
+            const Highres = {};
             dates.forEach((date) => {
-                if (tempres[date]) {
-                    res[date] = tempres[date];
+                if (valuess[row.OutputMetric][date]) {
+                    Highres[date] = valuess[row.OutputMetric][date];
                 }
             });
-            ResDict[index] = res;
-
-            const temppresentval = row.Case === 'downside' ? values[row.OutputMetric] : row.Case === 'base' ? values2[row.OutputMetric] : values3[row.OutputMetric];
-            const presentval = {}
-            dates.forEach((date) => {
-                if (temppresentval[date]) {
-                    presentval[date] = temppresentval[date];
-                }
-            });
-            const presentSum = Object.keys(presentval).reduce((prev, curr) => prev + parseFloat(presentval[curr], 10), 0).toFixed(2);
-            OriginalSum[index] = presentSum;//original
-            const resSum = Object.keys(res).reduce((prev, curr) => prev + parseFloat(res[curr], 10), 0).toFixed(2);
-            ChangedValue[index] = resSum; // final
-            const difference = resSum - presentSum;
-            Change[index] = difference; //change   
-            newCaseData.push(difference !== undefined ? difference : 0);
+            ResDict[index] = Highres;
+            const HighresSum = Object.keys(valuess[row.OutputMetric]).filter(date => dates.includes(date)).reduce((prev, curr) => prev + parseFloat(valuess[row.OutputMetric][curr], 10), 0).toFixed(2);
+            changedValue[index] = HighresSum;
+            const diff = HighresSum - presentSum;
+            Change[index] = diff;
+            newCaseData.push(diff !== undefined ? diff : 0);
+            setCaseData(newCaseData);
+            setResult(ResDict);
+            setMainResult(OriginalSum)
+            setChangedValue(ChangedValue);
+            setChangeInValue(Change);
+            setApplyClicked(true);
         });
-        setCaseData(newCaseData);
-        setResult(ResDict);
-        setMainResult(OriginalSum)
-        setChangedValue(ChangedValue);
-        setChangeInValue(Change);
-        setApplyClicked(true);
     };
 
     const handleAddGrowthRate = () => {
