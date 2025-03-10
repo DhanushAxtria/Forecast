@@ -271,7 +271,11 @@ const WaterFall = () => {
             }));
         }
         const updatedGroups = [...dropdownGroups];
-        updatedGroups[index][field] = value;
+        if (field === 'OutputMetric' || field === 'Case') {
+            updatedGroups.forEach(group => group[field] = value);
+        } else {
+            updatedGroups[index][field] = value;
+        }
         setDropdownGroups(updatedGroups);
     };
     const isLastRowFilled =
