@@ -8,7 +8,6 @@ import { MyContext } from './context';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ClearIcon from '@mui/icons-material/Clear';
 import UploadIcon from '@mui/icons-material/Upload';
-import Papa from 'papaparse';
 
 
 const Forecastpagehelper = () => {
@@ -24,7 +23,6 @@ const Forecastpagehelper = () => {
     const navigate = useNavigate(); // Navigation function
     const [snackbarOpen, setSnackbarOpen] = useState(false); // Whether the snackbar is open or not
     const [snackbarMessage, setSnackbarMessage] = useState(''); // Message to display in the snackbar
-    const { setIsCol } = useContext(MyContext); // Whether the data is in column view or row view
 
 
     // Reset button

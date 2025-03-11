@@ -1469,7 +1469,6 @@ const KPI = () => {
                                 dataKey="lowCase"
                                 fill="rgba(163, 17, 17, 0.8)"
                                 name="Low Case"
-
                             >
                                 <LabelList
                                     dataKey="lowCase"

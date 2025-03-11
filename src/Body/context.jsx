@@ -38,11 +38,28 @@ const initialProducts = {
   base: { table1: initialProducts1, table2: initialProducts2, table3: initialProducts3 },
   upside: { table1: initialProducts1, table2: initialProducts2, table3: initialProducts3 },
 };
+
 const MyProvider = ({ children }) => {
+  const [Mode, setMode] = useState('Dashboard');
   const [rows, setRows] = useState([]); // State to track table rows
   const [showTable, setShowTable] = useState(false); // Controls table visibility
   const [storeValues, setStoreValues] = useState({});
   const combinedProducts = [...initialProducts1, ...initialProducts2, ...initialProducts3];
+  const combinedProductsForInput = [
+    { id: 'T1-1', name: 'US Population(14-49)', type: 'value' },
+    { id: 'T1-2', name: 'Prevalence Rate', type: '%' },
+    { id: 'T1-3', name: 'Diagonsis Rate', type: '%' },
+    { id: 'T2-1', name: 'Patients on Chronic Therapy', type: '%' },
+    { id: 'T2-2', name: 'Patients on Episodic Therapy', type: '%' },
+    { id: 'T2-6', name: 'Share assumptions across Chronic Therapy', type: '%' },
+    { id: 'T2-7', name: 'Share assumptions across Episodic Therapy', type: '%' },
+    { id: 'T3-1', name: 'Compliance - Chronic Therapy', type: '%' },
+    { id: 'T3-2', name: 'Payer Access - Chronic Therapy', type: '%' },
+    { id: 'T3-4', name: 'Compliance - Episodic Therapy', type: '%' },
+    { id: 'T3-5', name: 'Payer Access - Episodic Therapy', type: '%' },
+    { id: 'T3-8', name: 'M-o-M Growth', type: '%' },
+    { id: 'T3-9', name: 'US Price', type: 'value' },
+  ];
   const [selectedSheet, setSelectedSheet] = useState(null);
   const [ForecastedValue, setForecastValue] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -69,6 +86,7 @@ const MyProvider = ({ children }) => {
     { Case: "base", SelectedCard: "table3", SelectedRow: "T3-12" },
   ]);
 
+  
   const [showTabs, setShowTabs] = useState(false);
   const [timePeriod, setTimePeriod] = useState('Monthly');
   const [countries, setCountries] = React.useState([]);
@@ -114,7 +132,7 @@ const MyProvider = ({ children }) => {
     Object.keys(products).forEach((tabKey) => {
       formulas[tabKey] = Object.keys(products[tabKey]).reduce((acc, tableKey) => {
         acc[tableKey] = products[tabKey][tableKey].reduce((acc2, row) => {
-          acc2[row.id] = { emptyArray: [""], plusArray: ["+"] };
+          acc2[row.id] = { emptyArray: [""], plusArray: ["+"], cases: [tabKey] };
           return acc2;
         }, {});
         return acc;
@@ -181,6 +199,7 @@ const MyProvider = ({ children }) => {
       cardTitle2, setCardTitle2,
       cardTitle3, setCardTitle3,
       combinedProducts,
+      combinedProductsForInput,
       dropdownGroups, setDropdownGroups,
       showTabs, setShowTabs,
       timePeriod, setTimePeriod,
@@ -194,6 +213,7 @@ const MyProvider = ({ children }) => {
       tutHome, setTutHome,
       rows, setRows,
       showTable, setShowTable,
+      Mode, setMode,
     }}>
       {children}
     </MyContext.Provider>

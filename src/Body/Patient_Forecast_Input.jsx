@@ -44,14 +44,20 @@ import UploadFileIcon from '@mui/icons-material/UploadFile';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import AdjustIcon from '@mui/icons-material/Adjust';
 import './ProductListpage.scss';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import ToggleButton from '@mui/material/ToggleButton';
 import axios from 'axios';
 import { MyContext } from './context';
+import { is } from 'date-fns/locale';
+import { Store, StoreMallDirectory } from '@mui/icons-material';
 
 const Patient_Forecast_Input = () => {
-
+    const [productName, setProductName] = useState("");
+    const [productType, setProductType] = useState("value");
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
     const { storeValues, setStoreValues, rows, setRows, showTable, setShowTable } = useContext(MyContext);
     const { fromHistoricalDate, setFromHistoricalDate, fromForecastDate, setFromForecastDate, toForecastDate, setToForecastDate, timePeriod, setTimePeriod } = useContext(MyContext);
-    const { combinedProducts } = useContext(MyContext);
+    const { combinedProducts, combinedProductsForInput } = useContext(MyContext);
     const [selectedFile, setSelectedFile] = useState(null);
     const [selectedWorkbook, setSelectedWorkbook] = useState("");
     const [columns, setColumns] = useState([]); // Column headers based on time period
@@ -90,7 +96,9 @@ const Patient_Forecast_Input = () => {
     const { ForecastedValue, setForecastValue } = useContext(MyContext);
     const { ParsedData, setParsedData } = useContext(MyContext);
     const [combinedData, setCombinedData] = useState(null);
-
+    const { Formulas, setFormulas } = useContext(MyContext);
+    const { caseTypes, setCaseTypes } = useContext(MyContext);
+    const { therapeuticArea, setTherapeuticArea } = useContext(MyContext);
     const workbooks = [
         'Linear Regression',
         'Log Linear Regression',
@@ -100,6 +108,7 @@ const Patient_Forecast_Input = () => {
         'Damped Holt',
         'Average'
     ];
+    
 
     const generateMonthlyColumns = (start, end) => {
         const months = [];
@@ -129,7 +138,12 @@ const Patient_Forecast_Input = () => {
         }
     }, [timePeriod, fromHistoricalDate, toForecastDate]);
 
-   
+    useEffect(() => {
+        console.log(rows);
+
+
+    }, [rows])
+
 
     const handleSelectParameter = (productId) => {
         const product = combinedProducts.find((p) => p.id === productId);
@@ -334,7 +348,7 @@ const Patient_Forecast_Input = () => {
                     <tbody>
                         {rows.map((product, index) => {
                             // Create a unique key for each row using product name and case type
-                            const rowKey = `${product.id}.${product.caseType}`;
+                            const rowKey = `${product.name}.${product.caseType}`;
 
                             // Add spacing row before a new parameter's rows (every 3 rows)
                             const isFirstRowOfGroup = index % 3 === 0;
@@ -435,7 +449,7 @@ const Patient_Forecast_Input = () => {
                                             <td key={date}>
                                                 <TextField
                                                     type="number"
-                                                    value={storeValues[rowKey]?.[date] ? parseFloat(storeValues[rowKey][date]).toFixed(2) : ''}
+                                                    value={storeValues[rowKey]?.[date] ? storeValues[rowKey][date] : ''}
                                                     onChange={(e) =>
                                                         handleValueChange(rowKey, date, e.target.value)
                                                     }
@@ -444,7 +458,6 @@ const Patient_Forecast_Input = () => {
                                                     placeholder="Enter value"
                                                     inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
                                                 />
-
                                             </td>
                                         ))}
                                     </tr>
@@ -856,7 +869,7 @@ const Patient_Forecast_Input = () => {
                                 6.
                             </Typography>
                             <AdjustIcon color="primary" sx={{ marginRight: '12px' }} />
-                            <ListItemText primary="Run Time Series" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
+                            <ListItemText primary="Use Time Series Methods" primaryTypographyProps={{ fontSize: '1.1rem', fontWeight: 'medium' }} />
                         </ListItem>
                     </List>
                 </DialogContent>
@@ -1247,6 +1260,127 @@ const Patient_Forecast_Input = () => {
         }
     };
 
+    const renderAddParameterDialog = () => {
+        return (
+            <Dialog
+                open={isDialogOpen}
+                onClose={() => setIsDialogOpen(false)}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+                fullWidth
+                maxWidth="xs"
+                BackdropProps={{
+                    style: {
+                        zIndex: 1400,
+                        backgroundColor: 'rgba(0,0,0,0.2)', // Slightly dark transparent backdrop
+                    },
+                }}
+                PaperProps={{
+                    sx: {
+                        zIndex: 1600,
+                        borderRadius: '12px',
+                        boxShadow: 4,
+                        overflow: 'hidden',
+                        //padding: '24px', // Adds padding for better spacing
+                    },
+                }}
+            >
+                <DialogTitle
+                    sx={{
+                        textAlign: 'center',
+                        fontWeight: 'bold',
+                        fontSize: '1.8rem',
+                        color: '#1976d2',
+                        bgcolor: '#f0f4fa',
+                        padding: '20px',
+                        borderRadius: '12px 12px 0 0'
+                    }}
+                >
+                    Add New Field
+                </DialogTitle>
+                <br></br>
+                <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                    {/* Product Name Input */}
+                    <TextField
+                        label="Field Name"
+                        fullWidth
+                        variant="outlined"
+                        size="small"
+                        InputLabelProps={{
+                            sx: { paddingLeft: '10px' } // Adds space to the left of the label
+                        }}
+                        InputProps={{
+                            sx: {
+                                fontSize: '1.1rem',
+                                fontWeight: 'medium',
+                                marginLeft: '10px'
+                            },
+                        }}
+                        value={productName}
+                        onChange={(e) => setProductName(e.target.value)}
+                    />
+
+                    {/* Checkbox for Product Type with More Left Margin */}
+                    <ToggleButtonGroup
+                        orientation="horizontal"
+                        exclusive
+                        value={productType}
+                        onChange={(e, newValue) => setProductType(newValue)}
+                        sx={{ marginLeft: '8px' }}
+                    >
+                        <ToggleButton
+                            value="value"
+                            sx={(theme) => ({
+                                fontSize: '0.8rem',
+                                padding: '4px 8px',
+                                '&.Mui-selected': {
+                                    bgcolor: theme.palette.primary.main,  // Primary theme color
+                                    color: theme.palette.primary.contrastText, // Ensure text contrast
+                                    '&:hover': { bgcolor: theme.palette.primary.dark } // Darker on hover
+                                }
+                            })}
+                        >
+                            Value
+                        </ToggleButton>
+                        <ToggleButton
+                            value="%"
+                            sx={(theme) => ({
+                                fontSize: '0.8rem',
+                                padding: '4px 8px',
+                                '&.Mui-selected': {
+                                    bgcolor: theme.palette.primary.main,
+                                    color: theme.palette.primary.contrastText,
+                                    '&:hover': { bgcolor: theme.palette.primary.dark }
+                                }
+                            })}
+                        >
+                            %
+                        </ToggleButton>
+                    </ToggleButtonGroup>
+
+
+                </DialogContent>
+
+                <DialogActions sx={{ padding: '16px' }}>
+                    <Button onClick={handleDialogSubmit} color="primary" variant="contained">
+                        Submit
+                    </Button>
+                    <Button
+                        onClick={() => {
+                            setIsDialogOpen(false);
+                            setProductName("");
+                            setProductType("value");
+                        }}
+                        color="secondary"
+                        variant="contained"
+                    >
+                        Cancel
+                    </Button>
+
+                </DialogActions>
+            </Dialog>
+        );
+    }
     const renderTimeSeriesDialog = () => {
         return (
             <Dialog open={openTimeSeriesDialog} onClose={() => { setOpenTimeSeriesDialog(false); }} maxWidth="sm" fullWidth>
@@ -1495,29 +1629,44 @@ const Patient_Forecast_Input = () => {
         return newValues;
     };
 
-    const isButtonEnabled =
-        fromHistoricalDate &&
-        fromForecastDate &&
-        toForecastDate &&
-        dayjs(fromHistoricalDate).isBefore(fromForecastDate) &&
-        dayjs(fromForecastDate).isBefore(toForecastDate) ||
-        dayjs(fromHistoricalDate).isSame(fromForecastDate, timePeriod === 'Monthly' ? 'month' : 'year') ||
-        dayjs(fromHistoricalDate).isSame(toForecastDate, timePeriod === 'Monthly' ? 'month' : 'year');
+    useEffect(() => {
+        console.log(Formulas);
+    }, [rows])
+    const handleDialogSubmit = () => {
+        if (!productName) {
+            alert("Product name is required!");
+            return;
+        }
+        const newRows = [
+            { id: productName, name: productName, type: productType, caseType: "base" },
+            { id: productName, name: productName, type: productType, caseType: "downside" },
+            { id: productName, name: productName, type: productType, caseType: "upside" },
+        ];
+        setRows((prevRows) => [...prevRows, ...newRows]);
+        setShowTable(true);
+        setSelectedProductId(""); // Reset selection after adding
+        // Reset inputs
+        setProductName("");
+        setProductType("value");
+        setIsDialogOpen(false);
+    };
+
 
     return (
-        <div className="product-list-page" style={{ marginLeft: '10px' }}>            
+        <div className="product-list-page" style={{ marginLeft: '10px' }}>
 
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <TextField
                     select
                     size="small"
-                    sx={{ width: "200px", mr: 2, ml: 1 }}   
+                    sx={{ width: "200px", mr: 2 }}
                     value={selectedProductId}
                     onChange={(e) => handleSelectParameter(e.target.value)}
                     label="Add Parameter"
                     variant="outlined"
                 >
                     <MenuItem value="" disabled>Select a parameter</MenuItem>
-                    {combinedProducts
+                    {combinedProductsForInput
                         .filter((product) => !rows.some((row) => row.id === product.id)) // Filter out already added items
                         .map((product) => (
                             <MenuItem key={product.id} value={product.id}>
@@ -1525,7 +1674,17 @@ const Patient_Forecast_Input = () => {
                             </MenuItem>
                         ))}
                 </TextField>
-            
+                <Button
+                    variant="contained"
+                    color="primary"
+                    size="small"
+                    sx={{ ml: 1 }}
+                    onClick={() => setIsDialogOpen(true)}
+                >
+                    Add New Parameter
+                </Button>
+            </Box>
+
             {showTable && renderTable()}
             {openInfoMethodDialog && renderInfoMethodDialog()}
             {openInputMethodDialog && renderInputMethodDialog()}
@@ -1534,6 +1693,7 @@ const Patient_Forecast_Input = () => {
             {openUploadDialog && renderUploadFromFileDialog()}
             {openCopyFromDialog && renderCopyFromDialog()}
             {openTimeSeriesDialog && renderTimeSeriesDialog()}
+            {isDialogOpen && renderAddParameterDialog()}
         </div>
     );
 };

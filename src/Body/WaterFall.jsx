@@ -126,10 +126,6 @@ const WaterFall = () => {
             return [];
         })
         .flat();
-    const scenarioValue = dropdownGroups.map((group, index) => (
-        console.log("changeInValue?.[index]", changeInValue?.[index]),
-        Number(mainresult?.[0] || 0) + (changeInValue?.[index] || 0)
-    ))
     const handleScenarioValue = (dropdownGroups, mainresult, changeInValue) => {
         let scenarioValue = Number(mainresult?.[0] || 0); // Initialize with the base value
 
@@ -175,39 +171,8 @@ const WaterFall = () => {
         });
     };
     const data = processWaterfallData(rawData);
-    useEffect(() => {
-        console.log("cahrt", data);
-    }, [data]);
     // Chart Options
-    const options = {
-        indexAxis: 'y', // Horizontal bar
-        scales: {
-            x: {
-                beginAtZero: true,
-                grid: {
-                    display: true,
-                },
-                ticks: {
-                    callback: (value) => `$${value}M`,
-                },
-            },
-            y: {
-                grid: {
-                    display: false,
-                },
-            },
-        },
-        plugins: {
-            legend: {
-                position: 'top',
-            },
-            tooltip: {
-                callbacks: {
-                    label: (tooltipItem) => `$${tooltipItem.raw}M`,
-                },
-            },
-        },
-    };
+
     const handleAddDropdownGroup = (index) => {
         setDropdownGroups([...dropdownGroups, { Case: dropdownGroups[index].Case, OutputMetric: dropdownGroups[index].OutputMetric, Field: "" }]);
         setCurrentCase(prev => ({
@@ -1198,7 +1163,6 @@ const WaterFall = () => {
                                                         )}
                                                 </Select>
                                             </FormControl>
-
                                         </TableCell>
 
                                         {/* High/ Case Buttons, Add, and Delete */}
@@ -1253,7 +1217,6 @@ const WaterFall = () => {
                         </Table>
                     </TableContainer>
                 </Grid>
-
                 <Grid item xs={12}>
                     <ResponsiveContainer width="100%" height={300}>
                         <BarChart
@@ -1263,7 +1226,15 @@ const WaterFall = () => {
                             <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
                             <XAxis dataKey="name" tick={{ fontSize: 12 }} />
                             <YAxis
-                                tickFormatter={(tick) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(tick)}
+                                tickFormatter={(value) => {
+                                    if (value >= 1000000 || value <= -1000000) {
+                                        return `${(value / 1000000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}M`;
+                                    } else if (value >= 1000 || value <= -1000) {
+                                        return `${(value / 1000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}K`;
+                                    } else {
+                                        return `${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                                    }
+                                }}
                                 tick={{ fontSize: 12 }}
                             />
                             <Tooltip

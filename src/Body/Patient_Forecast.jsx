@@ -56,12 +56,10 @@ const Patient_Forecast = () => {
     const [formulaDetails, setFormulaDetails] = useState({ tableKey: null, tabKey: null, productId: null });
     const [editingProductId, setEditingProductId] = useState(null);
     const [editedProductName, setEditedProductName] = useState('');
-
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [productName, setProductName] = useState("");
     const [productType, setProductType] = useState("value"); // Default selection
     const [pendingAdd, setPendingAdd] = useState(null);
-
     const { Formulas, setFormulas } = useContext(MyContext);
     const [openInputMethodDialog, setOpenInputMethodDialog] = useState(false);
     const [openGrowthRateDialog, setOpenGrowthRateDialog] = useState(false);
@@ -69,6 +67,7 @@ const Patient_Forecast = () => {
     const [startValue, setStartValue] = useState(''); // Start value for Specify Start and Target Values
     const [endValue, setEndValue] = useState(''); // End value for Specify Start and Target Values
     const [selectedRowId, setselectedRowId] = useState(null);
+    const [selectedRowName, setSelectedRowName] = useState(null);
     const { timePeriod, setTimePeriod } = useContext(MyContext);
     const navigate = useNavigate();
     const { values, setValues } = useContext(MyContext);
@@ -86,7 +85,6 @@ const Patient_Forecast = () => {
     const [columns, setColumns] = useState([]);  // Column headers based on time period
     const [openInfoMethodDialog, setOpenInfoMethodDialog] = useState(false);
     const [showFormula, setShowFormula] = useState(false);
-
     const [tab_value, setTabValue] = useState(null);
     const { products, setProducts } = useContext(MyContext);
     const [isCardEditing1, setIsCardEditing1] = useState(false);
@@ -639,6 +637,7 @@ const Patient_Forecast = () => {
                                             <IconButton className='data-input-button' color="primary" onClick={() => {
                                                 setSelectedTab(tabKey);
                                                 setselectedRowId(product.id);
+                                                setSelectedRowName(product.name);
                                                 setOpenInputMethodDialog(true);
                                             }}>
                                                 <CloudUploadIcon fontSize="small" />
@@ -930,11 +929,10 @@ const Patient_Forecast = () => {
                             <br></br>
                             {/* Render each dropdown dynamically based on selectedValues and operators */}
                             {editingFormula[formulaDetails.tabKey]?.[formulaDetails.tableKey]?.[formulaDetails.productId]?.emptyArray?.map((selectedValue, index) => (
-                                <div key={index} style={{ width: 400, display: 'flex', alignItems: 'center', marginBottom: 16 }}>
+                                <div key={index} style={{ width: 500, display: 'flex', alignItems: 'center', marginBottom: 16 }}>
                                     {/* Operator Dropdown on the left */}
-
                                     {index > 0 && (
-                                        <FormControl style={{ width: 100, marginRight: 8 }}>
+                                        <FormControl style={{ width: 150, marginRight: 8 }}>
                                             <InputLabel id={`operator-label-${index}`}>Operator</InputLabel>
                                             <Select
                                                 labelId={`operator-label-${index}`}
@@ -950,6 +948,23 @@ const Patient_Forecast = () => {
                                             </Select>
                                         </FormControl>
                                     )}
+                                    {(
+                                        <FormControl style={{ width: 200, marginRight: 8 }}>
+                                            <InputLabel id={`case-label-${index}`}>Case</InputLabel>
+                                            <Select
+                                                labelId={`case-label-${index}`}
+                                                id={`case-${index}`}
+                                                value={editingFormula[formulaDetails.tabKey][formulaDetails.tableKey][formulaDetails.productId].cases[index]}
+                                                onChange={(e) => handleSelectChange(formulaDetails.productId, tabKey, tableKey, index, 'case', e)}
+                                                label="Case"
+                                            >
+                                                <MenuItem value="base">Base</MenuItem>
+                                                <MenuItem value="upside">Upside</MenuItem>
+                                                <MenuItem value="downside">Downside</MenuItem>
+                                            </Select>
+                                        </FormControl>
+                                    )}
+
 
                                     {/* Formula Dropdown on the right */}
                                     <FormControl fullWidth style={{ flexGrow: 1 }}>
@@ -961,8 +976,8 @@ const Patient_Forecast = () => {
                                             onChange={(e) => handleSelectChange(formulaDetails.productId, formulaDetails.tabKey, formulaDetails.tableKey, index, 'formula', e)}
                                             label={`Select Formula ${index + 1}`}
                                         >
-                                            {Object.keys(products[formulaDetails.tabKey]).map((tableKey) => (
-                                                products[formulaDetails.tabKey][tableKey].map((product) => (
+                                            {Object.keys(products[editingFormula[formulaDetails.tabKey][formulaDetails.tableKey][formulaDetails.productId].cases[index]]).map((tableKey) => (
+                                                products[editingFormula[formulaDetails.tabKey][formulaDetails.tableKey][formulaDetails.productId].cases[index]][tableKey].map((product) => (
                                                     <MenuItem key={product.id} value={product.id}>
                                                         {product.name}
                                                     </MenuItem>
@@ -1641,7 +1656,10 @@ const Patient_Forecast = () => {
                 if (row) {
                     if (type === "operator") {
                         row.plusArray[index] = newValue;
-                    } else {
+                    } else if (type === "case") {
+                        row.cases[index] = newValue;
+                    }
+                    else {
                         row.emptyArray[index] = newValue;
                     }
                 }
@@ -1660,6 +1678,7 @@ const Patient_Forecast = () => {
                     [row_id]: {
                         emptyArray: [...prevDict[tabKey][tableKey][row_id].emptyArray, ''],
                         plusArray: [...prevDict[tabKey][tableKey][row_id].plusArray, '+'],
+                        cases: [...prevDict[tabKey][tableKey][row_id].cases, tabKey],
                     },
                 },
             },
@@ -1677,6 +1696,8 @@ const Patient_Forecast = () => {
                     [row_id]: {
                         emptyArray: prevDict[tabKey][tableKey][row_id].emptyArray.filter((_, i) => i !== index),
                         plusArray: prevDict[tabKey][tableKey][row_id].plusArray.filter((_, i) => i !== index),
+                        cases: prevDict[tabKey][tableKey][row_id].cases.filter((_, i) => i !== index),
+
                     },
                 },
             },
@@ -1686,8 +1707,9 @@ const Patient_Forecast = () => {
     const handleApply = (tabKey, tableKey, row_id) => {
         const prod = products[tabKey][tableKey];
         const productType = prod.find((product) => product.id === row_id)?.type;
-        const selectedIds = editingFormula[tabKey][tableKey][row_id].emptyArray
-        const operatorsList = editingFormula[tabKey][tableKey][row_id].plusArray
+        const selectedIds = editingFormula[tabKey][tableKey][row_id].emptyArray;
+        const operatorsList = editingFormula[tabKey][tableKey][row_id].plusArray;
+        const casesList = editingFormula[tabKey][tableKey][row_id].cases;
         // Slice the operators array to exclude the first element (which is the default "+")
         const operatorSliced = operatorsList.slice(1);
         let res = {}; // Object to store the results of the forecast calculation
@@ -1711,8 +1733,9 @@ const Patient_Forecast = () => {
         }
         // Get the first selected product's id
         const idd = selectedIds[0];
+        const Case = casesList[0];
         // Get the first selected product's values based on the current tabKey
-        const val = tabKey === 'downside' ? values[idd] : tabKey === 'base' ? values2[idd] : values3[idd];
+        const val = Case === 'downside' ? values[idd] : Case === 'base' ? values2[idd] : values3[idd];
         let typee = null;
         Object.keys(products[tabKey]).forEach(table => {
             const temp = products[tabKey][table].find((product) => product.id === idd)?.type;
@@ -1734,7 +1757,8 @@ const Patient_Forecast = () => {
         // Iterate over the selected product IDs starting from the second element
         for (let i = 1; i < selectedIds.length; i++) {
             const id = selectedIds[i];
-            const tempval = tabKey === 'downside' ? values[id] : tabKey === 'base' ? values2[id] : values3[id];
+            const TempCase = casesList[i];
+            const tempval = TempCase === 'downside' ? values[id] : TempCase === 'base' ? values2[id] : values3[id];
             let temptype = null;
             Object.keys(products[tabKey]).forEach(table => {
                 const temp = products[tabKey][table].find((product) => product.id === id)?.type;
@@ -1885,7 +1909,7 @@ const Patient_Forecast = () => {
                 ...prevFormulas[tabKey],
                 [tableKey]: {
                     ...prevFormulas[tabKey][tableKey],
-                    [newProduct.id]: { emptyArray: [""], plusArray: ["+"] }
+                    [newProduct.id]: { emptyArray: [""], plusArray: ["+"], cases: [tabKey] }
                 }
             }
         }));
@@ -1896,7 +1920,7 @@ const Patient_Forecast = () => {
                 ...prevEditingFormulas[tabKey],
                 [tableKey]: {
                     ...prevEditingFormulas[tabKey][tableKey],
-                    [newProduct.id]: { emptyArray: [""], plusArray: ["+"] }
+                    [newProduct.id]: { emptyArray: [""], plusArray: ["+"], cases: [tabKey] }
                 }
             }
         }));
@@ -1908,6 +1932,10 @@ const Patient_Forecast = () => {
     };
 
 
+    useEffect(() => {
+        console.log("Formulassssss", Formulas);
+    }, [Formulas])
+    
     const handleDeleteRow = (productId, tabKey, tableKey) => {
         const tableProducts = products[tabKey][tableKey];  // Get the current list of products
 
@@ -1922,10 +1950,44 @@ const Patient_Forecast = () => {
                 [tableKey]: updatedProducts, // Update the table for this tab with the updated products
             },
         }));
+        // Update formulas and editingFormula to remove the product's row
+        setFormulas((prevFormulas) => ({
+            ...prevFormulas,
+            [tabKey]: {
+                ...prevFormulas[tabKey],
+                [tableKey]: Object.fromEntries(
+                    Object.entries(prevFormulas[tabKey][tableKey]).filter(([key]) => key !== productId)
+                )
+            }
+        }));
+        setEditingFormula((prevEditingFormula) => ({
+            ...prevEditingFormula,
+            [tabKey]: {
+                ...prevEditingFormula[tabKey],
+                [tableKey]: Object.fromEntries(
+                    Object.entries(prevEditingFormula[tabKey][tableKey]).filter(([key]) => key !== productId)
+                )
+            }
+        }));
+        // Update values, values2, or values3 to remove the product's row, depending on the tabKey
+        if (tabKey === "downside") {
+            setValues((prevValues) => {
+                const { [productId]: _, ...rest } = prevValues;
+                return rest;
+            });
+        } else if (tabKey === "base") {
+            setValues2((prevValues2) => {
+                const { [productId]: _, ...rest } = prevValues2;
+                return rest;
+            });
+        } else {
+            setValues3((prevValues3) => {
+                const { [productId]: _, ...rest } = prevValues3;
+                return rest;
+            });
+        }
+
     };
-
-
-
     /*Resets the editing state by clearing the edited product name in the table row and
      setting the editingProductId to null*/
     const handleCancelClick = () => {
@@ -2021,7 +2083,8 @@ const Patient_Forecast = () => {
                         [productId]: {
                             ...prevFormulas[tabKey][tableKey][productId],
                             emptyArray: [""],
-                            plusArray: ["+"]
+                            plusArray: ["+"],
+                            cases: [""]
                         }
                     }
                 }
@@ -2035,7 +2098,8 @@ const Patient_Forecast = () => {
                         [productId]: {
                             ...prevFormulas[tabKey][tableKey][productId],
                             emptyArray: [""],
-                            plusArray: ["+"]
+                            plusArray: ["+"],
+                            cases: [""]
                         }
                     }
                 }
@@ -2427,12 +2491,14 @@ const Patient_Forecast = () => {
         });
         return newValues;
     };
-    const rowKey = `${selectedRowId}.${selectedTab}`;
+    const rowKey = `${selectedRowName}.${selectedTab}`;
     const handleCopyFromInputPage = () => {
         if (storeValues[rowKey] && typeof storeValues[rowKey] === 'object') {
             Object.keys(storeValues[rowKey]).forEach((date) => {
-                console.log('storeValues[rowKey][date]:', storeValues[rowKey][date]);
-                handleValueChange(selectedTab, selectedRowId, date, storeValues[rowKey][date]);
+                const valueToUse = storeValues[rowKey];
+                if (valueToUse) {
+                    handleValueChange(selectedTab, selectedRowId, date, valueToUse[date]);
+                }
             });
         } else if (storeValues[rowKey] === null || storeValues[rowKey] === undefined) {
             alert('No data found');

@@ -25,7 +25,6 @@ const forecastOptions = {
   'H2 - 2024': ['Forecast 7', 'Forecast 8'],
 
 };
-const sampleUsernames = ['john_doe', 'jane_smith', 'michael_wang', 'emma_clark', 'chris_jones'];
 
 const DataConsolidation = () => {
   const [greeting, setGreeting] = useState(''); // State for greeting message

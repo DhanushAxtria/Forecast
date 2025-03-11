@@ -31,7 +31,6 @@ const forecastOptions = {
   'H2 - 2024': ['Forecast 7', 'Forecast 8'],
 
 };
-const sampleUsernames = ['john_doe', 'jane_smith', 'michael_wang', 'emma_clark', 'chris_jones'];
 
 const options = [
   "View Details",
@@ -373,11 +372,11 @@ const Admin = () => {
   return (
     <div style={{ backgroundColor: 'white', padding: '20px', marginTop: '-44px' }}>
       {/* Greeting section */}
-      <Button        
+      <Button
         variant="contained"
         size='small'
         sx={{ color: 'white', position: 'absolute', right: 0, cursor: 'pointer', mt: 3, mr: 2 }}
-        onClick={startTour} 
+        onClick={startTour}
         className="start-tour-button"
       >
         Show Tutorial
@@ -662,6 +661,5 @@ const styles = {
     cursor: 'pointer',
   },
 };
-
 export default Admin;
 

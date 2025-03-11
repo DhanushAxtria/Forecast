@@ -9,7 +9,6 @@ import Switch from '@mui/material/Switch';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from "@mui/icons-material/Delete";
 import dayjs from 'dayjs';
-import { LabelList } from 'recharts';
 import { useNavigate } from 'react-router-dom';
 import {
     ResponsiveContainer,
@@ -162,11 +161,6 @@ const Dashboard = () => {
         updatedGroups[index][field] = value;
         setDropdownGroups(updatedGroups);
     };
-    const isLastRowFilled =
-        dropdownGroups.length > 0 &&
-        dropdownGroups[dropdownGroups.length - 1].Case &&
-        dropdownGroups[dropdownGroups.length - 1].SelectedCard &&
-        dropdownGroups[dropdownGroups.length - 1].SelectedRow;
 
     const [chartType, setChartType] = useState("line");
     const toggleChartType = () => {
@@ -405,10 +399,7 @@ const Dashboard = () => {
         intro.start();
     };
 
-    useEffect(() => {
-      console.log("chartData", chartData);
-    }, [chartData])
-    
+
     return (
         <>
             <Button
@@ -434,7 +425,7 @@ const Dashboard = () => {
                     {/* Case Dropdown */}
                     <FormControl className='filter-case' sx={{ ml: 1 }}>
                         <InputLabel id={`case-select-label-${index}`}
-                        sx={{ fontSize: '0.9rem', top: '-6px', color: '#333' }}>Case</InputLabel>
+                            sx={{ fontSize: '0.9rem', top: '-6px', color: '#333' }}>Case</InputLabel>
                         <Select
                             labelId={`case-select-label-${index}`}
                             id={`case-select-${index}`}
@@ -452,7 +443,7 @@ const Dashboard = () => {
                     {/* Card Dropdown */}
                     <FormControl className='filter-card' sx={{ m: 1 }}>
                         <InputLabel id={`card-select-label-${index}`}
-                        sx={{ fontSize: '0.9rem', top: '-6px', color: '#333' }}>Card Name</InputLabel>
+                            sx={{ fontSize: '0.9rem', top: '-6px', color: '#333' }}>Card Name</InputLabel>
                         <Select
                             labelId={`card-select-label-${index}`}
                             id={`card-select-${index}`}
@@ -470,7 +461,7 @@ const Dashboard = () => {
                     {/* Parameter Dropdown */}
                     <FormControl className='filter-product' sx={{ mr: 1 }}>
                         <InputLabel id={`parameter-select-label-${index}`}
-                        sx={{ fontSize: '0.9rem', top: '-6px', color: '#333' }}>Parameter Name</InputLabel>
+                            sx={{ fontSize: '0.9rem', top: '-6px', color: '#333' }}>Parameter Name</InputLabel>
                         <Select
                             labelId={`parameter-select-label-${index}`}
                             id={`parameter-select-${index}`}
@@ -530,7 +521,16 @@ const Dashboard = () => {
                     <LineChart data={chartData} margin={{ left: 50, right: 50 }}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="month" />
-                        <YAxis />
+                        <YAxis
+                            tickFormatter={(value) => {
+                                if (value >= 1000000 || value <= -1000000) {
+                                    return `${(value / 1000000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}M`;
+                                } else if (value >= 1000 || value <= -1000) {
+                                    return `${(value / 1000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}K`;
+                                } else {
+                                    return `${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                                }
+                            }} />
                         <Tooltip
                             formatter={(value) =>
                                 typeof value === "number"
@@ -560,7 +560,16 @@ const Dashboard = () => {
                     <BarChart data={chartData} margin={{ left: 50, right: 50 }}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="month" />
-                        <YAxis />
+                        <YAxis
+                            tickFormatter={(value) => {
+                                if (value >= 1000000 || value <= -1000000) {
+                                    return `${(value / 1000000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}M`;
+                                } else if (value >= 1000 || value <= -1000) {
+                                    return `${(value / 1000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}K`;
+                                } else {
+                                    return `${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                                }
+                            }} />
                         <Tooltip
                             formatter={(value) =>
                                 typeof value === "number"
@@ -618,7 +627,6 @@ const Dashboard = () => {
                     Show Saved Views
                 </Button>
             </Box>
-
         </>
     );
 };
