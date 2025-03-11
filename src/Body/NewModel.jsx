@@ -9,13 +9,13 @@ const NewModel = () => {
     const models = [
         {
             title: 'Epidemiology Model',
-            description: 'Model the spread and impact of diseases.',
+            description: 'A patient-based forecasting model designed to analyze disease spread. Perform sensitivity analysis and scenario comparison to support evidence-based decision-making.',
             icon: <HealthAndSafety sx={{ fontSize: 50, color: '#ff5722' }} />,
             path: "/new-model/epidemiology-model",
         },
         {
             title: 'Time Series Model',
-            description: 'Analyze trends over time and forecast future outcomes.',
+            description: 'Leverage historical data to uncover patterns, detect emerging trends, and generate precise forecasts using statistical models for informed decision-making and strategic planning.',
             icon: <Timeline sx={{ fontSize: 50, color: '#4caf50' }} />,
             path: "/new-model/time-series-model",
         },

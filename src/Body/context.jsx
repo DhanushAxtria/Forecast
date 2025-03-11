@@ -44,7 +44,7 @@ const initialProducts = {
 const MyProvider = ({ children }) => {
   const [therapeuticArea, setTherapeuticArea] = useState('');
   const [caseTypeLabels, setCaseTypeLabels] = useState(['Base', 'Downside', 'Upside']);
-  const [caseTypeLabelsOnco, setCaseTypeLabelsOnco] = useState(['Line 1', 'Line 2', 'Line 3']);
+  const [caseTypeLabelsOnco, setCaseTypeLabelsOnco] = useState(['Line 1', 'Line 2', 'Line 3+']);
  
 
   const [Mode, setMode] = useState('Dashboard');

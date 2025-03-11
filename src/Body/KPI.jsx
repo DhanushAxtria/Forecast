@@ -53,6 +53,8 @@ const KPI = () => {
     const { products, timePeriod, Formulas, fromHistoricalDate, toForecastDate, values, values2, values3 } = useContext(MyContext);
     const [Res, setRes] = useState({});
     const [Index, setIndex] = useState("");
+    const { therapeuticArea, setTherapeuticArea } = useContext(MyContext);
+    const { caseTypeLabels, setCaseTypeLabels, caseTypeLabelsOnco, setCaseTypeLabelsOnco } = useContext(MyContext);
 
     const [buttonType, setButtonType] = useState("");
     const [editingHighFileToFill, setEditingHighFileToFill] = useState({});
@@ -784,7 +786,7 @@ const KPI = () => {
             setLowResSum(lowResSum);
             setApplyClicked(true);
         });
-        
+
     };
 
     const handleAddGrowthRate = () => {
@@ -1288,9 +1290,11 @@ const KPI = () => {
                                                     onChange={(e) => handleDropdownChange(index, "Case", e.target.value)}
                                                     sx={{ fontSize: "0.9rem", minWidth: "10rem", width: "10rem", height: "2.5rem" }}
                                                 >
-                                                    <MenuItem value="downside">Downside</MenuItem>
-                                                    <MenuItem value="base">Base</MenuItem>
-                                                    <MenuItem value="upside">Upside</MenuItem>
+                                                    {["base", "downside", "upside"].map((caseValue, i) => (
+                                                        <MenuItem key={caseValue} value={caseValue}>
+                                                            {therapeuticArea === "Oncology" ? caseTypeLabelsOnco[i] : caseTypeLabels[i]}
+                                                        </MenuItem>
+                                                    ))}
                                                 </Select>
                                             </FormControl>
                                         </TableCell>

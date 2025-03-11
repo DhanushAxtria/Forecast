@@ -108,6 +108,8 @@ const Dashboard = () => {
     const { products } = useContext(MyContext);
     const { values, values2, values3, setDropdownGroups, dropdownGroups } = useContext(MyContext); // values, values2, values3 are table values.
     const { cardTitle1, cardTitle2, cardTitle3 } = useContext(MyContext);
+    const { therapeuticArea, setTherapeuticArea } = useContext(MyContext);
+    const { caseTypeLabels, setCaseTypeLabels, caseTypeLabelsOnco, setCaseTypeLabelsOnco } = useContext(MyContext);
     const { timePeriod } = useContext(MyContext);
     const { fromHistoricalDate } = useContext(MyContext);
     const { toForecastDate } = useContext(MyContext);
@@ -434,9 +436,11 @@ const Dashboard = () => {
                             onChange={(e) => handleDropdownChange(index, "Case", e.target.value)}
                             sx={{ fontSize: "0.9rem", minWidth: "10rem", width: "10rem", height: "2.5rem" }}
                         >
-                            <MenuItem value="downside">Downside</MenuItem>
-                            <MenuItem value="base">Base</MenuItem>
-                            <MenuItem value="upside">Upside</MenuItem>
+                            {["base", "downside", "upside"].map((caseValue, i) => (
+                                <MenuItem key={caseValue} value={caseValue}>
+                                    {therapeuticArea === "Oncology" ? caseTypeLabelsOnco[i] : caseTypeLabels[i]}
+                                </MenuItem>
+                            ))}
                         </Select>
                     </FormControl>
 
