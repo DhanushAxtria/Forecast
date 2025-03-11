@@ -39,7 +39,14 @@ const initialProducts = {
   upside: { table1: initialProducts1, table2: initialProducts2, table3: initialProducts3 },
 };
 
+
+
 const MyProvider = ({ children }) => {
+  const [therapeuticArea, setTherapeuticArea] = useState('');
+  const [caseTypeLabels, setCaseTypeLabels] = useState(['Base', 'Downside', 'Upside']);
+  const [caseTypeLabelsOnco, setCaseTypeLabelsOnco] = useState(['Line 1', 'Line 2', 'Line 3']);
+ 
+
   const [Mode, setMode] = useState('Dashboard');
   const [rows, setRows] = useState([]); // State to track table rows
   const [showTable, setShowTable] = useState(false); // Controls table visibility
@@ -214,6 +221,9 @@ const MyProvider = ({ children }) => {
       rows, setRows,
       showTable, setShowTable,
       Mode, setMode,
+      therapeuticArea, setTherapeuticArea,
+      caseTypeLabels,setCaseTypeLabels,
+      caseTypeLabelsOnco, setCaseTypeLabelsOnco,
     }}>
       {children}
     </MyContext.Provider>

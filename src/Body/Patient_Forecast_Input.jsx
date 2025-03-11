@@ -49,7 +49,6 @@ import ToggleButton from '@mui/material/ToggleButton';
 import axios from 'axios';
 import { MyContext } from './context';
 import { is } from 'date-fns/locale';
-import { Store, StoreMallDirectory } from '@mui/icons-material';
 
 const Patient_Forecast_Input = () => {
     const [productName, setProductName] = useState("");
@@ -97,8 +96,9 @@ const Patient_Forecast_Input = () => {
     const { ParsedData, setParsedData } = useContext(MyContext);
     const [combinedData, setCombinedData] = useState(null);
     const { Formulas, setFormulas } = useContext(MyContext);
-    const { caseTypes, setCaseTypes } = useContext(MyContext);
     const { therapeuticArea, setTherapeuticArea } = useContext(MyContext);
+    const { caseTypeLabels, setCaseTypeLabels, caseTypeLabelsOnco, setCaseTypeLabelsOnco } = useContext(MyContext);
+
     const workbooks = [
         'Linear Regression',
         'Log Linear Regression',
@@ -108,7 +108,6 @@ const Patient_Forecast_Input = () => {
         'Damped Holt',
         'Average'
     ];
-    
 
     const generateMonthlyColumns = (start, end) => {
         const months = [];
@@ -348,7 +347,7 @@ const Patient_Forecast_Input = () => {
                     <tbody>
                         {rows.map((product, index) => {
                             // Create a unique key for each row using product name and case type
-                            const rowKey = `${product.name}.${product.caseType}`;
+                            const rowKey = `${product.id}.${product.caseType}`;
 
                             // Add spacing row before a new parameter's rows (every 3 rows)
                             const isFirstRowOfGroup = index % 3 === 0;
@@ -444,7 +443,11 @@ const Patient_Forecast_Input = () => {
                                                 )}
                                             </div>
                                         </td>
-                                        <td>{product.caseType === 'base' ? 'Base' : product.caseType === 'downside' ? 'Downside' : 'Upside'}</td>
+                                        {
+                                            therapeuticArea === 'Oncology' ?
+                                            <td>{caseTypeLabelsOnco[product.caseType === 'base' ? 0 : product.caseType === 'downside' ? 1 : 2]}</td> :
+                                            <td>{caseTypeLabels[product.caseType === 'base' ? 0 : product.caseType === 'downside' ? 1 : 2]}</td>
+                                        }
                                         {columns.map((date) => (
                                             <td key={date}>
                                                 <TextField

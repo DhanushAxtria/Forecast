@@ -83,7 +83,7 @@ const defaultIndicationColumns = ['Indication 1', 'Indication 2', 'Indication 3'
 const ForecastAndFlowDiagram = (props) => {
     const location = useLocation();
     const scenario = location.state?.scenario;
-    const { fromHistoricalDate, setFromHistoricalDate, fromForecastDate, setFromForecastDate, toForecastDate, setToForecastDate, timePeriod, setTimePeriod } = useContext(MyContext);
+    const { fromHistoricalDate, setFromHistoricalDate, fromForecastDate, setFromForecastDate, toForecastDate, setToForecastDate, timePeriod, setTimePeriod, caseTypeLabelsOnco, setCaseTypeLabelsOnco} = useContext(MyContext);
     const { hasUnsavedChanges, setHasUnsavedChanges } = props;
     console.log(scenario);
     const [isProductListVisible, setIsProductListVisible] = useState(false);
@@ -104,7 +104,9 @@ const ForecastAndFlowDiagram = (props) => {
     const [forecastCycle, setForecastCycle] = useState(scenario?.forecastScenario ? scenario.forecastScenario : '');
     const [country, setCountry] = useState(scenario?.country ? scenario.country : '');
     const [isProductTableCollapsed, setIsProductTableCollapsed] = useState(false);
-    const [therapeuticArea, setTherapeuticArea] = useState(scenario?.therapeuticArea ? scenario.therapeuticArea : '');
+    //const [therapeuticArea, setTherapeuticArea] = useState(scenario?.therapeuticArea ? scenario.therapeuticArea : '');
+    const { therapeuticArea, setTherapeuticArea } = useContext(MyContext);
+    const { caseTypeLabels, setCaseTypeLabels } = useContext(MyContext);
     const [showHistoricalCalendar, setShowHistoricalCalendar] = useState(false);
     const [showForecastCalendar, setShowForecastCalendar] = useState(false);
     const [historicalView, setHistoricalView] = useState('year'); // Track the view state
@@ -155,7 +157,7 @@ const ForecastAndFlowDiagram = (props) => {
         "Denmark": "DKK",
         "Norway": "NOK",
         "Sweden": "SEK"
-    }    
+    }
     const forecastCycleOptions = ['H1 - 2023', 'H2 - 2023', 'H1 - 2024', 'H2 - 2024'];
     // State to control visibility of calendars for each product
     const [openCalendars, setOpenCalendars] = useState({});
@@ -857,18 +859,19 @@ const ForecastAndFlowDiagram = (props) => {
                                     onChange={(e) => setCurrency(e.target.value)}
                                     label="Currency"
                                     variant="outlined"
-                                >    
+                                >
                                     <MenuItem value="local">{currencies[country]}</MenuItem>
                                     <MenuItem value="USD">USD</MenuItem>
-                                    
+
                                 </TextField>
 
                             </Box>
                         </Grid>
                         <Grid container spacing={2} >
-                           
 
-                            <Box display="flex" alignItems="center" mt = {2} ml={2} p={2} className="time-period-button" >
+
+                            <Box display="flex" alignItems="center" mt={2} ml={2} p={2} className="time-period-button">
+                                {/* Time Period Selection */}
                                 <TextField
                                     select
                                     label="Time Period"
@@ -881,10 +884,11 @@ const ForecastAndFlowDiagram = (props) => {
                                     <MenuItem value="Monthly">Monthly</MenuItem>
                                     <MenuItem value="Yearly">Yearly</MenuItem>
                                 </TextField>
+
                                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                                     <DatePicker
                                         views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
-                                        label={timePeriod === 'Monthly' ? ' Historical Start Month' : 'Historical Start Year'}
+                                        label={timePeriod === 'Monthly' ? 'Historical Start Month' : 'Historical Start Year'}
                                         value={fromHistoricalDate}
                                         onChange={(newValue) => setFromHistoricalDate(newValue)}
                                         format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
@@ -901,7 +905,6 @@ const ForecastAndFlowDiagram = (props) => {
                                         slotProps={{ textField: { size: 'small' } }}
                                         sx={{ width: '200px', mr: 2 }}
                                         minDate={fromHistoricalDate}
-
                                     />
                                     <DatePicker
                                         views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
@@ -910,10 +913,29 @@ const ForecastAndFlowDiagram = (props) => {
                                         onChange={(newValue) => setToForecastDate(newValue)}
                                         format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
                                         slotProps={{ textField: { size: 'small' } }}
-                                        sx={{ width: '200px' }}
+                                        sx={{ width: '200px', mr: 2 }}
                                         minDate={fromForecastDate}
                                     />
                                 </LocalizationProvider>
+                            </Box>
+
+                            {/* Dynamic Case Type Labels Input */}
+                            <Box display="flex" flexDirection="row" mt={2} ml={2} p={2}>
+                                {caseTypeLabels.map((label, index) => (
+                                    <TextField
+                                        key={index}
+                                        label={`Label ${index + 1}`}
+                                        variant="outlined"
+                                        size="small"
+                                        value={therapeuticArea === 'Oncology'? caseTypeLabelsOnco[index] : caseTypeLabels[index]}
+                                        onChange={(e) => {
+                                            const updatedLabels = [...therapeuticArea === 'Oncology'? caseTypeLabelsOnco : caseTypeLabels];
+                                            updatedLabels[index] = e.target.value;
+                                            therapeuticArea === 'Oncology'? setCaseTypeLabelsOnco(updatedLabels) : setCaseTypeLabels(updatedLabels);
+                                        }}
+                                        sx={{ width: '200px', mr: 2, mb: 1 }}
+                                    />
+                                ))}
                             </Box>
                         </Grid>
                         <Box>

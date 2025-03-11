@@ -108,6 +108,8 @@ const Patient_Forecast = () => {
     const [savedText, setSavedText] = useState({});
     const [savedText2, setSavedText2] = useState({});
     const { editingFormula, setEditingFormula } = useContext(MyContext);
+    const { therapeuticArea, setTherapeuticArea } = useContext(MyContext);
+    const { caseTypeLabels, setCaseTypeLabels, caseTypeLabelsOnco, setCaseTypeLabelsOnco } = useContext(MyContext);
     const [tabTableVisibility, setTabTableVisibility] = useState({
         downside: { table1: false, table2: false, table3: false },
         base: { table1: false, table2: false, table3: false },
@@ -3077,7 +3079,7 @@ const Patient_Forecast = () => {
                                     justifyContent: 'space-around', // Distribute tabs evenly
                                 },
                             }} >
-                            <Tab label="Downside Case" sx={{
+                            <Tab label={therapeuticArea === 'Oncology' ? caseTypeLabelsOnco[0] : caseTypeLabels[0]} sx={{
                                 fontWeight: 'bold',
                                 fontSize: '15px', // Increase font size
                                 color: tab_value === 0 ? '#007bff' : 'black', // Highlight selected tab
@@ -3086,7 +3088,7 @@ const Patient_Forecast = () => {
                                     fontSize: '20px', // Increase font size of selected tab
                                 }
                             }} />
-                            <Tab label="Base Case" sx={{
+                            <Tab label={therapeuticArea === 'Oncology' ? caseTypeLabelsOnco[1] : caseTypeLabels[1]} sx={{
                                 fontWeight: 'bold',
                                 fontSize: '15px', // Increase font size
                                 color: tab_value === 1 ? '#007bff' : 'black', // Highlight selected tab
@@ -3096,7 +3098,7 @@ const Patient_Forecast = () => {
                                 }
                             }} />
 
-                            <Tab label="Upside Case" sx={{
+                            <Tab label={therapeuticArea === 'Oncology' ? caseTypeLabelsOnco[2] : caseTypeLabels[2]} sx={{
                                 fontWeight: 'bold',
                                 fontSize: '15px', // Increase font size
                                 color: tab_value === 2 ? '#007bff' : 'black', // Highlight selected tab
