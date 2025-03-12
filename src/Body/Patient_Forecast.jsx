@@ -663,18 +663,32 @@ const Patient_Forecast = () => {
                                             </>
                                         ) : (
                                             <>
-                                                <Tooltip title={
-                                                    Formulas[tabKey]?.[tableKey]?.[product.id]?.emptyArray?.[0] !== '' ?
-                                                        '= ' + Formulas[tabKey][tableKey][product.id]?.emptyArray
-                                                            .map((value, index) =>
-                                                                // Combine emptyArray and plusArray
-                                                                `${Object.keys(products[tabKey]).map((tableKey) => products[tabKey][tableKey]
-                                                                    .find((prod) => prod.id === value)?.name).join(' ')} ${Formulas[tabKey][tableKey][product.id]?.plusArray[index + 1] || ''}`
-                                                            )
-                                                            .join(' ') + ' '
-                                                        : 'No formula assigned'
-                                                } placement="top" >
+                                                <Tooltip
+                                                    title={
+                                                        Formulas[tabKey]?.[tableKey]?.[product.id]?.emptyArray?.[0] !== ''
+                                                            ? '= ' +
+                                                            Formulas[tabKey][tableKey][product.id]?.emptyArray
+                                                                .map((value, index) => {
+                                                                    const productName = Object.keys(products[tabKey])
+                                                                        .map((tableKey) =>
+                                                                            products[tabKey][tableKey].find((prod) => prod.id === value)?.name
+                                                                        )
+                                                                        .join(' ');
 
+                                                                    const operator = Formulas[tabKey][tableKey][product.id]?.plusArray[index + 1] || '';
+
+                                                                    // Get the case value and find its corresponding label from TALabels
+                                                                    const caseValue = Formulas[tabKey][tableKey][product.id]?.cases?.[index] || '';
+                                                                    const caseIndex = ["base", "downside", "upside"].indexOf(caseValue);
+                                                                    const caseLabel = caseIndex !== -1 ? TALabels[therapeuticArea][caseIndex] : '';
+
+                                                                    return `${productName} (${caseLabel}) ${operator}`;
+                                                                })
+                                                                .join(' ') + ' '
+                                                            : 'No formula assigned'
+                                                    }
+                                                    placement="top"
+                                                >
                                                     <span
                                                         style={{
                                                             marginLeft: '8px',
@@ -682,10 +696,10 @@ const Patient_Forecast = () => {
                                                             whiteSpace: 'nowrap',
                                                         }}
                                                     >
-
                                                         {product.type === '%' ? product.name + " (%)" : product.name}
                                                     </span>
                                                 </Tooltip>
+
                                                 <Tooltip title="Edit Row Name" placement="top" >
                                                     <IconButton onClick={() => handleEditClick(product.id, tabKey, tableKey)} style={{ marginLeft: '8px' }} className='edit-row-name'>
                                                         <EditIcon fontSize="small" />
@@ -2549,8 +2563,9 @@ const Patient_Forecast = () => {
     const handlesavechanges = (tabKey, tableKey, row_id, values, values2, values3) => {
         const prod = products[tabKey][tableKey];
         const productType = prod.find((product) => product.id === row_id)?.type;
-        const selectedIds = editingFormula[tabKey][tableKey][row_id].emptyArray
-        const operatorsList = editingFormula[tabKey][tableKey][row_id].plusArray
+        const selectedIds = editingFormula[tabKey][tableKey][row_id].emptyArray;
+        const operatorsList = editingFormula[tabKey][tableKey][row_id].plusArray;
+        const casesList = editingFormula[tabKey][tableKey][row_id].cases;
         // Slice the operators array to exclude the first element (which is the default "+")
         const operatorSliced = operatorsList.slice(1);
         let res = {}; // Object to store the results of the forecast calculation
@@ -2574,8 +2589,9 @@ const Patient_Forecast = () => {
         }
         // Get the first selected product's id
         const idd = selectedIds[0];
+        const Case = casesList[0];
         // Get the first selected product's values based on the current tabKey
-        const val = tabKey === 'downside' ? values[idd] : tabKey === 'base' ? values2[idd] : values3[idd];
+        const val = Case === 'downside' ? values[idd] : Case === 'base' ? values2[idd] : values3[idd];
         let typee = null;
         Object.keys(products[tabKey]).forEach(table => {
             const temp = products[tabKey][table].find((product) => product.id === idd)?.type;
@@ -2597,7 +2613,8 @@ const Patient_Forecast = () => {
         // Iterate over the selected product IDs starting from the second element
         for (let i = 1; i < selectedIds.length; i++) {
             const id = selectedIds[i];
-            const tempval = tabKey === 'downside' ? values[id] : tabKey === 'base' ? values2[id] : values3[id];
+            const TempCase = casesList[i];
+            const tempval = TempCase === 'downside' ? values[id] : TempCase === 'base' ? values2[id] : values3[id];
             let temptype = null;
             Object.keys(products[tabKey]).forEach(table => {
                 const temp = products[tabKey][table].find((product) => product.id === id)?.type;
