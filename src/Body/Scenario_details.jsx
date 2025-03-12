@@ -684,9 +684,8 @@ const ForecastAndFlowDiagram = (props) => {
                             </Box>
                         </Grid>
                         <Grid container spacing={2} >
-
-
-                            <Box display="flex" alignItems="center" mt={2} ml={2} p={2} className="time-period-button">
+                            <Box display="flex" flexDirection="column" mt={2} ml={2} p={2} className="time-period-button">
+                                <Box display="flex" alignItems="center">
                                 {/* Time Period Selection */}
                                 <TextField
                                     select
@@ -736,11 +735,11 @@ const ForecastAndFlowDiagram = (props) => {
                             </Box>
 
                             {/* Dynamic Case Type Labels Input */}
-                            <Box display="flex" flexDirection="row" mt={2} ml={2} p={2}>
+                            <Box display="flex" flexDirection="row" mt={4}>
                                 {[0,1,2].map((label, index) => (
                                     <TextField
                                         key={index}
-                                        label={`Label ${index + 1}`}
+                                        label={`Case ${index + 1}`}
                                         variant="outlined"
                                         size="small"
                                         value={TALabels[therapeuticArea][index]}
@@ -758,6 +757,7 @@ const ForecastAndFlowDiagram = (props) => {
                                     />
                                 ))}
                             </Box>
+                        </Box>
                         </Grid>
                         <Box>
                             <Grid item xs={12}>
