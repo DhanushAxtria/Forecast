@@ -960,9 +960,11 @@ const Patient_Forecast = () => {
                                                 onChange={(e) => handleSelectChange(formulaDetails.productId, tabKey, tableKey, index, 'case', e)}
                                                 label="Case"
                                             >
-                                                <MenuItem value="base">Base</MenuItem>
-                                                <MenuItem value="upside">Upside</MenuItem>
-                                                <MenuItem value="downside">Downside</MenuItem>
+                                                {["base", "downside", "upside"].map((caseValue, i) => (
+                                                    <MenuItem key={caseValue} value={caseValue}>
+                                                        {therapeuticArea === "Oncology" ? caseTypeLabelsOnco[i] : caseTypeLabels[i]}
+                                                    </MenuItem>
+                                                ))}
                                             </Select>
                                         </FormControl>
                                     )}
@@ -1937,7 +1939,7 @@ const Patient_Forecast = () => {
     useEffect(() => {
         console.log("Formulassssss", Formulas);
     }, [Formulas])
-    
+
     const handleDeleteRow = (productId, tabKey, tableKey) => {
         const tableProducts = products[tabKey][tableKey];  // Get the current list of products
 

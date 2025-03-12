@@ -83,7 +83,7 @@ const defaultIndicationColumns = ['Indication 1', 'Indication 2', 'Indication 3'
 const ForecastAndFlowDiagram = (props) => {
     const location = useLocation();
     const scenario = location.state?.scenario;
-    const { fromHistoricalDate, setFromHistoricalDate, fromForecastDate, setFromForecastDate, toForecastDate, setToForecastDate, timePeriod, setTimePeriod, caseTypeLabelsOnco, setCaseTypeLabelsOnco} = useContext(MyContext);
+    const { fromHistoricalDate, setFromHistoricalDate, fromForecastDate, setFromForecastDate, toForecastDate, setToForecastDate, timePeriod, setTimePeriod, caseTypeLabelsOnco, setCaseTypeLabelsOnco } = useContext(MyContext);
     const { hasUnsavedChanges, setHasUnsavedChanges } = props;
     console.log(scenario);
     const [isProductListVisible, setIsProductListVisible] = useState(false);
@@ -868,76 +868,77 @@ const ForecastAndFlowDiagram = (props) => {
                             </Box>
                         </Grid>
                         <Grid container spacing={2} >
-
-
-                            <Box display="flex" alignItems="center" mt={2} ml={2} p={2} className="time-period-button">
+                            <Box display="flex" flexDirection="column" mt={2} ml={2} p={2} className="time-period-button">
                                 {/* Time Period Selection */}
-                                <TextField
-                                    select
-                                    label="Time Period"
-                                    value={timePeriod}
-                                    onChange={(e) => setTimePeriod(e.target.value)}
-                                    size="small"
-                                    variant="outlined"
-                                    sx={{ width: '200px', mr: 2 }}
-                                >
-                                    <MenuItem value="Monthly">Monthly</MenuItem>
-                                    <MenuItem value="Yearly">Yearly</MenuItem>
-                                </TextField>
-
-                                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                    <DatePicker
-                                        views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
-                                        label={timePeriod === 'Monthly' ? 'Historical Start Month' : 'Historical Start Year'}
-                                        value={fromHistoricalDate}
-                                        onChange={(newValue) => setFromHistoricalDate(newValue)}
-                                        format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
-                                        slotProps={{ textField: { size: 'small' } }}
-                                        sx={{ width: '200px', mr: 2 }}
-                                        maxDate={toForecastDate}
-                                    />
-                                    <DatePicker
-                                        views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
-                                        label={timePeriod === 'Monthly' ? 'Forecast Start Month' : 'Forecast Start Year'}
-                                        value={fromForecastDate}
-                                        onChange={(newValue) => setFromForecastDate(newValue)}
-                                        format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
-                                        slotProps={{ textField: { size: 'small' } }}
-                                        sx={{ width: '200px', mr: 2 }}
-                                        minDate={fromHistoricalDate}
-                                    />
-                                    <DatePicker
-                                        views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
-                                        label={timePeriod === 'Monthly' ? 'Forecast End Month' : 'Forecast End Year'}
-                                        value={toForecastDate}
-                                        onChange={(newValue) => setToForecastDate(newValue)}
-                                        format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
-                                        slotProps={{ textField: { size: 'small' } }}
-                                        sx={{ width: '200px', mr: 2 }}
-                                        minDate={fromForecastDate}
-                                    />
-                                </LocalizationProvider>
-                            </Box>
-
-                            {/* Dynamic Case Type Labels Input */}
-                            <Box display="flex" flexDirection="row" mt={2} ml={2} p={2}>
-                                {caseTypeLabels.map((label, index) => (
+                                <Box display="flex" alignItems="center">
                                     <TextField
-                                        key={index}
-                                        label={`Label ${index + 1}`}
-                                        variant="outlined"
+                                        select
+                                        label="Time Period"
+                                        value={timePeriod}
+                                        onChange={(e) => setTimePeriod(e.target.value)}
                                         size="small"
-                                        value={therapeuticArea === 'Oncology'? caseTypeLabelsOnco[index] : caseTypeLabels[index]}
-                                        onChange={(e) => {
-                                            const updatedLabels = [...therapeuticArea === 'Oncology'? caseTypeLabelsOnco : caseTypeLabels];
-                                            updatedLabels[index] = e.target.value;
-                                            therapeuticArea === 'Oncology'? setCaseTypeLabelsOnco(updatedLabels) : setCaseTypeLabels(updatedLabels);
-                                        }}
-                                        sx={{ width: '200px', mr: 2, mb: 1 }}
-                                    />
-                                ))}
+                                        variant="outlined"
+                                        sx={{ width: '200px', mr: 2 }}
+                                    >
+                                        <MenuItem value="Monthly">Monthly</MenuItem>
+                                        <MenuItem value="Yearly">Yearly</MenuItem>
+                                    </TextField>
+
+                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                        <DatePicker
+                                            views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
+                                            label={timePeriod === 'Monthly' ? 'Historical Start Month' : 'Historical Start Year'}
+                                            value={fromHistoricalDate}
+                                            onChange={(newValue) => setFromHistoricalDate(newValue)}
+                                            format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
+                                            slotProps={{ textField: { size: 'small' } }}
+                                            sx={{ width: '200px', mr: 2 }}
+                                            maxDate={toForecastDate}
+                                        />
+                                        <DatePicker
+                                            views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
+                                            label={timePeriod === 'Monthly' ? 'Forecast Start Month' : 'Forecast Start Year'}
+                                            value={fromForecastDate}
+                                            onChange={(newValue) => setFromForecastDate(newValue)}
+                                            format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
+                                            slotProps={{ textField: { size: 'small' } }}
+                                            sx={{ width: '200px', mr: 2 }}
+                                            minDate={fromHistoricalDate}
+                                        />
+                                        <DatePicker
+                                            views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
+                                            label={timePeriod === 'Monthly' ? 'Forecast End Month' : 'Forecast End Year'}
+                                            value={toForecastDate}
+                                            onChange={(newValue) => setToForecastDate(newValue)}
+                                            format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
+                                            slotProps={{ textField: { size: 'small' } }}
+                                            sx={{ width: '200px', mr: 2 }}
+                                            minDate={fromForecastDate}
+                                        />
+                                    </LocalizationProvider>
+                                </Box>
+
+                                {/* Ensure case type fields stay below */}
+                                <Box display="flex"  mt={4}>
+                                    {caseTypeLabels.map((label, index) => (
+                                        <TextField
+                                            key={index}
+                                            label={`Case Type ${index + 1}`}
+                                            variant="outlined"
+                                            size="small"
+                                            value={therapeuticArea === 'Oncology' ? caseTypeLabelsOnco[index] : caseTypeLabels[index]}
+                                            onChange={(e) => {
+                                                const updatedLabels = [...(therapeuticArea === 'Oncology' ? caseTypeLabelsOnco : caseTypeLabels)];
+                                                updatedLabels[index] = e.target.value;
+                                                therapeuticArea === 'Oncology' ? setCaseTypeLabelsOnco(updatedLabels) : setCaseTypeLabels(updatedLabels);
+                                            }}
+                                            sx={{ width: '200px', mr: 2, mb: 1 }}
+                                        />
+                                    ))}
+                                </Box>
                             </Box>
                         </Grid>
+
                         <Box>
                             <Grid item xs={12}>
                                 <h2>Input Table</h2>
