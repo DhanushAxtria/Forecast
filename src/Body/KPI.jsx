@@ -54,8 +54,7 @@ const KPI = () => {
     const [Res, setRes] = useState({});
     const [Index, setIndex] = useState("");
     const { therapeuticArea, setTherapeuticArea } = useContext(MyContext);
-    const { caseTypeLabels, setCaseTypeLabels, caseTypeLabelsOnco, setCaseTypeLabelsOnco } = useContext(MyContext);
-
+    const { TALabels, setTALabels } = useContext(MyContext);
     const [buttonType, setButtonType] = useState("");
     const [editingHighFileToFill, setEditingHighFileToFill] = useState({});
     const [highFileToFill, setHighFileToFill] = useState({});
@@ -1292,7 +1291,7 @@ const KPI = () => {
                                                 >
                                                     {["base", "downside", "upside"].map((caseValue, i) => (
                                                         <MenuItem key={caseValue} value={caseValue}>
-                                                            {therapeuticArea === "Oncology" ? caseTypeLabelsOnco[i] : caseTypeLabels[i]}
+                                                            {TALabels[therapeuticArea][i]}
                                                         </MenuItem>
                                                     ))}
                                                 </Select>

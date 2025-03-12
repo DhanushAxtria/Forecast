@@ -52,12 +52,11 @@ import {
 const WaterFall = () => {
     const navigate = useNavigate();
     const [applyClicked, setApplyClicked] = useState(true);
-    const { products, timePeriod, Formulas, fromHistoricalDate, toForecastDate, fromForecastDate, values, values2, values3 } = useContext(MyContext);
-    const { therapeuticArea, setTherapeuticArea } = useContext(MyContext);
-    const { caseTypeLabels, setCaseTypeLabels, caseTypeLabelsOnco, setCaseTypeLabelsOnco } = useContext(MyContext);
+    const { products, timePeriod, Formulas, fromHistoricalDate, toForecastDate, values, values2, values3 } = useContext(MyContext);
+    const { therapeuticArea } = useContext(MyContext);
+    const {TALabels, setTALabels } = useContext(MyContext);
     const [Res, setRes] = useState({});
     const [Index, setIndex] = useState("");
-
     const [buttonType, setButtonType] = useState("");
     const [editingFileToFill, setEditingFileToFill] = useState({});
     const [FileToFill, setFileToFill] = useState({});
@@ -1112,7 +1111,7 @@ const WaterFall = () => {
                                                 >
                                                     {["base", "downside", "upside"].map((caseValue, i) => (
                                                         <MenuItem key={caseValue} value={caseValue}>
-                                                            {therapeuticArea === "Oncology" ? caseTypeLabelsOnco[i] : caseTypeLabels[i]}
+                                                            {TALabels[therapeuticArea][i]}
                                                         </MenuItem>
                                                     ))}
                                                 </Select>

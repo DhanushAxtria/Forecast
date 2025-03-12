@@ -108,8 +108,8 @@ const Dashboard = () => {
     const { products } = useContext(MyContext);
     const { values, values2, values3, setDropdownGroups, dropdownGroups } = useContext(MyContext); // values, values2, values3 are table values.
     const { cardTitle1, cardTitle2, cardTitle3 } = useContext(MyContext);
-    const { therapeuticArea, setTherapeuticArea } = useContext(MyContext);
-    const { caseTypeLabels, setCaseTypeLabels, caseTypeLabelsOnco, setCaseTypeLabelsOnco } = useContext(MyContext);
+    const { therapeuticArea } = useContext(MyContext);
+    const { TALabels, setTALabels } = useContext(MyContext);
     const { timePeriod } = useContext(MyContext);
     const { fromHistoricalDate } = useContext(MyContext);
     const { toForecastDate } = useContext(MyContext);
@@ -131,7 +131,7 @@ const Dashboard = () => {
         const dataPoint = { month };
         dropdownGroups.forEach(({ Case, SelectedRow }) => {
             if (SelectedRow) {
-                const key = `${Case}-${idToNameMap[SelectedRow]}`;
+                const key = `${Case === 'base' ? TALabels[therapeuticArea][0] : Case === 'downside' ? TALabels[therapeuticArea][1] : TALabels[therapeuticArea][2]}-${idToNameMap[SelectedRow]}`;
                 dataPoint[key] =
                     Case === "downside"
                         ? Number(values[SelectedRow]?.[month] ?? null)
@@ -438,7 +438,7 @@ const Dashboard = () => {
                         >
                             {["base", "downside", "upside"].map((caseValue, i) => (
                                 <MenuItem key={caseValue} value={caseValue}>
-                                    {therapeuticArea === "Oncology" ? caseTypeLabelsOnco[i] : caseTypeLabels[i]}
+                                    {TALabels[therapeuticArea][i]}
                                 </MenuItem>
                             ))}
                         </Select>
@@ -547,7 +547,7 @@ const Dashboard = () => {
                         />
                         <Legend wrapperStyle={{ fontWeight: "bold" }} />
                         {dropdownGroups.map(({ Case, SelectedRow }, index) => {
-                            const lineKey = `${Case}-${idToNameMap[SelectedRow]}`;
+                            const lineKey = `${Case === 'base' ? TALabels[therapeuticArea][0] : Case === 'downside' ? TALabels[therapeuticArea][1] : TALabels[therapeuticArea][2]}-${idToNameMap[SelectedRow]}`;
                             return (
                                 <Line
                                     key={index}
@@ -586,7 +586,7 @@ const Dashboard = () => {
                         />
                         <Legend wrapperStyle={{ fontWeight: "bold" }} />
                         {dropdownGroups.map(({ Case, SelectedRow }, index) => {
-                            const barKey = `${Case}-${idToNameMap[SelectedRow]}`;
+                            const barKey = `${Case === 'base' ? TALabels[therapeuticArea][0] : Case === 'downside' ? TALabels[therapeuticArea][1] : TALabels[therapeuticArea][2]}-${idToNameMap[SelectedRow]}`;
                             return (
                                 <Bar
                                     key={index}

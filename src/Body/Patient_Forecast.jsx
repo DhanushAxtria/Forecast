@@ -108,8 +108,8 @@ const Patient_Forecast = () => {
     const [savedText, setSavedText] = useState({});
     const [savedText2, setSavedText2] = useState({});
     const { editingFormula, setEditingFormula } = useContext(MyContext);
-    const { therapeuticArea, setTherapeuticArea } = useContext(MyContext);
-    const { caseTypeLabels, setCaseTypeLabels, caseTypeLabelsOnco, setCaseTypeLabelsOnco } = useContext(MyContext);
+    const { therapeuticArea } = useContext(MyContext);
+    const { TALabels, setTALabels } = useContext(MyContext);
     const [tabTableVisibility, setTabTableVisibility] = useState({
         downside: { table1: false, table2: false, table3: false },
         base: { table1: false, table2: false, table3: false },
@@ -962,7 +962,7 @@ const Patient_Forecast = () => {
                                             >
                                                 {["base", "downside", "upside"].map((caseValue, i) => (
                                                     <MenuItem key={caseValue} value={caseValue}>
-                                                        {therapeuticArea === "Oncology" ? caseTypeLabelsOnco[i] : caseTypeLabels[i]}
+                                                        {TALabels[therapeuticArea][i]}
                                                     </MenuItem>
                                                 ))}
                                             </Select>
@@ -2495,7 +2495,8 @@ const Patient_Forecast = () => {
         });
         return newValues;
     };
-    const rowKey = `${selectedRowName}.${selectedTab}`;
+    const rowKey = `${selectedRowId}.${selectedTab}`;
+    const rowKey2 = `${selectedRowName}.${selectedTab}`;
     const handleCopyFromInputPage = () => {
         if (storeValues[rowKey] && typeof storeValues[rowKey] === 'object') {
             Object.keys(storeValues[rowKey]).forEach((date) => {
@@ -2505,7 +2506,17 @@ const Patient_Forecast = () => {
                 }
             });
         } else if (storeValues[rowKey] === null || storeValues[rowKey] === undefined) {
-            alert('No data found');
+            if (storeValues[rowKey2] && typeof storeValues[rowKey2] === 'object') {
+                Object.keys(storeValues[rowKey2]).forEach((date) => {
+                    const valueToUse = storeValues[rowKey2];
+                    if (valueToUse) {
+                        handleValueChange(selectedTab, selectedRowId, date, valueToUse[date]);
+                    }
+                });
+            }
+            else {
+                alert('No data found');
+            }
         } else {
             console.warn('storeValues[rowKey] is not a valid object:', storeValues[rowKey]);
         }
@@ -3081,7 +3092,7 @@ const Patient_Forecast = () => {
                                     justifyContent: 'space-around', // Distribute tabs evenly
                                 },
                             }} >
-                            <Tab label={therapeuticArea === 'Oncology' ? caseTypeLabelsOnco[0] : caseTypeLabels[0]} sx={{
+                            <Tab label={TALabels[therapeuticArea][1]} sx={{
                                 fontWeight: 'bold',
                                 fontSize: '15px', // Increase font size
                                 color: tab_value === 0 ? '#007bff' : 'black', // Highlight selected tab
@@ -3090,7 +3101,7 @@ const Patient_Forecast = () => {
                                     fontSize: '20px', // Increase font size of selected tab
                                 }
                             }} />
-                            <Tab label={therapeuticArea === 'Oncology' ? caseTypeLabelsOnco[1] : caseTypeLabels[1]} sx={{
+                            <Tab label={TALabels[therapeuticArea][0]} sx={{
                                 fontWeight: 'bold',
                                 fontSize: '15px', // Increase font size
                                 color: tab_value === 1 ? '#007bff' : 'black', // Highlight selected tab
@@ -3100,7 +3111,7 @@ const Patient_Forecast = () => {
                                 }
                             }} />
 
-                            <Tab label={therapeuticArea === 'Oncology' ? caseTypeLabelsOnco[2] : caseTypeLabels[2]} sx={{
+                            <Tab label={TALabels[therapeuticArea][2]} sx={{
                                 fontWeight: 'bold',
                                 fontSize: '15px', // Increase font size
                                 color: tab_value === 2 ? '#007bff' : 'black', // Highlight selected tab
@@ -3112,7 +3123,6 @@ const Patient_Forecast = () => {
                         </Tabs>
                         {tab_value !== null &&
                             <div>
-
                                 <Box
                                     sx={{
                                         display: 'flex',

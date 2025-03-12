@@ -1,75 +1,27 @@
 import React, { useCallback, useState, useEffect, useContext } from 'react';
 import introJs from 'intro.js';
-import ReactFlow, {
-    addEdge,
-    applyEdgeChanges,
-    applyNodeChanges,
-    Background,
-    Controls,
-    MarkerType,
-} from 'react-flow-renderer';
-import './ModelFlow.scss'; // Custom CSS for fixed headers and styling
-import './SavedScenario.scss'; // Control Sheet styling
-import dayjs from 'dayjs'; // For date manipulation
+import ReactFlow, { addEdge, applyEdgeChanges, applyNodeChanges, MarkerType } from 'react-flow-renderer';
+import './ModelFlow.scss'; 
+import './SavedScenario.scss'; 
+import dayjs from 'dayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
-import {
-    Grid, Button, TextField, MenuItem, Typography, IconButton, Dialog, DialogActions,
-    DialogContent, DialogTitle, Tooltip,
-    Box, ListItemIcon, List, ListItem, ListItemText
-} from '@mui/material';
+import { Grid, Button, TextField, MenuItem, IconButton, Box } from '@mui/material';
 import ApplyIcon from '@mui/icons-material/CheckCircle';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 import EditIcon from '@mui/icons-material/Edit';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
-import SaveIcon from '@mui/icons-material/Save';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import InfoIcon from '@mui/icons-material/Info';
-import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
-import UploadFileIcon from '@mui/icons-material/UploadFile';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import AdjustIcon from '@mui/icons-material/Adjust';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { useNavigate } from 'react-router-dom';
 import { MyContext } from './context';
-
-import InputAdornment from '@mui/material/InputAdornment';  // Close icon for indications
+import InputAdornment from '@mui/material/InputAdornment';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import Patient_Forecast_Input from './Patient_Forecast_Input';
-import Header from '../Header/Header'
-import { set } from 'date-fns';
 import { useLocation } from 'react-router-dom';
 
 
-
-const initialNodes = [
-    { id: '1', data: { label: 'Product Level Treated Patients' }, position: { x: 250, y: 50 }, style: { width: 200 } },
-    { id: '2', data: { label: 'Patients per product (based on trending)' }, position: { x: 250, y: 150 }, style: { width: 250 } },
-    { id: '3', data: { label: 'Final patients per product (post events)' }, position: { x: 250, y: 250 }, style: { width: 250 } },
-    { id: '4', data: { label: 'Compliant units' }, position: { x: 250, y: 350 }, style: { width: 150 } },
-    { id: '5', data: { label: 'Dosage' }, position: { x: 600, y: 150 }, style: { width: 150 } },
-    { id: '6', data: { label: 'Compliance %' }, position: { x: 600, y: 250 }, style: { width: 150 } },
-    { id: '7', data: { label: 'Extra Molecular Usage' }, position: { x: 600, y: 350 }, style: { width: 200 } },
-    { id: '8', data: { label: 'Patient Stocking Adjustments' }, position: { x: 600, y: 450 }, style: { width: 250 } },
-    { id: '9', data: { label: 'Seasonality Adjustments' }, position: { x: 600, y: 550 }, style: { width: 200 } },
-    { id: '10', data: { label: 'Overall Adjustment factor (calculated)' }, position: { x: 250, y: 450 }, style: { width: 250 } },
-];
-
-const initialEdges = [
-    { id: 'e1-2', source: '1', target: '2', animated: true, label: '', type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } },
-    { id: 'e2-3', source: '2', target: '3', animated: true, label: '', type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } },
-    { id: 'e3-4', source: '3', target: '4', animated: true, label: '', type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } },
-    { id: 'e4-10', source: '4', target: '10', animated: true, label: '', type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } },
-    { id: 'e10-5', source: '10', target: '5', animated: true, label: '', type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } },
-    { id: 'e5-6', source: '5', target: '6', animated: true, label: '', type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } },
-    { id: 'e6-7', source: '6', target: '7', animated: true, label: '', type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } },
-    { id: 'e7-8', source: '7', target: '8', animated: true, label: '', type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } },
-    { id: 'e8-9', source: '8', target: '9', animated: true, label: '', type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } },
-];
 const defaultProducts = [
     { id: 1, name: 'Product1', include: true, xyzProduct: true, launchDate: dayjs('2014-02-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'No', 'Indication 3': 'Yes' } },
     { id: 2, name: 'Product2', include: true, xyzProduct: true, launchDate: dayjs('2017-02-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'Yes', 'Indication 3': 'No' } },
@@ -83,68 +35,23 @@ const defaultIndicationColumns = ['Indication 1', 'Indication 2', 'Indication 3'
 const ForecastAndFlowDiagram = (props) => {
     const location = useLocation();
     const scenario = location.state?.scenario;
-    const { fromHistoricalDate, setFromHistoricalDate, fromForecastDate, setFromForecastDate, toForecastDate, setToForecastDate, timePeriod, setTimePeriod, caseTypeLabelsOnco, setCaseTypeLabelsOnco } = useContext(MyContext);
-    const { hasUnsavedChanges, setHasUnsavedChanges } = props;
-    console.log(scenario);
+    const { fromHistoricalDate, setFromHistoricalDate, fromForecastDate, setFromForecastDate, toForecastDate, setToForecastDate, timePeriod, setTimePeriod, therapeuticAreaOptions, TALabels, setTALabels,} = useContext(MyContext);
     const [isProductListVisible, setIsProductListVisible] = useState(false);
     const toggleProductListVisibility = () => {
         setIsProductListVisible((prev) => !prev);
     };
     const [greeting, setGreeting] = useState('');
     const [activeTab, setActiveTab] = useState('controlSheet'); // Manage which tab is active
-    // Selected predefined scenario
-    //const [activeTab, setActiveTab] = useState(0);
-    const [customScenarioName, setCustomScenarioName] = useState('');
     const [forecastEndMonth, setForecastEndMonth] = useState(dayjs());
-    // Control sheet form states
     const [historicalStartMonth, setHistoricalStartMonth] = useState(dayjs('2015-01-01'));
-    const [forecastStartMonth, setForecastStartMonth] = useState(dayjs());
     const [forecastMetric, setForecastMetric] = useState('Patients');
     const [currency, setCurrency] = useState('USD');
     const [forecastCycle, setForecastCycle] = useState(scenario?.forecastScenario ? scenario.forecastScenario : '');
     const [country, setCountry] = useState(scenario?.country ? scenario.country : '');
-    const [isProductTableCollapsed, setIsProductTableCollapsed] = useState(false);
-    //const [therapeuticArea, setTherapeuticArea] = useState(scenario?.therapeuticArea ? scenario.therapeuticArea : '');
     const { therapeuticArea, setTherapeuticArea } = useContext(MyContext);
-    const { caseTypeLabels, setCaseTypeLabels } = useContext(MyContext);
-    const [showHistoricalCalendar, setShowHistoricalCalendar] = useState(false);
-    const [showForecastCalendar, setShowForecastCalendar] = useState(false);
-    const [historicalView, setHistoricalView] = useState('year'); // Track the view state
-    const [forecastView, setForecastView] = useState('year'); // Track the view state
-    const [openProductCalendars, setOpenProductCalendars] = useState({});//lauch date
-    //const [scenarioName, setScenarioName] = useState(predefinedScenarioNames[0]);
-    const [previousScenarioProducts, setPreviousScenarioProducts] = useState([]);
-    const [parameters, setParameters] = useState([
-        {
-            name: '', // Name of the parameter
-            rows: [
-                { type: 'Downside', values: [] },
-                { type: 'Base', values: [] },
-                { type: 'Upside', values: [] },
-            ],
-        },
-    ]);
-    useEffect(() => {
-        console.log(fromHistoricalDate);
-
-    }, [fromHistoricalDate])
-
-
-    //const [scenarioName, setScenarioName] = useState(predefinedScenarioNames[0]);
     const [indicationColumns, setIndicationColumns] = useState(defaultIndicationColumns);
-    //const [editMode, setEditMode] = useState(false); // Track if edit is enabled
-    const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal visibility
-    const [tempScenarioDetails, setTempScenarioDetails] = useState(); // Temp storage for edit text
-    const folder = location.state?.folder;
-
-    const [editMode, setEditMode] = useState(false);
     const [products, setProducts] = useState(defaultProducts);
-    const [isInputTableCollapsed, setIsInputTableCollapsed] = useState(false);
     const [timePeriods, setTimePeriods] = useState([]);
-    //const [indicationColumns, setIndicationColumns] = useState(['Indication 1', 'Indication 2', 'Indication 3', 'Indication 4']);
-    //const [indicationColumns, setIndicationColumns] = useState([]);
-    const predefinedScenarioNames = ['Scenario 1', 'Scenario 2', 'Scenario 3'];
-    const therapeuticAreaOptions = ['Cardiology', 'Oncology', 'Neurology', 'Immunology', 'Dermatology', 'HIV'];
     const countryOptions = ['Iceland', 'Germany', 'UK', 'Finland', 'France', 'Italy', 'Spain', 'Denmark', 'Norway', 'Sweden'];
     const currencies = {
         "Iceland": "ISK",
@@ -160,7 +67,6 @@ const ForecastAndFlowDiagram = (props) => {
     }
     const forecastCycleOptions = ['H1 - 2023', 'H2 - 2023', 'H1 - 2024', 'H2 - 2024'];
     // State to control visibility of calendars for each product
-    const [openCalendars, setOpenCalendars] = useState({});
     const currentYear = dayjs();
     useEffect(() => {
         const currentHour = new Date().getHours();
@@ -171,9 +77,6 @@ const ForecastAndFlowDiagram = (props) => {
     const [isEditingScenarioName, setIsEditingScenarioName] = useState(false);
     const [editedScenarioName, setEditedScenarioName] = useState('');
 
-
-    // Save the edited scenario name
-    // Save the edited scenario name
     const handleSaveScenarioName = () => {
         setScenarioName(editedScenarioName);
         setIsEditingScenarioName(false);
@@ -201,8 +104,6 @@ const ForecastAndFlowDiagram = (props) => {
         setTherapeuticArea(event.target.value);
     };
 
-
-
     const handleRemoveProduct = (id) => {
         setProducts((prevProducts) => prevProducts.filter((product) => product.id !== id));
     };
@@ -221,9 +122,6 @@ const ForecastAndFlowDiagram = (props) => {
             })
         );
     };
-
-
-
 
     const handleAddProduct = () => {
         const newProductIndications = indicationColumns.reduce((acc, indication) => {
@@ -283,9 +181,6 @@ const ForecastAndFlowDiagram = (props) => {
                 { id: 5, name: 'Product5', include: true, xyzProduct: true, launchDate: dayjs('2015-07-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'Yes', 'Indication 3': 'Yes', 'Indication 4': 'Yes' } },
                 { id: 6, name: 'Product6', include: true, xyzProduct: true, launchDate: dayjs('2020-02-01'), indications: { 'Indication 1': 'Yes', 'Indication 2': 'Yes', 'Indication 3': 'Yes', 'Indication 4': 'Yes' } },
 
-
-
-
             ],
             indicationColumns: ['Indication 1', 'Indication 2', 'Indication 3', 'Indication 4']
         },
@@ -328,72 +223,10 @@ const ForecastAndFlowDiagram = (props) => {
             )
         );
     };
-    const handleIndicationChange = (productId, indicationKey, newValue) => {
-        setProducts((prevProducts) =>
-            prevProducts.map((product) =>
-                product.id === productId
-                    ? {
-                        ...product,
-                        indications: {
-                            ...product.indications,
-                            [indicationKey]: newValue,
-                        },
-                    }
-                    : product
-            )
-        );
-    };
-    const handleReviewScenario = (id) => {
-        // Logic for handling review of the specific scenario
-        console.log(`Review Scenario for Product ID: ${id}`);
-        // Implement navigation or modal open here
-    };
-
-    const handleReviewScenarioSummary = (id) => {
-        // Logic for handling review of the scenario summary
-        console.log(`Review Scenario Summary for Product ID: ${id}`);
-        // Implement navigation or modal open here
-    };
-    const handleHistoricalDateChange = (newDate) => {
-        setHistoricalStartMonth(newDate);
-        setHistoricalView('month'); // Switch to month view after selecting a year
-    };
-
-    const handleForecastDateChange = (newDate) => {
-        setForecastStartMonth(newDate);
-        setForecastView('month'); // Switch to month view after selecting a year
-    };
-    const handleYearClick = (isHistorical) => {
-        if (isHistorical) {
-            setHistoricalView('year');
-        } else {
-            setForecastView('year');
-        }
-    };
-    const handleToggleView = (isHistorical) => {
-        if (isHistorical) {
-            setHistoricalView((prev) => (prev === 'year' ? 'month' : 'year'));
-        } else {
-            setForecastView((prev) => (prev === 'year' ? 'month' : 'year'));
-        }
-    };
-    const toggleCalendar = (isHistorical) => {
-        if (isHistorical) {
-            setShowHistoricalCalendar((prev) => !prev);
-        } else {
-            setShowForecastCalendar((prev) => !prev);
-        }
-    };
     const handleXYZProductChange = (id) => {
         setProducts((prevProducts) =>
             prevProducts.map((product) => (product.id === id ? { ...product, xyzProduct: !product.xyzProduct } : product))
         );
-    };
-    const toggleProductCalendar = (id) => {
-        setOpenProductCalendars((prev) => ({
-            ...prev,
-            [id]: !prev[id],
-        }));
     };
     const handleIndicationColumnChange = (index, newName) => {
         setIndicationColumns((prevColumns) =>
@@ -414,30 +247,15 @@ const ForecastAndFlowDiagram = (props) => {
             })
         );
     };
-    const handleToggleCollapse = (isInputTable) => {
-        if (isInputTable) {
-            setIsInputTableCollapsed(!isInputTableCollapsed);
-        } else {
-            setIsProductTableCollapsed(!isProductTableCollapsed);
-        }
-    };
     const handleLaunchDateChange = (id, date) => {
         setProducts((prevProducts) =>
             prevProducts.map((product) => (product.id === id ? { ...product, launchDate: date } : product))
         );
     };
-    const handleRemoveParameter = (index) => {
-        setParameters((prev) => prev.filter((_, i) => i !== index));
-    };
-    const toggleInputTableCollapse = () => {
-        setIsInputTableCollapsed(!isInputTableCollapsed);
-    };
     const navigate = useNavigate();
     const handleSaveAndContinue = () => {
         navigate('/new-model/epidemiology-model/scenario-details/forecastdeepdive'); // Navigate to the patient forecast page
     };
-    const [nodes, setNodes] = useState(initialNodes);
-    const [edges, setEdges] = useState(initialEdges);
     useEffect(() => {
         const generateTimePeriods = () => {
             const start = dayjs(historicalStartMonth);
@@ -455,9 +273,7 @@ const ForecastAndFlowDiagram = (props) => {
 
         setTimePeriods(generateTimePeriods());
     }, [historicalStartMonth, forecastEndMonth]);
-    const onNodesChange = useCallback((changes) => setNodes((nds) => applyNodeChanges(changes, nds)), []);
-    const onEdgesChange = useCallback((changes) => setEdges((eds) => applyEdgeChanges(changes, eds)), []);
-    const onConnect = useCallback((params) => setEdges((eds) => addEdge({ ...params, animated: true }, eds)), []);
+    
 
     const startTour2 = () => {
         const end = introJs();
@@ -868,77 +684,81 @@ const ForecastAndFlowDiagram = (props) => {
                             </Box>
                         </Grid>
                         <Grid container spacing={2} >
-                            <Box display="flex" flexDirection="column" mt={2} ml={2} p={2} className="time-period-button">
+
+
+                            <Box display="flex" alignItems="center" mt={2} ml={2} p={2} className="time-period-button">
                                 {/* Time Period Selection */}
-                                <Box display="flex" alignItems="center">
-                                    <TextField
-                                        select
-                                        label="Time Period"
-                                        value={timePeriod}
-                                        onChange={(e) => setTimePeriod(e.target.value)}
-                                        size="small"
-                                        variant="outlined"
+                                <TextField
+                                    select
+                                    label="Time Period"
+                                    value={timePeriod}
+                                    onChange={(e) => setTimePeriod(e.target.value)}
+                                    size="small"
+                                    variant="outlined"
+                                    sx={{ width: '200px', mr: 2 }}
+                                >
+                                    <MenuItem value="Monthly">Monthly</MenuItem>
+                                    <MenuItem value="Yearly">Yearly</MenuItem>
+                                </TextField>
+
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                    <DatePicker
+                                        views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
+                                        label={timePeriod === 'Monthly' ? 'Historical Start Month' : 'Historical Start Year'}
+                                        value={fromHistoricalDate}
+                                        onChange={(newValue) => setFromHistoricalDate(newValue)}
+                                        format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
+                                        slotProps={{ textField: { size: 'small' } }}
                                         sx={{ width: '200px', mr: 2 }}
-                                    >
-                                        <MenuItem value="Monthly">Monthly</MenuItem>
-                                        <MenuItem value="Yearly">Yearly</MenuItem>
-                                    </TextField>
+                                        maxDate={toForecastDate}
+                                    />
+                                    <DatePicker
+                                        views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
+                                        label={timePeriod === 'Monthly' ? 'Forecast Start Month' : 'Forecast Start Year'}
+                                        value={fromForecastDate}
+                                        onChange={(newValue) => setFromForecastDate(newValue)}
+                                        format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
+                                        slotProps={{ textField: { size: 'small' } }}
+                                        sx={{ width: '200px', mr: 2 }}
+                                        minDate={fromHistoricalDate}
+                                    />
+                                    <DatePicker
+                                        views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
+                                        label={timePeriod === 'Monthly' ? 'Forecast End Month' : 'Forecast End Year'}
+                                        value={toForecastDate}
+                                        onChange={(newValue) => setToForecastDate(newValue)}
+                                        format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
+                                        slotProps={{ textField: { size: 'small' } }}
+                                        sx={{ width: '200px', mr: 2 }}
+                                        minDate={fromForecastDate}
+                                    />
+                                </LocalizationProvider>
+                            </Box>
 
-                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                        <DatePicker
-                                            views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
-                                            label={timePeriod === 'Monthly' ? 'Historical Start Month' : 'Historical Start Year'}
-                                            value={fromHistoricalDate}
-                                            onChange={(newValue) => setFromHistoricalDate(newValue)}
-                                            format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
-                                            slotProps={{ textField: { size: 'small' } }}
-                                            sx={{ width: '200px', mr: 2 }}
-                                            maxDate={toForecastDate}
-                                        />
-                                        <DatePicker
-                                            views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
-                                            label={timePeriod === 'Monthly' ? 'Forecast Start Month' : 'Forecast Start Year'}
-                                            value={fromForecastDate}
-                                            onChange={(newValue) => setFromForecastDate(newValue)}
-                                            format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
-                                            slotProps={{ textField: { size: 'small' } }}
-                                            sx={{ width: '200px', mr: 2 }}
-                                            minDate={fromHistoricalDate}
-                                        />
-                                        <DatePicker
-                                            views={timePeriod === 'Monthly' ? ['year', 'month'] : ['year']}
-                                            label={timePeriod === 'Monthly' ? 'Forecast End Month' : 'Forecast End Year'}
-                                            value={toForecastDate}
-                                            onChange={(newValue) => setToForecastDate(newValue)}
-                                            format={timePeriod === 'Monthly' ? 'MMM-YYYY' : 'YYYY'}
-                                            slotProps={{ textField: { size: 'small' } }}
-                                            sx={{ width: '200px', mr: 2 }}
-                                            minDate={fromForecastDate}
-                                        />
-                                    </LocalizationProvider>
-                                </Box>
-
-                                {/* Ensure case type fields stay below */}
-                                <Box display="flex"  mt={4}>
-                                    {caseTypeLabels.map((label, index) => (
-                                        <TextField
-                                            key={index}
-                                            label={`Case Type ${index + 1}`}
-                                            variant="outlined"
-                                            size="small"
-                                            value={therapeuticArea === 'Oncology' ? caseTypeLabelsOnco[index] : caseTypeLabels[index]}
-                                            onChange={(e) => {
-                                                const updatedLabels = [...(therapeuticArea === 'Oncology' ? caseTypeLabelsOnco : caseTypeLabels)];
-                                                updatedLabels[index] = e.target.value;
-                                                therapeuticArea === 'Oncology' ? setCaseTypeLabelsOnco(updatedLabels) : setCaseTypeLabels(updatedLabels);
-                                            }}
-                                            sx={{ width: '200px', mr: 2, mb: 1 }}
-                                        />
-                                    ))}
-                                </Box>
+                            {/* Dynamic Case Type Labels Input */}
+                            <Box display="flex" flexDirection="row" mt={2} ml={2} p={2}>
+                                {[0,1,2].map((label, index) => (
+                                    <TextField
+                                        key={index}
+                                        label={`Label ${index + 1}`}
+                                        variant="outlined"
+                                        size="small"
+                                        value={TALabels[therapeuticArea][index]}
+                                        onChange={(e) => {
+                                            setTALabels((prevTALabels) => ({
+                                                ...prevTALabels,
+                                                [therapeuticArea]: [
+                                                    ...prevTALabels[therapeuticArea].slice(0, index),
+                                                    e.target.value,
+                                                    ...prevTALabels[therapeuticArea].slice(index + 1)
+                                                ]
+                                            }));
+                                        }}
+                                        sx={{ width: '200px', mr: 2, mb: 1 }}
+                                    />
+                                ))}
                             </Box>
                         </Grid>
-
                         <Box>
                             <Grid item xs={12}>
                                 <h2>Input Table</h2>

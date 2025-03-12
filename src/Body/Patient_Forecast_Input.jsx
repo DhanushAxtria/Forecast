@@ -55,7 +55,7 @@ const Patient_Forecast_Input = () => {
     const [productType, setProductType] = useState("value");
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const { storeValues, setStoreValues, rows, setRows, showTable, setShowTable } = useContext(MyContext);
-    const { fromHistoricalDate, setFromHistoricalDate, fromForecastDate, setFromForecastDate, toForecastDate, setToForecastDate, timePeriod, setTimePeriod } = useContext(MyContext);
+    const { fromHistoricalDate, fromForecastDate, toForecastDate, timePeriod, TALabels, setTALabels } = useContext(MyContext);
     const { combinedProducts, combinedProductsForInput } = useContext(MyContext);
     const [selectedFile, setSelectedFile] = useState(null);
     const [selectedWorkbook, setSelectedWorkbook] = useState("");
@@ -92,13 +92,9 @@ const Patient_Forecast_Input = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [savedText, setSavedText] = useState({});
     const [savedText2, setSavedText2] = useState({});
-    const { ForecastedValue, setForecastValue } = useContext(MyContext);
-    const { ParsedData, setParsedData } = useContext(MyContext);
-    const [combinedData, setCombinedData] = useState(null);
-    const { Formulas, setFormulas } = useContext(MyContext);
-    const { therapeuticArea, setTherapeuticArea } = useContext(MyContext);
-    const { caseTypeLabels, setCaseTypeLabels, caseTypeLabelsOnco, setCaseTypeLabelsOnco } = useContext(MyContext);
-
+    const { Formulas } = useContext(MyContext);
+    const { therapeuticArea } = useContext(MyContext);
+    const { caseTypeLabels, caseTypeLabelsOnco } = useContext(MyContext);
     const workbooks = [
         'Linear Regression',
         'Log Linear Regression',
@@ -119,6 +115,10 @@ const Patient_Forecast_Input = () => {
         return months;
     };
 
+    useEffect(() => {
+      console.log("rowssssssssssss", rows);
+      console.log("storevaluesssss", storeValues);
+    }, [rows])
     const generateYearlyColumns = (start, end) => {
         const years = [];
         let current = dayjs(start).startOf('year');
@@ -178,19 +178,9 @@ const Patient_Forecast_Input = () => {
         formData.append('ridgeAlpha', 0.1);
         formData.append('maxiter', 500);
 
-        console.log("Formatted Dates Before Sending:");
-        console.log("historyFromDate:", formatDateUTC(historyFromDate));
-        console.log("historyToDate:", formatDateUTC(historyToDate));
-        console.log("selectedFromDate:", formatDateUTC(selectedFromDate));
-        console.log("selectedToDate:", formatDateUTC(selectedToDate));
-
-        console.log("FormData Contents:");
-        for (let pair of formData.entries()) {
-            console.log(pair[0], pair[1]);
-        }
 
         try {
-            const response = await axios.post('http://127.0.0.1:8000/upload', formData, {
+            const response = await axios.post('https://fast-api-forecast.onrender.com/upload', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
 
@@ -443,11 +433,7 @@ const Patient_Forecast_Input = () => {
                                                 )}
                                             </div>
                                         </td>
-                                        {
-                                            therapeuticArea === 'Oncology' ?
-                                            <td>{caseTypeLabelsOnco[product.caseType === 'base' ? 0 : product.caseType === 'downside' ? 1 : 2]}</td> :
-                                            <td>{caseTypeLabels[product.caseType === 'base' ? 0 : product.caseType === 'downside' ? 1 : 2]}</td>
-                                        }
+                                        <td>{TALabels[therapeuticArea][index % 3]}</td>
                                         {columns.map((date) => (
                                             <td key={date}>
                                                 <TextField
@@ -489,10 +475,9 @@ const Patient_Forecast_Input = () => {
                                 downside: ['base', 'upside'],
                                 upside: ['base', 'downside'],
                             };
-
-                            return options[currentCase]?.map((caseOption) => (
+                            return options[currentCase]?.map((caseOption, index) => (
                                 <Button
-                                    key={caseOption}
+                                    key={index}
                                     variant="outlined"
                                     onClick={() => setSelectedCaseOption(caseOption)}
                                     color="primary"
@@ -501,7 +486,7 @@ const Patient_Forecast_Input = () => {
                                         color: selectedCaseOption === caseOption ? 'white' : ''
                                     }}
                                 >
-                                    Copy from {caseOption}
+                                    Copy from {caseOption}  {currentCase === 'base' ? TALabels[therapeuticArea][index+1] : currentCase === 'downside' ? index === 0 ? TALabels[therapeuticArea][index] : TALabels[therapeuticArea][index+1] : TALabels[therapeuticArea][index]}
                                 </Button>
                             ));
                         })()}
@@ -963,7 +948,6 @@ const Patient_Forecast_Input = () => {
         );
     };
 
-    console.log('Selected Row ID:', selectedRowId);
     const handlefilefillfromupload = (rowID) => {
         const file = UploadedFileToFill;
         if (file) {
@@ -1632,9 +1616,7 @@ const Patient_Forecast_Input = () => {
         return newValues;
     };
 
-    useEffect(() => {
-        console.log(Formulas);
-    }, [rows])
+   
     const handleDialogSubmit = () => {
         if (!productName) {
             alert("Product name is required!");
