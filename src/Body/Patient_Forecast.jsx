@@ -863,7 +863,7 @@ const Patient_Forecast = () => {
                                         }
                                     })}
                                 >
-                                    Value
+                                    Number
                                 </ToggleButton>
                                 <ToggleButton
                                     value="%"
@@ -877,7 +877,7 @@ const Patient_Forecast = () => {
                                         }
                                     })}
                                 >
-                                    %
+                                    Percentage
                                 </ToggleButton>
                             </ToggleButtonGroup>
 
