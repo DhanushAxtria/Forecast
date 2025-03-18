@@ -29,23 +29,23 @@ import { MyContext } from './context';
 
 
 const demo_data = [
-  { scenario: 'Main Submission', cycle: '2024 H2', country: 'Norway', area: 'HIV', modified: '30 Nov 2024', user: 'John Doe' },
-  { scenario: 'Draft 1', cycle: '2024 H2', country: 'USA', area: 'Cardiology', modified: '29 Sep 2024', user: 'John Doe' },
-  { scenario: 'Draft 2', cycle: '2024 H1', country: 'Norway', area: 'Oncology', modified: '28 May 2024', user: 'John Doe' },
-  { scenario: 'Main Submission', cycle: '2024 H1', country: 'Finland', area: 'HIV', modified: '27 Mar 2024', user: 'John Doe' },
+  { scenario: 'HIV_Forecast Model_NO_11302024', cycle: '2024 H2', country: 'Norway', area: 'HIV', modified: '30 Nov 2024', user: 'John Doe' },
+  { scenario: 'CARDIO_Forecast Model_US LRP 2024_09292024', cycle: '2024 H2', country: 'USA', area: 'Cardiology', modified: '29 Sep 2024', user: 'John Doe' },
+  { scenario: 'ONCO_Forecast Model_NO_05282024', cycle: '2024 H1', country: 'Norway', area: 'Oncology', modified: '28 May 2024', user: 'John Doe' },
+  { scenario: 'HIV_Forecast Model_FI_03272024', cycle: '2024 H1', country: 'Finland', area: 'HIV', modified: '27 Mar 2024', user: 'John Doe' },
 ];
 
 const demo_data1 = [
-  { scenario: 'Main Submission', cycle: '2024 H2', country: 'Norway', area: 'HIV', modified: '30 Nov 2024', user: 'John Doe' },
-  { scenario: 'Draft 2', cycle: '2024 H1', country: 'Norway', area: 'Oncology', modified: '28 May 2024', user: 'John Doe' },
-  { scenario: 'Draft 3', cycle: '2023 H2', country: 'Denmark', area: 'Oncology', modified: '15 Sep 2023', user: 'Chris Jones' },
-  { scenario: 'Main Submission', cycle: '2023 H1', country: 'Finland', area: 'HIV', modified: '22 Jun 2023', user: 'Emma Clark' },
+  { scenario: 'HIV_Forecast Model_NO_11302024', cycle: '2024 H2', country: 'Norway', area: 'HIV', modified: '30 Nov 2024', user: 'John Doe' },
+  { scenario: 'ONCO_Forecast Model_NO_05282024', cycle: '2024 H1', country: 'Norway', area: 'Oncology', modified: '28 May 2024', user: 'John Doe' },
+  { scenario: 'ONCO_Forecast Model_DK_09152023', cycle: '2023 H2', country: 'Denmark', area: 'Oncology', modified: '15 Sep 2023', user: 'Chris Jones' },
+  { scenario: 'HIV_Forecast Model_FI LRP_06222023', cycle: '2023 H1', country: 'Finland', area: 'HIV', modified: '22 Jun 2023', user: 'Emma Clark' },
 ];
 const demo_data2 = [
-  { scenario: 'Main Submission', cycle: '2024 H1', country: 'Norway', area: 'HIV', modified: '30 Sep 2024', user: '' },
-  { scenario: 'Draft 3', cycle: '2023 H2', country: 'Denmark', area: 'Oncology', modified: '15 Sep 2023', user: '' },
-  { scenario: 'Draft 4', cycle: '2023 H1', country: 'Sweden', area: 'Oncology', modified: '22 Jun 2023', user: '' },
-  { scenario: 'Main Submission', cycle: '2023 H1', country: 'Finland', area: 'HIV', modified: '21 Jun 2023', user: '' },
+  { scenario: 'HIV_Forecast Model_NO_09302024', cycle: '2024 H1', country: 'Norway', area: 'HIV', modified: '30 Sep 2024', user: '' },
+  { scenario: 'ONCO_Forecast Model_DE_09152023', cycle: '2023 H2', country: 'Denmark', area: 'Oncology', modified: '15 Sep 2023', user: '' },
+  { scenario: 'ONCO_Forecast Model_SE LRP_06222023', cycle: '2023 H1', country: 'Sweden', area: 'Oncology', modified: '22 Jun 2023', user: '' },
+  { scenario: 'HIV_Forecast Model_FI LRP_06212023', cycle: '2023 H1', country: 'Finland', area: 'HIV', modified: '21 Jun 2023', user: '' },
 ];
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -502,17 +502,17 @@ const Body = () => {
               <TableHead>
                 <TableRow sx={{ backgroundColor: '#1976d2' }}>
                   {/* Scenario Name */}
-                  <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Model Name</TableCell>
+                  <TableCell sx={{ width: '100px', color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Model Name</TableCell>
                   {/* Forecast Cycle */}
-                  <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Forecast Cycle</TableCell>
+                  <TableCell sx={{ width: '100px', color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Forecast Cycle</TableCell>
                   {/* Country */}
-                  <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Country</TableCell>
+                  <TableCell sx={{ width: '100px', color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Country</TableCell>
                   {/* Therapeutic Area */}
-                  <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Therapeutic Area</TableCell>
+                  <TableCell sx={{ width: '100px', color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Therapeutic Area</TableCell>
                   {/* Last Modified Date */}
-                  <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Last Modified</TableCell>
+                  <TableCell sx={{ width: '100px', color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Last Modified</TableCell>
                   {/* Submitted by */}
-                  <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Submitted by</TableCell>
+                  <TableCell sx={{ width: '100px', color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Submitted by</TableCell>
                   {/* Actions */}
                 </TableRow>
               </TableHead>

@@ -846,8 +846,10 @@ const Patient_Forecast = () => {
                                 orientation="horizontal"
                                 exclusive
                                 value={productType}
-                                onChange={(e, newValue) => setProductType(newValue)}
-                                sx={{ marginLeft: '8px' }}
+                                onChange={(e, newValue) => {
+                                    if (newValue !== null) setProductType(newValue); // Prevent deselection
+                                }}
+                                sx={{ marginLeft: '10px' }}
                             >
                                 <ToggleButton
                                     value="value"
