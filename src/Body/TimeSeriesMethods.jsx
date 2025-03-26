@@ -64,6 +64,7 @@ const Forecastpage = () => {
         return new Date(year, month, 1); // Create Date object for the first day of the month
     };
 
+
     const handleFileChange = (event) => {
         const file = event.target.files[0]; // Get the first file
         if (file) {
@@ -592,7 +593,9 @@ const Forecastpage = () => {
                                 <DatePicker
                                     label="From"
                                     value={historyFromDate}
-                                    onChange={(newValue) => setHistoryFromDate(newValue)}
+                                    onChange={(newValue) => {
+                                        setHistoryFromDate(newValue);
+                                    }}
                                     renderInput={(params) => <TextField {...params} size="small" sx={{ fontSize: '0.7rem' }} />}
                                     views={["year", "month"]}
                                     minDate={HistoricalFrom !== null ? parseDate(HistoricalFrom) : null}

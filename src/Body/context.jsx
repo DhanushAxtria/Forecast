@@ -72,16 +72,16 @@ const MyProvider = ({ children }) => {
     { id: 'T3-8', name: 'M-o-M Growth', type: '%' },
     { id: 'T3-9', name: 'US Price', type: 'value' },
   ];
-  const [selectedSheet, setSelectedSheet] = useState(null);
+  const [selectedSheet, setSelectedSheet] = useState('Linear Regression');
   const [ForecastedValue, setForecastValue] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [ParsedData, setParsedData] = useState(null);
   const [isCol, setIsCol] = useState(false);
   const [met, setMet] = useState(null);
-  const [historyFromDate, setHistoryFromDate] = useState(null);
-  const [historyToDate, setHistoryToDate] = useState(null);
-  const [selectedFromDate, setSelectedFromDate] = useState(null);
-  const [selectedToDate, setSelectedToDate] = useState(null);
+  const [historyFromDate, setHistoryFromDate] = useState(new Date("2024-12-01T00:00:00+05:30"));
+  const [historyToDate, setHistoryToDate] = useState(new Date("2025-08-01T00:00:00+05:30"));
+  const [selectedFromDate, setSelectedFromDate] = useState(new Date("2025-09-01T00:00:00+05:30"));
+  const [selectedToDate, setSelectedToDate] = useState(new Date("2026-12-01T00:00:00+05:30"));
   const [fromHistoricalDate, setFromHistoricalDate] = useState(dayjs());
   const [fromForecastDate, setFromForecastDate] = useState(dayjs());
   const [toForecastDate, setToForecastDate] = useState(dayjs());
@@ -154,6 +154,22 @@ const MyProvider = ({ children }) => {
   });
 
   const [editingFormula, setEditingFormula] = useState({ ...Formulas });
+
+  // demo data for time series model.
+  useEffect(() => {
+    // Simulate file upload from local CSV file
+    const loadLocalFile = async () => {
+      try {
+        const response = await fetch("/demo_file_1.csv"); // Load file from public folder
+        const blob = await response.blob();
+        const file = new File([blob], "demo_file_1.csv", { type: "text/csv" });
+        setSelectedFile(file);
+      } catch (error) {
+        console.error("Error loading the file:", error);
+      }
+    };
+    loadLocalFile();
+  }, []);
 
   useEffect(() => {
     setFromHistoricalDate(dayjs('2025-01-01'));
