@@ -5,6 +5,7 @@ import UploadIcon from '@mui/icons-material/Upload';
 import { useNavigate } from 'react-router-dom';
 import Select from '@mui/material/Select';
 import ClearIcon from '@mui/icons-material/Clear';
+import InputAdornment from '@mui/material/InputAdornment';
 import {
     TextField,
     IconButton,
@@ -55,6 +56,13 @@ const Patient_Forecast_Input = () => {
     const [productType, setProductType] = useState("value");
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const { storeValues, setStoreValues, rows, setRows, showTable, setShowTable } = useContext(MyContext);
+    // const { values, setValues } = useContext(MyContext);
+    // const { values2, setValues2 } = useContext(MyContext);
+    // const { values3, setValues3 } = useContext(MyContext);
+    const [caseVisibility, setCaseVisibility] = useState({});
+    const { defaultvalues, setDefaultValues } = useContext(MyContext);
+    const { defaultvalues2, setDefaultValues2 } = useContext(MyContext);
+    const { defaultvalues3, setDefaultValues3 } = useContext(MyContext);
     const { fromHistoricalDate, fromForecastDate, toForecastDate, timePeriod, TALabels, setTALabels } = useContext(MyContext);
     const { combinedProducts, combinedProductsForInput } = useContext(MyContext);
     const [selectedFile, setSelectedFile] = useState(null);
@@ -87,8 +95,8 @@ const Patient_Forecast_Input = () => {
             : dayjs(fromForecastDate).subtract(1, 'month'))
         : null;
 
-    const [text, setText] = useState({});
-    const [text2, setText2] = useState({});
+    const { text, setText } = useContext(MyContext);
+    const { text2, setText2 } = useContext(MyContext);
     const [isEditing, setIsEditing] = useState(false);
     const [savedText, setSavedText] = useState({});
     const [savedText2, setSavedText2] = useState({});
@@ -116,9 +124,10 @@ const Patient_Forecast_Input = () => {
     };
 
     useEffect(() => {
-      console.log("rowssssssssssss", rows);
-      console.log("storevaluesssss", storeValues);
+        console.log("input page rows", rows);
+        console.log("input page storevalues", storeValues);
     }, [rows])
+
     const generateYearlyColumns = (start, end) => {
         const years = [];
         let current = dayjs(start).startOf('year');
@@ -139,25 +148,78 @@ const Patient_Forecast_Input = () => {
 
     useEffect(() => {
         console.log(rows);
-
-
     }, [rows])
 
+    // const handleSelectParameter = (productId) => {
+    //     const product = combinedProducts.find((p) => p.id === productId);
+    //     if (product) {
+    //         const newRows = [
+    //             { ...product, caseType: "base" },
+    //             { ...product, caseType: "downside" },
+    //             { ...product, caseType: "upside" },
+    //         ];
 
+    //         setRows((prevRows) => [...prevRows, ...newRows]);
+    //         // Set storeValues based on rowKey (product.id + caseType)
+    //         newRows.forEach((row) => {
+    //             const rowKey = `${row.id}.${row.caseType}`; // Unique identifier for each row
+
+    //             let defaultValues = {};
+    //             if (row.caseType === 'base') {
+    //                 defaultValues = defaultvalues2[row.id];
+    //             } else if (row.caseType === 'downside') {
+    //                 defaultValues = defaultvalues[row.id];
+    //             } else if (row.caseType === 'upside') {
+    //                 defaultValues = defaultvalues3[row.id];
+    //             }
+
+    //             // Set the default values for this row based on rowKey
+    //             setStoreValues((prevStoreValues) => ({
+    //                 ...prevStoreValues,
+    //                 [rowKey]: defaultValues, // Assign the default values to the row
+    //             }));
+    //         });
+    //         setShowTable(true);
+    //         setSelectedProductId(""); // Reset selection after adding
+    //     }
+    // };
     const handleSelectParameter = (productId) => {
-        const product = combinedProducts.find((p) => p.id === productId);
-        if (product) {
-            const newRows = [
-                { ...product, caseType: "base" },
-                { ...product, caseType: "downside" },
-                { ...product, caseType: "upside" },
-            ];
+        let productsToAdd = [];
 
-            setRows((prevRows) => [...prevRows, ...newRows]);
-            setShowTable(true);
-            setSelectedProductId(""); // Reset selection after adding
+        if (productId === "__ALL__") {
+            productsToAdd = combinedProductsForInput.filter(
+                (product) => !rows.some((row) => row.id === product.id)
+            );
+        } else {
+            const product = combinedProducts.find((p) => p.id === productId);
+            if (product) productsToAdd = [product];
         }
+
+        const newRows = productsToAdd.flatMap((product) => [
+            { ...product, caseType: "base" },
+            { ...product, caseType: "downside" },
+            { ...product, caseType: "upside" },
+        ]);
+
+        setRows((prevRows) => [...prevRows, ...newRows]);
+
+        newRows.forEach((row) => {
+            const rowKey = `${row.id}.${row.caseType}`;
+            let defaultValues = {};
+            if (row.caseType === 'base') defaultValues = defaultvalues2[row.id];
+            else if (row.caseType === 'downside') defaultValues = defaultvalues[row.id];
+            else if (row.caseType === 'upside') defaultValues = defaultvalues3[row.id];
+
+            setStoreValues((prevStoreValues) => ({
+                ...prevStoreValues,
+                [rowKey]: defaultValues,
+            }));
+        });
+
+        setShowTable(true);
+        setSelectedProductId(""); // Reset dropdown
     };
+
 
     const handletimeseriesanalysis = async (selectedSheet, historyFromDate, historyToDate, selectedFromDate, selectedToDate, selectedFile) => {
         const formatDateUTC = (date) => {
@@ -305,7 +367,7 @@ const Patient_Forecast_Input = () => {
         return (
             <Box
                 sx={{
-                    maxHeight: '100%',
+                   maxHeight: '600px',
                     maxWidth: '100%',
                     overflowY: 'auto',
                     overflowX: 'auto',
@@ -314,30 +376,99 @@ const Patient_Forecast_Input = () => {
             >
                 <table className="product-table">
                     <thead>
+                        {/* Grouped Header Row */}
                         <tr>
-                            <th>Name</th>
-                            <th style={{ minWidth: '150px' }}>Case Type</th>
-                            {columns.map((column) => (
-                                <th
-                                    style={{
-                                        minWidth: '150px',
-                                        backgroundColor:
-                                            timePeriod === 'Year'
-                                                ? dayjs(column).isBefore(dayjs(fromForecastDate), 'year')
-                                                : dayjs(column).isBefore(dayjs(fromForecastDate), 'month')
-                                                    ? '#C6F4D6' // Light green for columns between fromHistorical and fromForecast
-                                                    : '#FFFFE0', // Light yellow for all other columns
-                                    }}
-                                >
-                                    {column}
-                                </th>
-                            ))}
+                            <th
+                                rowSpan={2}
+                                style={{
+
+                                    left: '-15px',top:'-15px', zIndex: 3, position: 'sticky'
+                                }}
+                            >Name
+                            </th>
+                            <th
+                                rowSpan={2}
+                                style={{
+                                    minWidth: '150px',
+                                    left: '700px',
+                                    top:'-15px',
+                                    zIndex: 3,
+                                    position: 'sticky',
+
+                                }}
+                            >
+                                Case Type
+                            </th>
+                            <th
+                                colSpan={columns.filter(column =>
+                                    timePeriod === 'Year'
+                                        ? dayjs(column).isBefore(dayjs(fromForecastDate), 'year')
+                                        : dayjs(column).isBefore(dayjs(fromForecastDate), 'month')
+                                ).length}
+                                style={{
+                                    textAlign: 'center',
+                                    backgroundColor: '#C6F4D6',
+                                    fontWeight: 'bold',
+                                    position: 'sticky',
+                                            top: '-15px', 
+                                            zIndex: 1, 
+                                }}
+                            >
+                                Historical {timePeriod === 'Yearly' ? 'Years' : 'Months'}
+                            </th>
+                            <th
+                                colSpan={columns.filter(column =>
+                                    timePeriod === 'Year'
+                                        ? !dayjs(column).isBefore(dayjs(fromForecastDate), 'year')
+                                        : !dayjs(column).isBefore(dayjs(fromForecastDate), 'month')
+                                ).length}
+                                style={{
+                                    textAlign: 'center',
+                                    backgroundColor: '#FFFFE0',
+                                    fontWeight: 'bold',
+                                    position: 'sticky',
+                                            top: '-15px', 
+                                            zIndex: 1, 
+                                }}
+                            >
+                                Forecasted {timePeriod === 'Yearly' ? 'Years' : 'Months'}
+                            </th>
+                        </tr>
+
+                        {/* Date Column Headers */}
+                        <tr>
+                            {columns.map((column) => {
+                                const isHistorical =
+                                    timePeriod === 'Year'
+                                        ? dayjs(column).isBefore(dayjs(fromForecastDate), 'year')
+                                        : dayjs(column).isBefore(dayjs(fromForecastDate), 'month');
+
+                                return (
+                                    <th
+                                        key={column}
+                                        style={{
+                                            minWidth: '150px',
+                                            backgroundColor: isHistorical ? '#C6F4D6' : '#FFFFE0',
+                                            position: 'sticky',
+                                            top: '30px', 
+                                            zIndex: 1, 
+                                            textAlign: 'center',
+                                        }}
+                                        title={isHistorical ? 'Historical Date' : 'Forecasted Date'}
+                                    >
+                                        {column}
+                                    </th>
+                                );
+                            })}
                         </tr>
                     </thead>
                     <tbody>
+                        
                         {rows.map((product, index) => {
                             // Create a unique key for each row using product name and case type
                             const rowKey = `${product.id}.${product.caseType}`;
+                            console.log(rowKey);
+                           
 
                             // Add spacing row before a new parameter's rows (every 3 rows)
                             const isFirstRowOfGroup = index % 3 === 0;
@@ -349,13 +480,20 @@ const Patient_Forecast_Input = () => {
                                 <React.Fragment key={rowKey}>
                                     {isFirstRowOfGroup && index !== 0 && (
                                         <tr>
-                                            <td colSpan={columns.length + 2} style={{ height: '30px' }}></td>
+                                            <td colSpan={columns.length + 2} style={{ height: '50px', zIndex: 2 }}></td>
                                         </tr>
                                     )}
                                     <tr style={{
                                         backgroundColor: groupBackgroundColor,
                                     }}>
-                                        <td>
+                                        <td
+                                            style={{
+                                                position: 'sticky', // sticky position
+                                                left: 0,             // stick to left
+                                               
+                                                backgroundColor: groupBackgroundColor,
+                                                zIndex: 2,
+                                            }}>
                                             <div
                                                 style={{
                                                     display: 'grid',
@@ -363,6 +501,7 @@ const Patient_Forecast_Input = () => {
                                                     justifyContent: 'center',
                                                     alignItems: 'center',
                                                     width: '720px',
+
                                                 }}
                                             >
                                                 <Tooltip title="Source Info" placement="top">
@@ -409,9 +548,10 @@ const Patient_Forecast_Input = () => {
                                                                 marginLeft: '8px',
                                                                 overflow: 'auto',
                                                                 whiteSpace: 'nowrap',
+
                                                             }}
                                                         >
-                                                            {product.name}
+                                                            {product.type === '%' ? `${product.name} (${product.type})` : product.name}
                                                         </span>
                                                         <Tooltip title="Edit Row Name" placement="top">
                                                             <IconButton
@@ -433,19 +573,32 @@ const Patient_Forecast_Input = () => {
                                                 )}
                                             </div>
                                         </td>
-                                        <td>{TALabels[therapeuticArea][index % 3]}</td>
+                                        <td
+                                            style={{
+                                                position: 'sticky',
+                                                left: '700px',
+                                                zIndex: 1,
+                                                backgroundColor: groupBackgroundColor,
+                                                minWidth: '150px',
+
+                                            }}>{TALabels[therapeuticArea][index % 3]}</td>
                                         {columns.map((date) => (
+
                                             <td key={date}>
                                                 <TextField
                                                     type="number"
-                                                    value={storeValues[rowKey]?.[date] ? storeValues[rowKey][date] : ''}
+                                                    value={storeValues[rowKey]?.[date] ?? ''}
                                                     onChange={(e) =>
                                                         handleValueChange(rowKey, date, e.target.value)
                                                     }
                                                     variant="outlined"
                                                     size="small"
                                                     placeholder="Enter value"
-                                                    inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                                                    InputProps={{
+                                                        endAdornment: product.type === "%" ? (
+                                                            <InputAdornment position="end">%</InputAdornment>
+                                                        ) : null
+                                                    }}
                                                 />
                                             </td>
                                         ))}
@@ -486,7 +639,7 @@ const Patient_Forecast_Input = () => {
                                         color: selectedCaseOption === caseOption ? 'white' : ''
                                     }}
                                 >
-                                    Copy from {caseOption}  {currentCase === 'base' ? TALabels[therapeuticArea][index+1] : currentCase === 'downside' ? index === 0 ? TALabels[therapeuticArea][index] : TALabels[therapeuticArea][index+1] : TALabels[therapeuticArea][index]}
+                                    Copy from {caseOption}  {currentCase === 'base' ? TALabels[therapeuticArea][index + 1] : currentCase === 'downside' ? index === 0 ? TALabels[therapeuticArea][index] : TALabels[therapeuticArea][index + 1] : TALabels[therapeuticArea][index]}
                                 </Button>
                             ));
                         })()}
@@ -1616,7 +1769,7 @@ const Patient_Forecast_Input = () => {
         return newValues;
     };
 
-   
+
     const handleDialogSubmit = () => {
         if (!productName) {
             alert("Product name is required!");
@@ -1651,11 +1804,12 @@ const Patient_Forecast_Input = () => {
                     variant="outlined"
                 >
                     <MenuItem value="" disabled>Select a parameter</MenuItem>
+                    <MenuItem value="__ALL__" style={{ fontWeight: 'bold' }}>Select All Parameters</MenuItem>
                     {combinedProductsForInput
-                        .filter((product) => !rows.some((row) => row.id === product.id)) // Filter out already added items
+                        .filter((product) => !rows.some((row) => row.id === product.id))
                         .map((product) => (
                             <MenuItem key={product.id} value={product.id}>
-                                {product.name}
+                                {product.name}{product.type === 'value' ? '' : ` (${product.type})`}
                             </MenuItem>
                         ))}
                 </TextField>
@@ -1668,6 +1822,7 @@ const Patient_Forecast_Input = () => {
                 >
                     Add New Parameter
                 </Button>
+                
             </Box>
 
             {showTable && renderTable()}

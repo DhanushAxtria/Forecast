@@ -554,7 +554,7 @@ const Dashboard = () => {
                                     type="monotone"
                                     dataKey={lineKey}
                                     name={lineKey}
-                                    stroke={colors[index]}
+                                    stroke={Case === 'base' ? 'blue' : Case === 'downside' ? 'red' : 'green'}
                                     strokeWidth={3}
                                 />
                             );
@@ -593,7 +593,7 @@ const Dashboard = () => {
                                     dataKey={barKey}
                                     name={barKey}
                                     stackId="a"
-                                    fill={colors[index]}
+                                    fill={Case === 'base' ? 'blue' : Case === 'downside' ? 'red' : 'green'}
                                 />
                             );
                         })}

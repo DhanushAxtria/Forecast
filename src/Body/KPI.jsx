@@ -60,14 +60,7 @@ const KPI = () => {
     const [highFileToFill, setHighFileToFill] = useState({});
     const [editingLowFileToFill, setEditingLowFileToFill] = useState({});
     const [lowFileToFill, setLowFileToFill] = useState({});
-    const [highMethodForRow, setHighMethodForRow] = useState({
-        "0": "%",
-        "1": "%",
-    });
-    const [lowMethodForRow, setLowMethodForRow] = useState({
-        "0": "%",
-        "1": "%",
-    });
+    const { highMethodForRow, setHighMethodForRow, lowMethodForRow, setLowMethodForRow } = useContext(MyContext);
     const [openInputMethodDialog, setOpenInputMethodDialog] = useState(false);
     const [openStartEndDialog, setOpenStartEndDialog] = useState(false);
     const [openUploadDialog, setOpenUploadDialog] = useState(false);
@@ -79,10 +72,7 @@ const KPI = () => {
     const [highEndValue, setHighEndValue] = useState({}); // Saved High Case End Values
     const [lowStartValue, setLowStartValue] = useState({}); // Saved Low Case Start Values
     const [lowEndValue, setLowEndValue] = useState({}); // Saved Low Case End Values
-    const [dropdownGroups, setDropdownGroups] = useState([
-        { Case: "base", OutputMetric: "T3-12", Field: "T1-3" },
-        { Case: "base", OutputMetric: "T3-12", Field: "T3-9" },
-    ]);
+    const { dropdownGroupKPI, setDropdownGroupKPI } = useContext(MyContext);
     const [openGrowthRateDialog, setOpenGrowthRateDialog] = useState(false);
     const [highGrowthRates, setHighGrowthRates] = useState({});
     const [highStartingValue, setHighStartingValue] = useState({});
@@ -105,22 +95,8 @@ const KPI = () => {
     const [lowCaseData, setLowCaseData] = useState([]);
     const [highCaseData, setHighCaseData] = useState([]);
     const [openChangeDialog, setOpenChangeDialog] = useState(false);
-    const [editingHighPercentVal, setEditingHighPercentVal] = useState({
-        "0": 40,
-        "1": 30,
-    });
-    const [editingLowPercentVal, setEditingLowPercentVal] = useState({
-        "0": -35,
-        "1": -25,
-    });
-    const [HighPercentVal, setHighPercentVal] = useState({
-        "0": 40,
-        "1": 30,
-    });
-    const [LowPercentVal, setLowPercentVal] = useState({
-        "0": -35,
-        "1": -25,
-    });
+    const { editingHighPercentVal, setEditingHighPercentVal, editingLowPercentVal, setEditingLowPercentVal, HighPercentVal, setHighPercentVal, LowPercentVal, setLowPercentVal } = useContext(MyContext);
+
     const [lowAbsoluteVal, setLowAbsoluteVal] = useState({});
     const [highAbsoluteVal, setHighAbsoluteVal] = useState({});
     const [editingLowAbsoluteVal, setEditingLowAbsoluteVal] = useState({});
@@ -133,12 +109,12 @@ const KPI = () => {
     const [mainresult, setMainResult] = useState({})
     const [columns, setColumns] = useState([]);
     const [columns2, setColumns2] = useState([]);
-    const [fromDate, setFromDate] = useState(dayjs(fromHistoricalDate));
-    const [toDate, setToDate] = useState(dayjs(toForecastDate));
+    const [fromDate, setFromDate] = useState(dayjs('2030'));
+    const [toDate, setToDate] = useState(dayjs('2031'));
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState("");
 
-    const labels = dropdownGroups
+    const labels = dropdownGroupKPI
         .map((group) => {
             if (group?.Field && products[group?.Case]) {
                 return Object.keys(products[group.Case]).map((tableKey) => {
@@ -155,7 +131,7 @@ const KPI = () => {
         })
         .flat();
 
-    const labelsOutputMetric = dropdownGroups
+    const labelsOutputMetric = dropdownGroupKPI
         .map((group) => {
             if (group?.OutputMetric && products[group?.Case]) {
                 return Object.keys(products[group.Case]).map((tableKey) => {
@@ -180,10 +156,10 @@ const KPI = () => {
     }));
 
     const handleAddDropdownGroup = (index) => {
-        setDropdownGroups([...dropdownGroups, { Case: dropdownGroups[index].Case, OutputMetric: dropdownGroups[index].OutputMetric, Field: "" }]);
+        setDropdownGroupKPI([...dropdownGroupKPI, { Case: dropdownGroupKPI[index].Case, OutputMetric: dropdownGroupKPI[index].OutputMetric, Field: "" }]);
         setCurrentCase(prev => ({
             ...prev,
-            [index + 1]: dropdownGroups[index].Case
+            [index + 1]: dropdownGroupKPI[index].Case
         }));
         console.log(currentCase);
     };
@@ -248,8 +224,8 @@ const KPI = () => {
         ]);
     };
     const handleDeleteDropdownGroup = (index) => {
-        const updatedGroups = dropdownGroups.filter((_, i) => i !== index);
-        setDropdownGroups(updatedGroups);
+        const updatedGroups = dropdownGroupKPI.filter((_, i) => i !== index);
+        setDropdownGroupKPI(updatedGroups);
         handledelete(index);
     };
     const handleDropdownChange = (index, field, value) => {
@@ -258,28 +234,28 @@ const KPI = () => {
                 ...prev,
                 [index]: value
             }));
-            const updatedGroups = [...dropdownGroups];
+            const updatedGroups = [...dropdownGroupKPI];
             updatedGroups.forEach((group, i) => {
                 group[field] = value;
             });
-            setDropdownGroups(updatedGroups);
+            setDropdownGroupKPI(updatedGroups);
         }
         if (field === 'OutputMetric') {
-            const updatedGroups = [...dropdownGroups];
+            const updatedGroups = [...dropdownGroupKPI];
             updatedGroups.forEach((group, i) => {
                 group[field] = value;
             });
-            setDropdownGroups(updatedGroups);
+            setDropdownGroupKPI(updatedGroups);
         }
-        const updatedGroups = [...dropdownGroups];
+        const updatedGroups = [...dropdownGroupKPI];
         updatedGroups[index][field] = value;
-        setDropdownGroups(updatedGroups);
+        setDropdownGroupKPI(updatedGroups);
     };
     const isLastRowFilled =
-        dropdownGroups.length > 0 &&
-        dropdownGroups[dropdownGroups.length - 1].Case &&
-        dropdownGroups[dropdownGroups.length - 1].OutputMetric &&
-        dropdownGroups[dropdownGroups.length - 1].Field;
+        dropdownGroupKPI.length > 0 &&
+        dropdownGroupKPI[dropdownGroupKPI.length - 1].Case &&
+        dropdownGroupKPI[dropdownGroupKPI.length - 1].OutputMetric &&
+        dropdownGroupKPI[dropdownGroupKPI.length - 1].Field;
     const handleSaveStartEndValues = () => {
         if (buttonType === "High") {
             setHighMethodForRow(prev => ({ ...prev, [Index]: "StartEnd" }));
@@ -553,7 +529,7 @@ const KPI = () => {
         }
         else if (method === 'copy') {
             const tempCase = buttontype === 'High' ? highSelectedCaseOption[index] : lowSelectedCaseOption[index];
-            const currentField = dropdownGroups[index]?.Field;
+            const currentField = dropdownGroupKPI[index]?.Field;
             const valuesMap = {
                 upside: values3,
                 downside: values,
@@ -570,7 +546,7 @@ const KPI = () => {
             return res;
         }
         else if (method === '%') {
-            const gp = dropdownGroups[index];
+            const gp = dropdownGroupKPI[index];
             const temp = gp.Case === 'downside' ? values[gp.Field] : gp.Case === 'base' ? values2[gp.Field] : values3[gp.Field];
             console.log("temp", temp);
             console.log("edd", HighPercentVal[index]);
@@ -589,8 +565,8 @@ const KPI = () => {
             return res;
         }
         else {
-            const currentRow = dropdownGroups[index]?.Field;
-            const currentCase = dropdownGroups[index]?.Case;
+            const currentRow = dropdownGroupKPI[index]?.Field;
+            const currentCase = dropdownGroupKPI[index]?.Case;
             const valuesMap = {
                 upside: values3,
                 downside: values,
@@ -704,7 +680,7 @@ const KPI = () => {
         const mainResDict = {};
         const highResSum = {};
         const lowResSum = {};
-        dropdownGroups.forEach((row, index) => {
+        dropdownGroupKPI.forEach((row, index) => {
             let valuesHigh = { ... (row.Case === 'downside' ? values : row.Case === 'base' ? values2 : values3) };
             let valuesLow = { ... (row.Case === 'downside' ? values : row.Case === 'base' ? values2 : values3) };
             const temppreval = row.Case === 'downside' ? values[row.OutputMetric] : row.Case === 'base' ? values2[row.OutputMetric] : values3[row.OutputMetric];
@@ -1214,7 +1190,7 @@ const KPI = () => {
                     className='apply'
                     variant="contained"
                     onClick={() => KPIAnalysis()}
-                    disabled={dropdownGroups.length === 0 || dropdownGroups.some((row) => row.OutputMetric === "" || row.Field === "" || row.Case === "")}
+                    disabled={dropdownGroupKPI.length === 0 || dropdownGroupKPI.some((row) => row.OutputMetric === "" || row.Field === "" || row.Case === "")}
                 >
                     Apply
                 </Button>
@@ -1255,6 +1231,7 @@ const KPI = () => {
                             overflow: "hidden",
                             border: "1px solid #ddd",
                             maxWidth: "120%",
+                            mb: 25
                         }}
                     >
                         <Table size="small" aria-label="dropdown table">
@@ -1263,12 +1240,12 @@ const KPI = () => {
                                     <TableCell className='case' align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Case</TableCell>
                                     <TableCell className='metric' align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Output Metric</TableCell>
                                     <TableCell className='field' align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Field</TableCell>
-                                    <TableCell className='high' align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>High Case</TableCell>
-                                    <TableCell className='low' align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Low Case</TableCell>
+                                    <TableCell className='high' align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Opportunity Scenario Input</TableCell>
+                                    <TableCell className='low' align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Risk Scenario Input</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {dropdownGroups.map((group, index) => (
+                                {dropdownGroupKPI.map((group, index) => (
                                     <TableRow
                                         key={index}
                                         sx={{
@@ -1367,24 +1344,24 @@ const KPI = () => {
                                                     setOpenInputMethodDialog(true);
                                                 }}
                                             >
-                                                High Case <UploadIcon sx={{ ml: 1 }} />
+                                                Opportunity Scenario <UploadIcon sx={{ ml: 1 }} />
                                             </Button>
                                         </TableCell>
                                         <TableCell align="center">
                                             <Button
                                                 variant={lowMethodForRow[index] ? "contained" : "outlined"}
                                                 color="error"
-                                                sx={{ marginLeft: index === dropdownGroups.length - 1 ? 5 : 0 }} // Added left margin
+                                                sx={{ marginLeft: index === dropdownGroupKPI.length - 1 ? 5 : 0 }} // Added left margin
                                                 onClick={() => {
                                                     setIndex(index);
                                                     setButtonType("Low");
                                                     setOpenInputMethodDialog(true);
                                                 }}
                                             >
-                                                Low Case
+                                                Risk Scenario
                                                 <UploadIcon sx={{ ml: 1 }} />
                                             </Button>
-                                            {dropdownGroups.length > 1 && (
+                                            {dropdownGroupKPI.length > 1 && (
                                                 <IconButton
                                                     title="Delete this row"
                                                     aria-label="delete"
@@ -1395,7 +1372,7 @@ const KPI = () => {
                                                 </IconButton>
                                             )}
                                             {
-                                                index === dropdownGroups.length - 1 && (
+                                                index === dropdownGroupKPI.length - 1 && (
                                                     <IconButton
                                                         title="Add new parameters"
                                                         aria-label="add"
@@ -1421,8 +1398,27 @@ const KPI = () => {
                     </TableContainer>
                 </Grid>
                 {applyClicked && <Grid item xs={12}>
-                    <div style={{ width: '80%', margin: 'auto', textAlign: 'center', marginTop: "150px" }}>
-                        <h3 style={{ color: '#333', marginBottom: '20px' }}>{dropdownGroups[0].Case.charAt(0).toUpperCase() + dropdownGroups[0].Case.slice(1)} Case, {labelsOutputMetric[0]}: {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(baseRev)}</h3>
+                    <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '100%',
+                        marginTop: '150px',
+                        textAlign: 'center'
+                    }}>
+                        <h3 style={{ color: '#333', marginBottom: '20px' }}>{dropdownGroupKPI[0].Case.charAt(0).toUpperCase() + dropdownGroupKPI[0].Case.slice(1)} Case, {labelsOutputMetric[0] + " in Year " + toDate.year()}: {
+                            (() => {
+                                const value = baseRev;
+                                if (value >= 1000000 || value <= -1000000) {
+                                    return `$${(value / 1000000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}M`;
+                                } else if (value >= 1000 || value <= -1000) {
+                                    return `$${(value / 1000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}K`;
+                                } else {
+                                    return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                                }
+                            })()
+                        }</h3>
                         <BarChart
                             width={900}
                             height={500}
@@ -1524,7 +1520,7 @@ const KPI = () => {
                                 const csvContent = [];
                                 csvContent.push(['Output Metric', 'Scenario', 'Total', ...columns2]);
                                 csvContent.push([labelsOutputMetric[0], 'Actual Values', baseRev, ...columns2.map(column => mainresult?.[0]?.[column])]);
-                                dropdownGroups.forEach((group, index) => {
+                                dropdownGroupKPI.forEach((group, index) => {
                                     csvContent.push([`${labelsOutputMetric[0]} Instance ${index + 1}`, `${labels?.[index]} High Case Values`, highresSum?.[index], ...columns2.map(column => highresult?.[index]?.[column])]);
                                     csvContent.push([`${labelsOutputMetric[0]} Instance ${index + 1}`, `${labels?.[index]} Low Case Values`, lowresSum?.[index], ...columns2.map(column => lowresult?.[index]?.[column])]);
                                 });
@@ -1550,7 +1546,7 @@ const KPI = () => {
                                 const csvContent = [];
                                 csvContent.push(['Output Metric', 'Scenario', 'Total', ...columns2]);
                                 csvContent.push([labelsOutputMetric[0], 'Actual Values', baseRev, ...columns2.map(column => mainresult?.[0]?.[column])]);
-                                dropdownGroups.forEach((group, index) => {
+                                dropdownGroupKPI.forEach((group, index) => {
                                     csvContent.push([`${labelsOutputMetric[0]} Instance ${index + 1}`, `${labels?.[index]} High Case Values`, highresSum?.[index], ...columns2.map(column => highresult?.[index]?.[column])]);
                                     csvContent.push([`${labelsOutputMetric[0]} Instance ${index + 1}`, `${labels?.[index]} Low Case Values`, lowresSum?.[index], ...columns2.map(column => lowresult?.[index]?.[column])]);
                                 });
@@ -1610,7 +1606,7 @@ const KPI = () => {
                                     </TableRow>
 
                                     {/* Dynamic Rows for Each Group */}
-                                    {dropdownGroups.map((group, index) => {
+                                    {dropdownGroupKPI.map((group, index) => {
                                         const groupColors = ['#f0f8ff', '#e6e6fa', '#ffe4e1', '#fafad2', '#d3f9d8'];
                                         const bgColor = groupColors[index % groupColors.length]; // Rotate colors using index
                                         return (
@@ -2064,26 +2060,42 @@ const KPI = () => {
                                     upside: ['base', 'downside'],
                                 };
 
-                                return options[currentCase[Index]]?.map((caseOption) => (
-                                    <Button
-                                        key={caseOption}
-                                        variant="outlined"
-                                        onClick={() => buttonType === 'High' ? setEditingHighSelectedCaseOption(prev => ({
-                                            ...prev,
-                                            [Index]: caseOption
-                                        })) : setEditingLowSelectedCaseOption(prev => ({
-                                            ...prev,
-                                            [Index]: caseOption
-                                        }))}
-                                        color="primary"
-                                        sx={{
-                                            backgroundColor: buttonType === 'High' ? editingHighSelectedCaseOption[Index] === caseOption ? '#1976d2' : '' : editingLowSelectedCaseOption[Index] === caseOption ? '#1976d2' : '', // Highlight selected option
-                                            color: buttonType === 'High' ? editingHighSelectedCaseOption[Index] === caseOption ? 'white' : '' : editingLowSelectedCaseOption[Index] === caseOption ? 'white' : '', // Highlight selected option
-                                        }}
-                                    >
-                                        Copy from {caseOption}
-                                    </Button>
-                                ));
+                                const selectedCase = currentCase[Index] || 'base'; // fallback to 'base'
+
+                                return options[selectedCase]?.map((caseOption) => {
+                                    const caseLabelIndex = ['base', 'downside', 'upside'].indexOf(caseOption);
+                                    const caseLabel = TALabels[therapeuticArea][caseLabelIndex];
+
+                                    const isSelected =
+                                        buttonType === 'High'
+                                            ? editingHighSelectedCaseOption[Index] === caseOption
+                                            : editingLowSelectedCaseOption[Index] === caseOption;
+
+                                    return (
+                                        <Button
+                                            key={caseOption}
+                                            variant="outlined"
+                                            onClick={() =>
+                                                buttonType === 'High'
+                                                    ? setEditingHighSelectedCaseOption((prev) => ({
+                                                        ...prev,
+                                                        [Index]: caseOption,
+                                                    }))
+                                                    : setEditingLowSelectedCaseOption((prev) => ({
+                                                        ...prev,
+                                                        [Index]: caseOption,
+                                                    }))
+                                            }
+                                            color="primary"
+                                            sx={{
+                                                backgroundColor: isSelected ? '#1976d2' : '',
+                                                color: isSelected ? 'white' : '',
+                                            }}
+                                        >
+                                            Copy from {caseLabel}
+                                        </Button>
+                                    );
+                                });
                             })()}
                         </Box>
                     </DialogContent>

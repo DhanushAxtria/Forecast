@@ -70,13 +70,13 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 
 const breadcrumbNameMap = {
   '/new-model': 'New Model',
-  '/new-model/epidemiology-model': 'New Scenario',
-  '/new-model/epidemiology-model/scenario-details': 'Scenario Details',
-  '/scenario-details': 'New Scenario / Scenario Details',
+  '/new-model/epidemiology-model': 'New Forecast Model',
+  '/new-model/epidemiology-model/scenario-details': 'Forecast Details',
+  '/scenario-details': 'New Forecast Model / Forecast Details',
   '/new-model/epidemiology-model/scenario-details/Inputpage': 'Input page',
   '/new-model/epidemiology-model/model1/analysis' : 'Model 1 Analysis',
   '/new-model/epidemiology-model/model1': 'Model 1',
-  '/Inputpage': 'New Scenario / Scenario Details / Input page',
+  '/Inputpage': 'New Forecast Model / Forecast Details / Input page',
   '/saved-scenario': 'Existing Models',
   '/data-consolidation': 'Data Consolidation',
   '/scenario-comparison': 'Scenario Comparison',

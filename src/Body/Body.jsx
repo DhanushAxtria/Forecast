@@ -29,23 +29,21 @@ import { MyContext } from './context';
 
 
 const demo_data = [
-  { scenario: 'Main Submission', cycle: '2024 H2', country: 'Norway', area: 'HIV', modified: '30 Nov 2024', user: 'John Doe' },
-  { scenario: 'Draft 1', cycle: '2024 H2', country: 'USA', area: 'Cardiology', modified: '29 Sep 2024', user: 'John Doe' },
-  { scenario: 'Draft 2', cycle: '2024 H1', country: 'Norway', area: 'Oncology', modified: '28 May 2024', user: 'John Doe' },
-  { scenario: 'Main Submission', cycle: '2024 H1', country: 'Finland', area: 'HIV', modified: '27 Mar 2024', user: 'John Doe' },
+  { scenario: 'Brand A - Scenario 2', cycle: '2024 H2', country: 'Norway', area: 'HIV', modified: '30 Nov 2024', user: 'John Doe' },
+  { scenario: 'Brand C - Scenario 2', cycle: '2023 H2', country: 'Denmark', area: 'Oncology', modified: '15 Sep 2023', user: 'Chris Jones' },
+  { scenario: 'Brand B - Scenario 2', cycle: '2023 H1', country: 'Finland', area: 'HIV', modified: '21 Jun 2023', user: 'Emma Clark' },
+  { scenario: 'Brand B - Scenario 1', cycle: '2023 H1', country: 'Finland', area: 'HIV', modified: '27 Mar 2023', user: 'John Doe' },
 ];
 
 const demo_data1 = [
-  { scenario: 'Main Submission', cycle: '2024 H2', country: 'Norway', area: 'HIV', modified: '30 Nov 2024', user: 'John Doe' },
-  { scenario: 'Draft 2', cycle: '2024 H1', country: 'Norway', area: 'Oncology', modified: '28 May 2024', user: 'John Doe' },
-  { scenario: 'Draft 3', cycle: '2023 H2', country: 'Denmark', area: 'Oncology', modified: '15 Sep 2023', user: 'Chris Jones' },
-  { scenario: 'Main Submission', cycle: '2023 H1', country: 'Finland', area: 'HIV', modified: '22 Jun 2023', user: 'Emma Clark' },
+  { scenario: 'Brand A - Scenario 2', cycle: '2024 H2', country: 'Norway', area: 'HIV', modified: '30 Nov 2024', user: 'John Doe' },
+  { scenario: 'Brand B - Scenario 2', cycle: '2023 H1', country: 'Finland', area: 'HIV', modified: '21 Jun 2023', user: 'Emma Clark' },
 ];
 const demo_data2 = [
-  { scenario: 'Main Submission', cycle: '2024 H1', country: 'Norway', area: 'HIV', modified: '30 Sep 2024', user: '' },
-  { scenario: 'Draft 3', cycle: '2023 H2', country: 'Denmark', area: 'Oncology', modified: '15 Sep 2023', user: '' },
-  { scenario: 'Draft 4', cycle: '2023 H1', country: 'Sweden', area: 'Oncology', modified: '22 Jun 2023', user: '' },
-  { scenario: 'Main Submission', cycle: '2023 H1', country: 'Finland', area: 'HIV', modified: '21 Jun 2023', user: '' },
+  { scenario: 'Brand A - Scenario 1', cycle: '2024 H2', country: 'Norway', area: 'HIV', modified: '30 Sep 2024', user: '' },
+  { scenario: 'Brand C - Scenario 2', cycle: '2023 H2', country: 'Denmark', area: 'Oncology', modified: '15 Sep 2023', user: '' },
+  { scenario: 'Brand D - Scenario 1', cycle: '2023 H1', country: 'Sweden', area: 'Oncology', modified: '22 Jun 2023', user: '' },
+  { scenario: 'Brand B - Scenario 2', cycle: '2023 H1', country: 'Finland', area: 'HIV', modified: '21 Jun 2023', user: '' },
 ];
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;

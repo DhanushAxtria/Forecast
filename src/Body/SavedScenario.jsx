@@ -24,36 +24,37 @@ import { MyContext } from './context';
 
 // demo data for the table
 const demo_data = [
-    { scenario: 'Main Submission', cycle: '2024 H2', country: 'Norway', area: 'TA 1', modified: '30 Sep 2024', user: 'User 1' },
-    { scenario: 'Draft 1', cycle: '2024 H2', country: 'Norway', area: 'TA 1', modified: '29 Sep 2024', user: 'User 1' },
-    { scenario: 'Draft 2', cycle: '2024 H2', country: 'Norway', area: 'TA 1', modified: '30 Sep 2024', user: 'User 1' },
-    { scenario: 'Main Submission', cycle: '2024 H2', country: 'Finland', area: 'TA 1', modified: '29 Sep 2024', user: 'User 1' },
-    { scenario: 'Draft 1', cycle: '2024 H2', country: 'Finland', area: 'TA 1', modified: '28 Sep 2024', user: 'User 1' },
-    { scenario: 'Draft 3', cycle: '2013-H1', country: 'USA', area: 'Cardiology', modified: '10 Jan 2013', user: 'User 2' },
-    { scenario: 'Main Submission', cycle: '2013-H2', country: 'Canada', area: 'Oncology', modified: '20 Aug 2013', user: 'User 3' },
-    { scenario: 'Draft 1', cycle: '2014-H1', country: 'Germany', area: 'Neurology', modified: '15 Apr 2014', user: 'User 4' },
-    { scenario: 'Draft 2', cycle: '2014-H2', country: 'India', area: 'Diabetes', modified: '10 Dec 2014', user: 'User 5' },
-    { scenario: 'Main Submission', cycle: '2024 H2', country: 'Norway', area: 'Cardiology', modified: '30 Sep 2024', user: 'User 1' },
-    { scenario: 'Draft 1', cycle: '2013-H1', country: 'USA', area: 'Oncology', modified: '15 Jan 2013', user: 'User 2' },
-    { scenario: 'Main Submission', cycle: '2013-H2', country: 'Canada', area: 'Neurology', modified: '20 Jul 2013', user: 'User 3' },
-    { scenario: 'Draft 3', cycle: '2014-H1', country: 'Germany', area: 'Diabetes', modified: '01 Apr 2014', user: 'User 4' },
-    { scenario: 'Main Submission', cycle: '2014-H2', country: 'India', area: 'TA 1', modified: '12 Dec 2014', user: 'User 5' },
-    { scenario: 'Draft 2', cycle: '2024 H2', country: 'Norway', area: 'Cardiology', modified: '01 Oct 2024', user: 'User 1' },
-    { scenario: 'Draft 3', cycle: '2013-H1', country: 'USA', area: 'Oncology', modified: '25 Feb 2013', user: 'User 2' },
-    { scenario: 'Main Submission', cycle: '2013-H2', country: 'Canada', area: 'Neurology', modified: '30 Aug 2013', user: 'User 3' },
-    { scenario: 'Draft 1', cycle: '2014-H1', country: 'Germany', area: 'Diabetes', modified: '25 May 2014', user: 'User 4' },
-    { scenario: 'Main Submission', cycle: '2014-H2', country: 'India', area: 'Cardiology', modified: '18 Dec 2014', user: 'User 5' },
-    { scenario: 'Draft 1', cycle: '2024 H2', country: 'Norway', area: 'Neurology', modified: '02 Oct 2024', user: 'User 1' },
-    { scenario: 'Draft 3', cycle: '2013-H1', country: 'USA', area: 'TA 1', modified: '10 Mar 2013', user: 'User 2' },
-    { scenario: 'Main Submission', cycle: '2013-H2', country: 'Canada', area: 'Diabetes', modified: '22 Sep 2013', user: 'User 3' },
-    { scenario: 'Draft 1', cycle: '2014-H1', country: 'Germany', area: 'TA 1', modified: '15 Jun 2014', user: 'User 4' },
-    { scenario: 'Draft 2', cycle: '2014-H2', country: 'India', area: 'Oncology', modified: '01 Jan 2015', user: 'User 5' },
-    { scenario: 'Main Submission', cycle: '2024 H2', country: 'Norway', area: 'Neurology', modified: '04 Oct 2024', user: 'User 1' },
-    { scenario: 'Draft 3', cycle: '2013-H1', country: 'USA', area: 'Cardiology', modified: '15 Apr 2013', user: 'User 2' },
-    { scenario: 'Main Submission', cycle: '2013-H2', country: 'Canada', area: 'Oncology', modified: '01 Nov 2013', user: 'User 3' },
-    { scenario: 'Draft 1', cycle: '2014-H1', country: 'Germany', area: 'Diabetes', modified: '30 Jul 2014', user: 'User 4' },
-    { scenario: 'Draft 2', cycle: '2014-H2', country: 'India', area: 'TA 1', modified: '20 Jan 2015', user: 'User 5' },
-    { scenario: 'Main Submission', cycle: '2024 H2', country: 'Norway', area: 'Cardiology', modified: '06 Oct 2024', user: 'User 1' }
+    { scenario: 'Brand A - Scenario 2', cycle: '2024 H2', country: 'Norway', area: 'HIV', modified: '30 Nov 2024', user: 'John Doe' },
+    { scenario: 'Brand A - Scenario 1', cycle: '2024 H2', country: 'Norway', area: 'HIV', modified: '30 Sep 2024', user: 'Michael Wang' },
+    { scenario: 'Brand C - Scenario 2', cycle: '2023 H2', country: 'Denmark', area: 'Oncology', modified: '15 Sep 2023', user: 'Chris Jones' },
+    { scenario: 'Brand C - Scenario 1', cycle: '2023 H2', country: 'Denmark', area: 'Oncology', modified: '15 Sep 2023', user: 'Chris Jones' },
+    { scenario: 'Brand D - Scenario 2', cycle: '2023 H1', country: 'Sweden', area: 'Oncology', modified: '26 Jun 2023', user: 'Jane Smith' },
+    { scenario: 'Brand D - Scenario 1', cycle: '2023 H1', country: 'Sweden', area: 'Oncology', modified: '22 Jun 2023', user: 'Jane Smith' },
+    { scenario: 'Brand B - Scenario 2', cycle: '2023 H1', country: 'Finland', area: 'HIV', modified: '21 Jun 2023', user: 'Emma Clark' },
+    { scenario: 'Brand B - Scenario 1', cycle: '2023 H1', country: 'Finland', area: 'HIV', modified: '27 Mar 2023', user: 'John Doe' },
+    { scenario: 'Brand C - Scenario 2', cycle: '2022-H2', country: 'India', area: 'Oncology', modified: '10 Dec 2022', user: 'Michael Wang' },
+    { scenario: 'Brand C - Scenario 1', cycle: '2022 H2', country: 'Norway', area: 'Cardiology', modified: '30 Sep 2022', user: 'John Doe' },
+    // { scenario: 'Main Submission', cycle: '2024 H2', country: 'Norway', area: 'Cardiology', modified: '30 Sep 2024', user: 'John Doe' },
+    // { scenario: 'Draft 1', cycle: '2013-H1', country: 'USA', area: 'Oncology', modified: '15 Jan 2013', user: 'Emma Clark' },
+    // { scenario: 'Main Submission', cycle: '2013-H2', country: 'Canada', area: 'Neurology', modified: '20 Jul 2013', user: 'Chris Jones' },
+    // { scenario: 'Draft 3', cycle: '2014-H1', country: 'Germany', area: 'Oncology', modified: '01 Apr 2014', user: 'Jane Smith' },
+    // { scenario: 'Main Submission', cycle: '2014-H2', country: 'India', area: 'HIV', modified: '12 Dec 2014', user: 'Michael Wang' },
+    // { scenario: 'Draft 2', cycle: '2024 H2', country: 'Norway', area: 'Cardiology', modified: '01 Oct 2024', user: 'John Doe' },
+    // { scenario: 'Draft 3', cycle: '2013-H1', country: 'USA', area: 'Oncology', modified: '25 Feb 2013', user: 'Emma Clark' },
+    // { scenario: 'Main Submission', cycle: '2013-H2', country: 'Canada', area: 'Neurology', modified: '30 Aug 2013', user: 'Chris Jones' },
+    // { scenario: 'Draft 1', cycle: '2014-H1', country: 'Germany', area: 'Oncology', modified: '25 May 2014', user: 'Jane Smith' },
+    // { scenario: 'Main Submission', cycle: '2014-H2', country: 'India', area: 'Cardiology', modified: '18 Dec 2014', user: 'Michael Wang' },
+    // { scenario: 'Draft 1', cycle: '2024 H2', country: 'Norway', area: 'Neurology', modified: '02 Oct 2024', user: 'John Doe' },
+    // { scenario: 'Draft 3', cycle: '2013-H1', country: 'USA', area: 'HIV', modified: '10 Mar 2013', user: 'Emma Clark' },
+    // { scenario: 'Main Submission', cycle: '2013-H2', country: 'Canada', area: 'Oncology', modified: '22 Sep 2013', user: 'Chris Jones' },
+    // { scenario: 'Draft 1', cycle: '2014-H1', country: 'Germany', area: 'HIV', modified: '15 Jun 2014', user: 'Jane Smith' },
+    // { scenario: 'Draft 2', cycle: '2014-H2', country: 'India', area: 'Oncology', modified: '01 Jan 2015', user: 'Michael Wang' },
+    // { scenario: 'Main Submission', cycle: '2024 H2', country: 'Norway', area: 'Neurology', modified: '04 Oct 2024', user: 'John Doe' },
+    // { scenario: 'Draft 3', cycle: '2013-H1', country: 'USA', area: 'Cardiology', modified: '15 Apr 2013', user: 'Emma Clark' },
+    // { scenario: 'Main Submission', cycle: '2013-H2', country: 'Canada', area: 'Oncology', modified: '01 Nov 2013', user: 'Chris Jones' },
+    // { scenario: 'Draft 1', cycle: '2014-H1', country: 'Germany', area: 'Oncology', modified: '30 Jul 2014', user: 'Jane Smith' },
+    // { scenario: 'Draft 2', cycle: '2015-H1', country: 'India', area: 'HIV', modified: '20 Jan 2015', user: 'Michael Wang' },
+    
 ];
 
 
@@ -64,7 +65,7 @@ export default function SavedScenario() {
     const { forecastCycles, setForecastCycles } = useContext(MyContext);
     // dropdown values
     const countryOptions = ['All', 'USA', 'Canada', 'Germany', 'India', 'Norway', 'Finland'];
-    const therapeuticAreaOptions = ['All', 'Cardiology', 'Oncology', 'Neurology', 'Diabetes', 'TA 1'];
+    const therapeuticAreaOptions = ['All', 'Cardiology', 'Oncology', 'Neurology', 'HIV'];
     const forecastCycleOptions = ['All', '2024 H2', '2013-H1', '2013-H2', '2014-H1', '2014-H2'];
     const navigate = useNavigate();
 
@@ -327,7 +328,7 @@ export default function SavedScenario() {
             >
                 Show Tutorial
             </Button>
-            <h2>{getGreetingMessage()}, Welcome to the Saved Scenario Page!</h2>
+            <h2>{getGreetingMessage()}, Welcome to the Existing Models Page!</h2>
             <h4>Please select a scenario to continue</h4>
             <Box display="flex" gap={2} mb={6} sx={{ width: '100%' }}>
                 {/* Forecast Cycle Dropdown */}

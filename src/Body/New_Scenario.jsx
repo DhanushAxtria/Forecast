@@ -92,8 +92,8 @@ export default function NewScenario({ username = "User" }) {
     { name: 'Cardiology - Patient Projection Model v1', country: 'Canada', area: 'Cardiology' },
     { name: 'Cardiology - Patient Switch Model v1', country: 'Canada', area: 'Cardiology' },
   ];
-  const therapeuticAreaOptions = ['Cardiology', 'Oncology', 'Neurology', 'Immunology', 'Dermatology', 'HIV'];
-  const countryOptions = ['Iceland', 'Germany', 'UK', 'Finland', 'France', 'Italy', 'Spain', 'Denmark', 'Norway', 'Sweden'];
+  const therapeuticAreaOptions = ['Cardiology', 'Oncology', 'Neurology', 'Immunology', 'STD', 'HIV'];
+  const countryOptions = ['US', 'Germany', 'UK', 'Finland', 'France', 'Italy', 'Spain', 'Denmark', 'Norway', 'Sweden'];
   const forecastCycleOptions = ['H1 - 2023', 'H2 - 2023', 'H1 - 2024', 'H2 - 2024'];
 
   const handleSelectClick = (scenario) => {
@@ -564,12 +564,25 @@ export default function NewScenario({ username = "User" }) {
       >
         Show Tutorial
       </Button>
-      <h2>{getGreetingMessage()}, Please provide details for New Scenario Configuration</h2>
+      <h2>{getGreetingMessage()}, Please Choose an Option for New Model</h2>
 
       {/* Add the three buttons with background colors */}
-      <h4>Choose an option to build scenario</h4>
+      <h4>Below are the Options</h4>
 
       <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+        <Button
+          className='copy-button'
+          variant="contained"
+          sx={{
+            backgroundColor: selectedAction === 'createNew' ? '#1e88e5' : 'gray',
+            color: 'white',
+            '&:hover': { backgroundColor: selectedAction === 'createNew' ? '#1565c0' : 'gray' },
+          }}
+          //disabled={selectedAction && selectedAction !== 'copySubmission'}
+          onClick={() => handleActionClick('createNew')}
+        >
+         Create New Model
+        </Button>
         <Button
           className='copy-button'
           variant="contained"
@@ -596,7 +609,8 @@ export default function NewScenario({ username = "User" }) {
         >
           Copy from Saved Models
         </Button>
-        <Button
+        
+        {/* <Button
           className='saved-template'
           variant="contained"
           sx={{
@@ -608,88 +622,97 @@ export default function NewScenario({ username = "User" }) {
           onClick={() => handleActionClick('savedTemplates')}
         >
           Using Saved Templates
-        </Button>
+        </Button> */}
 
       </div>
-      <h4>Please select a scenario to continue</h4>
-      <Box display="flex" gap={2} mb={6} sx={{ width: '100%' }}>
-        {/* Autocomplete with Checkboxes for Forecast Cycle */}
-        <Autocomplete
-          className='filter-button'
-          multiple
-          id="forecast-cycle-autocomplete"
-          options={forecastCycleOptions}
-          disableCloseOnSelect // Only keep if needed for multi-select behavior
-          getOptionLabel={(option) => option}
-          value={forecastCycles}
-          onChange={(event, newValue) => setForecastCycles(newValue)}
-          onBlur={() => setForecastCycles([...forecastCycles])} // Force re-render to close
-          renderOption={(props, option, { selected }) => (
-            <li {...props}>
-              <Checkbox
-                style={{ marginRight: 8 }}
-                checked={selected}
-              />
-              <ListItemText primary={option} />
-            </li>
-          )}
-          renderInput={(params) => (
-            <TextField {...params} size="small" label="Forecast Cycle" placeholder="Select forecast cycle(s)" />
-          )}
-          sx={{ width: '300px' }}
-        />
+      {selectedAction  && (
+        <>
+        {selectedAction === 'createNew' ? (
+          <h4>Please select model details</h4>
+        ) : (
+          <h4>Please Select to Filter the table</h4>
+        )}
+        <Box display="flex" gap={2} mb={6} sx={{ width: '100%' }}>
+          {/* Autocomplete with Checkboxes for Forecast Cycle */}
+        
+          <Autocomplete
+            className='filter-button'
+            multiple
+            id="forecast-cycle-autocomplete"
+            options={forecastCycleOptions}
+            disableCloseOnSelect // Only keep if needed for multi-select behavior
+            getOptionLabel={(option) => option}
+            value={forecastCycles}
+            onChange={(event, newValue) => setForecastCycles(newValue)}
+            onBlur={() => setForecastCycles([...forecastCycles])} // Force re-render to close
+            renderOption={(props, option, { selected }) => (
+              <li {...props}>
+                <Checkbox
+                  style={{ marginRight: 8 }}
+                  checked={selected}
+                />
+                <ListItemText primary={option} />
+              </li>
+            )}
+            renderInput={(params) => (
+              <TextField {...params} size="small" label="Forecast Cycle" placeholder="Select forecast cycle(s)" />
+            )}
+            sx={{ width: '300px' }}
+          />
 
-        {/* Autocomplete with Checkboxes for Country */}
-        <Autocomplete
-          multiple
-          id="country-autocomplete"
-          options={countryOptions}
-          disableCloseOnSelect
-          getOptionLabel={(option) => option}
-          value={countries}
-          onChange={(event, newValue) => setCountries(newValue)}
-          renderOption={(props, option, { selected }) => (
-            <li {...props}>
-              <Checkbox
-                style={{ marginRight: 8 }}
-                checked={selected}
-              />
-              <ListItemText primary={option} />
-            </li>
-          )}
-          renderInput={(params) => (
-            <TextField {...params} size="small" label="Country" placeholder="Select country(s)" />
-          )}
-          sx={{ width: '300px' }}
-        />
+          {/* Autocomplete with Checkboxes for Country */}
+          <Autocomplete
+            multiple
+            id="country-autocomplete"
+            options={countryOptions}
+            disableCloseOnSelect
+            getOptionLabel={(option) => option}
+            value={countries}
+            onChange={(event, newValue) => setCountries(newValue)}
+            renderOption={(props, option, { selected }) => (
+              <li {...props}>
+                <Checkbox
+                  style={{ marginRight: 8 }}
+                  checked={selected}
+                />
+                <ListItemText primary={option} />
+              </li>
+            )}
+            renderInput={(params) => (
+              <TextField {...params} size="small" label="Country" placeholder="Select country(s)" />
+            )}
+            sx={{ width: '300px' }}
+          />
 
-        {/* Autocomplete with Checkboxes for Therapeutic Area */}
-        <Autocomplete
-          multiple
-          id="therapeutic-area-autocomplete"
-          options={therapeuticAreaOptions}
-          disableCloseOnSelect
-          getOptionLabel={(option) => option}
-          value={therapeuticAreas}
-          onChange={(event, newValue) => setTherapeuticAreas(newValue)}
-          renderOption={(props, option, { selected }) => (
-            <li {...props}>
-              <Checkbox
-                style={{ marginRight: 8 }}
-                checked={selected}
-              />
-              <ListItemText primary={option} />
-            </li>
-          )}
-          renderInput={(params) => (
-            <TextField {...params} size="small" label="Therapeutic Area" placeholder="Select therapeutic area(s)" />
-          )}
-          sx={{ width: '300px' }}
-        />
-      </Box>
+          {/* Autocomplete with Checkboxes for Therapeutic Area */}
+          <Autocomplete
+            multiple
+            id="therapeutic-area-autocomplete"
+            options={therapeuticAreaOptions}
+            disableCloseOnSelect
+            getOptionLabel={(option) => option}
+            value={therapeuticAreas}
+            onChange={(event, newValue) => setTherapeuticAreas(newValue)}
+            renderOption={(props, option, { selected }) => (
+              <li {...props}>
+                <Checkbox
+                  style={{ marginRight: 8 }}
+                  checked={selected}
+                />
+                <ListItemText primary={option} />
+              </li>
+            )}
+            renderInput={(params) => (
+              <TextField {...params} size="small" label="Therapeutic Area" placeholder="Select therapeutic area(s)" />
+            )}
+            sx={{ width: '300px' }}
+          />
+        </Box>
+        </>
+      )}
 
-
-      {selectedAction === 'copySubmission' && (
+      {selectedAction === 'createNew'  && (
+        
         <TableContainer component={Paper} sx={{ mt: 3, maxWidth: '100%' }}>
           <Table aria-label="submission scenarios table" size="small">
             <TableHead>
@@ -705,7 +728,7 @@ export default function NewScenario({ username = "User" }) {
             </TableHead>
             <TableBody>
               <TableRow sx={{ backgroundColor: '#e5f1fb' }}>
-                <TableCell sx={{ padding: '6px', textAlign: 'center' }}>Patient Flow</TableCell>
+                <TableCell sx={{ padding: '6px', textAlign: 'center' }}>Patient Based Model</TableCell>
                 <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{forecastCycles ? forecastCycles[0] : '-'}</TableCell>
                 <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{countries[0] ? countries[0] : '-'}</TableCell>
                 <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{therapeuticAreas[0] ? therapeuticAreas[0] : '-'}</TableCell>
@@ -714,13 +737,13 @@ export default function NewScenario({ username = "User" }) {
                 <TableCell sx={{ padding: '6px', textAlign: 'center' }}>
                   <Box display="flex" justifyContent="center" alignItems="center" gap={1}>
                     <Tooltip title="Review Scenario Summary">
-                      <IconButton onClick={() => handleReviewScenarioSummary({ scenario: 'Paient Flow', cycle: forecastCycles[0], country: countries[0], area: therapeuticAreas[0], modified: '-', user: '-' }
+                      <IconButton onClick={() => handleReviewScenarioSummary({ scenario: 'Paient Based Model', cycle: forecastCycles[0], country: countries[0], area: therapeuticAreas[0], modified: '-', user: '-' }
                       )}>
                         <OpenInNewIcon color="success" />
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Review Scenario Details">
-                      <IconButton onClick={() => handleReviewScenario({ scenario: 'Paient Flow', cycle: forecastCycles[0], country: countries[0], area: therapeuticAreas[0], modified: '-', user: '-' },
+                      <IconButton onClick={() => handleReviewScenario({ scenario: 'Paient Based Model', cycle: forecastCycles[0], country: countries[0], area: therapeuticAreas[0], modified: '-', user: '-' },
                       )} >
                         <AssessmentIcon color="success" />
                       </IconButton>
@@ -731,7 +754,7 @@ export default function NewScenario({ username = "User" }) {
                         variant="contained"
                         color="primary"
                         size="small"
-                        onClick={() => navigate("/new-model/epidemiology-model/scenario-details")}
+                        onClick={() => handleSelectClick({ scenario: 'Paient Based Model', cycle: forecastCycles[0], country: countries[0], area: therapeuticAreas[0], modified: '-', user: '-' })}
                         disabled={!(forecastCycles.length > 0 && countries.length > 0 && therapeuticAreas.length > 0)}
                       >
                         Create
@@ -739,7 +762,27 @@ export default function NewScenario({ username = "User" }) {
                     </Tooltip>
                   </Box>
                 </TableCell>
+              </TableRow>          
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
+      {selectedAction === 'copySubmission' && (
+        <TableContainer component={Paper} sx={{ mt: 3, maxWidth: '100%' }}>
+          <Table aria-label="submission scenarios table" size="small">
+            <TableHead>
+              <TableRow sx={{ backgroundColor: '#1976d2' }}>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Model Name</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Forecast Cycle</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Country</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Therapeutic Area</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Last Modified</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Submitted by</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '6px', textAlign: 'center' }}>Actions</TableCell>
               </TableRow>
+            </TableHead>
+            <TableBody>
+              
               {filteredCopyData.map((row, index) => (
                 <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? 'white' : '#e5f1fb' }}>
                   <TableCell sx={{ padding: '6px', textAlign: 'center' }}>Scenario {index + 1}</TableCell>
@@ -788,42 +831,7 @@ export default function NewScenario({ username = "User" }) {
               </TableRow>
             </TableHead>
             <TableBody>
-              <TableRow sx={{ backgroundColor: '#e5f1fb' }}>
-                <TableCell sx={{ padding: '6px', textAlign: 'center' }}>Patient Flow</TableCell>
-                <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{forecastCycles ? forecastCycles[0] : '-'}</TableCell>
-                <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{countries[0] ? countries[0] : '-'}</TableCell>
-                <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{therapeuticAreas[0] ? therapeuticAreas[0] : '-'}</TableCell>
-                <TableCell sx={{ padding: '6px', textAlign: 'center' }}>-</TableCell>
-                <TableCell sx={{ padding: '6px', textAlign: 'center' }}>-</TableCell>
-                <TableCell sx={{ padding: '6px', textAlign: 'center' }}>
-                  <Box display="flex" justifyContent="center" alignItems="center" gap={1}>
-                    <Tooltip title="Review Scenario Summary">
-                      <IconButton onClick={() => handleReviewScenarioSummary({ scenario: 'Paient Flow', cycle: forecastCycles[0], country: countries[0], area: therapeuticAreas[0], modified: '-', user: '-' }
-                      )}>
-                        <OpenInNewIcon color="success" />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Review Scenario Details">
-                      <IconButton onClick={() => handleReviewScenario({ scenario: 'Paient Flow', cycle: forecastCycles[0], country: countries[0], area: therapeuticAreas[0], modified: '-', user: '-' },
-                      )} >
-                        <AssessmentIcon color="success" />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Select Scenario">
-                      <Button
-                        className='create-button'
-                        variant="contained"
-                        color="primary"
-                        size="small"
-                        onClick={() => navigate("/new-model/epidemiology-model/forecastdeepdive")}
-                        disabled={!(forecastCycles.length > 0 && countries.length > 0 && therapeuticAreas.length > 0)}
-                      >
-                        Create
-                      </Button>
-                    </Tooltip>
-                  </Box>
-                </TableCell>
-              </TableRow>
+              
               {filteredSavedData.map((row, index) => (
                 <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? 'white' : '#e5f1fb' }}>
                   <TableCell sx={{ padding: '6px', textAlign: 'center' }}>Draft {index + 1}</TableCell>
@@ -858,7 +866,7 @@ export default function NewScenario({ username = "User" }) {
         </TableContainer>
       )}
 
-      {showFolders && selectedAction === 'savedTemplates' && (
+      {/* {showFolders && selectedAction === 'savedTemplates' && (
         <div style={{ display: 'flex', flexWrap: 'wrap', marginTop: '20px', gap: '40px' }}>
           {folders.map((folder, index) => {
             // If no filters are selected, all folders are highlighted
@@ -896,7 +904,7 @@ export default function NewScenario({ username = "User" }) {
             );
           })}
         </div>
-      )}
+      )} */}
 
       {importedData.headers.length > 0 && (
         <TableContainer component={Paper} sx={{ mt: 3, maxHeight: 400, maxWidth: '100%', overflow: 'auto' }}>

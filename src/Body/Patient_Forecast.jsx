@@ -49,9 +49,12 @@ import './ProductListpage.scss';
 import { MyContext } from './context';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import ToggleButton from '@mui/material/ToggleButton';
+import { FormLabel, Radio, RadioGroup } from '@mui/material';
+
 
 const Patient_Forecast = () => {
     const [lagBehind, setLagBehind] = useState(false);
+    const [rowMode, setRowMode] = useState("product"); // 'product' or 'spacer'
     const { storeValues } = useContext(MyContext); // Multi-select for countries
     const [formulaDetails, setFormulaDetails] = useState({ tableKey: null, tabKey: null, productId: null });
     const [editingProductId, setEditingProductId] = useState(null);
@@ -68,6 +71,7 @@ const Patient_Forecast = () => {
     const [endValue, setEndValue] = useState(''); // End value for Specify Start and Target Values
     const [selectedRowId, setselectedRowId] = useState(null);
     const [selectedRowName, setSelectedRowName] = useState(null);
+    const [selectedTableKey, setSelectedTableKey] = useState(null);
     const { timePeriod, setTimePeriod } = useContext(MyContext);
     const navigate = useNavigate();
     const { values, setValues } = useContext(MyContext);
@@ -118,10 +122,22 @@ const Patient_Forecast = () => {
     //const EXCEL_FILE_URL = "https://axtria-my.sharepoint.com/:x:/r/personal/a7949_axtria_com/_layouts/15/guestaccess.aspx?share=EVWU-ZrnQjlPnWIpYw8qAuMBCahgxnlmGxPJq2gLhIX_OQ&email=nimisha.yadav%40axtria.com&e=U2DyUG"; // Replace with your Excel file URL
     //const EXCEL_FILE_URL = "C:/Users/A7949/Downloads/data.xlsx"
     //const EXCEL_FILE_URL = "https://axtria-my.sharepoint.com/personal/a7949_axtria_com/_layouts/15/guestaccess.aspx?share=ET4APwly0aVDqqqiOHPODlABmu1kqKJkUuweiEjBqC1mAw&email=nimisha.yadav%40axtria.com&e=RxuDIl"
-    const formatNumber = (num) => {
-        if (!num) return '';
-        return Number(num).toLocaleString('en-US', { maximumFractionDigits: 2 });
+    const formatNumber = (num, type, name) => {
+        if (num === null || num === undefined || num === '') return '';
+        const parsed = Number(num);
+        if (isNaN(parsed)) return '';
+        if (name.toLowerCase().includes('price') || name.toLowerCase().includes('revenue')) {
+            return parsed.toLocaleString('en-US', {
+                maximumFractionDigits: 2,
+                minimumFractionDigits: 2
+            });
+        }
+        return parsed.toLocaleString('en-US', {
+            maximumFractionDigits: type === '%' ? 2 : 0,
+            minimumFractionDigits: type === '%' ? 2 : 0
+        });
     };
+
 
     const parseNumber = (str) => {
         return str.replace(/,/g, '');
@@ -199,6 +215,7 @@ const Patient_Forecast = () => {
             </Box>
         );
     };
+
     const Card1 = () => {
         return (
             <>
@@ -255,6 +272,7 @@ const Patient_Forecast = () => {
                         ) : (// If not in editing mode, display the card body
                             <Typography variant="body2" sx={{ color: '#01579b', marginTop: 1 }}>
                                 {tabTableVisibility[currentTabKey].table1 ? '' : cardBody1}
+
                             </Typography>
                         )}
                     </Box>
@@ -547,6 +565,15 @@ const Patient_Forecast = () => {
     /*Renders a table within a Box component, allowing for product information
      * to be displayed and edited. Provides functionality for adding, editing,
      * and deleting rows, as well as inserting formulas and handling various input methods. */
+    const headersBeforeIds = {
+
+        'T2-3': 'Patient Segment(#)',
+        'T2-6': 'Market Share (%)',
+        'T2-8': 'Total Patients on Product A (pre compliance)',
+        'T3-8': 'Pricing',
+        'T3-10': 'Revenue ',
+    };
+
     const renderTable = (tabKey, tableKey) => {
         const tableProducts = products[tabKey][tableKey]; // Get the correct products for this table
         return (
@@ -567,9 +594,10 @@ const Patient_Forecast = () => {
                             <th
                                 style={{
                                     left: 0,
-                                    backgroundColor: 'red',
+
                                     zIndex: 2,
-                                    width: '50px'
+                                    width: '50px',
+                                    position: 'sticky', // <-- add this
                                 }}
                                 rowSpan={2} // Ensure the first column spans both header rows
                             ></th>
@@ -579,7 +607,7 @@ const Patient_Forecast = () => {
                                     : dayjs(column).isBefore(dayjs(fromForecastDate), 'month')
                             ).length}
                                 style={{ textAlign: 'center', backgroundColor: '#C6F4D6', fontWeight: 'bold', width: '50px' }}>
-                                Historical {timePeriod === 'Year' ? 'Years' : 'Months'}
+                                Historical {timePeriod === 'Yearly' ? 'Years' : 'Months'}
                             </th>
                             <th colSpan={columns.filter(column =>
                                 timePeriod === 'Year'
@@ -587,7 +615,7 @@ const Patient_Forecast = () => {
                                     : !dayjs(column).isBefore(dayjs(fromForecastDate), 'month')
                             ).length}
                                 style={{ textAlign: 'center', backgroundColor: '#FFFFE0', fontWeight: 'bold', width: '50px' }}>
-                                Forecasted {timePeriod === 'Year' ? 'Years' : 'Months'}
+                                Forecasted {timePeriod === 'Yearly' ? 'Years' : 'Months'}
                             </th>
                         </tr>
 
@@ -616,169 +644,207 @@ const Patient_Forecast = () => {
                         </tr>
                     </thead>
                     <tbody>
+
                         {/* Iterate over the products in this table and render each one as a row in the table. */}
-                        {tableProducts.map((product, index) => (
-                            <tr key={product.id}>
-                                <td >
-                                    <div style={{
-                                        display: 'grid', gridTemplateColumns: '0.1fr 0.1fr 1fr 0.1fr 0.1fr 0.1fr 0.1fr',
-                                        justifyContent: 'center', alignItems: 'center', width: '720px'
-                                    }}>
-                                        <Tooltip title="Source Info" placement="top" >
-                                            <IconButton className='info-button' color="info" onClick={() => {
-
-                                                // Store the id of the selected row
-                                                setselectedRowId(product.id);
-                                                setOpenInfoMethodDialog(true);
-
-                                            }}>
-                                                <InfoIcon fontSize="small" />
-                                            </IconButton>
-                                        </Tooltip>
-                                        <Tooltip title="Data Input" placement="top">
-                                            <IconButton className='data-input-button' color="primary" onClick={() => {
-                                                setSelectedTab(tabKey);
-                                                setselectedRowId(product.id);
-                                                setSelectedRowName(product.name);
-                                                setOpenInputMethodDialog(true);
-                                            }}>
-                                                <CloudUploadIcon fontSize="small" />
-                                            </IconButton>
-                                        </Tooltip>
-                                        {editingProductId === product.id ? (
-                                            <>
-                                                <TextField
-                                                    value={editedProductName}
-                                                    onChange={(e) => setEditedProductName(e.target.value)}
-                                                    variant="outlined"
-                                                    size="small"
-
-                                                />
-                                                <IconButton onClick={() => handleSaveClick(product.id, tabKey, tableKey)} color="primary">
-                                                    <CheckIcon />
-                                                </IconButton>
-                                                <IconButton onClick={handleCancelClick} color="secondary">
-                                                    <CloseIcon />
-                                                </IconButton>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Tooltip
-                                                    title={
-                                                        Formulas[tabKey]?.[tableKey]?.[product.id]?.emptyArray?.[0] !== ''
-                                                            ? '= ' +
-                                                            Formulas[tabKey][tableKey][product.id]?.emptyArray
-                                                                .map((value, index) => {
-                                                                    const productName = Object.keys(products[tabKey])
-                                                                        .map((tableKey) =>
-                                                                            products[tabKey][tableKey].find((prod) => prod.id === value)?.name
-                                                                        )
-                                                                        .join(' ');
-
-                                                                    const operator = Formulas[tabKey][tableKey][product.id]?.plusArray[index + 1] || '';
-
-                                                                    // Get the case value and find its corresponding label from TALabels
-                                                                    const caseValue = Formulas[tabKey][tableKey][product.id]?.cases?.[index] || '';
-                                                                    const caseIndex = ["base", "downside", "upside"].indexOf(caseValue);
-                                                                    const caseLabel = caseIndex !== -1 ? TALabels[therapeuticArea][caseIndex] : '';
-
-                                                                    return `${productName} (${caseLabel}) ${operator}`;
-                                                                })
-                                                                .join(' ') + ' '
-                                                            : 'No formula assigned'
-                                                    }
-                                                    placement="top"
-                                                >
-                                                    <span
-                                                        style={{
-                                                            marginLeft: '8px',
-                                                            overflow: 'auto',
-                                                            whiteSpace: 'nowrap',
-                                                        }}
-                                                    >
-                                                        {product.type === '%' ? product.name + " (%)" : product.name}
-                                                    </span>
-                                                </Tooltip>
-
-                                                <Tooltip title="Edit Row Name" placement="top" >
-                                                    <IconButton onClick={() => handleEditClick(product.id, tabKey, tableKey)} style={{ marginLeft: '8px' }} className='edit-row-name'>
-                                                        <EditIcon fontSize="small" />
-                                                    </IconButton>
-                                                </Tooltip>
-                                                {index !== tableProducts.length - 1 ? (
-                                                    <Tooltip title="Add Row" placement="top" >
-                                                        <IconButton onClick={() => handleAddRow(tabKey, tableKey, product.id)} style={{ marginLeft: '8px' }} className='add-row'>
-                                                            <AddIcon fontSize="small" />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                ) : (
-                                                    <IconButton style={{ marginLeft: '8px', color: 'lightgrey' }} disabled>
-                                                        <AddIcon fontSize="small" />
-                                                    </IconButton>
-                                                )}
-                                                <Tooltip title="Insert Formula" placement="top" >
-                                                    <IconButton className='insert-formula' onClick={() => {
-                                                        setFormulaDetails({ tableKey, tabKey, productId: product.id }); setShowFormula(true);
-                                                    }} style={{ marginLeft: '4px' }}
-                                                    >
-                                                        <CalculateIcon fontSize="small" />
-                                                    </IconButton>
-                                                </Tooltip>
-
-                                                <Tooltip title="Delete Row" placement="top" >
-                                                    <IconButton className='delete-row' onClick={() => handleDeleteRow(product.id, tabKey, tableKey)} style={{ marginLeft: '8px' }} >
-                                                        <DeleteIcon fontSize="small" />
-                                                    </IconButton>
-                                                </Tooltip>
-                                            </>
-                                        )}
-                                    </div>
-                                </td>
-                                {columns.map((date) => {
-                                    // Get the correct value based on tabKey
-                                    const rawValue =
-                                        tabKey === 'downside'
-                                            ? values[product.id]?.[date] ?? ''
-                                            : tabKey === 'base'
-                                                ? values2[product.id]?.[date] ?? ''
-                                                : values3[product.id]?.[date] ?? '';
-
-                                    // Format the value and append % if productType is "%"
-                                    const formattedValue = formatNumber(rawValue);
-                                    const hasFormula = Formulas[tabKey]?.[tableKey]?.[product.id]?.emptyArray?.[0] !== '';
-                                    return (
-                                        <td key={date}>
-                                            <TextField
-                                                className="manual-input"
-                                                type="text"
-                                                value={formattedValue}
-                                                onChange={(e) => {
-                                                    if (hasFormula) {
-                                                        alert("This cell has a formula and cannot be edited."); // Show alert
-                                                        return; // Prevent editing
-                                                    }
-
-                                                    let newValue = parseNumber(e.target.value);
-                                                    handleValueChange2(tabKey, tableKey, product.id, date, newValue);
-                                                }}
-
-                                                variant="outlined"
-                                                size="small"
-                                                placeholder="Enter value"
-                                                inputProps={{ inputMode: 'numeric', pattern: '[0-9,]*' }}
-                                                sx={{ minWidth: '80px' }} // Optional: Adjust width if needed
-                                                InputProps={{
-                                                    endAdornment: product.type === "%" ? (
-                                                        <InputAdornment position="end">%</InputAdornment>
-                                                    ) : null
-                                                }}
-
-                                            />
+                        {tableProducts.map((product, index) => {
+                            if (product.type === "spacer") {
+                                return (
+                                    <tr key={product.id}>
+                                        <td colSpan={columns.length + 1} style={{ padding: 0, margin: 0 }}>
+                                            <div style={{ height: '40px', backgroundColor: 'rgba(245,245,245,1)' }}></div>
                                         </td>
-                                    );
-                                })}
-                            </tr>
-                        ))}
+                                    </tr>
+                                );
+                            }
+                            return (
+                                <React.Fragment key={product.id}>
+                                    {headersBeforeIds[product.id] && (
+                                        <tr style={{ position: 'relative' }}>
+                                            <td colSpan={columns.length + 1} style={{
+                                                padding: '8px 12px',
+                                                backgroundColor: '#e0e0e0',
+                                                fontWeight: 'bold',
+                                                fontSize: '16px',
+                                                textAlign: 'center',
+                                                borderTop: '1px solid #ccc',
+                                                borderBottom: '1px solid #ccc',
+                                                position: 'relative',  // keep this relative so the div can be absolute inside
+                                                height: '40px'         // set a height so row stays visible
+                                            }}>
+                                                <div style={{
+                                                    position: 'absolute',
+                                                    top: 0,
+                                                    left: 0,
+                                                    right: 0,
+                                                    bottom: 0,
+                                                    display: 'flex',
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                }}>
+                                                    {headersBeforeIds[product.id]}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
+                                    <tr key={product.id}>
+                                        <td style={{
+                                            position: 'sticky', // sticky position
+                                            left: 0,             // stick to left
+                                            backgroundColor: '#fff', // match table background
+                                            zIndex: 1,           // slightly less than header's z-index
+                                            // minWidth: '200px'    // make it wide enough to fit content
+                                        }}>
+                                            <div style={{
+                                                display: 'grid', gridTemplateColumns: '0.1fr 0.1fr 1fr 0.1fr 0.1fr 0.1fr 0.1fr',
+                                                justifyContent: 'center', alignItems: 'center', width: '800px'
+                                            }}>
+                                                <Tooltip title="Source Info" placement="top">
+                                                    <IconButton className='info-button' color="info" onClick={() => {
+                                                        setselectedRowId(product.id);
+                                                        setOpenInfoMethodDialog(true);
+                                                    }}>
+                                                        <InfoIcon fontSize="small" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                                <Tooltip title="Data Input" placement="top">
+                                                    <IconButton className='data-input-button' color="primary" onClick={() => {
+                                                        setSelectedTab(tabKey);
+                                                        setselectedRowId(product.id);
+                                                        setSelectedRowName(product.name);
+                                                        setOpenInputMethodDialog(true);
+                                                    }}>
+                                                        <CloudUploadIcon fontSize="small" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                                {editingProductId === product.id ? (
+                                                    <>
+                                                        <TextField
+                                                            value={editedProductName}
+                                                            onChange={(e) => setEditedProductName(e.target.value)}
+                                                            variant="outlined"
+                                                            size="small"
+                                                        />
+                                                        <IconButton onClick={() => handleSaveClick(product.id, tabKey, tableKey)} color="primary">
+                                                            <CheckIcon />
+                                                        </IconButton>
+                                                        <IconButton onClick={handleCancelClick} color="secondary">
+                                                            <CloseIcon />
+                                                        </IconButton>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Tooltip
+                                                            title={
+                                                                Formulas[tabKey]?.[tableKey]?.[product.id]?.emptyArray?.[0] !== ''
+                                                                    ? '= ' +
+                                                                    Formulas[tabKey][tableKey][product.id]?.emptyArray
+                                                                        .map((value, index) => {
+                                                                            const productName = Object.keys(products[tabKey])
+                                                                                .map((tableKey) =>
+                                                                                    products[tabKey][tableKey].find((prod) => prod.id === value)?.name
+                                                                                )
+                                                                                .join(' ');
+
+                                                                            const operator = Formulas[tabKey][tableKey][product.id]?.plusArray[index + 1] || '';
+
+                                                                            const caseValue = Formulas[tabKey][tableKey][product.id]?.cases?.[index] || '';
+                                                                            const caseIndex = ["base", "downside", "upside"].indexOf(caseValue);
+                                                                            const caseLabel = caseIndex !== -1 ? TALabels[therapeuticArea][caseIndex] : '';
+
+                                                                            return `${productName} (${caseLabel}) ${operator}`;
+                                                                        })
+                                                                        .join(' ') + ' '
+                                                                    : 'No formula assigned'
+                                                            }
+                                                            placement="top"
+                                                        >
+                                                            <span
+                                                                style={{
+                                                                    marginLeft: '8px',
+                                                                    overflow: 'auto',
+                                                                    whiteSpace: 'nowrap',
+                                                                }}
+                                                            >
+                                                                {product.type === '%' ? product.name + " (%)" : product.name}
+                                                            </span>
+                                                        </Tooltip>
+                                                        <Tooltip title="Edit Row Name" placement="top">
+                                                            <IconButton onClick={() => handleEditClick(product.id, tabKey, tableKey)} style={{ marginLeft: '8px' }} className='edit-row-name'>
+                                                                <EditIcon fontSize="small" />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                        {index !== tableProducts.length - 1 ? (
+                                                            <Tooltip title="Add Row" placement="top">
+                                                                <IconButton onClick={() => handleAddRow(tabKey, tableKey, product.id)} style={{ marginLeft: '8px' }} className='add-row'>
+                                                                    <AddIcon fontSize="small" />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                        ) : (
+                                                            <IconButton style={{ marginLeft: '8px', color: 'lightgrey' }} disabled>
+                                                                <AddIcon fontSize="small" />
+                                                            </IconButton>
+                                                        )}
+                                                        <Tooltip title="Insert Formula" placement="top">
+                                                            <IconButton className='insert-formula' onClick={() => {
+                                                                setFormulaDetails({ tableKey, tabKey, productId: product.id }); setShowFormula(true);
+                                                            }} style={{ marginLeft: '4px' }}
+                                                            >
+                                                                <CalculateIcon fontSize="small" />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                        <Tooltip title="Delete Row" placement="top">
+                                                            <IconButton className='delete-row' onClick={() => handleDeleteRow(product.id, tabKey, tableKey)} style={{ marginLeft: '8px' }}>
+                                                                <DeleteIcon fontSize="small" />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </td>
+                                        {columns.map((date) => {
+                                            const rawValue =
+                                                tabKey === 'downside'
+                                                    ? values[product.id]?.[date] ?? ''
+                                                    : tabKey === 'base'
+                                                        ? values2[product.id]?.[date] ?? ''
+                                                        : values3[product.id]?.[date] ?? '';
+
+                                            const formattedValue = formatNumber(rawValue, product.type, product.name);
+                                            const hasFormula = Formulas[tabKey]?.[tableKey]?.[product.id]?.emptyArray?.[0] !== '';
+                                            return (
+                                                <td key={date}>
+                                                    <TextField
+                                                        className="manual-input"
+                                                        type="text"
+                                                        value={formattedValue}
+                                                        onChange={(e) => {
+                                                            if (hasFormula) {
+                                                                alert("This cell has a formula and cannot be edited.");
+                                                                return;
+                                                            }
+
+                                                            let newValue = parseNumber(e.target.value);
+                                                            handleValueChange2(tabKey, tableKey, product.id, date, newValue);
+                                                        }}
+                                                        variant="outlined"
+                                                        size="small"
+                                                        placeholder="Enter value"
+                                                        inputProps={{ inputMode: 'numeric', pattern: '[0-9,]*' }}
+                                                        sx={{ minWidth: '80px' }}
+                                                        InputProps={{
+                                                            endAdornment: product.type === "%" ? (
+                                                                <InputAdornment position="end">%</InputAdornment>
+                                                            ) : null
+                                                        }}
+                                                    />
+                                                </td>
+                                            );
+                                        })}
+                                    </tr>
+
+                                </React.Fragment>
+                            );
+                        })}
                     </tbody>
                 </table>
 
@@ -793,7 +859,7 @@ const Patient_Forecast = () => {
                         BackdropProps={{
                             style: {
                                 zIndex: 1400,
-                                backgroundColor: 'rgba(0,0,0,0.2)', // Slightly dark transparent backdrop
+                                backgroundColor: 'rgba(0,0,0,0.2)',
                             },
                         }}
                         PaperProps={{
@@ -802,7 +868,6 @@ const Patient_Forecast = () => {
                                 borderRadius: '12px',
                                 boxShadow: 4,
                                 overflow: 'hidden',
-                                //padding: '24px', // Adds padding for better spacing
                             },
                         }}
                     >
@@ -819,67 +884,81 @@ const Patient_Forecast = () => {
                         >
                             Add New Field
                         </DialogTitle>
-                        <br></br>
-                        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                            {/* Product Name Input */}
-                            <TextField
-                                label="Field Name"
-                                fullWidth
-                                variant="outlined"
-                                size="small"
-                                InputLabelProps={{
-                                    sx: { paddingLeft: '10px' } // Adds space to the left of the label
-                                }}
-                                InputProps={{
-                                    sx: {
-                                        fontSize: '1.1rem',
-                                        fontWeight: 'medium',
-                                        marginLeft: '10px'
-                                    },
-                                }}
-                                value={productName}
-                                onChange={(e) => setProductName(e.target.value)}
-                            />
+                        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, margin: '20px' }}>
 
-                            {/* Checkbox for Product Type with More Left Margin */}
-                            <ToggleButtonGroup
-                                orientation="horizontal"
-                                exclusive
-                                value={productType}
-                                onChange={(e, newValue) => setProductType(newValue)}
-                                sx={{ marginLeft: '8px' }}
-                            >
-                                <ToggleButton
-                                    value="value"
-                                    sx={(theme) => ({
-                                        fontSize: '0.8rem',
-                                        padding: '4px 8px',
-                                        '&.Mui-selected': {
-                                            bgcolor: theme.palette.primary.main,  // Primary theme color
-                                            color: theme.palette.primary.contrastText, // Ensure text contrast
-                                            '&:hover': { bgcolor: theme.palette.primary.dark } // Darker on hover
-                                        }
-                                    })}
+                            {/* Row Type Selection */}
+                            <FormControl component="fieldset">
+                                <FormLabel component="legend">Row Type</FormLabel>
+                                <RadioGroup
+                                    row
+                                    value={rowMode}
+                                    onChange={(e) => setRowMode(e.target.value)}
                                 >
-                                    Value
-                                </ToggleButton>
-                                <ToggleButton
-                                    value="%"
-                                    sx={(theme) => ({
-                                        fontSize: '0.8rem',
-                                        padding: '4px 8px',
-                                        '&.Mui-selected': {
-                                            bgcolor: theme.palette.primary.main,
-                                            color: theme.palette.primary.contrastText,
-                                            '&:hover': { bgcolor: theme.palette.primary.dark }
-                                        }
-                                    })}
-                                >
-                                    %
-                                </ToggleButton>
-                            </ToggleButtonGroup>
+                                    <FormControlLabel value="spacer" control={<Radio />} label="Blank Row" />
+                                    <FormControlLabel value="product" control={<Radio />} label="Field Row" />
+                                </RadioGroup>
+                            </FormControl>
 
+                            {/* Show product fields only if rowMode is "product" */}
+                            {rowMode === "product" && (
+                                <>
+                                    <TextField
+                                        label="Field Name"
+                                        fullWidth
+                                        variant="outlined"
+                                        size="small"
+                                        InputLabelProps={{
+                                            sx: { paddingLeft: '10px' }
+                                        }}
+                                        InputProps={{
+                                            sx: {
+                                                fontSize: '1.1rem',
+                                                fontWeight: 'medium',
+                                                marginLeft: '10px'
+                                            },
+                                        }}
+                                        value={productName}
+                                        onChange={(e) => setProductName(e.target.value)}
+                                    />
 
+                                    <ToggleButtonGroup
+                                        orientation="horizontal"
+                                        exclusive
+                                        value={productType}
+                                        onChange={(e, newValue) => setProductType(newValue)}
+                                        sx={{ marginLeft: '8px' }}
+                                    >
+                                        <ToggleButton
+                                            value="value"
+                                            sx={(theme) => ({
+                                                fontSize: '0.8rem',
+                                                padding: '4px 8px',
+                                                '&.Mui-selected': {
+                                                    bgcolor: theme.palette.primary.main,
+                                                    color: theme.palette.primary.contrastText,
+                                                    '&:hover': { bgcolor: theme.palette.primary.dark }
+                                                }
+                                            })}
+                                        >
+                                            Value
+                                        </ToggleButton>
+                                        <ToggleButton
+                                            value="%"
+                                            sx={(theme) => ({
+                                                fontSize: '0.8rem',
+                                                padding: '4px 8px',
+                                                '&.Mui-selected': {
+                                                    bgcolor: theme.palette.primary.main,
+                                                    color: theme.palette.primary.contrastText,
+                                                    '&:hover': { bgcolor: theme.palette.primary.dark }
+                                                }
+                                            })}
+                                        >
+                                            %
+                                        </ToggleButton>
+                                    </ToggleButtonGroup>
+                                </>
+                            )}
                         </DialogContent>
 
                         <DialogActions sx={{ padding: '16px' }}>
@@ -891,13 +970,13 @@ const Patient_Forecast = () => {
                                     setIsDialogOpen(false);
                                     setProductName("");
                                     setProductType("value");
+                                    setRowMode("product");
                                 }}
                                 color="secondary"
                                 variant="contained"
                             >
                                 Cancel
                             </Button>
-
                         </DialogActions>
                     </Dialog>
                 )}
@@ -1094,6 +1173,7 @@ const Patient_Forecast = () => {
                                     >
                                         {/* This is where the user inputs the source name */}
                                         <TextField
+                                            
                                             fullWidth
                                             variant="outlined"
                                             size="small"
@@ -1886,22 +1966,116 @@ const Patient_Forecast = () => {
         setIsDialogOpen(true); // Open dialog for input
     };
 
-    const handleDialogSubmit = () => {
-        if (!productName) {
-            alert("Product name is required!");
-            return;
-        }
+    // const handleDialogSubmit = () => {
+    //     if (!productName) {
+    //         alert("Product name is required!");
+    //         return;
+    //     }
 
+    //     const { tabKey, tableKey, productId } = pendingAdd;
+    //     setIsDialogOpen(false);
+    //     const tableProducts = products[tabKey]?.[tableKey] || [];
+    //     const index = tableProducts.findIndex((product) => product.id === productId);
+    //     const generateUniqueId = () => `${tableKey}-${Date.now()}`;
+
+    //     const newProduct = {
+    //         id: generateUniqueId(),
+    //         name: productName,
+    //         type: productType, // Add type to product
+    //     };
+
+    //     const updatedProducts =
+    //         index === -1
+    //             ? [...tableProducts, newProduct]
+    //             : [
+    //                 ...tableProducts.slice(0, index + 1),
+    //                 newProduct,
+    //                 ...tableProducts.slice(index + 1),
+    //             ];
+
+    //     setProducts((prevProducts) => ({
+    //         ...prevProducts,
+    //         [tabKey]: {
+    //             ...prevProducts[tabKey],
+    //             [tableKey]: updatedProducts,
+    //         },
+    //     }));
+
+    //     setFormulas((prevFormulas) => ({
+    //         ...prevFormulas,
+    //         [tabKey]: {
+    //             ...prevFormulas[tabKey],
+    //             [tableKey]: {
+    //                 ...prevFormulas[tabKey][tableKey],
+    //                 [newProduct.id]: { emptyArray: [""], plusArray: ["+"], cases: [tabKey] }
+    //             }
+    //         }
+    //     }));
+
+    //     setEditingFormula((prevEditingFormulas) => ({
+    //         ...prevEditingFormulas,
+    //         [tabKey]: {
+    //             ...prevEditingFormulas[tabKey],
+    //             [tableKey]: {
+    //                 ...prevEditingFormulas[tabKey][tableKey],
+    //                 [newProduct.id]: { emptyArray: [""], plusArray: ["+"], cases: [tabKey] }
+    //             }
+    //         }
+    //     }));
+
+    //     // Reset inputs
+    //     setProductName("");
+    //     setProductType("value");
+    //     setPendingAdd(null);
+    // };
+
+    /* Handles submitting the add product dialog. If the row mode is "spacer", it simply adds a spacer row.
+     * If the row mode is not "spacer", it adds a new product row with the specified name and type.
+     * It also updates the formulas and editing formulas state.
+     */
+    const handleDialogSubmit = () => {
         const { tabKey, tableKey, productId } = pendingAdd;
         setIsDialogOpen(false);
         const tableProducts = products[tabKey]?.[tableKey] || [];
         const index = tableProducts.findIndex((product) => product.id === productId);
         const generateUniqueId = () => `${tableKey}-${Date.now()}`;
 
+        // If spacer row
+        if (rowMode === "spacer") {
+            const spacerRow = {
+                id: generateUniqueId(),
+                name: "",      // optional label like "Spacer"
+                type: "spacer"
+            };
+
+            const updatedProducts = [
+                ...tableProducts.slice(0, index + 1),
+                spacerRow,
+                ...tableProducts.slice(index + 1),
+            ];
+
+            setProducts((prevProducts) => ({
+                ...prevProducts,
+                [tabKey]: {
+                    ...prevProducts[tabKey],
+                    [tableKey]: updatedProducts,
+                },
+            }));
+
+            setPendingAdd(null);
+            return;
+        }
+
+        // Else: regular product row
+        if (!productName) {
+            alert("Product name is required!");
+            return;
+        }
+
         const newProduct = {
             id: generateUniqueId(),
             name: productName,
-            type: productType, // Add type to product
+            type: productType,
         };
 
         const updatedProducts =
@@ -1943,11 +2117,11 @@ const Patient_Forecast = () => {
             }
         }));
 
-        // Reset inputs
         setProductName("");
         setProductType("value");
         setPendingAdd(null);
     };
+
 
 
     useEffect(() => {
@@ -2511,6 +2685,7 @@ const Patient_Forecast = () => {
     };
     const rowKey = `${selectedRowId}.${selectedTab}`;
     const rowKey2 = `${selectedRowName}.${selectedTab}`;
+
     const handleCopyFromInputPage = () => {
         if (storeValues[rowKey] && typeof storeValues[rowKey] === 'object') {
             Object.keys(storeValues[rowKey]).forEach((date) => {
@@ -2536,6 +2711,76 @@ const Patient_Forecast = () => {
         }
         setOpenInputMethodDialog(false);
     };
+    useEffect(() => {
+        console.log(`Current tab key: ${currentTabKey}`);
+        console.log(`Current table key: ${selectedTableKey}`);
+        const visibleTables = ['table1', 'table2', 'table3'].filter(
+            (tableKey) => tabTableVisibility[currentTabKey]?.[tableKey]
+        );
+
+        if (visibleTables.length > 0) {
+            setSelectedTableKey(visibleTables[visibleTables.length - 1]); // Set to the last visible table
+        }
+    }, [tabTableVisibility, currentTabKey, selectedTableKey]);
+    const copyFromInputPage = () => {
+        console.log("== copyFromInputPage triggered ==");
+        console.log("Current storeValues:", storeValues);
+
+        const allKeys = [];
+
+        if (products[currentTabKey] && products[currentTabKey][selectedTableKey]) {
+            products[currentTabKey][selectedTableKey].forEach((row) => {
+                allKeys.push(`${row.id}.${currentTabKey}`);
+            });
+        }
+
+        console.log("All keys:", allKeys);
+
+        // Extract data from storeValues for all relevant keys
+        const source = allKeys.reduce((acc, key) => {
+            if (storeValues[key]) {
+                acc[key] = storeValues[key];
+            }
+            return acc;
+        }, {});
+        console.log("Source data:", source);
+
+        if (source && typeof source === 'object') {
+            const storeKeys = Object.keys(storeValues);
+
+            // Filter keys relevant to current tab and visible rows
+            const matchingKeys = storeKeys.filter((key) => {
+                const [id, tabKey] = key.split('.');
+                const matches = (
+                    tabKey === currentTabKey &&
+                    products[currentTabKey]?.[selectedTableKey]?.some((row) => row.id === id)
+                );
+                if (matches) {
+                    console.log(`Matched row ID '${id}' for tab '${tabKey}' in table '${selectedTableKey}'`);
+                }
+                return matches;
+            });
+
+            console.log("Matching row keys to be filled:", matchingKeys);
+
+            matchingKeys.forEach((key) => {
+                const [targetRowId] = key.split('.');
+                console.log(`\n-- Filling values for row: ${targetRowId} --`);
+                Object.entries(source[key]).forEach(([date, value]) => {
+                    console.log(`Setting [${targetRowId}][${date}] =`, value);
+                    handleValueChange(currentTabKey, targetRowId, date, value);
+                });
+            });
+
+
+        } else {
+            console.warn('No valid source row found in input page data');
+            alert('No valid source row found in input page data');
+        }
+
+        console.log("== copyFromInputPage completed ==");
+    };
+
     {/* Reset all the states to their initial values when clear all data button is clicked*/ }
     const handleReset = () => {
         // Reset all the states to their initial values
@@ -3074,6 +3319,15 @@ const Patient_Forecast = () => {
                             }
                         }}>
                         Clear All Data
+                    </Button>
+                    <Button
+                        className='clearAll-button'
+                        variant="contained"
+                        color="primary"
+                        onClick={() => {
+                            copyFromInputPage()
+                        }}>
+                        Copy All Data from Input Page
                     </Button>
 
                     {/* <Button

@@ -46,15 +46,15 @@ const ForecastAndFlowDiagram = (props) => {
     const [historicalStartMonth, setHistoricalStartMonth] = useState(dayjs('2015-01-01'));
     const [forecastMetric, setForecastMetric] = useState('Patients');
     const [currency, setCurrency] = useState('USD');
-    const [forecastCycle, setForecastCycle] = useState(scenario?.forecastScenario ? scenario.forecastScenario : '');
+    const { forecastCycle, setForecastCycle } = useContext(MyContext);
     const [country, setCountry] = useState(scenario?.country ? scenario.country : '');
     const { therapeuticArea, setTherapeuticArea } = useContext(MyContext);
     const [indicationColumns, setIndicationColumns] = useState(defaultIndicationColumns);
     const [products, setProducts] = useState(defaultProducts);
     const [timePeriods, setTimePeriods] = useState([]);
-    const countryOptions = ['Iceland', 'Germany', 'UK', 'Finland', 'France', 'Italy', 'Spain', 'Denmark', 'Norway', 'Sweden'];
+    const countryOptions = ['US', 'Germany', 'UK', 'Finland', 'France', 'Italy', 'Spain', 'Denmark', 'Norway', 'Sweden'];
     const currencies = {
-        "Iceland": "ISK",
+        "US": "USD",
         "Germany": "EUR",
         "UK": "GBP",
         "Finland": "EUR",
@@ -73,7 +73,7 @@ const ForecastAndFlowDiagram = (props) => {
         setGreeting(currentHour < 12 ? 'Good Morning' : currentHour < 18 ? 'Good Afternoon' : 'Good Evening');
     }, []);
 
-    const [scenarioName, setScenarioName] = useState('Scenario 1');
+    const [scenarioName, setScenarioName] = useState('Model 1');
     const [isEditingScenarioName, setIsEditingScenarioName] = useState(false);
     const [editedScenarioName, setEditedScenarioName] = useState('');
 
@@ -537,18 +537,18 @@ const ForecastAndFlowDiagram = (props) => {
                         >
                             Show Tutorial
                         </Button>
-                        <h2 className="greeting">{greeting}, Welcome to the Forecast & Worksheet Selections</h2>
+                        <h2 className="greeting">{greeting}, Welcome to the Forecast Control and Input Page</h2>
 
                         <Grid container spacing={2}>
                             <Grid item xs={12}>
-                                <h2>General Information</h2>
+                                <h2>General Forecast Information</h2>
                                 {/* Align Forecast Cycle, Country, and Therapeutic Area side by side */}
                                 <Grid container spacing={2}>
                                     <Box display="flex" alignItems="center" gap="15px" ml={2} p={2}>
                                         <TextField
                                             size="small"
 
-                                            label="Scenario Name"
+                                            label="Model Name"
                                             value={isEditingScenarioName ? editedScenarioName : scenarioName}
                                             onChange={handleEditedScenarioNameChange} // Update value during editing
                                             variant="outlined"
@@ -593,11 +593,10 @@ const ForecastAndFlowDiagram = (props) => {
                                                 size="small"
                                                 sx={{ width: '200px', mr: 2 }}
                                                 label="Forecast Cycle"
-                                                value={forecastCycle}
+                                                value={forecastCycle || 'H1 - 2023'}
                                                 onChange={handleForecastCycleChange}
                                                 variant="outlined"
                                                 margin="normal"
-
                                             >
                                                 {forecastCycleOptions.map((cycle) => (
                                                     <MenuItem key={cycle} value={cycle}>
@@ -646,14 +645,14 @@ const ForecastAndFlowDiagram = (props) => {
                                 </Grid>
                             </Grid>
                         </Grid>
-                        {/* Scenario Parameters Section */}
+                        {/* Forecast Horizon Section */}
                         <Grid container spacing={2} >
                             <Grid item xs={12}>
-                                <h2>Scenario Parameters</h2>
+                                <h2>Define Forecast Horizon</h2>
                             </Grid>
                             <Box display="flex" alignItems="center" ml={2} p={2} className="scenario-parameters-button">
 
-                                <TextField
+                                {/* <TextField
                                     select
                                     size="small"
                                     sx={{ width: '200px', mr: 2 }}
@@ -664,7 +663,7 @@ const ForecastAndFlowDiagram = (props) => {
                                 >
                                     <MenuItem value="Patients">Patients</MenuItem>
                                     <MenuItem value="Units">Units</MenuItem>
-                                </TextField>
+                                </TextField> */}
 
 
                                 <TextField
@@ -761,7 +760,7 @@ const ForecastAndFlowDiagram = (props) => {
                         </Grid>
                         <Box>
                             <Grid item xs={12}>
-                                <h2>Input Table</h2>
+                                <h2>Forecast Inputs</h2>
                             </Grid>
                             <Box className="input-table-container">
                                 <Patient_Forecast_Input />

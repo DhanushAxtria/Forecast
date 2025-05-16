@@ -48,23 +48,20 @@ import {
     ResponsiveContainer,
     LabelList,
 } from 'recharts';
+import { fr, te } from 'date-fns/locale';
 
 const WaterFall = () => {
     const navigate = useNavigate();
     const [applyClicked, setApplyClicked] = useState(true);
     const { products, timePeriod, Formulas, fromHistoricalDate, toForecastDate, values, values2, values3 } = useContext(MyContext);
     const { therapeuticArea } = useContext(MyContext);
-    const {TALabels, setTALabels } = useContext(MyContext);
+    const { TALabels, setTALabels } = useContext(MyContext);
     const [Res, setRes] = useState({});
     const [Index, setIndex] = useState("");
     const [buttonType, setButtonType] = useState("");
     const [editingFileToFill, setEditingFileToFill] = useState({});
     const [FileToFill, setFileToFill] = useState({});
-    const [MethodForRow, setMethodForRow] = useState({
-        "0": "%",
-        "1": "%",
-        "2": "%",
-    });
+    const { MethodForRow, setMethodForRow } = useContext(MyContext);
     const [openInputMethodDialog, setOpenInputMethodDialog] = useState(false);
     const [openStartEndDialog, setOpenStartEndDialog] = useState(false);
     const [openUploadDialog, setOpenUploadDialog] = useState(false);
@@ -72,12 +69,8 @@ const WaterFall = () => {
     const [editingEndValue, setEditingEndValue] = useState({}); // End value for  Case
     const [StartValue, setStartValue] = useState({}); // Saved  Case Start Values
     const [EndValue, setEndValue] = useState({}); // Saved  Case End Values
-    const [dropdownGroups, setDropdownGroups] = useState([
-        { Case: "base", OutputMetric: "T3-12", Field: "T3-9" },
-        { Case: "base", OutputMetric: "T3-12", Field: "T1-2" },
-        { Case: "base", OutputMetric: "T3-12", Field: "T1-3" },
-
-    ]);
+    
+    const {dropdownGroupsW, setDropdownGroupsW } = useContext(MyContext);
     const [openGrowthRateDialog, setOpenGrowthRateDialog] = useState(false);
     const [GrowthRates, setGrowthRates] = useState({});
     const [StartingValue, setStartingValue] = useState({});
@@ -91,16 +84,8 @@ const WaterFall = () => {
     const [currentCase, setCurrentCase] = useState({});
     const [CaseData, setCaseData] = useState([]);
     const [openChangeDialog, setOpenChangeDialog] = useState(false);
-    const [editingPercentVal, setEditingPercentVal] = useState({
-        "0": 50,
-        "1": -90,
-        "2": 40,
-    });
-    const [PercentVal, setPercentVal] = useState({
-        "0": 50,
-        "1": -90,
-        "2": 40,
-    });
+    const { editingPercentVal, setEditingPercentVal } = useContext(MyContext);
+    const { PercentVal, setPercentVal } = useContext(MyContext);
     const [AbsoluteVal, setAbsoluteVal] = useState({});
     const [editingAbsoluteVal, setEditingAbsoluteVal] = useState({});
     const [openAbsoluteVal, setOpenAbsoluteVal] = useState(false);
@@ -111,7 +96,7 @@ const WaterFall = () => {
     const [columns, setColumns] = useState([]) // Initialize with an empty array of columns
     const [fromDate, setFromDate] = useState(dayjs(fromHistoricalDate));
     const [toDate, setToDate] = useState(dayjs(toForecastDate));
-    const labels = dropdownGroups
+    const labels = dropdownGroupsW
         .map((group) => {
             if (group?.Field && products[group?.Case]) {
                 return Object.keys(products[group.Case]).map((tableKey) => {
@@ -127,10 +112,10 @@ const WaterFall = () => {
             return [];
         })
         .flat();
-    const handleScenarioValue = (dropdownGroups, mainresult, changeInValue) => {
+    const handleScenarioValue = (dropdownGroupsW, mainresult, changeInValue) => {
         let scenarioValue = Number(mainresult?.[0] || 0); // Initialize with the base value
 
-        dropdownGroups.forEach((group, index) => {
+        dropdownGroupsW.forEach((group, index) => {
             console.log("changeInValue?.[index]", changeInValue?.[index]);
             scenarioValue += parseFloat((changeInValue?.[index] || 0).toFixed(2)); // Add the change in value for the current index
             console.log("scenarioValue", scenarioValue);
@@ -142,16 +127,16 @@ const WaterFall = () => {
 
     // Sample data
     const rawData = [
-        { name: "Base Case", value: parseFloat(Number(mainresult?.[0]).toFixed(2)) || 0 },
-        ...dropdownGroups.map((group, index) => ({
+        { name: fromDate.year(), value: parseFloat(Number(mainresult?.[0]).toFixed(2)) || 0 },
+        ...dropdownGroupsW.map((group, index) => ({
             name: `${labels?.[index] || `Group ${index + 1}`}`,
             value: parseFloat((changeInValue?.[index] || 0).toFixed(2)),
         }
         )),
 
         {
-            name: "Scenario Case",
-            value: handleScenarioValue(dropdownGroups, mainresult, changeInValue) || 0
+            name: toDate.year(),
+            value: handleScenarioValue(dropdownGroupsW, mainresult, changeInValue) || 0
         }
 
     ];
@@ -175,10 +160,10 @@ const WaterFall = () => {
     // Chart Options
 
     const handleAddDropdownGroup = (index) => {
-        setDropdownGroups([...dropdownGroups, { Case: dropdownGroups[index].Case, OutputMetric: dropdownGroups[index].OutputMetric, Field: "" }]);
+        setDropdownGroupsW([...dropdownGroupsW, { Case: dropdownGroupsW[index].Case, OutputMetric: dropdownGroupsW[index].OutputMetric, Field: "" }]);
         setCurrentCase(prev => ({
             ...prev,
-            [index + 1]: dropdownGroups[index].Case
+            [index + 1]: dropdownGroupsW[index].Case
         }));
         console.log(currentCase);
     };
@@ -224,8 +209,8 @@ const WaterFall = () => {
         ]);
     };
     const handleDeleteDropdownGroup = (index) => {
-        const updatedGroups = dropdownGroups.filter((_, i) => i !== index);
-        setDropdownGroups(updatedGroups);
+        const updatedGroups = dropdownGroupsW.filter((_, i) => i !== index);
+        setDropdownGroupsW(updatedGroups);
         handledelete(index);
     };
 
@@ -236,19 +221,19 @@ const WaterFall = () => {
                 [index]: value
             }));
         }
-        const updatedGroups = [...dropdownGroups];
+        const updatedGroups = [...dropdownGroupsW];
         if (field === 'OutputMetric' || field === 'Case') {
             updatedGroups.forEach(group => group[field] = value);
         } else {
             updatedGroups[index][field] = value;
         }
-        setDropdownGroups(updatedGroups);
+        setDropdownGroupsW(updatedGroups);
     };
     const isLastRowFilled =
-        dropdownGroups.length > 0 &&
-        dropdownGroups[dropdownGroups.length - 1].Case &&
-        dropdownGroups[dropdownGroups.length - 1].OutputMetric &&
-        dropdownGroups[dropdownGroups.length - 1].Field;
+        dropdownGroupsW.length > 0 &&
+        dropdownGroupsW[dropdownGroupsW.length - 1].Case &&
+        dropdownGroupsW[dropdownGroupsW.length - 1].OutputMetric &&
+        dropdownGroupsW[dropdownGroupsW.length - 1].Field;
 
     const handleSaveStartEndValues = () => {
         setMethodForRow(prev => ({ ...prev, [Index]: "StartEnd" }));
@@ -495,7 +480,7 @@ const WaterFall = () => {
         }
         else if (method === 'copy') {
             const tempCase = SelectedCaseOption[index];
-            const currentField = dropdownGroups[index]?.Field;
+            const currentField = dropdownGroupsW[index]?.Field;
             const valuesMap = {
                 upside: values3,
                 downside: values,
@@ -513,7 +498,7 @@ const WaterFall = () => {
             return res;
         }
         else if (method === '%') {
-            const gp = dropdownGroups[index];
+            const gp = dropdownGroupsW[index];
             const temp = gp.Case === 'downside' ? values[gp.Field] : gp.Case === 'base' ? values2[gp.Field] : values3[gp.Field];
             Object.keys(temp).forEach((key) => {
                 const tmp = parseFloat(PercentVal[index]) / 100;
@@ -620,20 +605,48 @@ const WaterFall = () => {
         // Use local arrays to manage the data
         const newCaseData = [];
         const ResDict = {};
+        const fromDateDict = {};
         const OriginalSum = {};
-        const ChangedValue = {};
+        const FinalValue = {};
+        const FieldstartVal = {};
+        const FieldendVal = {};
         const Change = {};
-        dropdownGroups.forEach((row, index) => {
+        let fromdateKey;
+        let todateKey;
+
+        if (timePeriod === 'Monthly') {
+            fromdateKey = fromDate; // full date string like '2028-01'
+            todateKey = toDate;
+        } else {
+            fromdateKey = new Date(fromDate).getFullYear(); // just the year like 2028
+            todateKey = new Date(toDate).getFullYear();
+        }
+
+        dropdownGroupsW.forEach((row, index) => {
             let valuess = { ... (row.Case === 'downside' ? values : row.Case === 'base' ? values2 : values3) };
-            const temppreval = row.Case === 'downside' ? values[row.OutputMetric] : row.Case === 'base' ? values2[row.OutputMetric] : values3[row.OutputMetric];
-            const presentval = {};
-            dates.forEach((date) => {
-                if (temppreval[date]) {
-                    presentval[date] = parseFloat(temppreval[date]).toFixed(2) || temppreval[date];
-                }
-            });
-            const presentSum = Object.keys(presentval).reduce((prev, curr) => prev + parseFloat(presentval[curr] || 0, 10), 0).toFixed(2);
-            OriginalSum[index] = presentSum;
+            console.log("valuess", valuess);
+
+            const temppreval = valuess[row.OutputMetric];
+            console.log("temppreval", temppreval);
+            OriginalSum[index] = temppreval[fromdateKey] !== undefined ? parseFloat(temppreval[fromdateKey]) : 0;
+            FinalValue[index] = temppreval[todateKey] !== undefined ? parseFloat(temppreval[todateKey]) : 0;
+            console.log("OriginalSum", OriginalSum);
+            console.log("FinalValue", FinalValue);
+
+            FieldstartVal[index] = valuess[row.Field][fromdateKey] !== undefined ? parseFloat(valuess[row.Field][fromdateKey]) : 0;
+            FieldendVal[index] = valuess[row.Field][todateKey] !== undefined ? parseFloat(valuess[row.Field][todateKey]) : 0;
+            console.log("FieldstartVal", FieldstartVal);
+            console.log("FieldendVal", FieldendVal);
+
+            // const presentval = {};
+            // dates.forEach((date) => {
+            //     if (temppreval[date]) {
+            //         presentval[date] = parseFloat(temppreval[date]).toFixed(2) || temppreval[date];
+            //     }
+            // });
+            // const presentSum = Object.keys(presentval).reduce((prev, curr) => prev + parseFloat(presentval[curr] || 0, 10), 0).toFixed(2);
+            
+
             let highres = findVal(MethodForRow[index], "", index);
             valuess = { ...valuess, [row.Field]: highres };
             let tabKey = row.Case;
@@ -662,20 +675,78 @@ const WaterFall = () => {
                 }
             });
             ResDict[index] = Highres;
-            const HighresSum = Object.keys(valuess[row.OutputMetric]).filter(date => dates.includes(date)).reduce((prev, curr) => prev + parseFloat(valuess[row.OutputMetric][curr], 10), 0).toFixed(2);
-            changedValue[index] = HighresSum;
-            const diff = HighresSum - presentSum;
+
+            
+            Object.keys(ResDict).forEach(index => {
+                fromDateDict[index] = ResDict[index][fromdateKey];
+            });
+            
+            console.log("fromDateDict", fromDateDict);
+            console.log("ResDict", ResDict);
+            // const HighresSum = Object.keys(valuess[row.OutputMetric]).filter(date => dates.includes(date)).reduce((prev, curr) => prev + parseFloat(valuess[row.OutputMetric][curr], 10), 0).toFixed(2);
+            // changedValue[index] = HighresSum;
+            
+            const diff = fromDateDict[index] -  OriginalSum[index];
             Change[index] = diff;
             newCaseData.push(diff !== undefined ? diff : 0);
+
             setCaseData(newCaseData);
+            console.log("casedata", newCaseData)
+
             setResult(ResDict);
+
             setMainResult(OriginalSum)
-            setChangedValue(ChangedValue);
+            console.log("mainresult", mainresult)
+
+            setChangedValue(FinalValue);
+            console.log("changedvalue", changedValue)
+
             setChangeInValue(Change);
             setApplyClicked(true);
         });
     };
 
+    const KPIAnalysis_2 = () => {
+
+        const OriginalSum = {};
+        const FinalValue = {};
+        const Change = {};
+        const FieldstartVal = {};
+        const FieldendVal = {};
+
+        const Fieldproportion_change = {};
+        const cumulative = {};
+
+        let fromdateKey;
+        let todateKey;
+
+        if (timePeriod === 'Monthly') {
+            fromdateKey = fromDate;
+            todateKey = toDate;
+        } else {
+            fromdateKey = new Date(fromDate).getFullYear().toString();
+            todateKey = new Date(toDate).getFullYear().toString();
+        }
+
+        dropdownGroupsW.forEach((row, index) => {
+            let valuess = { ... (row.Case === 'downside' ? values : row.Case === 'base' ? values2 : values3) };
+
+            const temppreval = valuess[row.OutputMetric];
+            OriginalSum[index] = temppreval[fromdateKey] !== undefined ? parseFloat(temppreval[fromdateKey]) : 0;
+            FinalValue[index] = temppreval[todateKey] !== undefined ? parseFloat(temppreval[todateKey]) : 0;
+            Change[index] = FinalValue[index] - OriginalSum[index];
+
+            FieldstartVal[index] = valuess[row.Field][fromdateKey] !== undefined ? parseFloat(valuess[row.Field][fromdateKey]) : 0;
+            FieldendVal[index] = valuess[row.Field][todateKey] !== undefined ? parseFloat(valuess[row.Field][todateKey]) : 0;
+
+            Fieldproportion_change[index] = (FieldendVal[index]/FieldstartVal[index])*100
+            
+            cumulative[index] = index === 0 ? Fieldproportion_change[index] : cumulative[index-1] + Fieldproportion_change[index]
+            
+            
+
+
+        }); };
     const handleAddGrowthRate = () => {
         setEditingGrowthRates((prev) => ({
             ...prev,
@@ -1034,7 +1105,7 @@ const WaterFall = () => {
                     className="apply-button"
                     variant="contained"
                     onClick={() => KPIAnalysis()}
-                    disabled={dropdownGroups.length === 0 || dropdownGroups.some((row) => row.OutputMetric === "" || row.Field === "" || row.Case === "")}
+                    disabled={dropdownGroupsW.length === 0 || dropdownGroupsW.some((row) => row.OutputMetric === "" || row.Field === "" || row.Case === "")}
                 >
                     Apply
                 </Button>
@@ -1088,7 +1159,7 @@ const WaterFall = () => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {dropdownGroups.map((group, index) => (
+                                {dropdownGroupsW.map((group, index) => (
                                     <TableRow
                                         key={index}
                                         sx={{
@@ -1174,7 +1245,7 @@ const WaterFall = () => {
                                             <Button
                                                 variant={MethodForRow[index] ? "contained" : "outlined"}
                                                 color="error"
-                                                sx={{ marginLeft: index === dropdownGroups.length - 1 ? 5 : 0 }} // Added left margin
+                                                sx={{ marginLeft: index === dropdownGroupsW.length - 1 ? 5 : 0 }} // Added left margin
                                                 onClick={() => {
                                                     setIndex(index);
                                                     setButtonType("");
@@ -1184,7 +1255,7 @@ const WaterFall = () => {
                                                 Scenario Case
                                                 <UploadIcon sx={{ ml: 1 }} />
                                             </Button>
-                                            {dropdownGroups.length > 1 && (
+                                            {dropdownGroupsW.length > 1 && (
                                                 <IconButton
                                                     title="Delete this row"
                                                     aria-label="delete"
@@ -1195,7 +1266,7 @@ const WaterFall = () => {
                                                 </IconButton>
                                             )}
                                             {
-                                                index === dropdownGroups.length - 1 && (
+                                                index === dropdownGroupsW.length - 1 && (
                                                     <IconButton
                                                         title="Add new parameters"
                                                         aria-label="add"
@@ -1241,7 +1312,15 @@ const WaterFall = () => {
                                 tick={{ fontSize: 12 }}
                             />
                             <Tooltip
-                                formatter={(value) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value)}
+                                formatter={(value) => {
+                                    if (value >= 1000000 || value <= -1000000) {
+                                        return `${(value / 1000000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}M`;
+                                    } else if (value >= 1000 || value <= -1000) {
+                                        return `${(value / 1000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}K`;
+                                    } else {
+                                        return `${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                                    }
+                                }}
                             />
                             <Bar
                                 dataKey="start"
@@ -1257,7 +1336,17 @@ const WaterFall = () => {
                                     dataKey="value"
                                     position="top"
                                     style={{ fontSize: 14, fill: "#000", fontWeight: "bold" }}
-                                    formatter={(value) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value)}
+
+                                    formatter={(value) => {
+                                        if (value >= 1000000 || value <= -1000000) {
+                                            return `${(value / 1000000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}M`;
+                                        } else if (value >= 1000 || value <= -1000) {
+                                            return `${(value / 1000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}K`;
+                                        } else {
+                                            return `${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                                        }
+                                    }} fill="#fff"
+
                                 />
                             </Bar>
                         </BarChart>
