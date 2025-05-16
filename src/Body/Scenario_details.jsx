@@ -738,7 +738,7 @@ const ForecastAndFlowDiagram = (props) => {
                                 {[0,1,2].map((label, index) => (
                                     <TextField
                                         key={index}
-                                        label={`Case ${index + 1}`}
+                                        label={`Case${index + 1}/LOT`}
                                         variant="outlined"
                                         size="small"
                                         value={TALabels[therapeuticArea][index]}

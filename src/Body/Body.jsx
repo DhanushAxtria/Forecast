@@ -500,17 +500,17 @@ const Body = () => {
               <TableHead>
                 <TableRow sx={{ backgroundColor: '#1976d2' }}>
                   {/* Scenario Name */}
-                  <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Model Name</TableCell>
+                  <TableCell sx={{ width: '100px', color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Model Name</TableCell>
                   {/* Forecast Cycle */}
-                  <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Forecast Cycle</TableCell>
+                  <TableCell sx={{ width: '100px', color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Forecast Cycle</TableCell>
                   {/* Country */}
-                  <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Country</TableCell>
+                  <TableCell sx={{ width: '100px', color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Country</TableCell>
                   {/* Therapeutic Area */}
-                  <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Therapeutic Area</TableCell>
+                  <TableCell sx={{ width: '100px', color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Therapeutic Area</TableCell>
                   {/* Last Modified Date */}
-                  <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Last Modified</TableCell>
+                  <TableCell sx={{ width: '100px', color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Last Modified</TableCell>
                   {/* Submitted by */}
-                  <TableCell sx={{ color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Submitted by</TableCell>
+                  <TableCell sx={{ width: '100px', color: 'white', fontWeight: 'bold', padding: '10px', textAlign: 'center' }}>Submitted by</TableCell>
                   {/* Actions */}
                 </TableRow>
               </TableHead>
