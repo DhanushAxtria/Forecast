@@ -46,9 +46,12 @@ import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 export default function NewScenario({ username = "User" }) {
   const { savedFiles, setSavedFiles } = useContext(SavedFilesContext);
   const [showTable, setShowTable] = React.useState(false);
+
   const { countries, setCountries } = useContext(MyContext); // Multi-select for countries
   const { therapeuticAreas, setTherapeuticAreas } = useContext(MyContext); // Multi-select for therapeutic areas
   const { forecastCycles, setForecastCycles } = useContext(MyContext); // Multi-select for forecast cycles
+
+  
   const [importedData, setImportedData] = React.useState({ headers: [], rows: [] });
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [selectedFile, setSelectedFile] = React.useState(null);
@@ -100,10 +103,12 @@ export default function NewScenario({ username = "User" }) {
     // Navigate to the specific page, passing scenario data as state
 
     navigate('/new-model/epidemiology-model/scenario-details', { state: { scenario } });
+    
   };
   const handleReviewScenario = (scenario) => {
     // Navigate to the specific page, passing scenario data as state
     navigate('/new-model/epidemiology-model/review-scenario', { state: { scenario } });
+    
   };
   const handleReviewScenarioSummary = (scenario) => {
     // Navigate to the specific page, passing scenario data as state
@@ -737,13 +742,13 @@ export default function NewScenario({ username = "User" }) {
                 <TableCell sx={{ padding: '6px', textAlign: 'center' }}>
                   <Box display="flex" justifyContent="center" alignItems="center" gap={1}>
                     <Tooltip title="Review Scenario Summary">
-                      <IconButton onClick={() => handleReviewScenarioSummary({ scenario: 'Paient Based Model', cycle: forecastCycles[0], country: countries[0], area: therapeuticAreas[0], modified: '-', user: '-' }
+                      <IconButton onClick={() => handleReviewScenarioSummary({ scenario: 'Paient Based Model', forecastScenario: forecastCycles[0], country: countries[0], therapeuticArea: therapeuticAreas[0], modified: '-', user: '-' }
                       )}>
                         <OpenInNewIcon color="success" />
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Review Scenario Details">
-                      <IconButton onClick={() => handleReviewScenario({ scenario: 'Paient Based Model', cycle: forecastCycles[0], country: countries[0], area: therapeuticAreas[0], modified: '-', user: '-' },
+                      <IconButton onClick={() => handleReviewScenario({ scenario: 'Paient Based Model', forecastScenario: forecastCycles[0], country: countries[0], therapeuticArea: therapeuticAreas[0], modified: '-', user: '-' },
                       )} >
                         <AssessmentIcon color="success" />
                       </IconButton>
@@ -754,7 +759,7 @@ export default function NewScenario({ username = "User" }) {
                         variant="contained"
                         color="primary"
                         size="small"
-                        onClick={() => handleSelectClick({ scenario: 'Paient Based Model', cycle: forecastCycles[0], country: countries[0], area: therapeuticAreas[0], modified: '-', user: '-' })}
+                        onClick={() => handleSelectClick({ scenario: 'Paient Based Model', forecastScenario: forecastCycles[0], country: countries[0], therapeuticArea: therapeuticAreas[0], modified: '-', user: '-' })}
                         disabled={!(forecastCycles.length > 0 && countries.length > 0 && therapeuticAreas.length > 0)}
                       >
                         Create
@@ -767,6 +772,7 @@ export default function NewScenario({ username = "User" }) {
           </Table>
         </TableContainer>
       )}
+      
       {selectedAction === 'copySubmission' && (
         <TableContainer component={Paper} sx={{ mt: 3, maxWidth: '100%' }}>
           <Table aria-label="submission scenarios table" size="small">
@@ -785,7 +791,7 @@ export default function NewScenario({ username = "User" }) {
               
               {filteredCopyData.map((row, index) => (
                 <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? 'white' : '#e5f1fb' }}>
-                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>Scenario {index + 1}</TableCell>
+                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>Model {index + 1}</TableCell>
                   <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.forecastScenario}</TableCell>
                   <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.country}</TableCell>
                   <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.therapeuticArea}</TableCell>
@@ -794,17 +800,17 @@ export default function NewScenario({ username = "User" }) {
                   <TableCell sx={{ padding: '6px', textAlign: 'center' }}>
                     <Box display="flex" justifyContent="center" alignItems="center" gap={1}>
                       <Tooltip title="Review Scenario Summary">
-                        <IconButton onClick={() => handleReviewScenarioSummary(row)}>
+                        <IconButton onClick={() => handleReviewScenarioSummary({ scenario: `Model ${index + 1}`, forecastScenario: row.forecastScenario, country: row.country, therapeuticArea: row.therapeuticArea, modified: row.modified, user: row.username })}>
                           <OpenInNewIcon color="success" />
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Review Scenario Details">
-                        <IconButton onClick={() => handleReviewScenario(row)}>
+                        <IconButton onClick={() => handleReviewScenario({ scenario: `Model ${index + 1}`, forecastScenario: row.forecastScenario, country: row.country, therapeuticArea: row.therapeuticArea, modified: row.modified, user: row.username })}>
                           <AssessmentIcon color="success" />
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Select Scenario">
-                        <Button className="select-button" variant="contained" color="primary" size="small" onClick={() => handleSelectClick(row)}>
+                        <Button className="select-button" variant="contained" color="primary" size="small" onClick={() => handleSelectClick({ scenario: `Model ${index + 1}`, forecastScenario: row.forecastScenario, country: row.country, therapeuticArea: row.therapeuticArea, modified: row.modified, user: row.username })}>
                           Select
                         </Button>
                       </Tooltip>
@@ -834,7 +840,7 @@ export default function NewScenario({ username = "User" }) {
               
               {filteredSavedData.map((row, index) => (
                 <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? 'white' : '#e5f1fb' }}>
-                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>Draft {index + 1}</TableCell>
+                  <TableCell sx={{ padding: '6px', textAlign: 'center' }}>Model {index + 1}</TableCell>
                   <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.forecastScenario}</TableCell>
                   <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.country}</TableCell>
                   <TableCell sx={{ padding: '6px', textAlign: 'center' }}>{row.therapeuticArea}</TableCell>
@@ -843,17 +849,17 @@ export default function NewScenario({ username = "User" }) {
                   <TableCell sx={{ padding: '6px', textAlign: 'center' }}>
                     <Box display="flex" justifyContent="center" alignItems="center" gap={1}>
                       <Tooltip title="Review Scenario Summary">
-                        <IconButton onClick={() => handleReviewScenarioSummary(row)}>
+                        <IconButton onClick={() => handleReviewScenarioSummary({ scenario: `Model ${index + 1}`, forecastScenario: row.forecastScenario, country: row.country, therapeuticArea: row.therapeuticArea, modified: row.modified, user: row.username })}>
                           <OpenInNewIcon color="success" />
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Review Scenario Details">
-                        <IconButton onClick={() => handleReviewScenario(row)}>
+                        <IconButton onClick={() => handleReviewScenario({ scenario: `Model ${index + 1}`, forecastScenario: row.forecastScenario, country: row.country, therapeuticArea: row.therapeuticArea, modified: row.modified, user: row.username })}>
                           <AssessmentIcon color="success" />
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Select Scenario">
-                        <Button className='select-button' variant="contained" color="primary" size="small" onClick={() => handleSelectClick(row)}>
+                        <Button className='select-button' variant="contained" color="primary" size="small" onClick={() => handleSelectClick({ scenario: `Model ${index + 1}`, forecastScenario: row.forecastScenario, country: row.country, therapeuticArea: row.therapeuticArea, modified: row.modified, user: row.username })}>
                           Select
                         </Button>
                       </Tooltip>

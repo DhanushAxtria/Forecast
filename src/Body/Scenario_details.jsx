@@ -20,6 +20,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import Patient_Forecast_Input from './Patient_Forecast_Input';
 import { useLocation } from 'react-router-dom';
+import { set } from 'date-fns';
 
 
 const defaultProducts = [
@@ -35,6 +36,8 @@ const defaultIndicationColumns = ['Indication 1', 'Indication 2', 'Indication 3'
 const ForecastAndFlowDiagram = (props) => {
     const location = useLocation();
     const scenario = location.state?.scenario;
+    
+    console.log('scenario', scenario);
     const { fromHistoricalDate, setFromHistoricalDate, fromForecastDate, setFromForecastDate, toForecastDate, setToForecastDate, timePeriod, setTimePeriod, therapeuticAreaOptions, TALabels, setTALabels,} = useContext(MyContext);
     const [isProductListVisible, setIsProductListVisible] = useState(false);
     const toggleProductListVisibility = () => {
@@ -46,9 +49,15 @@ const ForecastAndFlowDiagram = (props) => {
     const [historicalStartMonth, setHistoricalStartMonth] = useState(dayjs('2015-01-01'));
     const [forecastMetric, setForecastMetric] = useState('Patients');
     const [currency, setCurrency] = useState('USD');
-    const { forecastCycle, setForecastCycle } = useContext(MyContext);
-    const [country, setCountry] = useState(scenario?.country ? scenario.country : '');
+    
     const { therapeuticArea, setTherapeuticArea } = useContext(MyContext);
+    
+    
+    const [forecastCycles, setForecastCycles] = useState(scenario?.forecastScenario ? scenario.forecastScenario : 'H2 - 2024');
+    const [country, setCountry] = useState(scenario?.country ? scenario.country : 'US');
+    const [therapeuticAreas, setTherapeuticAreas] = useState(scenario?.therapeuticArea ? scenario.therapeuticArea : therapeuticArea);
+
+   
     const [indicationColumns, setIndicationColumns] = useState(defaultIndicationColumns);
     const [products, setProducts] = useState(defaultProducts);
     const [timePeriods, setTimePeriods] = useState([]);
@@ -73,7 +82,7 @@ const ForecastAndFlowDiagram = (props) => {
         setGreeting(currentHour < 12 ? 'Good Morning' : currentHour < 18 ? 'Good Afternoon' : 'Good Evening');
     }, []);
 
-    const [scenarioName, setScenarioName] = useState('Model 1');
+    const [scenarioName, setScenarioName] = useState(scenario?.scenario ? scenario.scenario : '');
     const [isEditingScenarioName, setIsEditingScenarioName] = useState(false);
     const [editedScenarioName, setEditedScenarioName] = useState('');
 
@@ -93,7 +102,7 @@ const ForecastAndFlowDiagram = (props) => {
         setEditedScenarioName(event.target.value);
     };
     const handleForecastCycleChange = (event) => {
-        setForecastCycle(event.target.value);
+        setForecastCycles(event.target.value);
     };
 
     const handleCountryChange = (event) => {
@@ -101,7 +110,8 @@ const ForecastAndFlowDiagram = (props) => {
     };
 
     const handleTherapeuticAreaChange = (event) => {
-        setTherapeuticArea(event.target.value);
+        setTherapeuticAreas(event.target.value);
+        
     };
 
     const handleRemoveProduct = (id) => {
@@ -273,8 +283,12 @@ const ForecastAndFlowDiagram = (props) => {
 
         setTimePeriods(generateTimePeriods());
     }, [historicalStartMonth, forecastEndMonth]);
-    
-
+    useEffect(() => {
+        console.log(therapeuticAreas);
+        console.log(forecastCycles)
+        console.log(country);
+        console.log(scenario);
+    })
     const startTour2 = () => {
         const end = introJs();
         end.setOptions({
@@ -593,7 +607,7 @@ const ForecastAndFlowDiagram = (props) => {
                                                 size="small"
                                                 sx={{ width: '200px', mr: 2 }}
                                                 label="Forecast Cycle"
-                                                value={forecastCycle || 'H1 - 2023'}
+                                                value={forecastCycles || 'H1 - 2023'}
                                                 onChange={handleForecastCycleChange}
                                                 variant="outlined"
                                                 margin="normal"
@@ -628,7 +642,7 @@ const ForecastAndFlowDiagram = (props) => {
                                                 size="small"
                                                 sx={{ width: '200px' }}
                                                 label="Therapeutic Area"
-                                                value={therapeuticArea}
+                                                value={therapeuticAreas}
                                                 onChange={handleTherapeuticAreaChange}
                                                 variant="outlined"
                                                 margin="normal"
@@ -645,6 +659,7 @@ const ForecastAndFlowDiagram = (props) => {
                                 </Grid>
                             </Grid>
                         </Grid>
+                        
                         {/* Forecast Horizon Section */}
                         <Grid container spacing={2} >
                             <Grid item xs={12}>
@@ -732,7 +747,7 @@ const ForecastAndFlowDiagram = (props) => {
                                     />
                                 </LocalizationProvider>
                             </Box>
-
+                            
                             {/* Dynamic Case Type Labels Input */}
                             <Box display="flex" flexDirection="row" mt={4}>
                                 {[0,1,2].map((label, index) => (
@@ -741,14 +756,14 @@ const ForecastAndFlowDiagram = (props) => {
                                         label={`Case${index + 1}/LOT`}
                                         variant="outlined"
                                         size="small"
-                                        value={TALabels[therapeuticArea][index]}
+                                        value={TALabels[therapeuticAreas][index]}
                                         onChange={(e) => {
                                             setTALabels((prevTALabels) => ({
                                                 ...prevTALabels,
-                                                [therapeuticArea]: [
-                                                    ...prevTALabels[therapeuticArea].slice(0, index),
+                                                [therapeuticAreas]: [
+                                                    ...prevTALabels[therapeuticAreas].slice(0, index),
                                                     e.target.value,
-                                                    ...prevTALabels[therapeuticArea].slice(index + 1)
+                                                    ...prevTALabels[therapeuticAreas].slice(index + 1)
                                                 ]
                                             }));
                                         }}

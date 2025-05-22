@@ -69,8 +69,8 @@ const WaterFall = () => {
     const [editingEndValue, setEditingEndValue] = useState({}); // End value for  Case
     const [StartValue, setStartValue] = useState({}); // Saved  Case Start Values
     const [EndValue, setEndValue] = useState({}); // Saved  Case End Values
-    
-    const {dropdownGroupsW, setDropdownGroupsW } = useContext(MyContext);
+
+    const { dropdownGroupsW, setDropdownGroupsW } = useContext(MyContext);
     const [openGrowthRateDialog, setOpenGrowthRateDialog] = useState(false);
     const [GrowthRates, setGrowthRates] = useState({});
     const [StartingValue, setStartingValue] = useState({});
@@ -94,8 +94,10 @@ const WaterFall = () => {
     const [changeInValue, setChangeInValue] = useState({})
     const [mainresult, setMainResult] = useState({})
     const [columns, setColumns] = useState([]) // Initialize with an empty array of columns
-    const [fromDate, setFromDate] = useState(dayjs(fromHistoricalDate));
-    const [toDate, setToDate] = useState(dayjs(toForecastDate));
+    const [fromDate, setFromDate] = useState(
+        timePeriod === 'Yearly' ? dayjs('2030') : dayjs(fromHistoricalDate)
+    );
+    const [toDate, setToDate] = useState(timePeriod === 'Yearly' ? dayjs('2031') : dayjs(toForecastDate));
     const labels = dropdownGroupsW
         .map((group) => {
             if (group?.Field && products[group?.Case]) {
@@ -103,6 +105,23 @@ const WaterFall = () => {
                     const productList = products[group.Case][tableKey];
                     if (productList) {
                         const product = productList.find((product) => product?.id === group.Field);
+                        return product ? product.name : null;
+                    }
+                    return null;
+                })
+                    .filter((label) => label !== null);
+            }
+            return [];
+        })
+        .flat();
+
+    const labelsOutputMetric = dropdownGroupsW
+        .map((group) => {
+            if (group?.OutputMetric && products[group?.Case]) {
+                return Object.keys(products[group.Case]).map((tableKey) => {
+                    const productList = products[group.Case][tableKey];
+                    if (productList) {
+                        const product = productList.find((product) => product?.id === group.OutputMetric);
                         return product ? product.name : null;
                     }
                     return null;
@@ -130,13 +149,13 @@ const WaterFall = () => {
         { name: fromDate.year(), value: parseFloat(Number(mainresult?.[0]).toFixed(2)) || 0 },
         ...dropdownGroupsW.map((group, index) => ({
             name: `${labels?.[index] || `Group ${index + 1}`}`,
-            value: parseFloat((changeInValue?.[index] || 0).toFixed(2)),
+            value: changeInValue?.[index] || 0,
         }
         )),
 
         {
             name: toDate.year(),
-            value: handleScenarioValue(dropdownGroupsW, mainresult, changeInValue) || 0
+            value: handleScenarioValue(dropdownGroupsW, mainresult, changeInValue)
         }
 
     ];
@@ -611,6 +630,12 @@ const WaterFall = () => {
         const FieldstartVal = {};
         const FieldendVal = {};
         const Change = {};
+
+        const Fieldproportion_change = {};
+        const totalproportion_change = {}
+        const final_change = {};
+        const multiply = {};
+        const cumulative = {};
         let fromdateKey;
         let todateKey;
 
@@ -638,6 +663,17 @@ const WaterFall = () => {
             console.log("FieldstartVal", FieldstartVal);
             console.log("FieldendVal", FieldendVal);
 
+            Fieldproportion_change[index] = (FieldendVal[index] / FieldstartVal[index])
+            console.log("Fieldproportion_change", Fieldproportion_change)
+
+            cumulative[index] = index === 0 ? Fieldproportion_change[index] : cumulative[index - 1] * Fieldproportion_change[index]
+            console.log("cumulative", cumulative);
+
+
+
+
+
+
             // const presentval = {};
             // dates.forEach((date) => {
             //     if (temppreval[date]) {
@@ -645,7 +681,7 @@ const WaterFall = () => {
             //     }
             // });
             // const presentSum = Object.keys(presentval).reduce((prev, curr) => prev + parseFloat(presentval[curr] || 0, 10), 0).toFixed(2);
-            
+
 
             let highres = findVal(MethodForRow[index], "", index);
             valuess = { ...valuess, [row.Field]: highres };
@@ -676,17 +712,17 @@ const WaterFall = () => {
             });
             ResDict[index] = Highres;
 
-            
+
             Object.keys(ResDict).forEach(index => {
                 fromDateDict[index] = ResDict[index][fromdateKey];
             });
-            
+
             console.log("fromDateDict", fromDateDict);
             console.log("ResDict", ResDict);
             // const HighresSum = Object.keys(valuess[row.OutputMetric]).filter(date => dates.includes(date)).reduce((prev, curr) => prev + parseFloat(valuess[row.OutputMetric][curr], 10), 0).toFixed(2);
             // changedValue[index] = HighresSum;
-            
-            const diff = fromDateDict[index] -  OriginalSum[index];
+
+            const diff = fromDateDict[index] - OriginalSum[index];
             Change[index] = diff;
             newCaseData.push(diff !== undefined ? diff : 0);
 
@@ -701,10 +737,36 @@ const WaterFall = () => {
             setChangedValue(FinalValue);
             console.log("changedvalue", changedValue)
 
-            setChangeInValue(Change);
             setApplyClicked(true);
         });
+
+
+        for (let i = 0; i <= Object.keys(cumulative).length; i++) {
+            if (i === 0) {
+                totalproportion_change[i] = 1;
+
+            } else {
+                totalproportion_change[i] = parseFloat(cumulative[i - 1]); // use toFixed(1) if you want rounding
+            }
+        }
+        console.log("totalProportionalChange", totalproportion_change);
+        for (let i = 0; i <= Object.keys(cumulative).length; i++) {
+
+            multiply[i] = parseFloat(OriginalSum[0] * totalproportion_change[i]); // use toFixed(1) if you want rounding
+        }
+
+        console.log("Products", multiply);
+
+        for (let i = 0; i <= Object.keys(cumulative).length - 1; i++) {
+
+            final_change[i] = parseFloat(multiply[i + 1] - multiply[i]); // use toFixed(1) if you want rounding
+        }
+
+        console.log("final change", final_change);
+        setChangeInValue(final_change);
+        console.log("changeinvalue", changeInValue)
     };
+
 
     const KPIAnalysis_2 = () => {
 
@@ -739,14 +801,15 @@ const WaterFall = () => {
             FieldstartVal[index] = valuess[row.Field][fromdateKey] !== undefined ? parseFloat(valuess[row.Field][fromdateKey]) : 0;
             FieldendVal[index] = valuess[row.Field][todateKey] !== undefined ? parseFloat(valuess[row.Field][todateKey]) : 0;
 
-            Fieldproportion_change[index] = (FieldendVal[index]/FieldstartVal[index])*100
-            
-            cumulative[index] = index === 0 ? Fieldproportion_change[index] : cumulative[index-1] + Fieldproportion_change[index]
-            
-            
+            Fieldproportion_change[index] = (FieldendVal[index] / FieldstartVal[index]) * 100
+
+            cumulative[index] = index === 0 ? Fieldproportion_change[index] : cumulative[index - 1] + Fieldproportion_change[index]
 
 
-        }); };
+
+
+        });
+    };
     const handleAddGrowthRate = () => {
         setEditingGrowthRates((prev) => ({
             ...prev,
@@ -1154,7 +1217,7 @@ const WaterFall = () => {
                                     <TableCell className='choose-case' align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Case</TableCell>
                                     <TableCell className='choose-metric' align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Output Metric</TableCell>
                                     <TableCell className='choose-field' align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Field</TableCell>
-                                    <TableCell className='scenario-case' align="center" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Scenario Case</TableCell>
+                                    <TableCell className='scenario-case' align="justify" sx={{ fontWeight: "bold", bgcolor: "primary.light", color: "white" }}>Actions</TableCell>
 
                                 </TableRow>
                             </TableHead>
@@ -1241,8 +1304,8 @@ const WaterFall = () => {
 
                                         {/* High/ Case Buttons, Add, and Delete */}
 
-                                        <TableCell align="center">
-                                            <Button
+                                        <TableCell align="justify">
+                                            {/* <Button
                                                 variant={MethodForRow[index] ? "contained" : "outlined"}
                                                 color="error"
                                                 sx={{ marginLeft: index === dropdownGroupsW.length - 1 ? 5 : 0 }} // Added left margin
@@ -1254,35 +1317,34 @@ const WaterFall = () => {
                                             >
                                                 Scenario Case
                                                 <UploadIcon sx={{ ml: 1 }} />
-                                            </Button>
+                                            </Button> */}
                                             {dropdownGroupsW.length > 1 && (
                                                 <IconButton
                                                     title="Delete this row"
                                                     aria-label="delete"
-                                                    sx={{ color: "purple", ml: 1 }}
+                                                    sx={{ color: "purple" }}
                                                     onClick={() => handleDeleteDropdownGroup(index)}
                                                 >
                                                     <DeleteIcon />
                                                 </IconButton>
                                             )}
-                                            {
-                                                index === dropdownGroupsW.length - 1 && (
-                                                    <IconButton
-                                                        title="Add new parameters"
-                                                        aria-label="add"
-                                                        sx={{ color: isLastRowFilled ? "blue" : "grey" }}
-                                                        onClick={isLastRowFilled ? () => handleAddDropdownGroup(index) : null}
-                                                        onMouseOver={(e) => {
-                                                            if (isLastRowFilled) {
-                                                                e.currentTarget.title = "Add new parameters";
-                                                            } else {
-                                                                e.currentTarget.title = "Fill in the table first";
-                                                            }
-                                                        }}
-                                                    >
-                                                        <AddIcon className="plus-button" />
-                                                    </IconButton>
-                                                )
+                                            {index === dropdownGroupsW.length - 1 && (
+                                                <IconButton
+                                                    title="Add new parameters"
+                                                    aria-label="add"
+                                                    sx={{ color: isLastRowFilled ? "blue" : "grey" }}
+                                                    onClick={isLastRowFilled ? () => handleAddDropdownGroup(index) : null}
+                                                    onMouseOver={(e) => {
+                                                        if (isLastRowFilled) {
+                                                            e.currentTarget.title = "Add new parameters";
+                                                        } else {
+                                                            e.currentTarget.title = "Fill in the table first";
+                                                        }
+                                                    }}
+                                                >
+                                                    <AddIcon className="plus-button" />
+                                                </IconButton>
+                                            )
                                             }
                                         </TableCell>
                                     </TableRow>
@@ -1292,6 +1354,10 @@ const WaterFall = () => {
                     </TableContainer>
                 </Grid>
                 <Grid item xs={12}>
+                    <Typography variant="h6" fontWeight="bold" align="center" sx={{ mb: 1, ml: 2 }}>
+                        {` ${dropdownGroupsW[0]?.Case?.charAt(0).toUpperCase() + dropdownGroupsW[0]?.Case?.slice(1) || '-'} Case: ${ labelsOutputMetric[0]|| '-'} Waterfall Chart (${fromDate.year()} - ${toDate.year()})`}
+                    </Typography>
+
                     <ResponsiveContainer width="100%" height={300}>
                         <BarChart
                             data={data}
@@ -1302,11 +1368,11 @@ const WaterFall = () => {
                             <YAxis
                                 tickFormatter={(value) => {
                                     if (value >= 1000000 || value <= -1000000) {
-                                        return `${(value / 1000000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}M`;
+                                        return `${(value / 1000000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}M`;
                                     } else if (value >= 1000 || value <= -1000) {
-                                        return `${(value / 1000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}K`;
+                                        return `${(value / 1000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}K`;
                                     } else {
-                                        return `${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                                        return `${value.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}`;
                                     }
                                 }}
                                 tick={{ fontSize: 12 }}
@@ -1314,11 +1380,11 @@ const WaterFall = () => {
                             <Tooltip
                                 formatter={(value) => {
                                     if (value >= 1000000 || value <= -1000000) {
-                                        return `${(value / 1000000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}M`;
+                                        return `${(value / 1000000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}M`;
                                     } else if (value >= 1000 || value <= -1000) {
-                                        return `${(value / 1000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}K`;
+                                        return `${(value / 1000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}K`;
                                     } else {
-                                        return `${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                                        return `${value.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}`;
                                     }
                                 }}
                             />
@@ -1339,11 +1405,11 @@ const WaterFall = () => {
 
                                     formatter={(value) => {
                                         if (value >= 1000000 || value <= -1000000) {
-                                            return `${(value / 1000000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}M`;
+                                            return `${(value / 1000000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}M`;
                                         } else if (value >= 1000 || value <= -1000) {
-                                            return `${(value / 1000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}K`;
+                                            return `${(value / 1000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}K`;
                                         } else {
-                                            return `${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                                            return `${value.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}`;
                                         }
                                     }} fill="#fff"
 
@@ -1869,7 +1935,7 @@ const WaterFall = () => {
                     </DialogActions>
                 </Dialog>
             }
-            <Box sx={{
+            {/* <Box sx={{
                 display: 'flex',
                 flexDirection: 'row',
                 position: 'fixed',
@@ -1900,7 +1966,7 @@ const WaterFall = () => {
                 >
                     Show Saved Views
                 </Button>
-            </Box>
+            </Box> */}
         </>
     );
 };

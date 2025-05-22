@@ -513,10 +513,10 @@ const Dashboard = () => {
                     justifyContent: "flex-end",
                     alignItems: "center",
                     mb: 2,
-                    marginRight: '50px'
+                    marginRight: '50px',
                 }}
             >
-                <Box sx={{ mr: 2 }}>Toggle Chart Type</Box>
+                <Box sx={{ mr: 1 }}>Toggle Chart Type</Box>
                 <Android12Switch className='toggle' checked={chartType === "bar"} onChange={toggleChartType} />
             </Box>
             <ResponsiveContainer width={1300}
@@ -561,7 +561,7 @@ const Dashboard = () => {
                         })}
                     </LineChart>
                 ) : (
-                    <BarChart data={chartData} margin={{ left: 50, right: 50 }}>
+                    <BarChart data={chartData} margin={{ left: 20, right: 20 }}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="month" />
                         <YAxis
@@ -600,7 +600,7 @@ const Dashboard = () => {
                     </BarChart>
                 )}
             </ResponsiveContainer>
-            <Box sx={{
+            {/* <Box sx={{
                 display: 'flex',
                 flexDirection: 'row',
                 position: 'fixed',
@@ -630,7 +630,7 @@ const Dashboard = () => {
                 >
                     Show Saved Views
                 </Button>
-            </Box>
+            </Box> */}
         </>
     );
 };

@@ -1,6 +1,7 @@
 
 
 import React, { createContext, useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { de } from 'date-fns/locale';
 
@@ -11,11 +12,13 @@ const MyContext = createContext();
 
 const MyProvider = ({ children }) => {
   const [therapeuticArea, setTherapeuticArea] = useState('STD');
+  
   const [timePeriod, setTimePeriod] = useState('Yearly');
   const [caseTypeLabels, setCaseTypeLabels] = useState(['Base', 'Downside', 'Upside']);
   const [caseTypeLabelsOnco, setCaseTypeLabelsOnco] = useState(['Line 1', 'Line 2', 'Line 3+']);
   const therapeuticAreaOptions = ['Cardiology', 'Oncology', 'Neurology', 'STD', 'Immunology', 'HIV'];
-  const [forecastCycle, setForecastCycle] = useState('H1-2023');
+  const [forecastCycle, setForecastCycle] = useState('H2-2024');
+  
   const [TALabels, setTALabels] = useState(
     therapeuticAreaOptions.reduce((acc, curr) => {
       acc[curr] = curr === 'Oncology' ? ['Line 1', 'Line 2', 'Line 3+'] : ['Base', 'Downside', 'Upside'];
@@ -214,15 +217,19 @@ const MyProvider = ({ children }) => {
     "1": 7.6,
   });
   const [dropdownGroupsW, setDropdownGroupsW] = useState([
+    { Case: "base", OutputMetric: "T3-12", Field: "T2-5" },
     { Case: "base", OutputMetric: "T3-12", Field: "T2-6" },
     { Case: "base", OutputMetric: "T3-12", Field: "T3-8" },
 
   ]);
   const [showTabs, setShowTabs] = useState(false);
+ 
 
   const [countries, setCountries] = React.useState([]);
   const [therapeuticAreas, setTherapeuticAreas] = React.useState([]);
   const [forecastCycles, setForecastCycles] = React.useState([]);
+
+
   const [tutHome, setTutHome] = useState(true);
 
   const [rowsData, setRowsData] = useState([
@@ -252,7 +259,7 @@ const MyProvider = ({ children }) => {
       forecast: "Forecast 1",
       forecastScenario: "H2 - 2024",
       forecastStarted: "2024-09-08",
-      therapeuticArea: "Cardiology",
+      therapeuticArea: "STD",
       username: "Jane Smith",
       worksheet: "Output Sheet",
     },
@@ -374,6 +381,7 @@ const MyProvider = ({ children }) => {
       timePeriod, setTimePeriod,
       countries, setCountries,
       therapeuticAreas, setTherapeuticAreas,
+      
       forecastCycles, setForecastCycles,
       forecastCycle, setForecastCycle,
       Formulas, setFormulas,

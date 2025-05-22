@@ -109,10 +109,14 @@ const KPI = () => {
     const [mainresult, setMainResult] = useState({})
     const [columns, setColumns] = useState([]);
     const [columns2, setColumns2] = useState([]);
-    const [fromDate, setFromDate] = useState(dayjs('2030'));
-    const [toDate, setToDate] = useState(dayjs('2031'));
+    const [fromDate, setFromDate] = useState(
+        timePeriod === 'Yearly' ? dayjs('2031') : dayjs(fromHistoricalDate)
+    );
+    const [toDate, setToDate] = useState(timePeriod === 'Yearly' ? dayjs('2031') : dayjs(toForecastDate));
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState("");
+    const [valuechange, setValueChange] = useState('');
+    const [valuechange2, setValueChange2] = useState('');
 
     const labels = dropdownGroupKPI
         .map((group) => {
@@ -857,6 +861,8 @@ const KPI = () => {
         if (buttonType === "High") {
             setHighMethodForRow(prev => ({ ...prev, [Index]: "copy" }));
             setHighSelectedCaseOption(editingHighSelectedCaseOption);
+            
+          
         } else if (buttonType === "Low") {
             setLowMethodForRow(prev => ({ ...prev, [Index]: "copy" }));
             setLowSelectedCaseOption(editingLowSelectedCaseOption);
@@ -876,9 +882,11 @@ const KPI = () => {
         if (buttonType === "High") {
             setHighMethodForRow(prev => ({ ...prev, [Index]: "%" }));
             setHighPercentVal(editingHighPercentVal);
+            setValueChange(HighPercentVal[Index]);
         } else if (buttonType === "Low") {
             setLowMethodForRow(prev => ({ ...prev, [Index]: "%" }));
             setLowPercentVal(editingLowPercentVal);
+            setValueChange2(LowPercentVal[Index]);
         }
         setOpenChangeDialog(false);
     }
@@ -895,6 +903,7 @@ const KPI = () => {
         if (buttonType === "High") {
             setHighMethodForRow(prev => ({ ...prev, [Index]: "Absolute" }));
             setHighAbsoluteVal(editingHighAbsoluteVal);
+            // setValueChange(highAbsoluteVal[Index]);
         } else if (buttonType === "Low") {
             setLowMethodForRow(prev => ({ ...prev, [Index]: "Absolute" }));
             setLowAbsoluteVal(editingLowAbsoluteVal);
@@ -1231,7 +1240,7 @@ const KPI = () => {
                             overflow: "hidden",
                             border: "1px solid #ddd",
                             maxWidth: "120%",
-                            mb: 25
+                            mb: 5
                         }}
                     >
                         <Table size="small" aria-label="dropdown table">
@@ -1342,6 +1351,9 @@ const KPI = () => {
                                                     setIndex(index);
                                                     setButtonType("High");
                                                     setOpenInputMethodDialog(true);
+                                                    console.log("index", highMethodForRow[index]);
+                                                    
+                                                   
                                                 }}
                                             >
                                                 Opportunity Scenario <UploadIcon sx={{ ml: 1 }} />
@@ -1356,9 +1368,10 @@ const KPI = () => {
                                                     setIndex(index);
                                                     setButtonType("Low");
                                                     setOpenInputMethodDialog(true);
+                                                     console.log("Low value", valuechange2);
                                                 }}
                                             >
-                                                Risk Scenario
+                                                Risk Scenario 
                                                 <UploadIcon sx={{ ml: 1 }} />
                                             </Button>
                                             {dropdownGroupKPI.length > 1 && (
@@ -1397,64 +1410,63 @@ const KPI = () => {
                         </Table>
                     </TableContainer>
                 </Grid>
+                
                 {applyClicked && <Grid item xs={12}>
                     <div style={{
                         display: 'flex',
                         flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
                         width: '100%',
+                        justifyContent: 'center',
+                        alignItems: 'center',                  
                         marginTop: '150px',
-                        textAlign: 'center'
+                        marginRight: '100px',
+                        
                     }}>
-                        <h3 style={{ color: '#333', marginBottom: '20px' }}>{dropdownGroupKPI[0].Case.charAt(0).toUpperCase() + dropdownGroupKPI[0].Case.slice(1)} Case, {labelsOutputMetric[0] + " in Year " + toDate.year()}: {
+                        <h3 style={{ color: '#333', marginBottom: '20px',marginLeft: '160px'}}>{dropdownGroupKPI[0].Case.charAt(0).toUpperCase() + dropdownGroupKPI[0].Case.slice(1)} Case, {labelsOutputMetric[0] + " in Year " + toDate.year()}: {
                             (() => {
                                 const value = baseRev;
                                 if (value >= 1000000 || value <= -1000000) {
-                                    return `$${(value / 1000000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}M`;
+                                    return `$${(value / 1000000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}M`;
                                 } else if (value >= 1000 || value <= -1000) {
-                                    return `$${(value / 1000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}K`;
+                                    return `$${(value / 1000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}K`;
                                 } else {
-                                    return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                                    return `$${value.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}`;
                                 }
                             })()
                         }</h3>
                         <BarChart
-                            width={900}
-                            height={500}
+                            width={1000}
+                            height={550}
                             data={chartData}
                             layout="vertical"
-                            margin={{ top: 20, right: 30, left: 50, bottom: 5 }}
+                            margin={{ top: 20, right: 20, left: 20, bottom: 5 }}
                         >
                             <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
                             <XAxis
                                 type="number"
                                 tickFormatter={(value) => {
                                     if (value >= 1000000 || value <= -1000000) {
-                                        return `${(value / 1000000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}M`;
+                                        return `${(value / 1000000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}M`;
                                     } else if (value >= 1000 || value <= -1000) {
-                                        return `${(value / 1000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}K`;
+                                        return `${(value / 1000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}K`;
                                     } else {
-                                        return `${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                                        return `${value.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}`;
                                     }
                                 }}
                                 stroke="#555"
                                 domain={[5, 'auto']} // Set minimum value to 5
                             />
                             <YAxis
-                                dataKey="name"
-                                type="category"
-                                stroke="#555"
-                                tick={{ fontSize: 12 }}
+                                dataKey="name" type="category" stroke="#555" tick={{ fontSize: 12 }} width={190} 
                             />
                             <Tooltip
                                 formatter={(value) => {
                                     if (value >= 1000000 || value <= -1000000) {
-                                        return `${(value / 1000000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}M`;
+                                        return `${(value / 1000000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}M`;
                                     } else if (value >= 1000 || value <= -1000) {
-                                        return `${(value / 1000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}K`;
+                                        return `${(value / 1000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}K`;
                                     } else {
-                                        return `${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                                        return `${value.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}`;
                                     }
                                 }}
                                 contentStyle={{ backgroundColor: '#f5f5f5', borderRadius: '10px' }}
@@ -1462,23 +1474,23 @@ const KPI = () => {
                             <Legend
                                 align="center"
                                 verticalAlign="bottom"
-                                wrapperStyle={{ marginTop: '20px' }}
+                                wrapperStyle={{ marginTop: '20px', marginLeft: '100px' }}
                             />
                             <Bar
                                 dataKey="lowCase"
                                 fill="rgba(163, 17, 17, 0.8)"
-                                name="Low Case"
+                                name="Risk Scenario"
                             >
                                 <LabelList
                                     dataKey="lowCase"
                                     position="insideRight"
                                     formatter={(value) => {
                                         if (value >= 1000000 || value <= -1000000) {
-                                            return `${(value / 1000000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}M`;
+                                            return `${(value / 1000000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}M`;
                                         } else if (value >= 1000 || value <= -1000) {
-                                            return `${(value / 1000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}K`;
+                                            return `${(value / 1000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}K`;
                                         } else {
-                                            return `${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                                            return `${value.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}`;
                                         }
                                     }} fill="#fff"
                                     fontSize={15}
@@ -1487,7 +1499,7 @@ const KPI = () => {
                             <Bar
                                 dataKey="highCase"
                                 fill="rgb(31, 87, 31)"
-                                name="High Case"
+                                name="Opportunity Scenario"
 
                             >
                                 <LabelList
@@ -1495,11 +1507,11 @@ const KPI = () => {
                                     position="insideRight"
                                     formatter={(value) => {
                                         if (value >= 1000000 || value <= -1000000) {
-                                            return `${(value / 1000000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}M`;
+                                            return `${(value / 1000000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}M`;
                                         } else if (value >= 1000 || value <= -1000) {
-                                            return `${(value / 1000).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}K`;
+                                            return `${(value / 1000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}K`;
                                         } else {
-                                            return `${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                                            return `${value.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}`;
                                         }
                                     }} fill="#fff"
                                     fontSize={15}
@@ -1521,8 +1533,8 @@ const KPI = () => {
                                 csvContent.push(['Output Metric', 'Scenario', 'Total', ...columns2]);
                                 csvContent.push([labelsOutputMetric[0], 'Actual Values', baseRev, ...columns2.map(column => mainresult?.[0]?.[column])]);
                                 dropdownGroupKPI.forEach((group, index) => {
-                                    csvContent.push([`${labelsOutputMetric[0]} Instance ${index + 1}`, `${labels?.[index]} High Case Values`, highresSum?.[index], ...columns2.map(column => highresult?.[index]?.[column])]);
-                                    csvContent.push([`${labelsOutputMetric[0]} Instance ${index + 1}`, `${labels?.[index]} Low Case Values`, lowresSum?.[index], ...columns2.map(column => lowresult?.[index]?.[column])]);
+                                    csvContent.push([`${labelsOutputMetric[0]} Instance ${index + 1}`, `${labels?.[index]} Opportunity Scenario Values`, highresSum?.[index], ...columns2.map(column => highresult?.[index]?.[column])]);
+                                    csvContent.push([`${labelsOutputMetric[0]} Instance ${index + 1}`, `${labels?.[index]} Risk Scenario Values`, lowresSum?.[index], ...columns2.map(column => lowresult?.[index]?.[column])]);
                                 });
                                 const csvString = csvContent.map(row => row.join(',')).join('\n');
                                 const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
@@ -1547,8 +1559,8 @@ const KPI = () => {
                                 csvContent.push(['Output Metric', 'Scenario', 'Total', ...columns2]);
                                 csvContent.push([labelsOutputMetric[0], 'Actual Values', baseRev, ...columns2.map(column => mainresult?.[0]?.[column])]);
                                 dropdownGroupKPI.forEach((group, index) => {
-                                    csvContent.push([`${labelsOutputMetric[0]} Instance ${index + 1}`, `${labels?.[index]} High Case Values`, highresSum?.[index], ...columns2.map(column => highresult?.[index]?.[column])]);
-                                    csvContent.push([`${labelsOutputMetric[0]} Instance ${index + 1}`, `${labels?.[index]} Low Case Values`, lowresSum?.[index], ...columns2.map(column => lowresult?.[index]?.[column])]);
+                                    csvContent.push([`${labelsOutputMetric[0]} Instance ${index + 1}`, `${labels?.[index]} Opportunity Scenario Values`, highresSum?.[index], ...columns2.map(column => highresult?.[index]?.[column])]);
+                                    csvContent.push([`${labelsOutputMetric[0]} Instance ${index + 1}`, `${labels?.[index]} Risk Scenario Values`, lowresSum?.[index], ...columns2.map(column => lowresult?.[index]?.[column])]);
                                 });
                                 const csvString = csvContent.map(row => row.join(',')).join('\n');
                                 navigator.clipboard.writeText(csvString);
@@ -1596,11 +1608,11 @@ const KPI = () => {
                                         </TableCell>
                                         <TableCell align="center" style={{ border: '1px solid #ccc' }}>Actual Values</TableCell>
                                         <TableCell align="center" style={{ border: '1px solid #ccc', fontWeight: 'bold' }}>
-                                            {baseRev ? `${Number(baseRev / (baseRev >= 1e6 ? 1e6 : 1e3)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}${baseRev >= 1e6 ? 'M' : 'k'}` : '0.00M'}
+                                            {baseRev ? `${Number(baseRev / (baseRev >= 1e6 ? 1e6 : 1e3)).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}${baseRev >= 1e6 ? 'M' : 'k'}` : '0.00M'}
                                         </TableCell>
                                         {columns2.map((column) => (
                                             <TableCell align="center" style={{ border: '1px solid #ccc' }} key={`main-${column}`}>
-                                                {mainresult?.[0]?.[column] ? `${Number(mainresult?.[0]?.[column] / (mainresult?.[0]?.[column] >= 1e6 ? 1e6 : 1e3)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}${mainresult?.[0]?.[column] >= 1e6 ? 'M' : 'k'}` : '0.00M'}
+                                                {mainresult?.[0]?.[column] ? `${Number(mainresult?.[0]?.[column] / (mainresult?.[0]?.[column] >= 1e6 ? 1e6 : 1e3)).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}${mainresult?.[0]?.[column] >= 1e6 ? 'M' : 'k'}` : '0.00M'}
                                             </TableCell>
                                         ))}
                                     </TableRow>
@@ -1620,14 +1632,14 @@ const KPI = () => {
                                                         {`${labelsOutputMetric[0]} Instance ${index + 1}`}
                                                     </TableCell>
                                                     <TableCell align="center" style={{ border: '1px solid #ccc', whiteSpace: 'pre-wrap', wordBreak: 'break-word', minWidth: '200px' }}>
-                                                        {`${labels?.[index]} High Case Values`}
+                                                        {`${labels?.[index]} Opportunity Scenario Values`}
                                                     </TableCell>
                                                     <TableCell align="center" style={{ border: '1px solid #ccc', fontWeight: 'bold' }}>
-                                                        {highresSum?.[index] ? `${Number(highresSum?.[index] / (highresSum?.[index] >= 1e6 ? 1e6 : 1e3)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}${highresSum?.[index] >= 1e6 ? 'M' : 'k'}` : '0.00M'}
+                                                        {highresSum?.[index] ? `${Number(highresSum?.[index] / (highresSum?.[index] >= 1e6 ? 1e6 : 1e3)).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}${highresSum?.[index] >= 1e6 ? 'M' : 'k'}` : '0.00M'}
                                                     </TableCell>
                                                     {columns2.map((column) => (
                                                         <TableCell align="center" style={{ border: '1px solid #ccc' }} key={`high-${index}-${column}`}>
-                                                            {highresult?.[index]?.[column] ? `${Number(highresult?.[index]?.[column] / (highresult?.[index]?.[column] >= 1e6 ? 1e6 : 1e3)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}${highresult?.[index]?.[column] >= 1e6 ? 'M' : 'k'}` : '0.00M'}
+                                                            {highresult?.[index]?.[column] ? `${Number(highresult?.[index]?.[column] / (highresult?.[index]?.[column] >= 1e6 ? 1e6 : 1e3)).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}${highresult?.[index]?.[column] >= 1e6 ? 'M' : 'k'}` : '0.00M'}
                                                         </TableCell>
                                                     ))}
                                                 </TableRow>
@@ -1638,14 +1650,14 @@ const KPI = () => {
                                                         {`${labelsOutputMetric[0]} Instance ${index + 1}`}
                                                     </TableCell>
                                                     <TableCell align="center" style={{ border: '1px solid #ccc', whiteSpace: 'pre-wrap', wordBreak: 'break-word', minWidth: '200px' }}>
-                                                        {`${labels?.[index]} Low Case Values`}
+                                                        {`${labels?.[index]} Risk Scenario Values`}
                                                     </TableCell>
                                                     <TableCell align="center" style={{ border: '1px solid #ccc', fontWeight: 'bold' }}>
-                                                        {lowresSum?.[index] ? `${Number(lowresSum?.[index] / (lowresSum?.[index] >= 1e6 ? 1e6 : 1e3)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}${lowresSum?.[index] >= 1e6 ? 'M' : 'k'}` : '0.00M'}
+                                                        {lowresSum?.[index] ? `${Number(lowresSum?.[index] / (lowresSum?.[index] >= 1e6 ? 1e6 : 1e3)).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}${lowresSum?.[index] >= 1e6 ? 'M' : 'k'}` : '0.00M'}
                                                     </TableCell>
                                                     {columns2.map((column) => (
                                                         <TableCell align="center" style={{ border: '1px solid #ccc' }} key={`low-${index}-${column}`}>
-                                                            {lowresult?.[index]?.[column] ? `${Number(lowresult?.[index]?.[column] / (lowresult?.[index]?.[column] >= 1e6 ? 1e6 : 1e3)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}${lowresult?.[index]?.[column] >= 1e6 ? 'M' : 'k'}` : '0.00M'}
+                                                            {lowresult?.[index]?.[column] ? `${Number(lowresult?.[index]?.[column] / (lowresult?.[index]?.[column] >= 1e6 ? 1e6 : 1e3)).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}${lowresult?.[index]?.[column] >= 1e6 ? 'M' : 'k'}` : '0.00M'}
                                                         </TableCell>
                                                     ))}
                                                 </TableRow>
@@ -2209,7 +2221,7 @@ const KPI = () => {
                     </DialogActions>
                 </Dialog>
             }
-            <Box sx={{
+            {/* <Box sx={{
                 display: 'flex',
                 flexDirection: 'row',
                 position: 'fixed',
@@ -2240,7 +2252,7 @@ const KPI = () => {
                 >
                     Show Saved Views
                 </Button>
-            </Box>
+            </Box> */}
         </>
     );
 };
